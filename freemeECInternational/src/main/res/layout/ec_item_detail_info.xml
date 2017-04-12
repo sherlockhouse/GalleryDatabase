@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/ec_preview_bg_w"
+    android:layout_height="@dimen/ec_preview_bg_h"
+    android:background="@drawable/ec_preview_bg"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="@dimen/ec_item_pageview_w"
+        android:layout_height="@dimen/ec_item_pageview_h"
+        android:layout_gravity="center_horizontal" >
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/item_detail_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:persistentDrawingCache="animation" >
+        </android.support.v4.view.ViewPager>
+
+        <Button
+            android:id="@+id/previous"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/ec_previous_btn" />
+
+        <Button
+            android:id="@+id/next"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/ec_next_btn" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="visible" >
+
+        <Button
+            android:id="@+id/ec_download_btn"
+            android:layout_width="@dimen/ec_item_download_bar_w"
+            android:layout_height="@dimen/ec_item_download_bar_h"
+            android:layout_gravity="center"
+            android:background="@drawable/ec_preview_download_btn"
+            android:gravity="center"
+            android:text="@string/ec_download"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textColor="@drawable/ec_download_bar_color" />
+
+        <FrameLayout
+            android:id="@+id/ec_progress_root"
+            android:layout_width="@dimen/ec_item_download_bar_w"
+            android:layout_height="@dimen/ec_item_download_bar_h"
+            android:layout_gravity="center"
+            android:visibility="gone" >
+
+            <ProgressBar
+                android:id="@+id/ec_download_pb"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/ec_preview_downloading_bg"
+                android:progressDrawable="@drawable/ec_preview_progressbar" />
+
+            <TextView
+                android:id="@+id/ec_download_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@color/progress_text_color"
+                android:visibility="visible" />
+        </FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>

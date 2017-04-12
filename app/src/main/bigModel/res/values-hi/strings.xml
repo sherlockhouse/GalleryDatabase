@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Added by tyd xuewelil 20140526, for qr largeMode -->
+    <!-- end -->
+
+
+    <string name="blockbuster">Blockbuster</string>
+    <string name="preview">पूर्वावलोकन</string>
+    <string name="returns">Title</string>
+    <string name="finish">पूरी हुई</string>
+    <string name="inputcontent">Please enter the content.</string>
+    <string name="translatefailed">check your network connection.</string>
+    <string name="chinesecontent">उपशीर्षक जोड़ने के लिए यहां टैप करें!</string>
+    <string name="remaincount">remain</string>
+    <string name="english">en</string>
+    <string name="japanese">jp</string>
+    <string name="korean">kor</string>
+    <string name="blockdelete">हटाएं</string>
+    <string name="englishcontent">उपशीर्षक जोड़ने के लिए यहां टैप करें.</string>
+    <string name="recommend">अनुशंसा</string>
+    <string name="chinesecontentone">生活就像是一盒巧克力,你永遠不知道你會得到什麽。</string>
+    <string name="englishcontentone">जीवन चॉकलेट के डिब्बे के समान है। आपको कभी पता नहीं होता कि आपको क्या मिलने वाला है।.</string>
+    <string name="chinesecontenttwo">上帝會把我們身邊最好的東西拿走,以提醒我們得到的更多。</string>
+    <string name="englishcontenttwo">भगवान हमें यह याद दिलाने के लिए कीमती चीजें ले लेता है कि हमारे पास बहुत कुछ है।.</string>
+    <string name="chinesecontentthree">愛情這東西,是件很關鍵認識的太早或太晚都,都不行。</string>
+    <string name="englishcontentthree">प्यार समय का खेल है। पता नहीं कब सच्चे प्यार से मुलाकात हो जाए।.</string>
+    <string name="chinesecontenfour">最美的事不是留住時光,而是留住記憶。</string>
+    <string name="englishcontentfour">उम्र से कुछ नहीं होता। सच्चा सौंदर्य यादों में निहित है।.</string>
+    <string name="chinesecontentfive">這個脆弱的世界需要比我們更強大的人來守護。</string>
+    <string name="englishcontentfive">दुनिया क्षणभंगुर है और हमारे अंदर इतनी ताकत नहीं कि हम इसे सुरक्षित रख सकें।.</string>
+    <!--end-->
+</resources>

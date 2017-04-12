@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!-- Added by Linguanrong for Gallery new style, 2014-02-14 -->
+    <color name="album_date_label_background">#00000000</color>
+    <color name="album_date_label_title">#616161</color>
+    <color name="album_date_label_count">#cdcdcd</color>
+
+    <color name="theme_color">#00A8DF</color>
+    <color name="theme_color_gray">#818181</color>
+    <color name="theme_color_disable">#3F818181</color>
+    <!--Linguanrong-->
+
+    <!-- tyd.biantao 20130110. Wallpaper -->
+    <color name="drag_text_highlight">#ffffffff</color>
+    <color name="drag_text_normal">#66ffffff</color>
+    <!-- tyd.mjzhang 2014-08-11. no file -->
+    <color name="no_file_edit">#000000</color>
+
+    <!-- Added by Linguanrong for story album, 2015-4-2 -->
+    <color name="albumstory_label_title">@color/albumset_label_title</color>
+    <color name="albumstory_label_count">@color/albumset_label_count</color>
+    <color name="albumstory_header_text_color">#ffffff</color>
+
+    <color name="story_item_text_color">#ffd5d5d5</color>
+
+    <color name="story_date_color_baby">#47b2aa</color>
+    <color name="story_date_color_love">#ff5093</color>
+    <color name="story_date_color_normal">#ffc234</color>
+
+    <color name="dialog_button_text_color_enable">@color/theme_color</color>
+    <color name="dialog_button_text_color_disable">#ff808080</color>
+    <!-- Tyd -->
+
+    <color name="no_photos_color">#c6c6c6</color>
+
+    <color name="empty_text">#00a8df</color>
+
+    <color name="photopage_actionbar_bg">#dd000000</color>
+
+</resources>

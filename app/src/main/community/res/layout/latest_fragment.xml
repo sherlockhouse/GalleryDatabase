@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@color/main_bg">
+
+    <include layout="@layout/progress"/>
+
+    <include layout="@layout/network_unavailable"/>
+
+    <com.freeme.community.view.PullToRefreshView
+        android:id="@+id/pullRefreshView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.freeme.community.view.HeaderGridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/global_margin_little"
+            android:layout_marginStart="@dimen/global_margin_little"
+            android:layout_marginTop="1dip"
+            android:horizontalSpacing="1dip"
+            android:listSelector="@color/transparent"
+            android:numColumns="2"
+            android:verticalSpacing="3dip"/>
+
+    </com.freeme.community.view.PullToRefreshView>
+
+    <include layout="@layout/system_err_view"/>
+</FrameLayout>

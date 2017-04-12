@@ -1,0 +1,65 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="CommunityTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle">@style/Community_ActionBarStyle</item>
+        <item name="android:actionMenuTextAppearance">@style/ActionMenuTextAppearance</item>
+    </style>
+
+    <style name="style_RadioButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:button">@null</item>
+        <item name="android:background">@null</item>
+        <item name="android:layout_weight">0.25</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/indicator_text_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="CommunityActivityTheme" parent="CommunityTheme">
+        <item name="android:actionBarStyle">@style/Community_ActionBarStyle</item>
+    </style>
+
+    <style name="Community_ActionBarStyle" parent="android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:displayOptions">showTitle</item>
+        <item name="android:background">@color/theme_color</item>
+    </style>
+
+    <style name="ActionMenuTextAppearance" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Medium" parent="android:style/TextAppearance.Holo.Medium">
+    </style>
+
+    <style name="Theme.Light" parent="android:style/Theme.Holo.Light">
+    </style>
+
+    <style name="Theme.Dialog" parent="android:style/Theme.Holo.Light.Dialog">
+    </style>
+
+    <style name="ProgressDialog" parent="android:style/Theme.Holo.Light.Dialog.NoActionBar">
+    </style>
+
+    <style name="Widget_EditText" parent="android:style/Widget.EditText">
+    </style>
+
+    <!--Added by tyd Linguanrong for droi push, 16-3-8-->
+    <style name="TextAppearance.Notification" parent="@android:style/TextAppearance.StatusBar.EventContent">
+    </style>
+
+    <style name="TextAppearance.Notification.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title">
+    </style>
+    <!--Tyd-->
+
+    <style name="activityStyle" parent="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
+        <item name="android:background">@color/transparent</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <!--<item name="android:windowTranslucentNavigation">true</item>-->
+    </style>
+
+</resources>

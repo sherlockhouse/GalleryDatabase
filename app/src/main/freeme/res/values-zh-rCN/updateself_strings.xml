@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="update_self_activity_not_found">应用未安装</string>
+    <string name="update_self_dialog_confirm_btn">更新</string>
+    <string name="update_self_dialog_cancel_btn">取消</string>
+    <string name="update_self_forceDialog_title">版本更新</string>
+    <string name="update_self_forceDialog_content">为了正常使用天气应用，必须更新到新版本</string>
+    <string name="update_self_dialog_title">版本更新</string>
+    <string name="update_self_dialog_content">发现新版本，您可以点击更新</string>
+    <string name="update_networktip_title">数据流量提醒</string>
+    <string name="update_self_networktip_content">此次Freeme新闻插件的版本更新将产生较多数据流量，是否继续更新（建议使用wifi）？</string>
+    <string name="update_networktip_yes">继续</string>
+    <string name="update_networktip_no">取消</string>
+    <string name="update_self_no_new">已经是最新版本</string>
+    <string name="update_self_http_error">网络异常</string>
+    <string name="update_self_downloading">正在下载最新版本</string>
+
+</resources>

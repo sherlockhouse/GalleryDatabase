@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:id="@+id/share_freeme"
+        android:icon="@drawable/ic_menu_share"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@*android:string/share"
+        android:visible="true"/>
+</menu>

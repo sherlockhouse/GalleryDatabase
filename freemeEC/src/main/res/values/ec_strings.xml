@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="ec_fragment_left_duration">1000</string>
+    <string name="elements_center_check">全部查看</string>
+    <string name="dc_title">资源中心</string>
+    <string name="elements_center_title">素材中心</string>
+    <string name="elements_center_titlebar_back">返回</string>
+    <string name="ec_titlebar_right">资源管理</string>
+    <string name="ec_download_ok">已下载</string>
+    <string name="ec_download">下载</string>
+    <string name="ec_manager_select_all">全选</string>
+    <string name="ec_manager_select_cancel">取消全选</string>
+    <string name="ec_manager_cancel">退出编辑</string>
+    <string name="ec_watermark_mode">水印模式</string>
+    <string name="ec_child_mode">儿童模式</string>
+    <string name="ec_pose_mode">pose模式</string>
+    <string name="ec_jigsaw_mode">拼图模式</string>
+    <string name="ec_watermark_travel">旅游</string>
+    <string name="ec_watermark_food">美食</string>
+    <string name="ec_watermark_catchword">潮语</string>
+    <string name="ec_watermark_regards">情意</string>
+    <string name="ec_watermark_selfie">自拍</string>
+    <string name="ec_watermark_mood">心情</string>
+    <string name="ec_pose_mode_male">男人</string>
+    <string name="ec_pose_mode_female">女人</string>
+    <string name="ec_pose_mode_people">多人</string>
+    <string name="ec_pose_mode_more">更多</string>
+    <string name="ec_net_gprs_title">提示</string>
+    <string name="ec_net_gprs_info">移动数据使用中，这样真的好吗？</string>
+    <string name="ec_net_gprs__diplay">不再显示</string>
+    <string name="ec_net_gprs_setwifi">设置WLAN</string>
+    <string name="ec_net_gprs__continue">继续</string>
+    <string name="ec_net_gprs_cancel">取消</string>
+    <string name="mode_download">模式下载</string>
+    <string name="elements_center">素材下载</string>
+    <string name="default_scroll_format">页 %1$d of %2$d</string>
+    <string name="dc_installed">已安装</string>
+    <string name="dc_update">更新</string>
+    <string name="dc_install">安装</string>
+    <string name="dc_installing">安装中</string>
+    <string name="dc_uninstalling">卸载中</string>
+    <string name="dc_disable">敬请期待</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_delete">删除</string>
+    <string name="action_select">选择</string>
+    <string name="action_manager">资源管理</string>
+    <string name="markup_btn_delete_onemore">已选择： %d 项</string>
+    <string name="markup_btn_delete_one_or_zero">已选择： %d 项</string>
+
+    <string name="share_freeme_item_title">"分享Freeme OS"</string>
+    <string name="share_freeme_extra_title">"拍一张比自己更美的照片"</string>
+    <string name="share_freeme_extra_summary">"用Freeme OS相机拍照，朋友圈的好友都来点赞啦！秘密就在这里！"</string>
+    <string name="share_freeme_extra_url">"http://weixin.droi.com/share/camera.html"</string>
+    <string name="share_freeme_extra_image_url">"http://weixin.droi.com/share/images/icon/icon_camera.png"</string>
+</resources>

@@ -1,0 +1,1 @@
+include ':app', ':freemeECInternational', ':freemeEC', ':swipemenu', ':freemeabout', ':baas_analytics'

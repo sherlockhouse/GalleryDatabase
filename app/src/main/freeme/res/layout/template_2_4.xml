@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the template layout, fourth template with two child
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<!--
+    Warning: the following dimensions must be used pixels, 
+    because of the final image size is intrinsic 2160x2880 after jigsawing,
+    all the dimension base on it.
+    the same as: all template layouts.
+-->
+<RelativeLayout style="@style/templateStyle"
+                xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.freeme.jigsaw.ui.JigsawTile
+        style="@style/template_child_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100px"
+        android:layout_marginLeft="600px"
+        android:layout_marginRight="180px"
+        android:layout_marginTop="600px"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:rotation="-5"/>
+
+    <com.freeme.jigsaw.ui.JigsawTile
+        style="@style/template_child_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="600px"
+        android:layout_marginLeft="200px"
+        android:layout_marginRight="600px"
+        android:layout_marginTop="100px"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:rotation="15"/>
+</RelativeLayout>

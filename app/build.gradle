@@ -1,0 +1,274 @@
+apply plugin: 'com.android.application'
+
+def cfg = rootProject.ext.android
+def cfg_freeme_6_0 = rootProject.ext.android_freemeos_6_0
+def libs = rootProject.ext.dependencies
+
+def BOOLEAN = "boolean"
+def STRING = "String"
+def TRUE = "true"
+def FALSE = "false"
+
+def COMMUNITY_REQUEST_URL = "COMMUNITY_REQUEST_URL"
+
+def SUPPORT_PRINT = "SUPPORT_PRINT"
+def SUPPORT_OS_TAG = "SUPPORT_OS_TAG"
+def SUPPORT_INNER_VIDEO = "SUPPORT_INNER_VIDEO"
+def SUPPORT_STABLE_BRIGHTNESS = "SUPPORT_STABLE_BRIGHTNESS"
+def SUPPORT_LOCKSCREEN_WALLPAPER = "SUPPORT_LOCKSCREEN_WALLPAPER"
+def SUPPORT_LAGACY_FREEMEOS_PLATFORM = "SUPPORT_LAGACY_FREEMEOS_PLATFORM"
+def VERSION_FOREIGN = "VERSION_FOREIGN"
+
+def COMMUNITY_REQUEST_URL_OFFICIAL = "\"http://snsdc.yy845.com:7003\""
+def COMMUNITY_REQUEST_URL_TEST = "\"http://192.168.0.52:6000\""
+def COMMUNITY_REQUEST_URL_INTERNATIONAL_OFFICIAL = "\"http://snsdc.dd351.com\""
+def COMMUNITY_REQUEST_URL_INTERNATIONAL_TEST = "\"http://49.213.8.59:6000\""
+def UPDATESELF_REQUEST_URL_OFFICIAL = "http://update-osmarket.dd351.com:2520"
+def UPDATESELF_REQUEST_URL_TEST = "http://101.95.97.178:2520"
+
+def META_OFFICIAL = [DROI_APPKEY_VALUE          : "9dc785e3fc804dcce99b5ff03cf2eef5",   // 原始推送APPKEY
+                     PUSH_MESSAGE_SECRET_VALUE  : "c3614c71",   // 原始推送APPKEY
+                     DROI_CHANNEL_VALUE         : "xcdroi",     // 原始数据统计渠道号
+                     UPDATESELF_UPDATEURL_VALUE : UPDATESELF_REQUEST_URL_OFFICIAL,  // 自更新地址
+                     DROI_ANALYTICS_APPKEY      : "com.droi.sdk.application_id",    // Baas统计APPID
+                     DROI_ANALYTICS_APPKEY_VALUE: "u87umbzhh_Yt742hIo9yogY48qVWCNw-lQBBwQAA",   // Baas统计APPKEY
+                     DROI_ANALYTICS_CHANNEL      : "com.droi.sdk.channel_name",     // Baas统计渠道
+                     DROI_ANALYTICS_CHANNEL_VALUE: "frosxc00"]
+
+def META_TEST = [DROI_APPKEY_VALUE          : "2ab6c0071eab4f50bc41514a0709b9af",   // 原始推送APPKEY
+                 PUSH_MESSAGE_SECRET_VALUE  : "ab57eb02",   // 原始推送APPKEY
+                 DROI_CHANNEL_VALUE         : "xcdroi",     // 原始数据统计渠道号
+                 UPDATESELF_UPDATEURL_VALUE : UPDATESELF_REQUEST_URL_TEST,  // 自更新地址
+                 DROI_ANALYTICS_APPKEY      : "com.droi.sdk.application_id",
+                 DROI_ANALYTICS_APPKEY_VALUE: "u87umbzhdFMFNbavVqG_6FOcJER0ZzirlQANVloA",
+                 DROI_ANALYTICS_CHANNEL      : "com.droi.sdk.channel_name",
+                 DROI_ANALYTICS_CHANNEL_VALUE: "frosxc00"]
+
+android {
+    compileSdkVersion cfg.compileSdkVersion
+    buildToolsVersion cfg.buildToolsVersion
+    defaultConfig {
+        applicationId cfg.applicationId
+        minSdkVersion cfg.minSdkVersion
+        targetSdkVersion cfg.targetSdkVersion
+        versionCode cfg.versionCode
+        versionName cfg.versionName
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
+        multiDexEnabled true
+
+        // Support inner video
+        buildConfigField BOOLEAN, SUPPORT_INNER_VIDEO, FALSE
+
+        // Stable brightness
+        buildConfigField BOOLEAN, SUPPORT_STABLE_BRIGHTNESS, FALSE
+
+        // Support change OS default:FreemeOS
+        buildConfigField STRING, SUPPORT_OS_TAG, "\"Freeme OS\""
+
+        // Support lockscreen wallpaper
+        buildConfigField BOOLEAN, SUPPORT_LOCKSCREEN_WALLPAPER, TRUE
+        buildConfigField BOOLEAN, SUPPORT_LAGACY_FREEMEOS_PLATFORM, FALSE
+
+        // 是否海外版
+        buildConfigField BOOLEAN, VERSION_FOREIGN, FALSE
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../signature/droigallery.keystore')
+            storePassword 'zhuoyigallery'
+            keyAlias 'droigallery.keystore'
+            keyPassword 'zhuoyigallery'
+        }
+
+        platform {
+            storeFile file("../signature/droigallery.jks")
+            storePassword 'zhuoyigallery'
+            keyAlias 'droigallery'
+            keyPassword 'zhuoyigallery'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            minifyEnabled false
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java',
+                            'src/main/freeme',
+                            'src/main/gallerycommon',
+                            'src/main/src_pd',
+                            'src/main/src_utils',
+                            'src/main/community',
+                            'src/main/bigModel']
+            res.srcDirs = ['src/main/res',
+                           'src/main/freeme/res',
+                           'src/main/community/res',
+                           'src/main/bigModel/res']
+        }
+
+        domestic {
+            java.srcDirs = ['src/domestic/freeme']
+        }
+
+        international {
+            java.srcDirs = ['src/international/freeme']
+            res.srcDirs = ['src/international/res']
+        }
+
+        devOfficial.java.srcDirs = domestic.java.srcDirs
+        devTest.java.srcDirs = domestic.java.srcDirs
+        devInternationalOfficial.java.srcDirs = international.java.srcDirs
+        devInternationalOfficial.res.srcDirs = international.res.srcDirs
+        devInternatinalTest.java.srcDirs = international.java.srcDirs
+        devInternatinalTest.res.srcDirs = international.res.srcDirs
+        freemeos_6_0_native_test.java.srcDirs = domestic.java.srcDirs
+        freemeos_6_0_native.java.srcDirs = domestic.java.srcDirs
+    }
+
+    productFlavors {
+        devOfficial {
+            // Community official url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_OFFICIAL
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, FALSE
+
+            manifestPlaceholders = META_OFFICIAL
+        }
+
+        devTest {
+            // Community test url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_TEST
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
+
+            manifestPlaceholders = META_TEST
+        }
+
+        devInternationalOfficial {
+            // Community official url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_INTERNATIONAL_OFFICIAL
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, FALSE
+
+            // 是否海外版
+            buildConfigField BOOLEAN, VERSION_FOREIGN, TRUE
+
+            manifestPlaceholders = META_OFFICIAL
+        }
+
+        devInternatinalTest {
+            // Community test url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_INTERNATIONAL_TEST
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
+
+            // 是否海外版
+            buildConfigField BOOLEAN, VERSION_FOREIGN, TRUE
+
+            manifestPlaceholders = META_TEST
+        }
+
+        freemeos_6_0_native {
+            applicationId cfg_freeme_6_0.applicationId
+            versionCode cfg_freeme_6_0.versionCode
+            versionName cfg_freeme_6_0.versionName
+
+            // Community official url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_OFFICIAL
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
+
+            buildConfigField BOOLEAN, SUPPORT_LAGACY_FREEMEOS_PLATFORM, TRUE
+
+            manifestPlaceholders = META_OFFICIAL
+        }
+
+        freemeos_6_0_native_test {
+            applicationId cfg_freeme_6_0.applicationId
+            versionCode cfg_freeme_6_0.versionCode
+            versionName cfg_freeme_6_0.versionName
+
+            // Community official url
+            buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_TEST
+
+            // Support print
+            buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
+
+            buildConfigField BOOLEAN, SUPPORT_LAGACY_FREEMEOS_PLATFORM, TRUE
+
+            manifestPlaceholders = META_TEST
+
+            //add key
+            signingConfig signingConfigs.platform
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'MissingTranslation'
+    }
+
+    dexOptions {
+        incremental true
+    }
+
+    afterEvaluate {
+        for (variant in android.applicationVariants) {
+            def scope = variant.getVariantData().getScope()
+            String mergeTaskName = scope.getMergeResourcesTask().name
+            def mergeTask = tasks.getByName(mergeTaskName)
+            mergeTask.doLast {
+                copy {
+                    int i=0
+                    from(android.sourceSets.main.res.srcDirs) {
+                        include 'values/public.xml'
+                        rename 'public.xml', (i++ == 0? "public.xml": "public_${i}.xml")
+                    }
+                    into(mergeTask.outputDir)
+                }
+            }
+        }
+    }
+}
+
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile libs['appcompat-v7']
+    compile libs["greendao"]
+    compile libs['gson']
+    devOfficialCompile project(':freemeEC')
+    devTestCompile project(':freemeEC')
+    devInternationalOfficialCompile project(':freemeECInternational')
+    devInternatinalTestCompile project(':freemeECInternational')
+    compile project(':swipemenu')
+    compile files('libs/gestureSensor.jar')
+    compile project(':freemeabout')
+    freemeos_6_0_nativeCompile project(':freemeEC')
+    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
+    compile project(':baas_analytics')
+}

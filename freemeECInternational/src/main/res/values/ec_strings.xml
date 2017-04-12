@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string name="ec_fragment_left_duration">1000</string>
+    <string name="elements_center_check">View All</string>
+    <string name="dc_title">Resources Center</string>
+    <string name="ec_titlebar_right">Management</string>
+    <string name="ec_download_ok">Downloaded</string>
+    <string name="ec_download">Download</string>
+    <string name="ec_watermark_mode">Watermark</string>
+    <string name="ec_child_mode">Child</string>
+    <string name="ec_pose_mode">Pose</string>
+    <string name="ec_jigsaw_mode">Jigsaw</string>
+    <string name="ec_watermark_travel">Travel</string>
+    <string name="ec_watermark_food">Food</string>
+    <string name="ec_watermark_specail">Special</string>
+    <string name="ec_watermark_mood">Mood</string>
+    <string name="ec_pose_mode_male">Male</string>
+    <string name="ec_pose_mode_female">Female</string>
+    <string name="ec_pose_mode_people">Family</string>
+    <string name="ec_net_gprs_title">Prompt</string>
+    <string name="ec_net_gprs_info">Will cause data usage,continue？</string>
+    <string name="ec_net_gprs__diplay">Do not show again</string>
+    <string name="ec_net_gprs_setwifi">WLAN setting</string>
+    <string name="ec_net_gprs__continue">Continue</string>
+    <string name="mode_download">Mode Center</string>
+    <string name="elements_center">Elements Center</string>
+    <string name="default_scroll_format">Page %1$d of %2$d</string>
+    <string name="dc_installed">Installed</string>
+    <string name="dc_update">Update</string>
+    <string name="dc_install">Install</string>
+    <string name="dc_installing">Installing</string>
+    <string name="dc_uninstalling">Uninstalling</string>
+    <string name="dc_disable">More...</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_select">Select</string>
+    <string name="action_manager">Management</string>
+    <string name="markup_btn_delete_onemore">Selected： %d items</string>
+    <string name="markup_btn_delete_one_or_zero">Selected： %d item</string>
+    <string name="ec_network_title">No available network</string>
+    <string name="ec_network_message">Set network now？</string>
+    <string name="ec_button_no">No</string>
+    <string name="ec_button_yes">Yes</string>
+    <string name="ec_button_sure">Sure</string>
+    <string name="ec_title_prompt">Prompt</string>
+    <string name="ec_reload">Reload</string>
+
+</resources>

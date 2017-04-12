@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.freeme.community.activity.ReportActivity">
+    <item
+        android:id="@+id/action_submit"
+        android:icon="@drawable/action_done"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_submit"/>
+</menu>

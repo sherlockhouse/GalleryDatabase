@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Added by tyd xuewelil 20140526, for qr largeMode -->
+    <!-- end -->
+
+    <string name="blockbuster">大片</string>
+    <string name="preview">长按预览</string>
+    <string name="returns">字幕</string>
+    <string name="finish">完成</string>
+    <string name="inputcontent">请输入内容 </string>
+    <string name="translatefailed">请检查网络连接！</string>
+    <string name="chinesecontent">点击此处添加字幕！</string>
+    <string name="remaincount">剩余</string>
+    <string name="english">英</string>
+    <string name="japanese">日</string>
+    <string name="blockdelete">删除</string>
+    <string name="englishcontent">Click here to add your subtitle.</string>
+    <string name="recommend">推荐字幕</string>
+    <string name="chinesecontentone">生活就像是一盒巧克力，你永远不知道你会得到什么。</string>
+    <string name="englishcontentone">Life is like a box of chocolate, you never know what you\'re gonna get.</string>
+    <string name="chinesecontenttwo">上帝会把我们身边最好的东西拿走，以提醒我们得到的更多。</string>
+    <string name="englishcontenttwo">God will take the best of everything around us, to remind us to get more.</string>
+    <string name="chinesecontentthree">爱情这东西，时间很关键认识的太早或太晚，都不行。</string>
+    <string name="englishcontentthree">Love this thing, time is very key to know too early or too late, all not line.</string>
+    <string name="chinesecontenfour">最美的事不是留住时光，而是留住记忆。</string>
+    <string name="englishcontentfour">The most beautiful thing is not keep time,but retain memories.</string>
+    <string name="korean">韩</string>
+    <string name="chinesecontentfive">这个脆弱的世界需要比我们更强大的人来守护。</string>
+    <string name="englishcontentfive">This vulnerable world need something more powerful than any of us.</string>
+    <string name="filternormal">正常</string>
+    <string name="filterchongya">冲压</string>
+    <string name="filterold">复古</string>
+    <string name="filterbandw">黑白</string>
+    <string name="filternremove">漂除银影</string>
+    <string name="filteroutphoto">即时出相</string>
+    <string name="filtercoffee">拿铁咖啡</string>
+    <string name="filterblue">蓝色</string>
+    <string name="filterfuchong">负冲</string>
+    <string name="process_image">处理图片\u2026</string>
+    <!--end-->
+</resources>

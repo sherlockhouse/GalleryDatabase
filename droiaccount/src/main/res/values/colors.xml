@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<color name="lib_droi_account_text_color">#cdcdcd</color>
+	<color name="lib_droi_account_edit_text_color">#cdcdcd</color>
+	<color name="lib_droi_account_text_green_color">#29bd68</color>
+	<color name="lib_droi_account_diabled_color">#cdcdcd</color>
+	<color name="lib_droi_account_fragment_background_color">#fff3f3f3</color>
+	<color name="lib_droi_account_color_light_grey">#888888</color>
+	
+	<color name="lib_droi_account_layout_background">#FFFFFF</color>
+	<color name="lib_droi_account_layout_titleColor">#888888</color>
+	<!-- land color -->
+	<color name="lib_droi_account_land_titleColor">#FFFFFF</color>
+	<color name="lib_droi_account_land_titleBackground">#29bd69</color>
+	
+	
+	<color name="lib_droi_account_login_background">#f6f6f6</color>
+	<color name="lib_droi_account_login_title">#959aa2</color>
+</resources>

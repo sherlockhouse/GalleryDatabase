@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/ec_resouce_prompt"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:layout_gravity="center">
+
+    <ImageView
+        android:layout_width="@dimen/ec_resource_prompt_w"
+        android:layout_height="@dimen/ec_resource_prompt_h"
+        android:layout_gravity="center"
+        android:src="@drawable/ec_no_download_resource"/>
+
+</FrameLayout>

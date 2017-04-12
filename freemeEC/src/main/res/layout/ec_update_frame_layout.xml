@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="@dimen/ec_update_frame_w"
+             android:layout_height="@dimen/ec_update_frame_h"
+             android:layout_gravity="center_vertical|left">
+
+    <ImageView
+        android:id="@+id/ec_update_imgView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@anim/ec_update_frame"
+        android:visibility="gone"/>
+
+</FrameLayout>

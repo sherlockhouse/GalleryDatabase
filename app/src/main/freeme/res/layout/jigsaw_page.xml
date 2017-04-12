@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the main page of jigsaw
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<RelativeLayout android:id="@+id/jigsaw_page"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+    <!-- assemble control used to customize jigsaw -->
+    <LinearLayout
+        android:id="@+id/assemble_ctrl_panel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/jigsaw_assemble_ctrl_height"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/jigsaw_ctrl_title_height"
+            android:background="@drawable/jigsaw_title_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/sel_template_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_default"
+                android:text="@string/jigsaw_sel_template"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"/>
+
+            <Button
+                android:id="@+id/sel_bg_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_default"
+                android:text="@string/jigsaw_sel_background"
+                android:textAllCaps="false"
+                android:textColor="@color/button_text"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/elements_center_down_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:layout_marginTop="1dp"
+                android:src="@drawable/elements_center_jigsaw_down_btn"/>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none">
+                <!--android:background="@drawable/jigsaw_bg"-->
+
+                <com.freeme.jigsaw.ui.AssembleMemberList
+                    android:id="@+id/assemble_listFilters"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                </com.freeme.jigsaw.ui.AssembleMemberList>
+            </HorizontalScrollView>
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.freeme.jigsaw.ui.JigsawDrawPanel
+        android:id="@+id/jigsaw_draw_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/assemble_ctrl_panel"
+        android:padding="@dimen/jigsaw_draw_panel_padding"/>
+    <!--android:background="@drawable/jigsaw_bg"-->
+
+</RelativeLayout>

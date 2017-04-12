@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the main layout of jigsaw
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <include layout="@layout/gl_root_group"/>
+
+    <include layout="@layout/jigsaw_page"/>
+
+    <!-- picker control used to choose images -->
+    <LinearLayout
+        android:id="@+id/picker_ctrl_panel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/jigsaw_picker_ctrl_height"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/jigsaw_ctrl_title_height"
+            android:background="@drawable/jigsaw_title_bg">
+
+            <ImageButton
+                android:id="@+id/picker_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="7dp"
+                android:background="@drawable/ic_picker_cancel"/>
+
+            <TextView
+                android:id="@+id/picker_count"
+                style="@style/picker_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/jigsaw_picker_count"/>
+
+            <ImageButton
+                android:id="@+id/picker_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="7dip"
+                android:background="@drawable/ic_picker_ok"/>
+        </RelativeLayout>
+
+        <HorizontalScrollView
+            android:id="@+id/picker_list_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/default_background"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/picker_listFilters"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+</RelativeLayout>

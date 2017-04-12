@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /*
+ * 
+ * Description: the resource of string
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<resources
+    >
+    <string name="jigsaw_title">拼图</string>
+    <string name="jigsaw_picker_count">已选择 %1$s 张, 最多能选 %2$s 张</string>
+    <string name="jigsaw_sel_template">模板选择</string>
+    <string name="jigsaw_sel_background">背景选择</string>
+    <string name="jigsaw_access_sd_fail">无法访问存储卡.</string>
+    <string name="jigsaw_not_enough_space">存储空间不足.</string>
+    <string name="jigsaw_save_success">拼图已成功保存至 </string>
+    <string name="jigsaw_save_data_prompt">图片保存中</string>
+    <string name="jigsaw_load_data_prompt">数据加载中，请稍候.</string>
+    <string name="jigsaw_load_data_fail">数据加载失败！</string>
+    <string name="jigsaw_load_thumb_fail">加载缩略图失败！</string>
+    <string name="jigsaw_picker_count_max">最多只能选择 %1$s 张！</string>
+    <string name="jigsaw_picker_count_min">选择张数不能少于 2 张！</string>
+    <string name="jigsaw_load_out_of_size">该图片尺寸过大！</string>
+
+    <!---Added by Tyd Linguanrong for Gallery new style, 2013-12-19-->
+    <string name="tab_by_location">城市专辑</string>
+    <string name="albumset_photo_number">%s 张</string>
+    <string name="album_display_type">显示方式</string>
+
+    <string name="current_week_sunday">星期日</string>
+    <string name="current_week_monday">星期一</string>
+    <string name="current_week_tuesday">星期二</string>
+    <string name="current_week_wednesday">星期三</string>
+    <string name="current_week_thursday">星期四</string>
+    <string name="current_week_friday">星期五</string>
+    <string name="current_week_saturday">星期六</string>
+    <string name="last_week_sunday">上周日</string>
+    <string name="last_week_monday">上周一</string>
+    <string name="last_week_tuesday">上周二</string>
+    <string name="last_week_wednesday">上周三</string>
+    <string name="last_week_thursday">上周四</string>
+    <string name="last_week_friday">上周五</string>
+    <string name="last_week_saturday">上周六</string>
+
+    <string name="album_timeshaft_today">今天</string>
+    <string name="album_timeshaft_yesterday">昨天</string>
+    <string name="add_comment">添加备注</string>
+
+    <string name="secret_mode_add">添加</string>
+    <string name="secret_mode_edit">编辑</string>
+    <string name="secret_mode_remove">移除</string>
+    <string name="secret_mode_confirm">确定</string>
+    <string name="secret_mode_cancel">取消</string>
+    <!--Linguanrong-->
+
+    <!-- tyd.biantao 20131024. Gesture -->
+
+    <!-- Added by TYD Theobald_Wu on 20131029 [begin] for had background music when slide show -->
+    <string name="gallery_settings">相册设置</string>
+    <string name="slideshow_setttings_category">幻灯片设置</string>
+    <string name="background_music_settings">背景音乐</string>
+    <string name="slideshow_duration_time">播放速度</string>
+    <string name="select_music_title">选择背景音乐</string>
+    <string name="select_music_default">默认</string>
+    <string name="select_music_other">自定义</string>
+    <string name="slideshow_duration_1">1.5秒</string>
+    <string name="slideshow_duration_2">3秒</string>
+    <string name="slideshow_duration_3">5秒</string>
+    <string name="rand_order_settings">随机</string>
+    <string name="repeat_settings">重复</string>
+    <!-- Added by TYD Theobald_Wu on 20131029 [end] -->
+
+    <!-- tyd.biantao, 20131112. Min image file size. -->
+    <string name="pref_dialog_content_text">最小图片大小: %1$d KB</string>
+    <string name="pref_dialog_content_tips">该设置将在下次启动后生效</string>
+
+    <!-- tyd.biantao 20130110. Wallpaper -->
+    <string name="tab_lockscreen_text">锁屏壁纸</string>
+    <string name="tab_wallpaper_text">桌面壁纸</string>
+    <string name="tab_all_text">同时设定</string>
+    <string name="set_lock_or_wallpaper">设置为壁纸</string>
+    <string name="set_wallpaper">设为桌面壁纸</string>
+    <string name="set_lockscreen">设置锁屏壁纸</string>
+
+    <!-- Added by Tyd Linguanrong for secret photos, 2014-5-29 -->
+    <string name="empty_album_image">没有照片</string>
+    <string name="empty_album_video">没有视频</string>
+    <string name="no_album_image">还未添加私密照片哦！</string>
+    <string name="no_album_video">还未添加私密视频哦！</string>
+    <string name="secret_album_image">私密照片</string>
+    <string name="secret_album_video">私密视频</string>
+    <!-- Tyd -->
+
+    <!-- Added by Linguanrong for photopage bottom controls, 2014-9-17 -->
+    <string name="bottom_controls_slideshow">幻灯片</string>
+    <string name="bottom_controls_edit">编辑</string>
+
+    <!--Added by tyd Linguanrong for comments, 16-2-1-->
+    <string name="freeme_comment_visible">显示备注</string>
+    <string name="freeme_comment_gone">隐藏备注</string>
+    <string name="freeme_comment_text_limit">五十字符内</string>
+    <string name="freeme_comment_add_comments">添加备注</string>
+    <string name="freeme_comment_comments">点击添加备注</string>
+    <string name="freeme_comment_count_limit">已超出字数限制 </string>
+    <string name="freeme_comment_input_text">请输入文字 </string>
+    <!-- Tyd -->
+
+    <!-- Added by Linguanrong for story album, 2015-4-2 -->
+    <string name="tab_by_camera">照片</string>
+    <string name="tab_by_story">画报</string>
+    <string name="tab_by_all">相册</string>
+    <string name="tab_by_community">@string/community</string>
+
+    <string name="baby_album">亲子相册</string>
+    <string name="love_album">恋爱相册</string>
+    <string name="add_story_album">创建相册</string>
+    <string name="add_story_album_hint">给相册起个名字</string>
+    <string name="add_story_album_tip">不能为空且长度不得大于10</string>
+    <string name="contain_name">已含有该名字的相册,请重新命名！</string>
+    <string name="add_images">添加照片</string>
+    <string name="baby_birthday">宝宝出生日期</string>
+    <string name="love_date">相恋日期</string>
+
+    <string name="action_rename">重命名</string>
+    <string name="action_setcover">设为封面</string>
+
+    <string name="story_album_description">相册描述</string>
+    <string name="story_descrip_hint">请输入相册描述</string>
+    <string name="story_descrip_tip">长度不得大于%1$s</string>
+
+    <string name="day_count">第%1$d天</string>
+
+    <string name="baby_story_descrip">宝宝</string>
+    <string name="baby_story_birthday">出生：%1$s</string>
+    <string name="baby_story_birthday_lunar">农历：%1$s</string>
+    <string name="baby_story_grow_count">成长：%1$s 天</string>
+    <string name="baby_story_before_born">出生前 %1$s 天</string>
+
+    <string name="baby_born">新生</string>
+    <string name="baby_full_month">满月</string>
+    <string name="baby_hundred_day">百日</string>
+    <string name="baby_full_year">%1$d周岁</string>
+
+    <string name="love_story_descrip">我们</string>
+    <string name="love_story_date">纪念日：%1$s</string>
+    <string name="love_story_count">已相恋：%1$s 天</string>
+    <string name="love_story_before_love">相恋前 %1$s 天</string>
+
+    <string name="love_full_year">%1$d周年</string>
+
+    <string name="more">更多</string>
+    <string name="title_setcover">封面选择</string>
+
+    <!-- Tyd -->
+
+    <string name="share_freeme_item_title">"分享Freeme OS"</string>
+
+    <string name="shot_immediately">马上拍摄</string>
+    <string name="no_photos">您还没有拍摄照片喔!</string>
+
+    <!-- add by xuewelil for hide album -->
+    <string name="hide_album">隐藏相册</string>
+    <string name="hide_album_tille">选择要隐藏的相册</string>
+    <!-- Tyd -->
+
+    <string name="set_lockscreen_failed">设置锁屏壁纸失败，请重试！</string>
+
+    <string name="cannot_delete_tip">主题相册无法删除</string>
+
+    <string name="share_freeme_extra_title">"拍一张比自己更美的照片"</string>
+    <string name="share_freeme_extra_summary">"用Freeme OS相机拍照，朋友圈的好友都来点赞啦！秘密就在这里！"</string>
+</resources>

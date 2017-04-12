@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the resource of arrays
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<resources>
+
+    <!--Added by Linguanrong for Gallery new style, 2014-02-14-->
+    <string-array name="current_week">
+        <item>@string/current_week_sunday</item>
+        <item>@string/current_week_monday</item>
+        <item>@string/current_week_tuesday</item>
+        <item>@string/current_week_wednesday</item>
+        <item>@string/current_week_thursday</item>
+        <item>@string/current_week_friday</item>
+        <item>@string/current_week_saturday</item>
+    </string-array>
+
+    <string-array name="last_week">
+        <item>@string/last_week_sunday</item>
+        <item>@string/last_week_monday</item>
+        <item>@string/last_week_tuesday</item>
+        <item>@string/last_week_wednesday</item>
+        <item>@string/last_week_thursday</item>
+        <item>@string/last_week_friday</item>
+        <item>@string/last_week_saturday</item>
+    </string-array>
+    <!--Linguanrong -->
+
+    <!-- Added by TYD Theobald_Wu on 20131029 [begin] for had background music when slide show -->
+    <string-array name="select_music_list">
+        <item>@string/select_music_default</item>
+        <item>@string/select_music_other</item>
+    </string-array>
+
+    <string-array name="slideshow_duration_list">
+        <item>@string/slideshow_duration_1</item>
+        <item>@string/slideshow_duration_2</item>
+        <item>@string/slideshow_duration_3</item>
+    </string-array>
+
+    <string-array name="slideshow_duration_values">
+        <item>1500</item>
+        <item>3000</item>
+        <item>5000</item>
+    </string-array>
+    <!-- Added by TYD Theobald_Wu on 20131029 [end] -->
+
+    <!--Added by tyd Linguanrong for jigsaw, 16-2-2-->
+    <string-array name="jigsaw_background_array">
+        <item>@drawable/jigsaw_bg1</item>
+        <item>@drawable/jigsaw_bg2</item>
+        <item>@drawable/jigsaw_bg3</item>
+        <!--  item>@drawable/jigsaw_bg4</item>
+        <item>@drawable/jigsaw_bg5</item>-->
+    </string-array>
+
+    <string-array name="jigsaw_bg_thumb_ic_array">
+        <item>@drawable/ic_jigsaw_bg1</item>
+        <item>@drawable/ic_jigsaw_bg2</item>
+        <item>@drawable/ic_jigsaw_bg3</item>
+        <!--  item>@drawable/ic_jigsaw_bg4</item>
+        <item>@drawable/ic_jigsaw_bg5</item>-->
+    </string-array>
+
+    <string-array name="template_2_array">
+        <item>@layout/template_2_1</item>
+        <item>@layout/template_2_2</item>
+        <item>@layout/template_2_3</item>
+        <item>@layout/template_2_4</item>
+        <item>@layout/template_2_5</item>
+    </string-array>
+
+    <string-array name="template_2_thumb_ic_array">
+        <item>@drawable/ic_template_2_1</item>
+        <item>@drawable/ic_template_2_2</item>
+        <item>@drawable/ic_template_2_3</item>
+        <item>@drawable/ic_template_2_4</item>
+        <item>@drawable/ic_template_2_5</item>
+    </string-array>
+
+    <string-array name="template_3_array">
+        <item>@layout/template_3_1</item>
+        <item>@layout/template_3_2</item>
+        <item>@layout/template_3_3</item>
+        <item>@layout/template_3_4</item>
+        <item>@layout/template_3_5</item>
+    </string-array>
+
+    <string-array name="template_3_thumb_ic_array">
+        <item>@drawable/ic_template_3_1</item>
+        <item>@drawable/ic_template_3_2</item>
+        <item>@drawable/ic_template_3_3</item>
+        <item>@drawable/ic_template_3_4</item>
+        <item>@drawable/ic_template_3_5</item>
+    </string-array>
+
+    <string-array name="template_4_array">
+        <item>@layout/template_4_1</item>
+        <item>@layout/template_4_2</item>
+        <item>@layout/template_4_3</item>
+        <item>@layout/template_4_4</item>
+        <item>@layout/template_4_5</item>
+    </string-array>
+
+    <string-array name="template_4_thumb_ic_array">
+        <item>@drawable/ic_template_4_1</item>
+        <item>@drawable/ic_template_4_2</item>
+        <item>@drawable/ic_template_4_3</item>
+        <item>@drawable/ic_template_4_4</item>
+        <item>@drawable/ic_template_4_5</item>
+    </string-array>
+
+    <string-array name="template_5_array">
+        <item>@layout/template_5_1</item>
+        <item>@layout/template_5_2</item>
+        <item>@layout/template_5_3</item>
+        <item>@layout/template_5_4</item>
+        <item>@layout/template_5_5</item>
+    </string-array>
+
+    <string-array name="template_5_thumb_ic_array">
+        <item>@drawable/ic_template_5_1</item>
+        <item>@drawable/ic_template_5_2</item>
+        <item>@drawable/ic_template_5_3</item>
+        <item>@drawable/ic_template_5_4</item>
+        <item>@drawable/ic_template_5_5</item>
+    </string-array>
+
+    <string-array name="template_6_array">
+        <item>@layout/template_6_1</item>
+        <item>@layout/template_6_2</item>
+        <item>@layout/template_6_3</item>
+        <item>@layout/template_6_4</item>
+        <item>@layout/template_6_5</item>
+    </string-array>
+
+    <string-array name="template_6_thumb_ic_array">
+        <item>@drawable/ic_template_6_1</item>
+        <item>@drawable/ic_template_6_2</item>
+        <item>@drawable/ic_template_6_3</item>
+        <item>@drawable/ic_template_6_4</item>
+        <item>@drawable/ic_template_6_5</item>
+    </string-array>
+
+    <string-array name="template_default_array">
+        <item>@layout/template_2_3</item>
+        <item>@layout/template_3_1</item>
+        <item>@layout/template_4_1</item>
+        <item>@layout/template_5_1</item>
+        <item>@layout/template_6_1</item>
+    </string-array>
+    <!--Tyd-->
+
+</resources>

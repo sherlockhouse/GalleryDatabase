@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="lib_droi_account_gender_entries">
+        <item>পুরুষ</item>
+        <item>মহিলা</item>
+        <item>গোপনীয়</item>
+    </string-array>
+    <string-array name="lib_droi_account_gender_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="lib_droi_account_avatar_sources_entries">
+        <item>ক্যামেরা</item>
+        <item>একটি অ্যালবাম বেছে নিন</item>
+    </string-array>
+    <string-array name="lib_droi_account_avatar_sources_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

@@ -1,0 +1,98 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#232323">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/filtershow_bottom_relativelayout">
+
+        <ImageView
+            android:id="@+id/filtershow_imageview_photo"
+            android:layout_width="match_parent"
+            android:layout_height="203dp"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"/>
+
+        <RelativeLayout
+            android:id="@+id/filtershow_content"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_above="@+id/filtershow_imageview_imageViewbottom"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/filtershow_content_iv"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"/>
+
+            <TextView
+                android:id="@+id/filtershow_chinese_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="8dp"
+                android:background="@null"
+                android:text="@string/chinesecontent"
+                android:textColor="#ffffff"
+                android:textSize="8dp"/>
+
+            <TextView
+                android:id="@+id/filtershow_english_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/filtershow_chinese_textview"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="8dp"
+                android:background="@null"
+                android:text="@string/englishcontent"
+                android:textColor="#ffffff"
+                android:textSize="8dp"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/filtershow_imageview_imageViewtop"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_above="@+id/filtershow_imageview_photo"
+            android:layout_alignParentLeft="true"
+            android:background="#000000"/>
+
+        <ImageView
+            android:id="@+id/filtershow_imageview_imageViewbottom"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/filtershow_imageview_photo"
+            android:background="#000000"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/filtershow_bottom_relativelayout"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:background="#121212">
+
+        <com.freeme.bigmodel.filter.HorizontalListView
+            android:id="@+id/listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="15dp"
+            android:background="#121212"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

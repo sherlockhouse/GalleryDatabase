@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the resource of string
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+
+<resources>
+    <string name="jigsaw_title">Jigsaw</string>
+    <string name="jigsaw_picker_count">%1$s selected, the most is %2$s</string>
+    <string name="jigsaw_sel_template">Select template</string>
+    <string name="jigsaw_sel_background">Select background</string>
+    <string name="jigsaw_image_name_format" translatable="false">"'IMG'_yyyyMMdd_HHmmss"</string>
+    <string name="jigsaw_access_sd_fail">Couldn\'t access SD card.</string>
+    <string name="jigsaw_not_enough_space">SD card space is not enough.</string>
+    <string name="jigsaw_save_success">Jigsaw image saved successfully </string>
+    <string name="jigsaw_save_data_prompt">Saving image</string>
+    <string name="jigsaw_load_data_prompt">Loading data, wait please.</string>
+    <string name="jigsaw_load_data_fail">Loading data fail!</string>
+    <string name="jigsaw_load_thumb_fail">Loading image thumb fail!</string>
+    <string name="jigsaw_picker_count_max">Pick count is %1$s at most.</string>
+    <string name="jigsaw_picker_count_min">Pick count is two at least.</string>
+    <string name="jigsaw_load_out_of_size">Pick image is out of size.</string>
+
+    <!--Added by Tyd Linguanrong for Gallery new style, 2013-12-19-->
+    <string name="tab_by_location">Locations</string>
+    <string name="albumset_photo_number">%s p</string>
+    <string name="album_display_type">Switch type</string>
+
+    <string name="current_week_sunday">Sunday</string>
+    <string name="current_week_monday">Monday</string>
+    <string name="current_week_tuesday">Tuesday</string>
+    <string name="current_week_wednesday">Wednesday</string>
+    <string name="current_week_thursday">Thursday</string>
+    <string name="current_week_friday">Friday</string>
+    <string name="current_week_saturday">Saturday</string>
+    <string name="last_week_sunday">Last Sunday</string>
+    <string name="last_week_monday">Last Monday</string>
+    <string name="last_week_tuesday">Last Tuesday</string>
+    <string name="last_week_wednesday">Last Wednesday</string>
+    <string name="last_week_thursday">Last Thursday</string>
+    <string name="last_week_friday">Last Friday</string>
+    <string name="last_week_saturday">Last Saturday</string>
+
+    <string name="album_timeshaft_today">Today</string>
+    <string name="album_timeshaft_yesterday">Yesterday</string>
+    <string name="add_comment">Add notes</string>
+
+    <string name="secret_mode_add">Add</string>
+    <string name="secret_mode_edit">Edit</string>
+    <string name="secret_mode_remove">Remove</string>
+    <string name="secret_mode_confirm">OK</string>
+    <string name="secret_mode_cancel">Cancel</string>
+    <!--Linguanrong-->
+
+    <!-- tyd.biantao 20131024. Gesture -->
+
+    <!-- Added by TYD Theobald_Wu on 20131029 [begin] for had background music when slide show -->
+    <string name="gallery_settings">Gallery setttings</string>
+    <string name="slideshow_setttings_category">Slideshow setttings</string>
+    <string name="background_music_settings">Background music</string>
+    <string name="slideshow_duration_time">Speed</string>
+    <string name="select_music_title">Select music</string>
+    <string name="select_music_default">Default</string>
+    <string name="select_music_other">Other</string>
+    <string name="slideshow_duration_1">1.5s</string>
+    <string name="slideshow_duration_2">3s</string>
+    <string name="slideshow_duration_3">5s</string>
+    <string name="slideshow_duration_default">3000</string>
+    <string name="rand_order_settings">Rand</string>
+    <string name="repeat_settings">Repeat</string>
+    <!-- Added by TYD Theobald_Wu on 20131029 [end] -->
+
+    <!-- tyd.biantao, 20131112. Min image file size. -->
+    <string name="pref_scanner_min_image_size_summay" translatable="false">%1$d KB</string>
+    <string name="pref_dialog_content_text">Minimum image size: %1$d KB</string>
+    <string name="pref_dialog_content_tips">This will take effect at next reboot</string>
+    <integer name="pref_seekbar_value_min">1</integer><!-- KiB -->
+    <integer name="pref_seekbar_value_max">400</integer><!-- KiB -->
+
+    <!-- tyd.biantao 20130110. Wallpaper -->
+    <string name="tab_lockscreen_text">Lock Screen Wallpaper</string>
+    <string name="tab_wallpaper_text">Home Screen Wallpaper</string>
+    <string name="tab_all_text">Set All</string>
+    <string name="set_lock_or_wallpaper">Set as Wallpaper</string>
+    <string name="set_wallpaper">Set as Home Screen Wallpaper</string>
+    <string name="set_lockscreen">Set as Lock Screen Wallpaper</string>
+
+    <!-- Added by Tyd Linguanrong for secret photos, 2014-5-29 -->
+    <string name="empty_album_image">0 images available</string>
+    <string name="empty_album_video">0 videos available</string>
+    <string name="no_album_image">0 images available</string>
+    <string name="no_album_video">0 videos available</string>
+    <string name="secret_album_image">Secret photos</string>
+    <string name="secret_album_video">Secret videos</string>
+    <!-- Tyd -->
+
+    <!-- Added by Linguanrong for photopage bottom controls, 2014-9-17 -->
+    <string name="bottom_controls_slideshow">Slideshow</string>
+    <string name="bottom_controls_edit">Edit</string>
+
+    <!-- Tyd -->
+
+    <!--Added by tyd Linguanrong for comments, 16-2-1-->
+    <string name="freeme_comment_visible">Show comments</string>
+    <string name="freeme_comment_gone">Hide comments</string>
+    <string name="freeme_comment_text_limit">Within fifty characters </string>
+    <string name="freeme_comment_add_comments">Add comment</string>
+    <string name="freeme_comment_comments">Add comment when click</string>
+    <string name="freeme_comment_count_limit">Beyond the word limit </string>
+    <string name="freeme_comment_input_text">Please enter the text</string>
+    <!-- Tyd -->
+
+    <!-- Added by Linguanrong for story album, 2015-4-2 -->
+    <string name="tab_by_camera">Photos</string>
+    <string name="tab_by_story">Stories</string>
+    <string name="tab_by_all">Albums</string>
+    <string name="tab_by_community">@string/community</string>
+
+    <string name="baby_album">Baby album</string>
+    <string name="love_album">Love album</string>
+    <string name="add_story_album">Add new album</string>
+    <string name="add_story_album_hint">Make name for album</string>
+    <string name="add_story_album_tip">Can not be null and 10 characters maximum</string>
+    <string name="contain_name">Already contains the name of the album, rename please!</string>
+    <string name="add_images">Add images</string>
+    <string name="baby_birthday">Baby\'s birthday</string>
+    <string name="love_date">Love date</string>
+
+    <string name="action_rename">Rename</string>
+    <string name="action_setcover">Cover</string>
+
+    <string name="day_count">%1$dDays</string>
+
+    <string name="story_album_description">Description</string>
+    <string name="story_descrip_hint">Please input description</string>
+    <string name="story_descrip_tip">%1$s characters maximum</string>
+
+    <string name="baby_story_descrip">Baby</string>
+    <string name="baby_story_birthday">Born：%1$s</string>
+    <string name="baby_story_birthday_lunar">Lunar Birthday：%1$s</string>
+    <string name="baby_story_grow_count">Growth：%1$s day</string>
+    <string name="baby_story_before_born">Before born %1$s day</string>
+
+    <string name="baby_born">Birthday</string>
+    <string name="baby_full_month">Full month</string>
+    <string name="baby_hundred_day">Hundred day</string>
+    <string name="baby_full_year">%1$d year</string>
+
+    <string name="love_story_descrip">We</string>
+    <string name="love_story_date">Fell in Love：%1$s</string>
+    <string name="love_story_count">Love：%1$s day</string>
+    <string name="love_story_before_love">Before love %1$s day</string>
+
+    <string name="love_full_year">%1$d year</string>
+
+    <string name="more">More</string>
+    <string name="title_setcover">Set cover</string>
+    <!-- Tyd -->
+
+    <string name="share_freeme_item_title">"Share Freeme OS"</string>
+    <string name="share_freeme_extra_title">"Take a picture that is more beautiful than yourself"</string>
+    <string name="share_freeme_extra_summary">"With Freeme OS camera, friends circle friends to point praise it! The secret is here!"</string>
+    <string name="share_freeme_extra_url">"http://weixin.droi.com/share/camera.html"</string>
+    <string name="share_freeme_extra_image_url">"http://weixin.droi.com/share/images/icon/icon_camera.png"</string>
+
+    <string name="shot_immediately">Shot immediately</string>
+    <string name="no_photos">No photos!</string>
+
+    <!-- add by xuewelil for hide album -->
+    <string name="hide_album">Hide album</string>
+    <string name="hide_album_tille">Choose to hide the album</string>
+    <!-- Tyd -->
+
+    <string name="set_lockscreen_failed">Set lockscreen wallpaper failed, retry please !</string>
+
+    <string name="cannot_delete_tip">cannot delete dafault album</string>
+
+</resources>

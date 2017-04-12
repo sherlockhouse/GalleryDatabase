@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="update_self_activity_not_found">App isn\'t installed.</string>
+    <string name="update_self_dialog_confirm_btn">Update</string>
+    <string name="update_self_dialog_cancel_btn">Cancel</string>
+    <string name="update_self_forceDialog_title">New update</string>
+    <string name="update_self_forceDialog_content">You must update to new version, unless you can not use weather!</string>
+    <string name="update_self_dialog_title">New update</string>
+    <string name="update_self_dialog_content">Found new version, please update!</string>
+    <string name="update_networktip_title">Data traffic tips</string>
+    <string name="update_self_networktip_content">The widget version of freeme os widget update will produce more data traffic, whether or not to continue to update (it is recommended to use wifi)？</string>
+    <string name="update_networktip_yes">Continue</string>
+    <string name="update_networktip_no">Cancel</string>
+	<string name="update_self_no_new">This is the latest version</string>
+	<string name="update_self_http_error">Network anomaly</string>
+	<string name="update_self_downloading">Downloading the latest version</string>
+
+</resources>

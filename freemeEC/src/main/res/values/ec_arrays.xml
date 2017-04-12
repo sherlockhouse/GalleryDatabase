@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="ec_watermark_pagetitles" translatable="false">
+        <item>@string/ec_watermark_travel</item>
+        <item>@string/ec_watermark_food</item>
+        <item>@string/ec_watermark_catchword</item>
+        <item>@string/ec_watermark_regards</item>
+        <item>@string/ec_watermark_selfie</item>
+        <item>@string/ec_watermark_mood</item>
+    </string-array>
+    <string-array name="ec_pose_pagetitles" translatable="false">
+        <item>@string/ec_pose_mode_male</item>
+        <item>@string/ec_pose_mode_female</item>
+        <item>@string/ec_pose_mode_people</item>
+    </string-array>
+    <string-array name="dc_main_pagetitles" translatable="false">
+        <item>@string/mode_download</item>
+        <item>@string/elements_center</item>
+    </string-array>
+
+</resources>

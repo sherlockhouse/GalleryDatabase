@@ -1,0 +1,102 @@
+<resources>
+    <string name="community">圖吧</string>
+
+    <string name="latest">最新</string>
+    <string name="top">熱門</string>
+    <string name="plaza">我的廣場</string>
+
+    <string name="check_network">網絡不可用, 請檢查網絡!</string>
+    <string name="loading_community">正在加載...</string>
+    <string name="user_name">用戶名</string>
+    <string name="user_date">發布日期</string>
+
+    <string name="pull_to_refresh">下拉刷新</string>
+    <string name="refresh_time">刷新時間:</string>
+    <string name="last_refresh_time">上次刷新時間:</string>
+    <string name="release_to_refresh">鬆開刷新</string>
+    <string name="refreshing">正在刷新...</string>
+    <string name="current_refresh_time">本次刷新時間:</string>
+
+    <string name="load_more">載入更多</string>
+    <string name="load_none">没有了!</string>
+    <string name="none_data">沒有數據</string>
+
+    <string name="title_activity_image_detail">彈幕詳情</string>
+    <string name="i_want_spit_slot">我要吐槽</string>
+    <string name="action_report">舉報</string>
+    <string name="action_save_image">保存圖片</string>
+    <string name="action_barrage_open">開啟彈慕</string>
+    <string name="action_barrage_close">關閉彈慕</string>
+
+    <string name="title_activity_report">舉報</string>
+    <string name="select_report_reason">請選擇舉報原因</string>
+    <string name="ad_harassment">廣告騷擾</string>
+    <string name="addition_info">補充說明(選填)</string>
+    <string name="bloody_violence">暴力血腥</string>
+    <string name="other">其他</string>
+    <string name="political_speech">政治言論</string>
+    <string name="report_hint">我要吐槽</string>
+    <string name="action_submit">提交</string>
+    <string name="vulgar_pornography">色情低俗</string>
+    <string name="report_success">舉報成功</string>
+    <string name="report_message">感謝您的幫助,客服人員將盡快處理。</string>
+
+    <string name="action_add">添加</string>
+    <string name="action_delete">刪除</string>
+    <string name="take_photo">相機拍照</string>
+    <string name="local_album">本地相冊</string>
+    <string name="add_discription">寫下你內心最真實的獨白</string>
+    <string name="action_done">發布</string>
+    <string name="action_next">下一步</string>
+    <string name="login">立即登錄</string>
+    <string name="login_please">請到我的廣場頁面進行登錄哦</string>
+    <string name="login_please_plaza">請先登錄</string>
+
+    <string name="no_camera_app">未找到系統相機程序</string>
+    <string name="no_sdcard">沒有可用的存儲卡</string>
+    <string name="no_photo">沒有找到照片</string>
+    <string name="no_file">未在存儲卡中找到這個文件</string>
+    <string name="crop_image">裁剪</string>
+    <string name="connect_network">Connect Network</string>
+    <string name="no_more">加載完成!</string>
+    <string name="contains_sensitive">包含敏感詞,請重新輸入!</string>
+    <string name="login_expired">帳號登錄已過期，請重新登錄！</string>
+    <string name="user_intro_default">分享的圖片</string>
+    <string name="delete_tip">正在刪除，請勿重複操作！</string>
+    <string name="publish_tip">正在發布，请勿重复操作！</string>
+    <string name="empty">快點擊右上角上傳照片哦!</string>
+
+    <string name="msg_delete_photos">要刪除所選圖片嗎?</string>
+    <string name="wait_publishing">正在發布，請稍候...</string>
+    <string name="wait_deleted">正在刪除, 請稍候...</string>
+    <string name="publish_success">發布成功!</string>
+    <string name="report_thank">感謝舉報</string>
+    <string name="crop_edit">編輯</string>
+    <string name="refresh_success">刷新成功!</string>
+    <string name="system_err">加載失敗,請刷新重試!</string>
+    <string name="delete_success">刪除成功!</string>
+
+    <string name="cannot_find_image">沒有找到圖片</string>
+
+    <!--Added by tyd Linguanrong for droi push, 16-3-8-->
+    <string name="thumb_for_you">贊了你！</string>
+    <string name="comment_for_you">評論了你: </string>
+    <string name="action_clear">清空</string>
+    <string name="title_activity_droi_push">消息</string>
+    <string name="no_message">您還沒收到消息</string>
+    <string name="plaza_photo_number">照片 %1$s</string>
+    <string name="plaza_message_number">消息 %1$s</string>
+    <!--Tyd-->
+
+    <!--Added by tyd Linguanrong for community settings, 16-5-13-->
+    <string name="community_settings">圖吧設置</string>
+    <string name="community_toggle_droi_push">接收消息</string>
+    <string name="community_toggle_droi_push_summary">接收被評論或點贊消息</string>
+    <string name="community_clear_cache">清理缓存</string>
+    <string name="community_cache_cleanning">正在清理…</string>
+    <!--Tyd-->
+
+    <string name="flock_download">圖吧下載</string>
+    <string name="image_existed">圖片已存在</string>
+    <string name="save_image_tip">已保存至 sdcard/DCIM/圖吧下載</string>
+</resources>

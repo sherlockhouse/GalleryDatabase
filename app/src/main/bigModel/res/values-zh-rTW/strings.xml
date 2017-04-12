@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Added by tyd xuewelil 20140526, for qr largeMode -->
+    <!-- end -->
+
+    <string name="blockbuster">大片</string>
+    <string name="preview">長按預覽</string>
+    <string name="returns">字幕</string>
+    <string name="finish">完成</string>
+    <string name="inputcontent">請輸入內容</string>
+    <string name="translatefailed">請檢查網絡連接!</string>
+    <string name="chinesecontent">點擊此處添加字幕!</string>
+    <string name="remaincount">剩餘</string>
+    <string name="english">英</string>
+    <string name="japanese">日</string>
+    <string name="blockdelete">删除</string>
+    <string name="englishcontent">Click here to add your subtitle.</string>
+    <string name="recommend">推薦字幕</string>
+    <string name="chinesecontentone">生活就像是一盒巧克力,你永遠不知道你會得到什麽。</string>
+    <string name="englishcontentone">Life is like a box of chocolate, you never know what you\'re gonna get.</string>
+    <string name="chinesecontenttwo">上帝會把我們身邊最好的東西拿走,以提醒我們得到的更多。</string>
+    <string name="englishcontenttwo">God will take the best of everything around us, to remind us to get more.</string>
+    <string name="chinesecontentthree">愛情這東西,是件很關鍵認識的太早或太晚都,都不行。</string>
+    <string name="englishcontentthree">Love this thing, time is very key to know too early or too late, all not line.</string>
+    <string name="chinesecontenfour">最美的事不是留住時光,而是留住記憶。</string>
+    <string name="englishcontentfour">The most beautiful thing is not keep time,but retain memories.</string>
+    <string name="korean">韓</string>
+    <string name="chinesecontentfive">這個脆弱的世界需要比我們更強大的人來守護。</string>
+    <string name="englishcontentfive">This vulnerable world need something more powerful than any of us.</string>
+    <string name="filternormal">正常</string>
+    <string name="filterchongya">沖壓</string>
+    <string name="filterold"> 復古</string>
+    <string name="filterbandw">黑白</string>
+    <string name="filternremove">漂除銀影</string>
+    <string name="filteroutphoto">即時出相</string>
+    <string name="filtercoffee">拿鉄咖啡</string>
+    <string name="filterblue">藍色</string>
+    <string name="filterfuchong">負沖</string>
+    <string name="process_image">處理圖片\u2026</string>
+    <!--end-->
+</resources>

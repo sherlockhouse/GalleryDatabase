@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2013, The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <!--Added by Tyd Linguanrong for Gallery new style, 2013-12-19-->
+    <dimen name="albumset_slot_gap_vertical">35dp</dimen>
+
+    <integer name="album_timeshaft_rows_land">4</integer>
+    <integer name="album_timeshaft_rows_port">4</integer>
+
+    <dimen name="album_slot_padding">@dimen/album_slot_gap</dimen>
+    <dimen name="album_timeshaft_slot_padding">@dimen/album_slot_gap</dimen>
+
+    <dimen name="album_date_label_background_height">100dp</dimen>
+    <dimen name="album_date_title_offset">10dp</dimen>
+    <dimen name="album_date_count_offset">10dp</dimen>
+    <dimen name="album_date_title_font_size">14sp</dimen>
+    <dimen name="album_date_count_font_size">14sp</dimen>
+    <dimen name="album_date_left_margin">10dp</dimen>
+    <dimen name="album_date_title_right_margin">10dp</dimen>
+    <dimen name="album_date_icon_size">25dp</dimen>
+
+    <dimen name="timeshaft_title_height">30dp</dimen>
+    <dimen name="timeshaft_remark_height">10dp</dimen>
+
+    <dimen name="dateview_button_padding_top">1dp</dimen>
+    <dimen name="dateview_date_padding_left">10dp</dimen>
+    <dimen name="dateview_date_padding_top">8dp</dimen>
+    <dimen name="dateview_count_padding_top">8dp</dimen>
+
+    <dimen name="tab_bar_default_height">60dip</dimen>
+    <!--Linguanrong-->
+
+    <dimen name="status_bar_height">25dip</dimen>
+
+    <!-- Added by Linguanrong for story album, 2015-4-2 -->
+    <integer name="albumstory_rows_land">3</integer>
+    <integer name="albumstory_rows_port">5</integer>
+    <dimen name="albumstory_padding_top">3dp</dimen>
+    <dimen name="albumstory_padding_bottom">0dp</dimen>
+    <dimen name="albumstory_padding_left_right">1dp</dimen>
+    <dimen name="albumstory_slot_gap">2dp</dimen>
+    <dimen name="albumstory_slot_gap_vertical">37dp</dimen>
+
+    <dimen name="albumstory_label_background_height">30dp</dimen>
+    <dimen name="albumstory_title_offset">10dp</dimen>
+    <dimen name="albumstory_count_offset">10dp</dimen>
+    <dimen name="albumstory_title_font_size">14sp</dimen>
+    <dimen name="albumstory_count_font_size">12sp</dimen>
+    <dimen name="albumstory_left_margin">6dp</dimen>
+    <dimen name="albumstory_title_right_margin">40dp</dimen>
+    <dimen name="albumstory_icon_size">25dp</dimen>
+
+    <integer name="story_descrip_max_length">5</integer>
+
+    <dimen name="album_story_slot_gap">2dp</dimen>
+    <dimen name="album_story_padding">25dp</dimen>
+    <dimen name="album_story_padding_vertical">2dp</dimen>
+    <dimen name="story_date_item_bg_padding">15dp</dimen>
+    <dimen name="album_story_left_padding">10dp</dimen>
+    <dimen name="album_story_top_padding">8dp</dimen>
+    <dimen name="album_story_bottom_padding">5dp</dimen>
+    <dimen name="album_story_dot_left_padding">2dp</dimen>
+
+    <dimen name="story_item_text_size">14sp</dimen>
+
+    <dimen name="story_header_title_size">14sp</dimen>
+    <dimen name="story_header_edit_size">14sp</dimen>
+    <dimen name="story_texture_padding">10px</dimen>
+    <dimen name="story_texture_minwidth">25dip</dimen>
+
+    <dimen name="story_header_descrip_gap">7dp</dimen>
+    <dimen name="story_header_date_gap">2dp</dimen>
+
+    <dimen name="story_cover_x">15dp</dimen>
+    <dimen name="story_cover_y">10dp</dimen>
+    <dimen name="story_cover_w">70dp</dimen>
+    <dimen name="story_cover_h">70dp</dimen>
+
+    <integer name="story_cover_rows_land">4</integer>
+    <integer name="story_cover_rows_port">6</integer>
+
+    <dimen name="story_guide_padding">110dip</dimen>
+
+    <!-- Tyd -->
+
+    <!-- tyd.biantao 20130110. Wallpaper -->
+    <dimen name="wallpaper_drag_text_size">12.0sp</dimen>
+    <dimen name="wallpaper_drag_bottom_line_height">3.0dip</dimen>
+    <dimen name="wallpaper_drag_seprator_width">1.0dip</dimen>
+    <dimen name="wallpaper_drag_seprator_height">13.0dip</dimen>
+
+    <!--Added by tyd Linguanrong for jigsaw, 16-2-2-->
+    <dimen name="jigsaw_assemble_ctrl_height">150dp</dimen>
+    <dimen name="assemble_thumb_item_margin_left">10.5dp</dimen>
+    <dimen name="assemble_thumb_item_margin_top">4dp</dimen>
+    <dimen name="jigsaw_ctrl_title_height">56dp</dimen>
+
+    <dimen name="jigsaw_picker_ctrl_height">162dp</dimen>
+    <dimen name="jigsaw_picker_ctrl_text_size">15sp</dimen>
+    <dimen name="picker_selected_thumb_panel_w">92dp</dimen>
+    <dimen name="picker_selected_thumb_panel_h">92dp</dimen>
+    <dimen name="picker_selected_thumb_w">80dp</dimen>
+    <dimen name="picker_selected_thumb_h">80dp</dimen>
+
+    <dimen name="jigsaw_draw_panel_padding">8dp</dimen>
+    <dimen name="template_padding">16dp</dimen>
+    <dimen name="template_child_frame_padding">5dp</dimen>
+
+
+    <dimen name="ec_jigsaw_thumbnailc_w">60dp</dimen>
+    <dimen name="ec_jigsaw_thumbnailc_h">80dp</dimen>
+    <!--
+    Warning: the following dimensions must be used pixels,
+    because of the final image size is intrinsic 2160x2880 after jigsawing,
+    all the dimension base on it.
+    -->
+    <!-- have tow child horizontal, average weight -->
+    <dimen name="template_layout_h2_size">940px</dimen>
+    <dimen name="template_layout_h2_gap">216px</dimen>
+    <!-- have tow child vertical, average weight -->
+    <dimen name="template_layout_v2_size">1240px</dimen>
+    <dimen name="template_layout_v2_gap">336px</dimen>
+    <!-- have three child horizontal, average weight -->
+    <dimen name="template_layout_h3_size">640px</dimen>
+    <dimen name="template_layout_h3_gap">108px</dimen>
+    <!-- have three child vertical, average weight -->
+    <dimen name="template_layout_v3_size">840px</dimen>
+    <dimen name="template_layout_v3_span2_size">1848px</dimen>
+    <dimen name="template_layout_v3_gap">168px</dimen>
+    <!-- have four child vertical, average weight -->
+    <dimen name="template_layout_v4_size">640px</dimen>
+    <dimen name="template_layout_v4_gap">112px</dimen>
+    <!-- end -->
+    <!--Tyd-->
+</resources>

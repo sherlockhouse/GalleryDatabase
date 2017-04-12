@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/dc_elements_center_item_height"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" >
+
+        <ImageView
+            android:id="@+id/preview_icon"
+            android:layout_width="@dimen/dc_thumbnail_w"
+            android:layout_height="@dimen/dc_thumbnail_h"
+            android:layout_gravity="center"
+            android:src="@drawable/dc_plugin_preview_default" />
+
+        <ImageView
+            android:id="@+id/installing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@anim/dc_installing"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/dc_install"
+        android:layout_width="@dimen/ec_download_small_w"
+        android:layout_height="@dimen/ec_download_small_h"
+        android:layout_gravity="center"
+        android:background="@drawable/ec_down_btn"
+        android:gravity="center"
+        android:text="@string/ec_download"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:textColor="@drawable/ec_download_bar_color" />
+
+</LinearLayout>

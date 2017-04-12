@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/banner_layout" />
+
+    <include layout="@layout/ec_page_body" />
+
+    <include layout="@layout/ec_no_network" />
+
+    <include layout="@layout/ec_loading_progressbar" />
+
+</LinearLayout>

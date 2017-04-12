@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/ec_resource_body"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:visibility="gone"
+              android:orientation="vertical">
+
+    <GridView
+        android:id="@+id/ec_gridview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="10dp"
+        android:layout_weight="1.0"
+        android:gravity="center"
+        android:horizontalSpacing="10dp"
+        android:listSelector="@drawable/ec_item_selector"
+        android:numColumns="3"
+        android:scrollbars="none"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dp"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/ec_deletebar_bg_h"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/ec_delete_btn"
+            android:layout_width="@dimen/ec_deletebar_w"
+            android:layout_height="@dimen/ec_deletebar_h"
+            android:layout_gravity="center"
+            android:background="@drawable/ec_deletebar_btn"
+            android:gravity="center"/>
+    </FrameLayout>
+
+</LinearLayout>

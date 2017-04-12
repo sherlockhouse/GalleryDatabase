@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/translate_english_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/translateborder"
+        android:gravity="top"
+        android:hint="@string/englishcontent"
+        android:minHeight="@dimen/edit_text_height"
+        android:textColor="#000000"
+        android:textColorHint="#9b9b9b"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/tranlatelayout_height">
+
+        <Button
+            android:id="@+id/translate_resetenglish_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/translatedeleteselector"
+            android:gravity="center"
+            android:onClick="reset"
+            android:text="@string/blockdelete"
+            android:textColor="#9b9b9b"/>
+    </RelativeLayout>
+
+</LinearLayout>

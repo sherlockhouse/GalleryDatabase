@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="new_theme_color">#0d9e59</color>
+    <color name="activity_main_bg">#ffffff</color>
+    <color name="normal_color">#ffffff</color>
+    <color name="ec_bg_color">#ffffff</color>
+    <color name="gray_color">#d9d9d9</color>
+    <color name="progress_text_color">#3cdc70</color>
+
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <dimen name="elements_center_thumbnail_width">77dp</dimen>
+    <dimen name="elements_center_thumbnail_height">95dp</dimen>
+    <dimen name="elements_center_listitem_gap">9dp</dimen>
+    <dimen name="ec_gridview_item_w">89dp</dimen>
+    <dimen name="ec_gridview_item_h">107dp</dimen>
+    <dimen name="ec_item_pageview_w">234dp</dimen>
+    <dimen name="ec_item_pageview_h">250dp</dimen>
+    <dimen name="ec_preview_bg_w">234dp</dimen>
+    <dimen name="ec_preview_bg_h">315dp</dimen>
+    <dimen name="ec_item_download_bar_h">44dp</dimen>
+    <dimen name="ec_item_download_bar_w">178dp</dimen>
+    <dimen name="ec_indicator_w">20dp</dimen>
+    <dimen name="ec_indicator_h">20dp</dimen>
+    <dimen name="ec_resource_prompt_h">161dp</dimen>
+    <dimen name="ec_resource_prompt_w">201dp</dimen>
+    <dimen name="ec_no_network_prompt_h">200dp</dimen>
+    <dimen name="ec_no_network_prompt_w">200dp</dimen>
+    <dimen name="ec_no_network_img_h">142dp</dimen>
+    <dimen name="ec_no_network_btn_w">140dp</dimen>
+    <dimen name="ec_no_network_btn_h">55dp</dimen>
+    <dimen name="ec_download_small_w">85dp</dimen>
+    <dimen name="ec_download_small_h">27dp</dimen>
+    <dimen name="banner_image_height">90dp</dimen>
+    <dimen name="dc_elements_center_item_height">135dp</dimen>
+    <dimen name="dc_thumbnail_w">70dp</dimen>
+    <dimen name="dc_thumbnail_h">70dp</dimen>
+
+</resources>

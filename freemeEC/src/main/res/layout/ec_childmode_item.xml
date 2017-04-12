@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"
+              android:gravity="center"
+              android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="@dimen/elements_center_thumbnail_width"
+        android:layout_height="@dimen/elements_center_thumbnail_height"
+        android:layout_gravity="center">
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@drawable/ec_default_thumbnail"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/ec_indicator_h"
+            android:layout_gravity="bottom">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="3dp"
+                android:gravity="center"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@android:color/white"/>
+
+            <ImageView
+                android:id="@+id/indicator"
+                android:layout_width="@dimen/ec_indicator_w"
+                android:layout_height="@dimen/ec_indicator_h"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ec_indicator_audio"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/thumbnail_cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@drawable/ec_thumbnail_cover"/>
+
+        <ImageView
+            android:id="@+id/thumbnail_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@anim/ec_childmode_loading"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="@dimen/ec_download_small_w"
+        android:layout_height="@dimen/ec_download_small_h"
+        android:layout_gravity="center"
+        android:layout_marginTop="7dp">
+
+        <Button
+            android:id="@+id/ec_download"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@drawable/ec_down_btn"
+            android:gravity="center"
+            android:text="@string/ec_download"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textColor="@drawable/ec_download_bar_color"/>
+
+        <FrameLayout
+            android:id="@+id/ec_progress_root"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/ec_download_pb"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@drawable/ec_downloading_bg"
+                android:progressDrawable="@drawable/ec_thumbnail_progressbar"/>
+
+            <TextView
+                android:id="@+id/ec_download_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:textColor="@color/progress_text_color"
+                android:visibility="visible"/>
+        </FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>

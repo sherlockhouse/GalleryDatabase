@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ /*
+ * 
+ * Description: the template layout, first template with three child
+ *
+ * Author: Theobald_wu, contact with wuqizhi@tydtech.com
+ * 
+ * Date: 2014/01   
+ * 
+ * Copyright (C) 2014 TYD Technology Co.,Ltd.
+ * 
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<!--
+    Warning: the following dimensions must be used pixels, 
+    because of the final image size is intrinsic 2160x2880 after jigsawing,
+    all the dimension base on it.
+    the same as: all template layouts.
+-->
+<LinearLayout style="@style/templateStyle"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical">
+
+    <com.freeme.jigsaw.ui.JigsawTile
+        style="@style/template_child_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50px"
+        android:layout_weight="1"/>
+
+    <com.freeme.jigsaw.ui.JigsawTile
+        style="@style/template_child_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="24px"
+        android:layout_marginTop="24px"
+        android:layout_weight="1"/>
+
+    <com.freeme.jigsaw.ui.JigsawTile
+        style="@style/template_child_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50px"
+        android:layout_weight="1"/>
+
+</LinearLayout>

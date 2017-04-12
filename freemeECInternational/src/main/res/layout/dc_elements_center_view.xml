@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.freeme.elementscenter.dc.ui.DCElementsCenterView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dc_elements_center_item_height"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/watermark"
+                style="@style/DcTextStyle"
+                android:drawableTop="@drawable/dc_watermark"
+                android:text="@string/ec_watermark_mode" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/pose"
+                style="@style/DcTextStyle"
+                android:drawableTop="@drawable/dc_pose"
+                android:text="@string/ec_pose_mode" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dc_elements_center_item_height"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/child"
+                style="@style/DcTextStyle"
+                android:drawableTop="@drawable/dc_child"
+                android:text="@string/ec_child_mode" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/jigsaw"
+                style="@style/DcTextStyle"
+                android:drawableTop="@drawable/dc_jigsaw"
+                android:text="@string/ec_jigsaw_mode"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+</com.freeme.elementscenter.dc.ui.DCElementsCenterView>

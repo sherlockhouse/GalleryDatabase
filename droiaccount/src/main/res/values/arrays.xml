@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+     <string-array name="lib_droi_account_gender_entries">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Confidential</item>
+    </string-array>
+    
+     <string-array name="lib_droi_account_gender_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    
+     <string-array name="lib_droi_account_avatar_sources_entries">
+        <item>Camera</item>
+        <item>Select an album</item>
+    </string-array>
+     <string-array name="lib_droi_account_avatar_sources_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>
+    
