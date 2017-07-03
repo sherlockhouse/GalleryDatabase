@@ -29,6 +29,7 @@
         <item name="android:actionModeBackground">@color/transparent</item>
         <item name="android:actionMenuTextAppearance">@style/MenuTextStyle</item>
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="ActionBarTwoLineItem">
