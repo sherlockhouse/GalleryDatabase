@@ -51,6 +51,12 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
+//*/ freeme.gulincheng,20170712,use getRealSize for navigationbar hide #0014585
+import android.graphics.Point;
+import android.view.WindowManager;
+import android.view.Display;
+//*/
+
 // The root component of all <code>GLView</code>s. The rendering is done in GL
 // thread while the event handling is done in the main thread.  To synchronize
 // the two threads, the entry points of this package need to synchronize on the
@@ -435,8 +441,17 @@ public class GLRootView extends GLSurfaceView
     private void layoutContentPane() {
         mFlags &= ~FLAG_NEED_LAYOUT;
 
+        //*/ freeme.gulincheng,20170712,use getRealSize for navigationbar hide #0014585
+        WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        Point size = new Point();
+        display.getRealSize(size);
+        int w = size.x;
+        int h = size.y;
+        /*/
         int w = getWidth();
         int h = getHeight();
+        //*/
         int displayRotation = 0;
         int compensation = 0;
 
