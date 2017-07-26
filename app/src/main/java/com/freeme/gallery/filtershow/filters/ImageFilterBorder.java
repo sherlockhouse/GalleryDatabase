@@ -24,6 +24,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import com.freeme.utils.LogUtil;
+
 import java.util.HashMap;
 
 public class ImageFilterBorder extends ImageFilter {
@@ -64,7 +66,10 @@ public class ImageFilterBorder extends ImageFilter {
     public Bitmap applyHelper(Bitmap bitmap, float scale1, float scale2) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
-        Rect bounds = new Rect(0, 0, (int) (w * scale1), (int) (h * scale1));
+        /// M: [BUG.MODIFY] @{
+        /*        Rect bounds = new Rect(0, 0, (int) (w * scale1), (int) (h * scale1));*/
+        Rect bounds = new Rect(0, 0, (int) Math.ceil(w * scale1), (int) Math.ceil(h * scale1));
+        /// @}
         Canvas canvas = new Canvas(bitmap);
         canvas.scale(scale2, scale2);
         Drawable drawable = getDrawable(getParameters().getDrawableResource());
@@ -76,7 +81,22 @@ public class ImageFilterBorder extends ImageFilter {
     public Drawable getDrawable(int rsc) {
         Drawable drawable = mDrawables.get(rsc);
         if (drawable == null && mResources != null && rsc != 0) {
-            drawable = new BitmapDrawable(mResources, BitmapFactory.decodeResource(mResources, rsc));
+            /// M: [BUG.MODIFY] @{
+            /*
+             * drawable =
+             * new BitmapDrawable(mResources, BitmapFactory.decodeResource(mResources, rsc));
+             */
+            // adjust sample size, preventing OOM @{
+            /* drawable =
+             * new BitmapDrawable(mResources, BitmapFactory.decodeResource(mResources, rsc));
+             */
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            // dynamically adjust sample size according to resolution
+            options.inSampleSize = sBorderSampleSize;
+            LogUtil.i("getDrawable, set border sampleSize to " + options.inSampleSize);
+            drawable = new BitmapDrawable(mResources,
+                    BitmapFactory.decodeResource(mResources, rsc, options));
+            /// @}
             mDrawables.put(rsc, drawable);
         }
         return drawable;
@@ -89,4 +109,11 @@ public class ImageFilterBorder extends ImageFilter {
         }
     }
 
+    /// M: [BUG.ADD] @{
+    // fix OOM issue caused by borders
+    private static int sBorderSampleSize = 2;
+    public static void setBorderSampleSize(int sampleSize) {
+        sBorderSampleSize = sampleSize;
+    }
+    /// @}
 }

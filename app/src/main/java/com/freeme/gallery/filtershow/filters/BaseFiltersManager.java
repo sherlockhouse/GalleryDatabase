@@ -354,6 +354,10 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
 
     public void setFilterResources(Resources resources) {
         ImageFilterBorder filterBorder = (ImageFilterBorder) getFilter(ImageFilterBorder.class);
+        /// M: [BUG.ADD] @{
+        //fix OOM issue caused by borders. @{
+        ImageFilterBorder.setBorderSampleSize(sBorderSampleSize);
+        /// @}
         filterBorder.setResources(resources);
         ImageFilterFx filterFx = (ImageFilterFx) getFilter(ImageFilterFx.class);
         filterFx.setResources(resources);
@@ -361,5 +365,26 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
 
     public ImageFilter getFilter(Class c) {
         return mFilters.get(c);
+    }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    //fix OOM issue caused by borders.
+    private static int sBorderSampleSize = 2;
+    public static void setBorderSampleSize(int sampleSize) {
+        sBorderSampleSize = sampleSize;
+    }
+
+    //free all filter resources (not only for unused ones)
+    public void finalizeFilterResources() {
+        ImageFilter filter;
+        for (Class c : mFilters.keySet()) {
+            filter = mFilters.get(c);
+            if (filter != null) { // should not happen, though
+                filter.freeResources();
+            }
+        }
     }
 }
