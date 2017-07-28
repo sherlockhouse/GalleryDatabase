@@ -3,7 +3,7 @@ package com.freeme.utils;
 import android.content.Context;
 import android.os.Environment;
 
-import com.freeme.community.utils.AppConfig;
+import com.freeme.gallery.util.AppConfig;
 
 import java.io.BufferedReader;
 import java.io.File;

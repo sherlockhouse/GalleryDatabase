@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="flock_download">Flock Download</string>
+    <string name="image_existed">Image existed</string>
+    <string name="save_image_tip">Save success to sdcard/DCIM/Flock</string>
+    <string name="community">Flock</string>
+
+    <string name="latest">New</string>
+    <string name="top">Hot</string>
+    <string name="plaza">Me</string>
+    <string name="action_add">Add</string>
+    <string name="action_delete">Delete</string>
+    <string name="local_album">Local album</string>
+    <string name="take_photo">Take photo</string>
+    <string name="crop_image">Crop Image</string>
+    <string name="add_discription">Add discription</string>
+    <string name="action_done">Done</string>
+    <string name="action_next">Next</string>
+    <string name="login">Login</string>
+    <string name="login_please">Login please</string>
+    <string name="login_please_plaza">Login please</string>
+    <string name="blockbuster">Blockbuster</string>
+    <string name="preview">Compare</string>
+    <string name="returns">Title</string>
+    <string name="finish">Finish</string>
+    <string name="inputcontent">Please enter the content.</string>
+    <string name="translatefailed">check your network connection.</string>
+    <string name="chinesecontent">点击此处添加字幕!</string>
+    <string name="remaincount">remain</string>
+    <string name="english">en</string>
+    <string name="japanese">jp</string>
+    <string name="blockdelete">delete</string>
+    <string name="englishcontent">Click here to add your subtitle.</string>
+    <string name="recommend">Recommended</string>
+    <string name="chinesecontentone">生活就像是一盒巧克力,你永遠不知道你會得到什麽。</string>
+    <string name="englishcontentone">Life is like a box of chocolate, you never know what you\'re gonna get.</string>
+    <string name="chinesecontenttwo">上帝會把我們身邊最好的東西拿走,以提醒我們得到的更多。</string>
+    <string name="englishcontenttwo">God will take the best of everything around us, to remind us to get more.</string>
+    <string name="chinesecontentthree">愛情這東西,是件很關鍵認識的太早或太晚都,都不行。</string>
+    <string name="englishcontentthree">Love this thing, time is very key to know too early or too late, all not line.</string>
+    <string name="chinesecontenfour">最美的事不是留住時光,而是留住記憶。</string>
+    <string name="englishcontentfour">The most beautiful thing is not keep time,but retain memories.</string>
+    <string name="korean">kor</string>
+    <string name="chinesecontentfive">這個脆弱的世界需要比我們更強大的人來守護。</string>
+    <string name="englishcontentfive">This vulnerable world need something more powerful than any of us.</string>
+    <string name="filternormal">normal</string>
+    <string name="filterchongya">punch</string>
+    <string name="filterold"> ancient</string>
+    <string name="filterbandw">B and W</string>
+    <string name="filternremove">shadow</string>
+    <string name="filteroutphoto">outlike</string>
+    <string name="filtercoffee">latte</string>
+    <string name="filterblue">blue</string>
+    <string name="filterfuchong">bearload</string>
+    <!--end-->
+    <string name="process_image">Processing\u2026</string>
+</resources>

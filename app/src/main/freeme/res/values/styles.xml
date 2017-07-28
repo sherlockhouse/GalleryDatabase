@@ -16,25 +16,25 @@
 
 <resources>
 
-    <style name="GalleryTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    <style name="GalleryTheme" parent="*freeme:Theme.Freeme.Light">
         <!--<item name="@*android:panelMenuListTheme">@*android:style/Theme.Material.Light.CompactMenu</item>-->
-        <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
-        <item name="switchStyle">@android:style/Widget.CompoundButton</item>
-        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
+        <!--<item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>-->
+        <!--<item name="switchStyle">@android:style/Widget.CompoundButton</item>-->
+        <!--<item name="android:actionBarStyle">@style/ActionBarStyle</item>-->
         <!--<item name="android:colorPrimary">@color/theme_color</item>-->
         <!--<item name="android:actionModeStyle">@style/ActionBarStyle</item>-->
-        <item name="android:actionModeCloseDrawable">@drawable/ic_ab_back_material</item>
-        <item name="android:actionModeBackground">@color/transparent</item>
-        <item name="android:actionMenuTextAppearance">@style/MenuTextStyle</item>
-        <item name="android:actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <!--<item name="android:actionModeCloseDrawable">@drawable/ic_ab_back_material</item>-->
+        <!--<item name="android:actionModeBackground">@color/transparent</item>-->
+        <!--<item name="android:actionMenuTextAppearance">@style/MenuTextStyle</item>-->
+        <!--<item name="android:actionOverflowButtonStyle">@style/OverflowButtonStyle</item>-->
+        <!--<item name="android:windowContentOverlay">@null</item>-->
+        <!--<item name="android:windowLightStatusBar">true</item>-->
     </style>
 
-    <style name="ActionBarStyle" parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:displayOptions">homeAsUp|showTitle</item>
-        <item name="android:background">@color/theme_color</item>
-    </style>
+    <!--<style name="ActionBarStyle" parent="android:Widget.Holo.Light.ActionBar.Solid.Inverse">-->
+        <!--<item name="android:displayOptions">homeAsUp|showTitle</item>-->
+        <!--<item name="android:background">@color/theme_color</item>-->
+    <!--</style>-->
 
     <style name="MenuTextStyle">
         <item name="android:textColor">@android:color/white</item>

@@ -40,7 +40,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.freeme.community.utils.ToastUtil;
+//import com.freeme.community.utils.ToastUtil;
 import com.freeme.elementscenter.ECOfflineUtil;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
@@ -414,7 +414,7 @@ public class JigsawEntry extends AbstractGalleryActivity implements
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            ToastUtil.showToast(this, "ActivityNotFoundException");
+//            ToastUtil.showToast(this, "ActivityNotFoundException");
             e.printStackTrace();
         }
     }

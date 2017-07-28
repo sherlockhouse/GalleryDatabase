@@ -19,7 +19,8 @@ package com.freeme.gallery.filtershow.filters;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.support.v8.renderscript.Allocation;
+import android.graphics.Rect;
+import android.renderscript.Allocation;
 import android.widget.Toast;
 
 import com.freeme.gallery.filtershow.imageshow.GeometryMathUtils;

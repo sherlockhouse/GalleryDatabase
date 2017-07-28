@@ -18,19 +18,14 @@ package com.freeme.gallery.filtershow.pipeline;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.RenderScript;
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
 
 public interface PipelineInterface {
-    String getName();
-
-    Resources getResources();
-
-    Allocation getInPixelsAllocation();
-
-    Allocation getOutPixelsAllocation();
-
-    boolean prepareRenderscriptAllocations(Bitmap bitmap);
-
-    RenderScript getRSContext();
+    public String getName();
+    public Resources getResources();
+    public Allocation getInPixelsAllocation();
+    public Allocation getOutPixelsAllocation();
+    public boolean prepareRenderscriptAllocations(Bitmap bitmap);
+    public RenderScript getRSContext();
 }

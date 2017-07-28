@@ -26,6 +26,7 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View.MeasureSpec;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.Toast;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
@@ -599,21 +600,10 @@ public class PhotoView extends GLView {
             boolean changeSize, int left, int top, int right, int bottom) {
         int w = right - left;
         int h = bottom - top;
-        //*/ Modified by droi Linguanrong for adaptation to navigationbar, 16-2-24
-        int nvheight = com.freeme.community.utils.Utils.navigationBarHeight(mContext);
-        h += nvheight;
-        mTileView.layout(0, -nvheight, w, h);
-        mEdgeView.layout(0, -nvheight, w, h);
-        /*/
         mTileView.layout(0, 0, w, h);
         mEdgeView.layout(0, 0, w, h);
-         */
-        //*/
         mUndoBar.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-//        mUndoBar.layout(0, h - mUndoBar.getMeasuredHeight(), w, h);
-        top = h - mUndoBar.getMeasuredHeight()
-                - com.freeme.community.utils.Utils.navigationBarHeight(mContext);
-        mUndoBar.layout(0, top, w, h);
+        mUndoBar.layout(0, h - mUndoBar.getMeasuredHeight(), w, h);
 
         GLRoot root = getGLRoot();
         int displayRotation = root.getDisplayRotation();
@@ -637,12 +627,11 @@ public class PhotoView extends GLView {
         updateCameraRect();
         mPositionController.setConstrainedFrame(mCameraRect);
         if (changeSize) {
-            //*/ Modified by droi Linguanrong for adaptation to navigationbar, 16-2-24
-            mPositionController.setViewSize(getWidth(), getHeight() + nvheight);
-            /*/
             mPositionController.setViewSize(getWidth(), getHeight());
-            //*/
         }
+        /// M: [FEATURE.ADD] @{
+//        mLayerManager.onLayout(changeSize, left, top, right, bottom);
+        /// @}
     }
 
     // Update the camera rectangle due to layout change or camera relative frame
@@ -1615,16 +1604,22 @@ public class PhotoView extends GLView {
             // onDoubleTap happened on the second ACTION_DOWN.
             // We need to ignore the next UP event.
             mIgnoreUpEvent = true;
-            float max = CustomJsonParser.getInstance().getCustomConfig().getDoubleTapScaleMax();
-            Log.i("linguanrong","max = " + max);
-            if (scale < (Math.min(max , 0.75f)) || controller.isAtMinimalScale()) {
-                //*/ Modified by droi Linguanrong for scale max 1, 16-5-9
-                if (!mFilmMode) {
-                    controller.zoomIn(x, y, max);
+            //*/ freeme.gulincheng,20170615,lower double scale & default true
+            if (mActivity.getResources().getBoolean(R.bool.lower_double_tap_scale)) {
+                if (controller.isAtMinimalScale()) {
+                    controller.zoomIn(x, y, Math.min(1.5f, Math.min(scale * PositionController.SCALE_MAX_FACTOR, PositionController.SCALE_LIMIT)));
+                } else {
+                    controller.resetToFullView();
                 }
-                /*/
-                controller.zoomIn(x, y, Math.max(1.0f, scale * 1.5f));
-                //*/
+                return true;
+            }
+            //*/
+
+            if (scale <= .75f || controller.isAtMinimalScale()) {
+                /// M: [BUG.MODIFY] A black area show at the right side of picture.@{
+                /* controller.zoomIn(x, y, Math.max(1.0f, scale * 1.5f)); */
+                controller.zoomIn(x, y, Math.max(1.5f, Math.min(scale * 1.5f, 4.0f)));
+                /// @}
             } else {
                 controller.resetToFullView();
             }
@@ -1762,7 +1757,6 @@ public class PhotoView extends GLView {
             if (mIgnoreScalingGesture) return true;
             if (mModeChanged) return true;
             if (Float.isNaN(scale) || Float.isInfinite(scale)) return false;
-
             int outOfRange = mPositionController.scaleBy(scale, focusX, focusY);
 
             // We wait for a large enough scale change before changing mode.
@@ -1924,7 +1918,10 @@ public class PhotoView extends GLView {
                     case GestureSensorManger.GESTURE_UP:
                     case GestureSensorManger.GESTURE_RIGHT:
                         strAction = "--> RIGHT or UP";
-                        slideToNextPicture();
+                        if (!isFirstBoxReady() && !slideToNextPicture()) {
+                            Toast.makeText(mActivity, R.string.gesture_to_last,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                         break;
 
                     default:
@@ -1936,4 +1933,11 @@ public class PhotoView extends GLView {
             }
         });
     }
+
+    //*/ freeme.liuhaoran , 20170308 ,for taking gesture
+    //added to judge whether current box is camera and next box is ready.
+    public boolean isFirstBoxReady() {
+        return mFullScreenCamera && mPositionController.isFirstAtMinimalScale();
+    }
+    //*/
 }

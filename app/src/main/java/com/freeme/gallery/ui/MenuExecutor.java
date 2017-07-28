@@ -30,7 +30,7 @@ import android.support.v4.print.PrintHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
@@ -43,8 +43,8 @@ import com.freeme.gallery.util.GalleryUtils;
 import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallerycommon.util.Future;
 import com.freeme.gallerycommon.util.ThreadPool;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 
 import java.util.ArrayList;
 
@@ -262,10 +262,10 @@ public class MenuExecutor {
                         .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 mActivity.startActivity(Intent.createChooser(intent, null));
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
                 return;
             }
             case R.id.action_setas: {
@@ -382,11 +382,11 @@ public class MenuExecutor {
             case R.id.action_delete:
                 manager.delete(path);
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_DELETE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_DELETE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_DELETE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_DELETE);
                 break;
             case R.id.action_rotate_cw:
                 manager.rotate(path, 90);

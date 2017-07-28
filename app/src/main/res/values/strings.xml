@@ -831,4 +831,9 @@ CHAR LIMIT = NONE] -->
         <item quantity="one">%1$d photo</item>
         <item quantity="other">%1$d photos</item>
     </plurals>
+
+    <!-- {@ freeme.liuhaoran , 20170308 . Gesture -->
+    <string name="gesture_to_fisrt">Already is the first item</string>
+    <string name="gesture_to_last">Already is the last item</string>
+    <!-- @} -->
 </resources>

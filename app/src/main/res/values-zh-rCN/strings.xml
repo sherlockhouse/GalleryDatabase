@@ -192,4 +192,8 @@
         <item msgid="6949174783125614798" quantity="one">"%1$d张照片"</item>
         <item msgid="3813306834113858135" quantity="other">"%1$d张照片"</item>
     </plurals>
+    <!-- {@ freeme.liuhaoran , 20170308 . Gesture -->
+    <string name="gesture_to_fisrt">已是第一個項目</string>
+    <string name="gesture_to_last">已是最後一個項目</string>
+    <!-- @} -->
 </resources>

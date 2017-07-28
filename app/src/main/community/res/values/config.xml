@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer name="comment_max_length">20</integer>
-    <integer name="edittext_size">18</integer>
-</resources>

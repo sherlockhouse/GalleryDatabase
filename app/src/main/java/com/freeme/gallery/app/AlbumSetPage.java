@@ -36,7 +36,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.extern.HideModeHandler;
 import com.freeme.extern.IBucketAlbum;
@@ -69,8 +69,8 @@ import com.freeme.page.AlbumCameraPage;
 import com.freeme.page.AlbumStorySetPage;
 import com.freeme.page.AlbumTimeShaftPage;
 import com.freeme.settings.GallerySettings;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 
 import java.lang.ref.WeakReference;
@@ -1087,11 +1087,11 @@ public class AlbumSetPage extends ActivityState implements
                 //*/
 
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_HIDE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_HIDE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_HIDE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_HIDE);
 
                 Bundle data = new Bundle(getData());
                 data.putBoolean(KEY_VISIBLE_ALL_SET, true);
@@ -1121,10 +1121,10 @@ public class AlbumSetPage extends ActivityState implements
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
 
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

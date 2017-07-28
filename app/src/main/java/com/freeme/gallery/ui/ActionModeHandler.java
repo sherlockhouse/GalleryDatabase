@@ -34,7 +34,7 @@ import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.ActivityState;
@@ -52,8 +52,8 @@ import com.freeme.gallerycommon.util.ThreadPool;
 import com.freeme.page.AlbumStoryCoverPage;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.page.AlbumStorySetPage;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 
 import java.util.ArrayList;
 
@@ -516,11 +516,11 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                     mActivity.startActivity(Intent.createChooser(mShareIntent,
                             mActivity.getApplicationContext().getResources().getString(R.string.share)));
                     //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                    StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                    StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                     //*/
 
                     // for baas analytics
-                    DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                    DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                     return true;
                 }
             });

@@ -18,7 +18,6 @@ package com.freeme.gallery.filtershow.filters;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.filtershow.editors.BasicEditor;
-import com.freeme.renderscript.ScriptC_convolve3x3;
 
 public class ImageFilterSharpen extends ImageFilterRS {
     private static final String SERIALIZATION_NAME = "SHARPEN";

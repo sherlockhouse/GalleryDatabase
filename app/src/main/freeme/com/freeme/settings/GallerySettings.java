@@ -41,7 +41,7 @@ import android.preference.PreferenceScreen;
 import android.provider.MediaStore.Audio.Media;
 import android.view.MenuItem;
 
-import com.freeme.about.AboutAcitivity;
+//import com.freeme.about.AboutAcitivity;
 import com.freeme.gallery.R;
 import com.freeme.utils.CustomJsonParser;
 
@@ -69,7 +69,7 @@ public class GallerySettings extends PreferenceActivity {
     private int mSelectedIndex;
     private Uri mSelectedUri = null;
     private Preference mMediaScannerImageSizeSetting;
-    private Preference mAboutPrefs;
+//    private Preference mAboutPrefs;
     // ---
     //*/ Added by Tyd Linguanrong for [tyd00528540] update image size, 2014-7-18
     private ContentObserver mImageSizeObserver = new ContentObserver(new Handler()) {
@@ -108,7 +108,7 @@ public class GallerySettings extends PreferenceActivity {
                 return true;
             }
         });
-        mAboutPrefs = findPreference(ABOUNT_KEY);
+//        mAboutPrefs = findPreference(ABOUNT_KEY);
 
         // +++
         mMediaScannerImageSizeSetting = findPreference(MEDIASCANNER_IMAGE_SIZE_KEY);
@@ -214,10 +214,10 @@ public class GallerySettings extends PreferenceActivity {
             } else {
                 startMusicPicker();
             }
-        }else if(preference == mAboutPrefs){
-            Intent intent = new Intent();
-            intent.setClass(this, AboutAcitivity.class);
-            startActivity(intent);
+//        }else if(preference == mAboutPrefs){
+//            Intent intent = new Intent();
+//            intent.setClass(this, AboutAcitivity.class);
+//            startActivity(intent);
         }
 
         return true;

@@ -33,7 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.gallery.R;
 import com.freeme.gallery.anim.StateTransitionAnimation;
@@ -70,8 +70,8 @@ import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallerycommon.util.Future;
 import com.freeme.jigsaw.app.JigsawEntry;
 import com.freeme.settings.GallerySettings;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.AlbumTimeSlotRenderer;
 import com.freeme.ui.DateSlotView;
 import com.freeme.utils.FreemeUtils;
@@ -390,10 +390,10 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 mActivity.closeOptionsMenu();
                 final Bundle data = new Bundle();
@@ -444,7 +444,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

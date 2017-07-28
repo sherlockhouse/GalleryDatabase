@@ -18,14 +18,13 @@ package com.freeme.gallery.filtershow.filters;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.Script.LaunchOptions;
-import android.support.v8.renderscript.Type;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.Script.LaunchOptions;
+import android.renderscript.Type;
 
 import com.freeme.gallery.filtershow.pipeline.FilterEnvironment;
-import com.freeme.renderscript.ScriptC_saturation;
 
 public class ImageFilterChanSat extends ImageFilterRS {
     private static final String LOGTAG = "ImageFilterChanSat";

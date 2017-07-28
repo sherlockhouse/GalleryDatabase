@@ -17,8 +17,8 @@
 <resources>
 
     <style name="Theme.GalleryBase" parent="GalleryTheme">
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="switchStyle">@android:style/Widget.CompoundButton</item>
+        <!--<item name="listPreferredItemHeightSmall">48dp</item>-->
+        <!--<item name="switchStyle">@android:style/Widget.CompoundButton</item>-->
     </style>
 
     <style name="Theme.Gallery.Dialog" parent="android:Theme.Holo.Light.Dialog"/>
@@ -78,10 +78,10 @@
 
     <style name="Theme.CameraBase" parent="android:Theme.Black.NoTitleBar.Fullscreen"/>
 
-    <style name="TextAppearance.DialogWindowTitle" parent="">
-        <item name="android:textSize">22sp</item>
-        <item name="android:textColor">@color/holo_blue_light</item>
-    </style>
+    <!--<style name="TextAppearance.DialogWindowTitle" parent="">-->
+        <!--<item name="android:textSize">22sp</item>-->
+        <!--<item name="android:textColor">@color/holo_blue_light</item>-->
+    <!--</style>-->
 
     <style name="Widget.Button.Borderless" parent="android:Widget.Button">
         <item name="android:background">@drawable/bg_pressed</item>
@@ -91,6 +91,25 @@
         <item name="android:minWidth">64dip</item>
         <item name="android:paddingLeft">4dip</item>
         <item name="android:paddingRight">4dip</item>
+    </style>
+
+    <style name="style_RadioButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:button">@null</item>
+        <item name="android:background">@null</item>
+        <item name="android:layout_weight">0.25</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/indicator_text_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="ActionMenuTextAppearance" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TextAppearance.Medium" parent="android:style/TextAppearance.Holo.Medium">
     </style>
 
 </resources>

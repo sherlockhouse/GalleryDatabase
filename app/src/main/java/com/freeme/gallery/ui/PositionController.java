@@ -71,12 +71,15 @@ class PositionController {
 
     // We try to scale up the image to fill the screen. But in order not to
     // scale too much for small icons, we limit the max up-scaling factor here.
-    private static final float SCALE_LIMIT = 4;
+    public static final float SCALE_LIMIT = 2;
 
     // For user's gestures, we give a temporary extra scaling range which goes
     // above or below the usual scaling limits.
     private static final float SCALE_MIN_EXTRA = 0.7f;
-    private static final float SCALE_MAX_EXTRA = 1.4f;
+    private static final float SCALE_MAX_EXTRA = 1.8f;
+    //*/freeme gulincheng 20170727 change snapback scale
+    public static float SCALE_MAX_FACTOR = 1.5f;
+    //*/
     // These are the limits for width / height of the picture in film mode.
     private static final float FILM_MODE_PORTRAIT_HEIGHT  = 0.48f;
     private static final float FILM_MODE_PORTRAIT_WIDTH   = 0.7f;
@@ -723,18 +726,16 @@ class PositionController {
         //
         s = b.clampScale(s * getTargetScale(b));
 
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        if (s > SCALE_MAX_EXTRA) {
-            s = SCALE_MAX_EXTRA;
-        }
-        mEndingScaleBy = false;
-        //*/
-
         int x = mFilmMode ? p.mCurrentX : (int) (focusX - s * mFocusX + 0.5f);
         int y = mFilmMode ? b.mCurrentY : (int) (focusY - s * mFocusY + 0.5f);
         startAnimation(x, y, s, ANIM_KIND_SCALE);
         if (s < b.mScaleMin) return -1;
         if (s > b.mScaleMax) return 1;
+        //*/freeme gulincheng 20170727 change snapback scale
+        if (getImageScale() > (b.mScaleMin * SCALE_MAX_FACTOR)) {
+            return 1;
+        }
+        //*/
         return 0;
     }
 
@@ -742,16 +743,8 @@ class PositionController {
         return b.mAnimationStartTime == NO_ANIMATION
                 ? b.mCurrentScale : b.mToScale;
     }
-
     public void endScale() {
         mInScale = false;
-
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        if (!mFilmMode) {
-            mEndingScaleBy = true;
-        }
-        //*/
-
         snapAndRedraw();
     }
 
@@ -776,6 +769,20 @@ class PositionController {
         n.doAnimation(0, n.mScaleMin, ANIM_KIND_CAPTURE);
         g.doAnimation(g.mDefaultSize, ANIM_KIND_CAPTURE);
         redraw();
+    }
+
+    // Only allow scrolling when we are not currently in an animation or we
+    // are in some animation with can be interrupted.
+    private boolean canScroll() {
+        Box b = mBoxes.get(0);
+        if (b.mAnimationStartTime == NO_ANIMATION) return true;
+        switch (b.mAnimationKind) {
+            case ANIM_KIND_SCROLL:
+            case ANIM_KIND_FLING:
+            case ANIM_KIND_FLING_X:
+                return true;
+        }
+        return false;
     }
 
     public void scrollPage(int dx, int dy) {
@@ -814,20 +821,6 @@ class PositionController {
         }
 
         startAnimation(x, y, b.mCurrentScale, ANIM_KIND_SCROLL);
-    }
-
-    // Only allow scrolling when we are not currently in an animation or we
-    // are in some animation with can be interrupted.
-    private boolean canScroll() {
-        Box b = mBoxes.get(0);
-        if (b.mAnimationStartTime == NO_ANIMATION) return true;
-        switch (b.mAnimationKind) {
-            case ANIM_KIND_SCROLL:
-            case ANIM_KIND_FLING:
-            case ANIM_KIND_FLING_X:
-                return true;
-        }
-        return false;
     }
 
     public void scrollFilmX(int dx) {
@@ -1468,16 +1461,14 @@ class PositionController {
 
             Box b = mBoxes.get(0);
             float scaleMin = mExtraScalingRange ?
-                    b.mScaleMin * SCALE_MIN_EXTRA : b.mScaleMin;
+                b.mScaleMin * SCALE_MIN_EXTRA : b.mScaleMin;
+            //*/freeme gulincheng 20170727 change snapback scale
             float scaleMax = mExtraScalingRange ?
-                    b.mScaleMax * SCALE_MAX_EXTRA : b.mScaleMax;
-
-            //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-            if (mEndingScaleBy && !mIsCamera) {
-                scaleMax = Math.max(1, b.mScaleMin);
-            }
+                b.mScaleMin * SCALE_MAX_FACTOR : b.mScaleMax;
+            /*/
+            float scaleMax = mExtraScalingRange ?
+                b.mScaleMax * SCALE_MAX_EXTRA : b.mScaleMax;
             //*/
-
             float scale = Utils.clamp(b.mCurrentScale, scaleMin, scaleMax);
             int x = mCurrentX;
             int y = mDefaultY;
@@ -1593,10 +1584,6 @@ class PositionController {
                 }
             }
         }
-
-
-
-
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1639,16 +1626,14 @@ class PositionController {
 
             if (this == mBoxes.get(0)) {
                 float scaleMin = mExtraScalingRange ?
-                        mScaleMin * SCALE_MIN_EXTRA : mScaleMin;
+                    mScaleMin * SCALE_MIN_EXTRA : mScaleMin;
+                //*/freeme gulincheng 20170727 change snapback scale
                 float scaleMax = mExtraScalingRange ?
-                        mScaleMax * SCALE_MAX_EXTRA : mScaleMax;
-
-                //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-                if (mEndingScaleBy && !mIsCamera) {
-                    scaleMax = Math.max(1, mScaleMin);
-                }
+                    mScaleMin * SCALE_MAX_FACTOR : mScaleMax;
+                /*/
+                float scaleMax = mExtraScalingRange ?
+                    mScaleMax * SCALE_MAX_EXTRA : mScaleMax;
                 //*/
-
                 scale = Utils.clamp(mCurrentScale, scaleMin, scaleMax);
                 if (mFilmMode) {
                     y = 0;
@@ -1843,5 +1828,17 @@ class PositionController {
     public void setIsCamera(boolean isCamera) {
         mIsCamera = isCamera;
     }
-//*/
+    //*/
+
+    //*/ freeme.liuhaoran ,20170308 , for taking gesture
+    public boolean isFirstAtMinimalScale() {
+        Box b1 = mBoxes.get(1);
+
+        if (null != b1) {
+            return isAlmostEqual(b1.mCurrentScale, b1.mScaleMin);
+        } else {
+            return false;
+        }
+    }
+    //*/
 }

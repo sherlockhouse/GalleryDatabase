@@ -37,7 +37,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.ActivityState;
 import com.freeme.gallery.app.GalleryActionBar;
@@ -50,8 +50,8 @@ import com.freeme.gallerycommon.util.ThreadPool;
 import com.freeme.jigsaw.ui.AssembleMemberList;
 import com.freeme.jigsaw.ui.JigsawDrawPanel;
 import com.freeme.jigsaw.util.Helper;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 
 import java.io.File;
@@ -178,11 +178,11 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
                         mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share)));
 
                         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                        StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                        StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                         //*/
 
                         // for baas analytics
-                        DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                        DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                         break;
 
                     default:

@@ -102,7 +102,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/theme_color"
             android:divider="?android:attr/dividerHorizontal"
             android:visibility="gone">
 

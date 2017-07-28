@@ -42,7 +42,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.VisitorAlbum;
 import com.freeme.data.VisitorAlbumVideo;
@@ -59,8 +59,8 @@ import com.freeme.page.AlbumCameraPage;
 import com.freeme.page.AlbumStorySetPage;
 import com.freeme.page.AlbumTimeShaftPage;
 import com.freeme.page.AlbumVisitorPage;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogcatHelper;
 
@@ -186,7 +186,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         //*/
 
         // for baas analytic
-        DroiAnalytics.onResume(this);
+//        DroiAnalytics.onResume(this);
     }
 
     @Override
@@ -197,7 +197,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
 
         // for baas analytic
-        DroiAnalytics.onPause(this);
+//        DroiAnalytics.onPause(this);
     }
 
     @Override
@@ -227,11 +227,11 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
         if (!mStartOutside) {
-            StatisticUtil.generateExitStatisticInfo(mContext, StatisticData.OPTION_EXIT);
-            StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
+//            StatisticUtil.generateExitStatisticInfo(mContext, StatisticData.OPTION_EXIT);
+//            StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
 
             // for baas analytics
-            DroiAnalytics.onEvent(mContext, StatisticData.OPTION_EXIT);
+//            DroiAnalytics.onEvent(mContext, StatisticData.OPTION_EXIT);
         }
         //*/
 
@@ -549,10 +549,10 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
-                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
+//                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
+//                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
                 // for baas analytics
-                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
+//                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
             }
         });
         //*/

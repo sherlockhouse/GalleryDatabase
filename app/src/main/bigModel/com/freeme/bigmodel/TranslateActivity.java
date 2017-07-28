@@ -29,9 +29,9 @@ import com.freeme.bigmodel.filter.Origin;
 import com.freeme.gallery.R;
 import com.google.gson.Gson;
 
-import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -473,11 +473,18 @@ public class TranslateActivity extends com.freeme.bigmodel.BlockBaseActivity {
                 URLConnection ucon = uri.openConnection();
                 InputStream is = ucon.getInputStream();
                 BufferedInputStream bis = new BufferedInputStream(is);
-                ByteArrayBuffer baf = new ByteArrayBuffer(100);
+                ByteArrayOutputStream baf = new ByteArrayOutputStream();
+                //We create an array of bytes
+                byte[] data = new byte[100];
                 int current = 0;
-                while ((current = bis.read()) != -1) {
-                    baf.append((byte) current);
+                while((current = bis.read(data,0,data.length)) != -1){
+                    baf.write(data,0,current);
                 }
+//                ByteArrayBuffer baf = new ByteArrayBuffer(100);
+//                int current = 0;
+//                while ((current = bis.read()) != -1) {
+//                    baf.append((byte) current);
+//                }
 
                 myString = new String(baf.toByteArray(), "GBK");
             } catch (Exception e) {

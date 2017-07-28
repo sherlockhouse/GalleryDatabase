@@ -55,7 +55,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
@@ -93,8 +93,8 @@ import com.freeme.gallery.util.HelpUtils;
 import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallerycommon.util.Future;
 import com.freeme.settings.GallerySettings;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.ShareFreemeUtil;
 
@@ -405,11 +405,11 @@ public class AlbumStorySetPage extends ActivityState implements
                                             mStoryBucketId = ((StoryAlbumSet) mMediaSet).addAlbum(text);
                                             startStoryAddImagePage(mStoryBucketId);
                                             //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                                            StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_ADD);
+//                                            StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_ADD);
                                             //*/
 
                                             // for baas analytics
-                                            DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_ADD);
+//                                            DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_ADD);
                                         }
                                         mRenameItemId = -1;
                                     }
@@ -710,12 +710,12 @@ public class AlbumStorySetPage extends ActivityState implements
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
         if (slotIndex == StoryAlbumSet.ALBUM_LOVE_ID || slotIndex == StoryAlbumSet.ALBUM_BABY_ID) {
             mBabyAlbum = slotIndex == StoryAlbumSet.ALBUM_BABY_ID;
-            StatisticUtil.generateStatisticInfo(mActivity,
-                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
+//            StatisticUtil.generateStatisticInfo(mActivity,
+//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
 
             // for baas analytics
-            DroiAnalytics.onEvent(mActivity,
-                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
+//            DroiAnalytics.onEvent(mActivity,
+//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
         }
         //*/
 

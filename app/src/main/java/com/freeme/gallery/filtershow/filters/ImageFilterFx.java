@@ -39,6 +39,24 @@ public class ImageFilterFx extends ImageFilter {
     }
 
     @Override
+    public FilterRepresentation getDefaultRepresentation() {
+        return null;
+    }
+
+    public void useRepresentation(FilterRepresentation representation) {
+        FilterFxRepresentation parameters = (FilterFxRepresentation) representation;
+        mParameters = parameters;
+    }
+
+    public FilterFxRepresentation getParameters() {
+        return mParameters;
+    }
+
+    native protected void nativeApplyFilter(Bitmap bitmap, int w, int h,
+                                            Bitmap fxBitmap, int fxw, int fxh,
+                                            int start, int end);
+
+    @Override
     public Bitmap apply(Bitmap bitmap, float scaleFactor, int quality) {
         if (getParameters() == null || mResources == null) {
             return bitmap;
@@ -86,24 +104,6 @@ public class ImageFilterFx extends ImageFilter {
 
         return bitmap;
     }
-
-    public void useRepresentation(FilterRepresentation representation) {
-        FilterFxRepresentation parameters = (FilterFxRepresentation) representation;
-        mParameters = parameters;
-    }
-
-    @Override
-    public FilterRepresentation getDefaultRepresentation() {
-        return null;
-    }
-
-    public FilterFxRepresentation getParameters() {
-        return mParameters;
-    }
-
-    native protected void nativeApplyFilter(Bitmap bitmap, int w, int h,
-                                            Bitmap fxBitmap, int fxw, int fxh,
-                                            int start, int end);
 
     public void setResources(Resources resources) {
         mResources = resources;

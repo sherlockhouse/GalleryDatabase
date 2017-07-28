@@ -44,7 +44,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.freeme.community.utils.ImageUtil;
+//import com.freeme.community.utils.ImageUtil;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.gallery.R;
 import com.freeme.gallery.anim.Animation;
@@ -69,6 +69,7 @@ import com.freeme.gallery.ui.ScrollerHelper;
 import com.freeme.gallery.ui.SelectionManager;
 import com.freeme.gallery.ui.SynchronizedHandler;
 import com.freeme.gallery.ui.UserInteractionListener;
+import com.freeme.gallery.util.ImageUtil;
 import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallerycommon.util.ThreadPool;
 import com.freeme.page.AlbumStoryPage;

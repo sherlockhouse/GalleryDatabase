@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.freeme.community.utils.ToastUtil;
+//import com.freeme.community.utils.ToastUtil;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.freeme.gallery.filtershow.crop.CropExtras;
@@ -327,7 +327,7 @@ public class SaveWallpaper {
 //                    new ByteArrayInputStream(croppedBytes));
             return true;
         } catch (Exception e) {
-            ToastUtil.showToast(mActivity, R.string.set_lockscreen_failed);
+//            ToastUtil.showToast(mActivity, R.string.set_lockscreen_failed);
             LogUtil.i(TAG, "fail to set lockscreen wall paper, inner :" + e);
             return false;
         }

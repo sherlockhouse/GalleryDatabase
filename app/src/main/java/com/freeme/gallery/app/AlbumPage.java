@@ -32,7 +32,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.VisitorAlbum;
@@ -66,8 +66,8 @@ import com.freeme.gallerycommon.util.Future;
 import com.freeme.jigsaw.app.JigsawEntry;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.provider.GalleryStore;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 
 import java.util.ArrayList;
 
@@ -431,12 +431,12 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         if(mStoryBucketId == StoryAlbumSet.ALBUM_LOVE_ID
                 || mStoryBucketId == StoryAlbumSet.ALBUM_BABY_ID) {
             boolean baby = mStoryBucketId == StoryAlbumSet.ALBUM_BABY_ID;
-            StatisticUtil.generateStatisticInfo(mActivity,
-                    baby ? StatisticData.OPTION_BABY_ADD : StatisticData.OPTION_LOVE_ADD);
+//            StatisticUtil.generateStatisticInfo(mActivity,
+//                    baby ? StatisticData.OPTION_BABY_ADD : StatisticData.OPTION_LOVE_ADD);
 
             // for baas analytics
-            DroiAnalytics.onEvent(mActivity,
-                    baby ? StatisticData.OPTION_BABY_ADD : StatisticData.OPTION_LOVE_ADD);
+//            DroiAnalytics.onEvent(mActivity,
+//                    baby ? StatisticData.OPTION_BABY_ADD : StatisticData.OPTION_LOVE_ADD);
         }
         //*/
     }
@@ -996,10 +996,10 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                 return true;
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 mInCameraAndWantQuitOnPause = false;
                 Bundle data = new Bundle();
@@ -1026,11 +1026,11 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
 
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

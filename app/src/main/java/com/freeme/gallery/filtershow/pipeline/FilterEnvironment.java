@@ -17,7 +17,7 @@
 package com.freeme.gallery.filtershow.pipeline;
 
 import android.graphics.Bitmap;
-import android.support.v8.renderscript.Allocation;
+import android.renderscript.Allocation;
 
 import com.freeme.gallery.app.Log;
 import com.freeme.gallery.filtershow.cache.BitmapCache;

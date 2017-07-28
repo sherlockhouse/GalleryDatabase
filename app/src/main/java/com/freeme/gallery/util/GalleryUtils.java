@@ -37,7 +37,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.gallery.app.PackagesMonitor;
 import com.freeme.gallery.data.DataManager;
@@ -45,8 +45,8 @@ import com.freeme.gallery.data.MediaItem;
 import com.freeme.gallery.ui.TiledScreenNail;
 import com.freeme.gallerycommon.common.ApiHelper;
 import com.freeme.gallerycommon.util.ThreadPool;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -254,10 +254,10 @@ public class GalleryUtils {
         }
 
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-        StatisticUtil.generateStatisticInfo(context, StatisticData.OPTION_CAMERA);
+//        StatisticUtil.generateStatisticInfo(context, StatisticData.OPTION_CAMERA);
         //*/
         // for baas analytics
-        DroiAnalytics.onEvent(context, StatisticData.OPTION_EDIT);
+//        DroiAnalytics.onEvent(context, StatisticData.OPTION_EDIT);
     }
 
     public static void startGalleryActivity(Context context) {

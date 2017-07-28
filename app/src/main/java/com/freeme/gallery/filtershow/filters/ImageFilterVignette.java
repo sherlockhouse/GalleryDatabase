@@ -21,12 +21,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.support.v8.renderscript.RenderScript;
-
 import com.freeme.gallery.R;
 import com.freeme.gallery.filtershow.imageshow.MasterImage;
 import com.freeme.gallery.filtershow.pipeline.FilterEnvironment;
-import com.freeme.renderscript.ScriptC_vignette;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.Script.LaunchOptions;
+import android.renderscript.Type;
 
 public class ImageFilterVignette extends ImageFilterRS {
     public static final int MODE_VIGNETTE   = FilterVignetteRepresentation.MODE_VIGNETTE;

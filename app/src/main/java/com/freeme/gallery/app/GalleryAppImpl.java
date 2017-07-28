@@ -20,8 +20,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.multidex.MultiDexApplication;
 
-import com.droi.sdk.analytics.DroiAnalytics;
-import com.freeme.community.utils.AccountUtil;
+//import com.droi.sdk.analytics.DroiAnalytics;
+//import com.freeme.community.utils.AccountUtil;
 import com.freeme.gallery.R;
 import com.freeme.gallery.data.DataManager;
 import com.freeme.gallery.data.DownloadCache;
@@ -32,7 +32,7 @@ import com.freeme.gallery.util.GalleryUtils;
 import com.freeme.gallery.util.UsageStatistics;
 import com.freeme.gallerycommon.util.ThreadPool;
 import com.freeme.provider.GalleryDBManager;
-import com.freeme.updateself.update.UpdateMonitor;
+//import com.freeme.updateself.update.UpdateMonitor;
 import com.freeme.utils.CustomJsonParser;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
         WidgetUtils.initialize(this);
         PicasaSource.initialize(this);
         UsageStatistics.initialize(this);
-        AccountUtil.getInstance(this);
+//        AccountUtil.getInstance(this);
         //*/ Added by droi Linguanrong for droi push, 16-3-7
 //        DroiPushManager.getInstance(this).init();
         //*/
@@ -68,16 +68,16 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
 //        // for baas analytics
 //        DroiAnalytics.initialize(this);
 
-        UpdateMonitor.Builder
-                 //*/ init UpdateMonitor
-                .getInstance(this)
-                 //*/ register you Application to obsever
-                .registerApplication(this)
-                 //*/ register you Application is Service or hasEnrtyActivity
-                .setApplicationIsServices(true)
-                 //*/ default notify small icon, ifnot set use updateself_ic_notify_small
-                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
-                .complete();
+//        UpdateMonitor.Builder
+//                 //*/ init UpdateMonitor
+//                .getInstance(this)
+//                 //*/ register you Application to obsever
+//                .registerApplication(this)
+//                 //*/ register you Application is Service or hasEnrtyActivity
+//                .setApplicationIsServices(true)
+//                 //*/ default notify small icon, ifnot set use updateself_ic_notify_small
+//                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
+//                .complete();
     }
 
     private void initializeAsyncTask() {

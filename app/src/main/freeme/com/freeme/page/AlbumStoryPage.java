@@ -34,7 +34,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
@@ -72,8 +72,8 @@ import com.freeme.gallery.ui.SynchronizedHandler;
 import com.freeme.gallery.util.GalleryUtils;
 import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallerycommon.util.Future;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.AlbumTimeSlotRenderer;
 import com.freeme.ui.DateSlotView;
 import com.freeme.utils.FreemeUtils;
@@ -435,10 +435,10 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH,

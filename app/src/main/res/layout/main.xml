@@ -29,7 +29,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/tab_bar_default_height"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/bottom_tab_bg"
         android:gravity="center"
         android:orientation="horizontal">
 

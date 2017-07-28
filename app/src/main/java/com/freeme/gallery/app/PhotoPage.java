@@ -46,7 +46,7 @@ import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
+//import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.extern.PhotopageComments;
 import com.freeme.gallery.R;
 import com.freeme.gallery.data.CameraShortcutImage;
@@ -81,8 +81,8 @@ import com.freeme.gallery.ui.SynchronizedHandler;
 import com.freeme.gallery.util.GalleryUtils;
 import com.freeme.gallery.util.UsageStatistics;
 import com.freeme.gallerycommon.common.ApiHelper;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
+//import com.freeme.statistic.StatisticData;
+//import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 
 public abstract class PhotoPage extends ActivityState implements
@@ -349,11 +349,11 @@ public abstract class PhotoPage extends ActivityState implements
                 mShared = true;
                 actionShare();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                 return;
 
             case R.id.photopage_bottom_control_delete:
@@ -1256,10 +1256,10 @@ public abstract class PhotoPage extends ActivityState implements
             }
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH, mMediaSet.getPath().toString());
@@ -1298,10 +1298,10 @@ public abstract class PhotoPage extends ActivityState implements
             case R.id.action_edit: {
                 launchPhotoEditor();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
 
                 return true;
             }
@@ -1368,11 +1368,11 @@ public abstract class PhotoPage extends ActivityState implements
             case R.id.action_share:
                 actionShare();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                 return true;
             //*/
             default:
@@ -1402,11 +1402,11 @@ public abstract class PhotoPage extends ActivityState implements
     }
 
     private void setActionBarBackground(boolean translucent) {
-        if (translucent) {
-            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.photopage_actionbar_bg));
-        } else {
-            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.theme_color));
-        }
+//        if (translucent) {
+//            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.photopage_actionbar_bg));
+//        } else {
+//            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.theme_color));
+//        }
     }
 
     private void updateMenuOperations() {

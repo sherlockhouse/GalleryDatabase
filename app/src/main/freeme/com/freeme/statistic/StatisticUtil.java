@@ -15,7 +15,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.freeme.community.utils.NetworkUtil;
+//import com.freeme.community.utils.NetworkUtil;
 import com.freeme.statistic.StatisticData.StatisticInfo;
 import com.freeme.utils.SystemPropertiesProxy;
 
@@ -177,13 +177,13 @@ public class StatisticUtil {
     }
 
     public static String getNetworkType(Context context) {
-        if (NetworkUtil.isWifiConnectivity(context)) {
-            return "wlan";
-        } else if(NetworkUtil.isDataConnectivity(context)) {
-            TelephonyManager telephonyManager =
-                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            return getNetwork_type(telephonyManager.getNetworkType());
-        }
+//        if (NetworkUtil.isWifiConnectivity(context)) {
+//            return "wlan";
+//        } else if(NetworkUtil.isDataConnectivity(context)) {
+//            TelephonyManager telephonyManager =
+//                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//            return getNetwork_type(telephonyManager.getNetworkType());
+//        }
 
         return "";
     }

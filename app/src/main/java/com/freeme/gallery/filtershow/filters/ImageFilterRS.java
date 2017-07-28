@@ -16,19 +16,13 @@
 
 package com.freeme.gallery.filtershow.filters;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v8.renderscript.Allocation;
-import android.support.v8.renderscript.Element;
-import android.support.v8.renderscript.RSIllegalArgumentException;
-import android.support.v8.renderscript.RSRuntimeException;
-import android.support.v8.renderscript.RenderScript;
-import android.support.v8.renderscript.Type;
-import android.util.Log;
+import android.renderscript.*;
+import android.content.res.Resources;
 
 import com.freeme.gallery.filtershow.pipeline.PipelineInterface;
-import com.freeme.renderscript.ScriptC_grey;
+import android.util.Log;
 
 public abstract class ImageFilterRS extends ImageFilter {
     private static final String  LOGTAG           = "ImageFilterRS";

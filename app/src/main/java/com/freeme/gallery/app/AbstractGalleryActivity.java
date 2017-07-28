@@ -368,6 +368,7 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     }
 
     @Override
+
     public ThreadPool getThreadPool() {
         return ((GalleryApp) getApplication()).getThreadPool();
     }
@@ -472,14 +473,14 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
                     .getSystemService(Context.SENSOR_SERVICE);
         }
 
-        mGestureSensor =GestureSensorManger.getGestureSensor(mSensorManager);
+        //frameworks/base/core/java/android/hardware/Sensor.TYPE_GESTURE = 50
+        mGestureSensor =mSensorManager.getDefaultSensor(50);
         mHasGestureSensor = (mGestureSensor != null);
         mHasRegister = false;
     }
 
     private void registerGestureSensorListener() {
         mSlideByGestureEnable = GestureSensorManger.isGestureSensorEnable(this,GestureSensorManger.FREEME_GESTURE_GALLERY_SLIDE);
-
         if(BuildConfig.SUPPORT_LAGACY_FREEMEOS_PLATFORM){
             mSlideByGestureEnable = SystemPropertiesProxy.getBooleanbit(getContentResolver(),
                     "tyd_gesture_sets",
