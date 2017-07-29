@@ -409,15 +409,15 @@
         <activity
             android:name=".app.DialogPicker"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/DialogPickerTheme"/>
+            />
         <activity
             android:name=".app.AlbumPicker"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/DialogPickerTheme"/>
+           />
         <activity
             android:name=".gadget.WidgetTypeChooser"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/Theme.Gallery.Dialog"/>
+            />
 
         <receiver
             android:name=".gadget.PhotoAppWidgetProvider"

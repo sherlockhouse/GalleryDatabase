@@ -390,12 +390,12 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             menu.findItem(R.id.action_slideshow).setVisible(mMediaSet.getMediaItemCount() != 0);
 
-            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
-            if(shareFreemeOS != null) {
-                String title = mActivity.getResources().getString(R.string.share)
-                        + " " + BuildConfig.SUPPORT_OS_TAG;
-                shareFreemeOS.setTitle(title);
-            }
+//            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
+//            if(shareFreemeOS != null) {
+//                String title = mActivity.getResources().getString(R.string.share)
+//                        + " " + BuildConfig.SUPPORT_OS_TAG;
+//                shareFreemeOS.setTitle(title);
+//            }
 
             FilterUtils.setupMenuItems(mActionBar, mMediaSetPath, true);
         }
@@ -474,9 +474,9 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
                 }
                 mSlotView.setCoverItem(mCoverItem);
                 return true;
-            case R.id.action_share_freeme:
-                ShareFreemeUtil.shareFreemeOS(mActivity);
-                return true;
+//            case R.id.action_share_freeme:
+//                ShareFreemeUtil.shareFreemeOS(mActivity);
+//                return true;
             default:
                 return false;
         }

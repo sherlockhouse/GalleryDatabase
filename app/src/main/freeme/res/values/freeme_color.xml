@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="indicator_color">#616161</color>
+    <color name="indicator_color">@color/theme_color</color>
     <color name="indicator_text_normal">#616161</color>
     <color name="indicator_bg">#ffffff</color>
     <color name="transparent">#00000000</color>

@@ -66,7 +66,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/filtershow_button_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_effects"/>
+                android:src="@drawable/ic_photoeditor_effects_normal"/>
 
             <ImageButton
                 android:id="@+id/borderButton"
@@ -76,7 +76,7 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_border"/>
+                android:src="@drawable/ic_photoeditor_border_normal"/>
 
             <ImageButton
                 android:id="@+id/geometryButton"
@@ -86,7 +86,7 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_fix"/>
+                android:src="@drawable/ic_photoeditor_fix_normal"/>
 
             <ImageButton
                 android:id="@+id/colorsButton"
@@ -96,7 +96,7 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_color"/>
+                android:src="@drawable/ic_photoeditor_color_normal"/>
 
         </LinearLayout>
 

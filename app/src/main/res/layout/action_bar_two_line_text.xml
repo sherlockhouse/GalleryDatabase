@@ -34,7 +34,6 @@
 
     <TextView
         android:id="@android:id/text2"
-        style="@style/ActionBarTwoLineSecondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@android:id/text1"

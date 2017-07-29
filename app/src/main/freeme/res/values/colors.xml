@@ -23,9 +23,10 @@
     <color name="theme_color_gray">#818181</color>
     <color name="theme_color_disable">#3F818181</color>
     <!--Linguanrong-->
+    <color name="darker_transparent">#C1000000</color>
 
     <!-- tyd.biantao 20130110. Wallpaper -->
-    <color name="drag_text_highlight">#ffffffff</color>
+    <color name="drag_text_highlight">@color/darker_transparent</color>
     <color name="drag_text_normal">#66ffffff</color>
     <!-- tyd.mjzhang 2014-08-11. no file -->
     <color name="no_file_edit">#000000</color>

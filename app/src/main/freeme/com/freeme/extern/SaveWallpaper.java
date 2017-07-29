@@ -190,7 +190,7 @@ public class SaveWallpaper {
                 mLockTextBtn.setTextColor(mHighlightTextColor);
                 mHomeTextBtn.setTextColor(mNormalTextColor);
                 mAllTextBtn.setTextColor(mNormalTextColor);
-                mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
+                mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
 
@@ -210,7 +210,7 @@ public class SaveWallpaper {
                 mHomeTextBtn.setTextColor(mHighlightTextColor);
                 mAllTextBtn.setTextColor(mNormalTextColor);
                 mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
-                mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
+                mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
 
                 // +++
@@ -238,7 +238,7 @@ public class SaveWallpaper {
                 mAllTextBtn.setTextColor(mHighlightTextColor);
                 mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
-                mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
+                mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
 
                 // +++
                 mHomeWallpaperMode.setVisibility(View.VISIBLE);

@@ -44,12 +44,12 @@
     </style>
 
     <style name="MenuTextStyle">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">20sp</item>
+        <!--<item name="android:textColor">@android:color/white</item>-->
+        <!--<item name="android:textSize">20sp</item>-->
     </style>
 
     <style name="ActionModeStyle" parent="android:Widget.Material.ActionMode">
     </style>
 
-    <style name="Theme.Gallery.Dialog" parent="android:Theme.Material.Light.Dialog"/>
+    <!--<style name="Theme.Gallery.Dialog" parent="android:Theme.Material.Light.Dialog"/>-->
 </resources>

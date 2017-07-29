@@ -107,23 +107,19 @@
 
             <Button
                 android:id="@+id/cancel_btn"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/cancel"
-                android:textColor="@color/white"/>
+                android:text="@string/cancel"/>
 
             <Button
                 android:id="@+id/ok_btn"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/crop_save_text"
-                android:textColor="@color/white"/>
+                android:text="@string/crop_save_text"/>
 
         </LinearLayout>
 

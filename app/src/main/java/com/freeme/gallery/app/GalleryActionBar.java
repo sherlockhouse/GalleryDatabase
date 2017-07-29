@@ -278,13 +278,13 @@ public class GalleryActionBar {
     }
 
     private void setActionBarBackground(boolean translucent) {
-//        if (translucent) {
-//            mActionBar.setBackgroundDrawable(mActivity.getResources()
-//                    .getDrawable(R.color.transparent));
-//        } else {
-//            mActionBar.setBackgroundDrawable(mActivity.getResources()
-//                    .getDrawable(R.color.theme_color));
-//        }
+        if (translucent) {
+            mActionBar.setBackgroundDrawable(mActivity.getResources()
+                    .getDrawable(R.color.transparent));
+        } else {
+            mActionBar.setBackgroundDrawable(mActivity.getResources()
+                    .getDrawable(R.color.default_background));
+        }
     }
 
     private boolean showTransparent() {
