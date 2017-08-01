@@ -23,17 +23,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <Button
             android:id="@+id/toggle_state"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="@color/background_main_toolbar"
-            android:text="@string/imageState"
-            />
+            android:text="@string/imageState"/>
 
         <View
             android:id="@+id/bottomControlLineBottom"
@@ -48,26 +45,23 @@
             android:layout_width="match_parent"
             android:layout_height="48dip"
             android:layout_above="@id/bottomControlLineBottom"
-            android:background="@color/background_main_toolbar"
             android:baselineAligned="false"
             android:orientation="horizontal"
-            android:visibility="visible"
-            >
+            android:visibility="visible">
 
             <ImageButton
                 android:id="@+id/cancelFilter"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_gravity="left|center_vertical"
+                android:layout_height="match_parent"
+                android:layout_gravity="start|center_vertical"
                 android:layout_weight=".1"
-                android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_cancel_holo_light"
-                android:textSize="18dip"/>
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_menu_cancel_48dp"/>
 
             <ImageView
                 android:layout_width="2dp"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:src="@drawable/filtershow_vertical_bar"/>
 
             <LinearLayout
@@ -93,19 +87,18 @@
 
             <ImageView
                 android:layout_width="2dp"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:src="@drawable/filtershow_vertical_bar"/>
 
             <ImageButton
                 android:id="@+id/applyFilter"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_gravity="right|center_vertical"
+                android:layout_height="match_parent"
+                android:layout_gravity="end|center_vertical"
                 android:layout_weight=".1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_done_holo_light"
-                android:textSize="18dip"/>
+                android:src="@drawable/ic_menu_done_48dp"/>
         </LinearLayout>
 
         <View
@@ -113,8 +106,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dip"
             android:layout_above="@id/applyBar"
-            android:background="@color/toolbar_separation_line"
-            />
+            android:background="@color/toolbar_separation_line"/>
 
         <LinearLayout
             android:id="@+id/controlArea"

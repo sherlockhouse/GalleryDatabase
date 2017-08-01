@@ -47,8 +47,8 @@ public class EditorGrad extends ParametricEditor
     private static final int MODE_BRIGHTNESS = FilterGradRepresentation.PARAM_BRIGHTNESS;
     private static final int MODE_SATURATION = FilterGradRepresentation.PARAM_SATURATION;
     private static final int MODE_CONTRAST   = FilterGradRepresentation.PARAM_CONTRAST;
-    private static final int ADD_ICON        = com.freeme.gallery.R.drawable.ic_grad_add;
-    private static final int DEL_ICON        = com.freeme.gallery.R.drawable.ic_grad_del;
+    private static final int ADD_ICON        = com.freeme.gallery.R.drawable.ic_grad_add_48dp;
+    private static final int DEL_ICON        = com.freeme.gallery.R.drawable.ic_grad_del_48dp;
     PopupMenu    mPopupMenu;
     ToggleButton mAddModeButton;
     String mEffectName = "";
