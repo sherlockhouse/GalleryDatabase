@@ -29,6 +29,7 @@ import com.freeme.gallery.util.UpdateHelper;
 import com.freeme.gallerycommon.common.BitmapUtils;
 import com.freeme.gallerycommon.util.ThreadPool.Job;
 import com.freeme.gallerycommon.util.ThreadPool.JobContext;
+import com.freeme.provider.GalleryStore;
 import com.freeme.provider.GalleryStore.Video;
 import com.freeme.provider.GalleryStore.Video.VideoColumns;
 
@@ -200,6 +201,9 @@ public class LocalVideo extends LocalMediaItem {
         Uri baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         mApplication.getContentResolver().delete(baseUri, "_id=?",
                 new String[]{String.valueOf(id)});
+
+        Uri uri = GalleryStore.Video.Media.EXTERNAL_CONTENT_URI;
+        mApplication.getContentResolver().delete(uri, "_id=?", new String[]{String.valueOf(id)});
     }
 
     @Override

@@ -44,22 +44,23 @@ public class TrimVideo extends Activity implements
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
         ControllerOverlay.Listener {
-
-    public static final String  TRIM_ACTION = "com.android.camera.action.TRIM";
-    public static final String  KEY_TRIM_START     = "trim_start";
-    public static final String  KEY_TRIM_END       = "trim_end";
-    public static final String  KEY_VIDEO_POSITION = "video_pos";
-    private static final String            TIME_STAMP_NAME = "'TRIM'_yyyyMMdd_HHmmss";
-    private final       Handler mHandler    = new Handler();
+    private static final String TAG = "Gallery2/VideoPlayer/TrimVideo";
+    public static final String TRIM_ACTION = "com.android.camera.action.TRIM";
+    public static final String KEY_TRIM_START = "trim_start";
+    public static final String KEY_TRIM_END = "trim_end";
+    public static final String KEY_VIDEO_POSITION = "video_pos";
+    private static final String TIME_STAMP_NAME = "'TRIM'_yyyyMMdd_HHmmss";
+    private final Handler mHandler = new Handler();
     public ProgressDialog mProgress;
-    private VideoView             mVideoView;
-    private TextView              mSaveVideoTextView;
+    private VideoView mVideoView;
+    private TextView mSaveVideoTextView;
     private TrimControllerOverlay mController;
-    private Context               mContext;
-    private Uri                   mUri;
-    private             int     mTrimStartTime     = 0;
-    private             int     mTrimEndTime       = 0;
-    private             int     mVideoPosition     = 0;
+    private Context mContext;
+    private Uri mUri;
+    private Uri mNewVideoUri;
+    private int mTrimStartTime = 0;
+    private int mTrimEndTime = 0;
+    private int mVideoPosition = 0;
     private final Runnable mProgressChecker = new Runnable() {
         @Override
         public void run() {
@@ -67,9 +68,19 @@ public class TrimVideo extends Activity implements
             mHandler.postDelayed(mProgressChecker, 200 - (pos % 200));
         }
     };
-    private             boolean mHasPaused         = false;
-    private              String            mSrcVideoPath   = null;
-    private              SaveVideoFileInfo mDstFileInfo    = null;
+    private boolean mHasPaused = false;
+    private String mSrcVideoPath = null;
+    private SaveVideoFileInfo mDstFileInfo = null;
+
+    private final Runnable mShowToastRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Toast.makeText(getApplicationContext(),
+                    getString(R.string.can_not_trim),
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -168,9 +179,11 @@ public class TrimVideo extends Activity implements
 
     private void trimVideo() {
 
-        mDstFileInfo = SaveVideoFileUtils.getDstMp4FileInfo(TIME_STAMP_NAME,
-                getContentResolver(), mUri, getString(R.string.folder_download));
         final File mSrcFile = new File(mSrcVideoPath);
+        mDstFileInfo = SaveVideoFileUtils.getDstMp4FileInfo(TIME_STAMP_NAME,
+                getContentResolver(), mUri, mSrcFile.getParentFile(), true,
+                getString(R.string.folder_download));
+
 
         showProgressDialog();
 
@@ -178,11 +191,19 @@ public class TrimVideo extends Activity implements
             @Override
             public void run() {
                 try {
-                    VideoUtils.startTrim(mSrcFile, mDstFileInfo.mFile,
-                            mTrimStartTime, mTrimEndTime);
+                    boolean isTrimSuccessful = VideoUtils.startTrim(mSrcFile, mDstFileInfo.mFile,
+                            mTrimStartTime, mTrimEndTime, mProgress);
+                    if (!isTrimSuccessful) {
+                        dismissProgressDialog();
+                        showToast();
+                        return;
+                    }
                     // Update the database for adding a new video file.
-                    SaveVideoFileUtils.insertContent(mDstFileInfo,
-                            getContentResolver(), mUri);
+                        mNewVideoUri = null;
+                        // Update the database for adding a new video file.
+                        mNewVideoUri = SaveVideoFileUtils.insertContent(
+                                mDstFileInfo, getContentResolver(), mUri);
+                        Log.v(TAG, "mNewVideoUri = " + mNewVideoUri);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -206,6 +227,18 @@ public class TrimVideo extends Activity implements
                 });
             }
         }).start();
+    }
+
+    private void showToast() {
+        mHandler.removeCallbacks(mShowToastRunnable);
+        mHandler.post(mShowToastRunnable);
+    }
+
+    private void dismissProgressDialog() {
+        if (mProgress != null) {
+            mProgress.dismiss();
+            mProgress = null;
+        }
     }
 
     private void playVideo() {

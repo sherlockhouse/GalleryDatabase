@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore.Video;
 import android.provider.MediaStore.Video.VideoColumns;
+import android.provider.MediaStore;
 
 import com.freeme.gallery.filtershow.tools.SaveImage.ContentResolverQueryCallback;
 
@@ -35,11 +36,20 @@ public class SaveVideoFileUtils {
     // This function can decide which folder to save the video file, and generate
     // the needed information for the video file including filename.
     public static SaveVideoFileInfo getDstMp4FileInfo(String fileNameFormat,
-                                                      ContentResolver contentResolver, Uri uri, String defaultFolderName) {
+            ContentResolver contentResolver, Uri uri, File srcVideoParent, boolean isTrim, String defaultFolderName) {
         SaveVideoFileInfo dstFileInfo = new SaveVideoFileInfo();
         // Use the default save directory if the source directory cannot be
         // saved.
-        dstFileInfo.mDirectory = getSaveDirectory(contentResolver, uri);
+
+        ///M: different with Google trim, we also support uri begin with "///file:",
+        // so we need get dsfFile directory from srcVideo.
+        // mute video stay the same with Google@{
+        if (isTrim) {
+            dstFileInfo.mDirectory = srcVideoParent;
+        } else {
+            dstFileInfo.mDirectory = getSaveDirectory(contentResolver, uri);
+        }
+        ///@}
         if ((dstFileInfo.mDirectory == null) || !dstFileInfo.mDirectory.canWrite()) {
             dstFileInfo.mDirectory = new File(Environment.getExternalStorageDirectory(),
                     BucketNames.DOWNLOAD);
@@ -54,24 +64,23 @@ public class SaveVideoFileUtils {
         return dstFileInfo;
     }
 
-    private static File getSaveDirectory(ContentResolver contentResolver, Uri uri) {
-        final File[] dir = new File[1];
-        querySource(contentResolver, uri,
-                new String[]{VideoColumns.DATA},
-                new ContentResolverQueryCallback() {
-                    @Override
-                    public void onCursorResult(Cursor cursor) {
-                        dir[0] = new File(cursor.getString(0)).getParentFile();
-                    }
-                });
-        return dir[0];
-    }
-
     private static void querySource(ContentResolver contentResolver, Uri uri,
-                                    String[] projection, ContentResolverQueryCallback callback) {
+            String[] projection, ContentResolverQueryCallback callback) {
         Cursor cursor = null;
         try {
+            //query from "content://....."
             cursor = contentResolver.query(uri, projection, null, null, null);
+            //query from "file:///......"
+            if (cursor == null) {
+                String data = Uri.decode(uri.toString());
+                if (data == null) {
+                    return;
+                }
+                data = data.replaceAll("'", "''");
+                final String where = "_data LIKE '%" + data.replaceFirst("file:///", "") + "'";
+                cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    projection, where, null, null);
+            }
             if ((cursor != null) && cursor.moveToNext()) {
                 callback.onCursorResult(cursor);
             }
@@ -84,11 +93,25 @@ public class SaveVideoFileUtils {
         }
     }
 
+    private static File getSaveDirectory(ContentResolver contentResolver, Uri uri) {
+        final File[] dir = new File[1];
+        querySource(contentResolver, uri,
+                new String[] { VideoColumns.DATA },
+                new ContentResolverQueryCallback() {
+            @Override
+            public void onCursorResult(Cursor cursor) {
+                dir[0] = new File(cursor.getString(0)).getParentFile();
+            }
+        });
+        return dir[0];
+    }
+
+
     /**
      * Insert the content (saved file) with proper video properties.
      */
     public static Uri insertContent(SaveVideoFileInfo mDstFileInfo,
-                                    ContentResolver contentResolver, Uri uri) {
+            ContentResolver contentResolver, Uri uri ) {
         long nowInMs = System.currentTimeMillis();
         long nowInSec = nowInMs / 1000;
         final ContentValues values = new ContentValues(13);
@@ -100,20 +123,24 @@ public class SaveVideoFileUtils {
         values.put(Video.Media.DATE_ADDED, nowInSec);
         values.put(Video.Media.DATA, mDstFileInfo.mFile.getAbsolutePath());
         values.put(Video.Media.SIZE, mDstFileInfo.mFile.length());
+         ///M:add for insert video duration in db.
+        // values.put(Video.Media.DURATION, getDuration(mDstFileInfo.mFile.getAbsolutePath()));
         int durationMs = retriveVideoDurationMs(mDstFileInfo.mFile.getPath());
         values.put(Video.Media.DURATION, durationMs);
+
         // Copy the data taken and location info from src.
-        String[] projection = new String[]{
+        String[] projection = new String[] {
                 VideoColumns.DATE_TAKEN,
                 VideoColumns.LATITUDE,
                 VideoColumns.LONGITUDE,
                 VideoColumns.RESOLUTION,
+                VideoColumns.ORIENTATION,
         };
 
         // Copy some info from the source file.
         querySource(contentResolver, uri, projection,
                 new ContentResolverQueryCallback() {
-                    @Override
+                @Override
                     public void onCursorResult(Cursor cursor) {
                         long timeTaken = cursor.getLong(0);
                         if (timeTaken > 0) {
@@ -129,18 +156,23 @@ public class SaveVideoFileUtils {
                             values.put(Video.Media.LONGITUDE, longitude);
                         }
                         values.put(Video.Media.RESOLUTION, cursor.getString(3));
+                        values.put(Video.Media.ORIENTATION, cursor.getString(4));
 
                     }
                 });
 
         return contentResolver.insert(Video.Media.EXTERNAL_CONTENT_URI, values);
     }
-
     public static int retriveVideoDurationMs(String path) {
         int durationMs = 0;
         // Calculate the duration of the destination file.
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(path);
+        try {
+            retriever.setDataSource(path);
+        } catch (Exception ex) {
+            //Assume this is a corrupt video file
+            ex.printStackTrace();
+        }
         String duration = retriever.extractMetadata(
                 MediaMetadataRetriever.METADATA_KEY_DURATION);
         if (duration != null) {
@@ -149,5 +181,4 @@ public class SaveVideoFileUtils {
         retriever.release();
         return durationMs;
     }
-
 }
