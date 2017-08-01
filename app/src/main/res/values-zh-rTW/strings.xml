@@ -83,7 +83,7 @@
     <string name="trim_action" msgid="703098114452883524">"修剪"</string>
     <string name="mute_action" msgid="5296241754753306251">"靜音"</string>
     <string name="set_as" msgid="3636764710790507868">"設為"</string>
-    <string name="video_mute_err" msgid="6392457611270600908">"無法將影片設為靜音。"</string>
+    <string name="video_mute_err" msgid="6392457611270600908">"格式不支持, 無法將影片設為靜音。"</string>
     <string name="video_err" msgid="7003051631792271009">"無法播放影片。"</string>
     <string name="untagged" msgid="7281481064509590402">"無標記"</string>
     <string name="no_location" msgid="4043624857489331676">"無位置資訊"</string>
@@ -192,8 +192,11 @@
         <item msgid="6949174783125614798" quantity="one">"%1$d 張相片"</item>
         <item msgid="3813306834113858135" quantity="other">"%1$d 張相片"</item>
     </plurals>
+    <string name="can_not_trim">格式不支持，無法裁剪</string>
+    <string name="user_label">用戶</string>
+    <string name="living">直播中...</string>
     <!-- {@ freeme.liuhaoran , 20170308 . Gesture -->
-    <string name="gesture_to_fisrt">已是第一个项目</string>
-    <string name="gesture_to_last">已是最后一个项目</string>
+    <string name="gesture_to_fisrt">已是第一個項目</string>
+    <string name="gesture_to_last">已是最後一個項目</string>
     <!-- @} -->
 </resources>

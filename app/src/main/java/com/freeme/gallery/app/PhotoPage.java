@@ -1080,15 +1080,15 @@ public abstract class PhotoPage extends ActivityState implements
                     }
                 });
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (mSharedPref.getBoolean("showBlockGuide", true) && mSetPathString != null
-                        && !mPhotoView.getFilmMode() && mShowBars) {
-                    showGuideDialog();
-                }
-            }
-        });
+//        new Handler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mSharedPref.getBoolean("showBlockGuide", true) && mSetPathString != null
+//                        && !mPhotoView.getFilmMode() && mShowBars) {
+//                    showGuideDialog();
+//                }
+//            }
+//        });
     }
 
     @Override

@@ -80,7 +80,7 @@ public class JigsawEntry extends AbstractGalleryActivity implements
     private TextView             mPickerHint;
     private HorizontalScrollView mPickerListPanel;
     private ViewGroup            mPickerList;
-    private ImageView            mElementsCenterDown;
+//    private ImageView            mElementsCenterDown;
     private int                  mThumbItemWidth;
     /* tydtech:azmohan on: Mon, 19 Jan 2015 11:24:31 +0800
      * add elements center
@@ -173,11 +173,11 @@ public class JigsawEntry extends AbstractGalleryActivity implements
         mPickerList = (ViewGroup) findViewById(R.id.picker_listFilters);
 
         //add by mingjun when 2015-1-14 for elements_center down
-        mElementsCenterDown = (ImageView) findViewById(R.id.elements_center_down_btn);
-        mElementsCenterDown.setImageResource(FreemeUtils.isInternational(this)
-                ? R.drawable.elements_center_jigsaw_down_btn_en
-                : R.drawable.elements_center_jigsaw_down_btn);
-        mElementsCenterDown.setOnClickListener(this);
+//        mElementsCenterDown = (ImageView) findViewById(R.id.elements_center_down_btn);
+//        mElementsCenterDown.setImageResource(FreemeUtils.isInternational(this)
+//                ? R.drawable.elements_center_jigsaw_down_btn_en
+//                : R.drawable.elements_center_jigsaw_down_btn);
+//        mElementsCenterDown.setOnClickListener(this);
     }
 
     private void startPicker() {
@@ -376,9 +376,9 @@ public class JigsawEntry extends AbstractGalleryActivity implements
 /* tydtech:azmohan on: Mon, 19 Jan 2015 11:25:08 +0800
  * add elements center
  */
-                case R.id.elements_center_down_btn:
-                    startECJigsawActivity();
-                    break;
+//                case R.id.elements_center_down_btn:
+//                    startECJigsawActivity();
+//                    break;
 // End of tydtech: azmohan
                 default:
                     break;

@@ -79,7 +79,7 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
     private Helper.ImageFileNamer mFileNamer;
     private Future<String>        mSaveTask;
     private int mCtrlPanelH; // the height of control panel
-    private ImageView          mElementsCenterBtn;
+//    private ImageView          mElementsCenterBtn;
     private JigsawDrawPanel    mDrawPanel;
     private MenuItem           mSaveItem; // save option item
     private MenuItem           mShareItem; // share option item
@@ -111,13 +111,13 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
                     mAssembleList.makeUp(Helper.jigsaw_element_type.TEMPLATE);
                     mTemplateBtn.setSelected(true);
                     mBackgroundBtn.setSelected(false);
-                    mElementsCenterBtn.setVisibility(View.GONE);
+//                    mElementsCenterBtn.setVisibility(View.GONE);
                     break;
                 case R.id.sel_bg_btn:
                     mAssembleList.makeUp(Helper.jigsaw_element_type.BACKGROUND);
                     mTemplateBtn.setSelected(false);
                     mBackgroundBtn.setSelected(true);
-                    mElementsCenterBtn.setVisibility(View.VISIBLE);
+//                    mElementsCenterBtn.setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
@@ -432,11 +432,11 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
         mDrawPanel.setLayoutParams(params);
         //*/
 
-        mElementsCenterBtn = (ImageView) mActivity.findViewById(R.id.elements_center_down_btn);
-        mElementsCenterBtn.setImageResource(FreemeUtils.isInternational(mActivity)
-                ? R.drawable.elements_center_jigsaw_down_btn_en
-                : R.drawable.elements_center_jigsaw_down_btn);
-        mElementsCenterBtn.setVisibility(View.GONE);
+//        mElementsCenterBtn = (ImageView) mActivity.findViewById(R.id.elements_center_down_btn);
+//        mElementsCenterBtn.setImageResource(FreemeUtils.isInternational(mActivity)
+//                ? R.drawable.elements_center_jigsaw_down_btn_en
+//                : R.drawable.elements_center_jigsaw_down_btn);
+//        mElementsCenterBtn.setVisibility(View.GONE);
         // initialize controls
         mTemplateBtn = mActivity.findViewById(R.id.sel_template_btn);
         mTemplateBtn.setOnClickListener(this);
