@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -573,6 +574,11 @@ public final class ImageLoader {
         }
         int index = cursor.getColumnIndexOrThrow(GalleryStore.Images.Media.DATA);
         cursor.moveToFirst();
-        return cursor.getString(index);
+        String path = null;
+        try {
+            path = cursor.getString(index);
+        }catch (CursorIndexOutOfBoundsException e){
+        }
+        return path;
     }
 }
