@@ -19,11 +19,13 @@ package com.freeme.gallery.gadget;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
 import com.freeme.gallery.app.GalleryApp;
 import com.freeme.gallery.data.ContentListener;
+import com.freeme.provider.GalleryStore;
 
 public class WidgetService extends RemoteViewsService {
 
@@ -69,8 +71,16 @@ public class WidgetService extends RemoteViewsService {
             }
             mSource.setContentListener(this);
             AppWidgetManager.getInstance(mApp.getAndroidContext())
-                    .notifyAppWidgetViewDataChanged(
-                            mAppWidgetId, com.freeme.gallery.R.id.appwidget_stack_view);
+                    .notifyAppWidgetViewDataChanged(mAppWidgetId,
+                            com.freeme.gallery.R.id.appwidget_stack_view);
+        }
+
+        public static Uri convertGalleryUri(Uri uri) {
+            if (uri == null) {
+                return null;
+            }
+            return Uri.parse(uri.toString()
+                    .replace(GalleryStore.CONTENT_AUTHORITY_SLASH, "content://media/"));
         }
 
         @Override
@@ -99,7 +109,7 @@ public class WidgetService extends RemoteViewsService {
             views.setImageViewBitmap(com.freeme.gallery.R.id.appwidget_photo_item, bitmap);
             views.setOnClickFillInIntent(com.freeme.gallery.R.id.appwidget_photo_item, new Intent()
                     .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .setData(mSource.getContentUri(position)));
+                    .setData(convertGalleryUri(mSource.getContentUri(position))));
             return views;
         }
 
