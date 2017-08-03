@@ -853,7 +853,7 @@ public class AlbumStorySetPage extends ActivityState implements
         CreateDialog();
         CreateDatePickerDialog();
 
-        //*/ Added by Linguanrong for guide, 2015-08-10
+        /*/ freeme gulincheng 20170803 remove guide
         if (mSharedPref.getBoolean(SHOW_STORYSET_GUIDE, true)) {
             mEditor.putBoolean(SHOW_STORYSET_GUIDE, false);
             mEditor.apply();
