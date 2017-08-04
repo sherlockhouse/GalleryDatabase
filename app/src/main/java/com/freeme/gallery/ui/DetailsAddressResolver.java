@@ -65,6 +65,13 @@ public class DetailsAddressResolver {
     private void updateLocation(Address address) {
         if (address != null) {
             Context context = mContext.getAndroidContext();
+            //*/ freeme.gulincheng,20170714,change address format
+            String addressText = address.getAddressLine(0);
+            String text = String.format("%s : %s",
+                    DetailsHelper.getDetailsName(
+                    context, MediaDetails.INDEX_LOCATION), addressText);
+            mListener.onAddressAvailable(text);
+            /*/
             String parts[] = {
                     address.getAdminArea(),
                     address.getSubAdminArea(),
@@ -88,6 +95,7 @@ public class DetailsAddressResolver {
             String text = String.format("%s : %s", DetailsHelper.getDetailsName(
                     context, MediaDetails.INDEX_LOCATION), addressText);
             mListener.onAddressAvailable(text);
+            //*/
         }
     }
 
