@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import com.freeme.gallery.app.GalleryApp;
 import com.freeme.gallery.data.ContentListener;
 import com.freeme.gallery.data.DataManager;
@@ -46,7 +47,7 @@ public class LocalPhotoSource implements WidgetSource {
     private static final int MAX_PHOTO_COUNT = 128;
 
     /* Static fields used to query for the correct set of images */
-    private static final Uri      CONTENT_URI      = Media.EXTERNAL_CONTENT_URI;
+    private static final Uri      CONTENT_URI      = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final String   DATE_TAKEN       = Media.DATE_TAKEN;
     private static final String[] PROJECTION       = {Media._ID};
     private static final String[] COUNT_PROJECTION = {"count(*)"};
