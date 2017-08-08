@@ -35,8 +35,8 @@ public class CropMath {
      * |        v
      * 3<-------2
      *
-     * @param r the rectangle to get the corners of
-     * @return the float array of corners (8 floats)
+     * @param r  the rectangle to get the corners of
+     * @return  the float array of corners (8 floats)
      */
 
     public static float[] getCornersFromRect(RectF r) {
@@ -50,92 +50,17 @@ public class CropMath {
     }
 
     /**
-     * If edge point [x, y] in array [x0, y0, x1, y1, ...] is outside of the
-     * image bound rectangle, clamps it to the edge of the rectangle.
+     * Returns true iff point (x, y) is within or on the rectangle's bounds.
+     * RectF's "contains" function treats points on the bottom and right bound
+     * as not being contained.
      *
-     * @param imageBound the rectangle to clamp edge points to.
-     * @param array      an array of points to clamp to the rectangle, gets set to
-     *                   the clamped values.
+     * @param r the rectangle
+     * @param x the x value of the point
+     * @param y the y value of the point
+     * @return
      */
-    public static void getEdgePoints(RectF imageBound, float[] array) {
-        if (array.length < 2)
-            return;
-        for (int x = 0; x < array.length; x += 2) {
-            array[x] = GeometryMathUtils.clamp(array[x], imageBound.left, imageBound.right);
-            array[x + 1] = GeometryMathUtils.clamp(array[x + 1], imageBound.top, imageBound.bottom);
-        }
-    }
-
-    /**
-     * Takes a point and the corners of a rectangle and returns the two corners
-     * representing the side of the rectangle closest to the point.
-     *
-     * @param point   the point which is being checked
-     * @param corners the corners of the rectangle
-     * @return two corners representing the side of the rectangle
-     */
-    public static float[] closestSide(float[] point, float[] corners) {
-        int len = corners.length;
-        float oldMag = Float.POSITIVE_INFINITY;
-        float[] bestLine = null;
-        for (int i = 0; i < len; i += 2) {
-            float[] line = {
-                    corners[i], corners[(i + 1) % len],
-                    corners[(i + 2) % len], corners[(i + 3) % len]
-            };
-            float mag = GeometryMathUtils.vectorLength(
-                    GeometryMathUtils.shortestVectorFromPointToLine(point, line));
-            if (mag < oldMag) {
-                oldMag = mag;
-                bestLine = line;
-            }
-        }
-        return bestLine;
-    }
-
-    /**
-     * Checks if a given point is within a rotated rectangle.
-     *
-     * @param point       2D point to check
-     * @param rotatedRect corners of a rotated rectangle
-     * @param center      center of the rotated rectangle
-     * @return true if point is within rotated rectangle
-     */
-    public static boolean pointInRotatedRect(float[] point, float[] rotatedRect, float[] center) {
-        RectF unrotated = new RectF();
-        float angle = getUnrotated(rotatedRect, center, unrotated);
-        return pointInRotatedRect(point, unrotated, angle);
-    }
-
-    private static float getUnrotated(float[] rotatedRect, float[] center, RectF unrotated) {
-        float dy = rotatedRect[1] - rotatedRect[3];
-        float dx = rotatedRect[0] - rotatedRect[2];
-        float angle = (float) (Math.atan(dy / dx) * 180 / Math.PI);
-        Matrix m = new Matrix();
-        m.setRotate(-angle, center[0], center[1]);
-        float[] unrotatedRect = new float[rotatedRect.length];
-        m.mapPoints(unrotatedRect, rotatedRect);
-        unrotated.set(trapToRect(unrotatedRect));
-        return angle;
-    }
-
-    /**
-     * Checks if a given point is within a rotated rectangle.
-     *
-     * @param point 2D point to check
-     * @param bound rectangle to rotate
-     * @param rot   angle of rotation about rectangle center
-     * @return true if point is within rotated rectangle
-     */
-    public static boolean pointInRotatedRect(float[] point, RectF bound, float rot) {
-        Matrix m = new Matrix();
-        float[] p = Arrays.copyOf(point, 2);
-        m.setRotate(rot, bound.centerX(), bound.centerY());
-        Matrix m0 = new Matrix();
-        if (!m.invert(m0))
-            return false;
-        m0.mapPoints(p);
-        return inclusiveContains(bound, p[0], p[1]);
+    public static boolean inclusiveContains(RectF r, float x, float y) {
+        return !(x > r.right || x < r.left || y > r.bottom || y < r.top);
     }
 
     /**
@@ -161,17 +86,80 @@ public class CropMath {
     }
 
     /**
-     * Returns true iff point (x, y) is within or on the rectangle's bounds.
-     * RectF's "contains" function treats points on the bottom and right bound
-     * as not being contained.
+     * If edge point [x, y] in array [x0, y0, x1, y1, ...] is outside of the
+     * image bound rectangle, clamps it to the edge of the rectangle.
      *
-     * @param r the rectangle
-     * @param x the x value of the point
-     * @param y the y value of the point
-     * @return
+     * @param imageBound the rectangle to clamp edge points to.
+     * @param array an array of points to clamp to the rectangle, gets set to
+     *            the clamped values.
      */
-    public static boolean inclusiveContains(RectF r, float x, float y) {
-        return !(x > r.right || x < r.left || y > r.bottom || y < r.top);
+    public static void getEdgePoints(RectF imageBound, float[] array) {
+        if (array.length < 2)
+            return;
+        for (int x = 0; x < array.length; x += 2) {
+            array[x] = GeometryMathUtils.clamp(array[x], imageBound.left, imageBound.right);
+            array[x + 1] = GeometryMathUtils.clamp(array[x + 1], imageBound.top, imageBound.bottom);
+        }
+    }
+
+    /**
+     * Takes a point and the corners of a rectangle and returns the two corners
+     * representing the side of the rectangle closest to the point.
+     *
+     * @param point the point which is being checked
+     * @param corners the corners of the rectangle
+     * @return two corners representing the side of the rectangle
+     */
+    public static float[] closestSide(float[] point, float[] corners) {
+        int len = corners.length;
+        float oldMag = Float.POSITIVE_INFINITY;
+        float[] bestLine = null;
+        for (int i = 0; i < len; i += 2) {
+            float[] line = {
+                    corners[i], corners[(i + 1) % len],
+                    corners[(i + 2) % len], corners[(i + 3) % len]
+            };
+            float mag = GeometryMathUtils.vectorLength(
+                    GeometryMathUtils.shortestVectorFromPointToLine(point, line));
+            if (mag < oldMag) {
+                oldMag = mag;
+                bestLine = line;
+            }
+        }
+        return bestLine;
+    }
+
+    /**
+     * Checks if a given point is within a rotated rectangle.
+     *
+     * @param point 2D point to check
+     * @param bound rectangle to rotate
+     * @param rot angle of rotation about rectangle center
+     * @return true if point is within rotated rectangle
+     */
+    public static boolean pointInRotatedRect(float[] point, RectF bound, float rot) {
+        Matrix m = new Matrix();
+        float[] p = Arrays.copyOf(point, 2);
+        m.setRotate(rot, bound.centerX(), bound.centerY());
+        Matrix m0 = new Matrix();
+        if (!m.invert(m0))
+            return false;
+        m0.mapPoints(p);
+        return inclusiveContains(bound, p[0], p[1]);
+    }
+
+    /**
+     * Checks if a given point is within a rotated rectangle.
+     *
+     * @param point 2D point to check
+     * @param rotatedRect corners of a rotated rectangle
+     * @param center center of the rotated rectangle
+     * @return true if point is within rotated rectangle
+     */
+    public static boolean pointInRotatedRect(float[] point, float[] rotatedRect, float[] center) {
+        RectF unrotated = new RectF();
+        float angle = getUnrotated(rotatedRect, center, unrotated);
+        return pointInRotatedRect(point, unrotated, angle);
     }
 
     /**
@@ -221,14 +209,13 @@ public class CropMath {
      * Stretches/Scales/Translates photoBounds to match displayBounds, and
      * and returns an equivalent stretched/scaled/translated cropBounds or null
      * if the mapping is invalid.
-     *
-     * @param cropBounds    cropBounds to transform
-     * @param photoBounds   original bounds containing crop bounds
-     * @param displayBounds final bounds for crop
-     * @return the stretched/scaled/translated crop bounds that fit within displayBounds
+     * @param cropBounds  cropBounds to transform
+     * @param photoBounds  original bounds containing crop bounds
+     * @param displayBounds  final bounds for crop
+     * @return  the stretched/scaled/translated crop bounds that fit within displayBounds
      */
     public static RectF getScaledCropBounds(RectF cropBounds, RectF photoBounds,
-                                            RectF displayBounds) {
+            RectF displayBounds) {
         Matrix m = new Matrix();
         m.setRectToRect(photoBounds, displayBounds, Matrix.ScaleToFit.FILL);
         RectF trueCrop = new RectF(cropBounds);
@@ -240,9 +227,8 @@ public class CropMath {
 
     /**
      * Returns the size of a bitmap in bytes.
-     *
-     * @param bmap bitmap whose size to check
-     * @return bitmap size in bytes
+     * @param bmap  bitmap whose size to check
+     * @return  bitmap size in bytes
      */
     public static int getBitmapSize(Bitmap bmap) {
         return bmap.getRowBytes() * bmap.getHeight();
@@ -250,14 +236,25 @@ public class CropMath {
 
     /**
      * Constrains rotation to be in [0, 90, 180, 270] rounding down.
-     *
-     * @param rotation any rotation value, in degrees
-     * @return integer rotation in [0, 90, 180, 270]
+     * @param rotation  any rotation value, in degrees
+     * @return  integer rotation in [0, 90, 180, 270]
      */
     public static int constrainedRotation(float rotation) {
         int r = (int) ((rotation % 360) / 90);
         r = (r < 0) ? (r + 4) : r;
         return r * 90;
+    }
+
+    private static float getUnrotated(float[] rotatedRect, float[] center, RectF unrotated) {
+        float dy = rotatedRect[1] - rotatedRect[3];
+        float dx = rotatedRect[0] - rotatedRect[2];
+        float angle = (float) (Math.atan(dy / dx) * 180 / Math.PI);
+        Matrix m = new Matrix();
+        m.setRotate(-angle, center[0], center[1]);
+        float[] unrotatedRect = new float[rotatedRect.length];
+        m.mapPoints(unrotatedRect, rotatedRect);
+        unrotated.set(trapToRect(unrotatedRect));
+        return angle;
     }
 
 }

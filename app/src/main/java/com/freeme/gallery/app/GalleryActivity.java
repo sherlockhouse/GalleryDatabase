@@ -68,6 +68,9 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     public static final String EXTRA_SLIDESHOW = "slideshow";
     public static final String EXTRA_DREAM = "dream";
     public static final String EXTRA_CROP = "crop";
+    /// M: [BUG.ADD] @{
+    public static final String EXTRA_FROM_WIDGET = "fromWidget";
+    /// @}
 
     public static final String ACTION_REVIEW = "com.android.camera.action.REVIEW";
     public static final String KEY_GET_CONTENT = "get-content";
@@ -116,16 +119,17 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
 
         setContentView(com.freeme.gallery.R.layout.main);
-
-        //*/freemeos.xueweili 16-6-20  add for set cover visable when app first in
+        /// M: [BUG.ADD] set gl_root_cover visible if open from widget or launch by @{
+        // launcher, or else it will flash
         Intent intent = getIntent();
         if (intent != null
-                && (intent
-                .getAction() != null && intent.getAction().equals(
-                intent.ACTION_MAIN))) {
+                && (intent.getBooleanExtra(EXTRA_FROM_WIDGET, false) || (intent
+                        .getAction() != null && intent.getAction().equals(
+                        intent.ACTION_MAIN)))) {
             View view = findViewById(R.id.gl_root_cover);
             if (view != null) {
                 view.setVisibility(View.VISIBLE);
+                Log.i(TAG, "<onCreate> from widget or launcher, set gl_root_cover VISIBLE");
             }
         }
         //*/

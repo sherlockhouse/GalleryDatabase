@@ -178,7 +178,62 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         return resolver.query(uri, projection, "_id=?",
                 new String[]{String.valueOf(id)}, null);
     }
-
+    /// M: [BUG.ADD] Relative path is the absolute path minus external storage path.@{
+    public String getRelativePath() {
+        String relativePath = "/";
+        if (mBucketId == MediaSetUtils.CAMERA_BUCKET_ID) {
+            relativePath += BucketNames.CAMERA;
+        } else if (mBucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
+            relativePath += BucketNames.DOWNLOAD;
+        } else if (mBucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
+            relativePath += BucketNames.IMPORTED;
+        } else if (mBucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
+            relativePath += BucketNames.SCREENSHOTS;
+        } else if (mBucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
+            relativePath += BucketNames.EDITED_ONLINE_PHOTOS;
+//            // stereo - copy & paste {
+//        } else if (mBucketId == MediaSetUtils.STEREO_CLIPPINGS_BUCKET_ID) {
+//            relativePath += BucketNames.STEREO_CLIPPINGS;
+//            // stereo - copy & paste }
+        } else {
+            // If the first few cases didn't hit the matching path, do a
+            // thorough search in the local directories.
+            /// M: SearchDirForPath is a recursive procedure,
+            /// if there are a large number of folder on storage, it will take a long time,
+            /// so we change the way of getting relative path @{
+            MediaItem cover = getCoverMediaItem();
+            File extStorage = Environment.getExternalStorageDirectory();
+            if (cover != null) {
+                relativePath = null;
+                String storage = extStorage.getAbsolutePath();
+                String path = cover.getFilePath();
+                Log.i(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
+                if (path != null && storage != null && !storage.equals("")
+                        && path.startsWith(storage)) {
+                    relativePath = path.substring(storage.length());
+                    relativePath = relativePath.substring(0, relativePath
+                            .lastIndexOf("/"));
+                    Log.i(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
+                            + mBucketId + " is " + relativePath);
+                }
+                /// @}
+            } else {
+                String path = GalleryUtils.searchDirForPath(extStorage, mBucketId);
+                if (path == null) {
+                    Log.w(TAG, "<getRelativePath> 2.Relative path for bucket id: "
+                            + mBucketId + " is not found.");
+                    relativePath = null;
+                } else {
+                    relativePath = path.substring(extStorage.getAbsolutePath().length());
+                    Log.i(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
+                            + mBucketId + " is " + relativePath);
+                }
+            }
+        }
+        Log.i(TAG, "<getRelativePath> return " + relativePath);
+        return relativePath;
+    }
+    /// @}
     // Relative path is the absolute path minus external storage path
     public static String getRelativePath(int bucketId) {
         String relativePath = "/";

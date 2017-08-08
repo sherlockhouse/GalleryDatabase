@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,21 +33,21 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.freeme.gallery.R;
+import android.util.Log;
 
 
 public class CropView extends View {
     private static final String LOGTAG = "CropView";
 
-    private RectF mImageBounds       = new RectF();
-    private RectF mScreenBounds      = new RectF();
+    private RectF mImageBounds = new RectF();
+    private RectF mScreenBounds = new RectF();
     private RectF mScreenImageBounds = new RectF();
-    private RectF mScreenCropBounds  = new RectF();
-    private Rect  mShadowBounds      = new Rect();
+    private RectF mScreenCropBounds = new RectF();
+    private Rect mShadowBounds = new Rect();
 
     private Bitmap mBitmap;
     private Paint mPaint = new Paint();
@@ -50,32 +55,52 @@ public class CropView extends View {
     private NinePatchDrawable mShadow;
     private CropObject mCropObj = null;
     private Drawable mCropIndicator;
-    private int      mIndicatorSize;
-    private int     mRotation             = 0;
-    private boolean mMovingBlock          = false;
-    private Matrix  mDisplayMatrix        = null;
-    private Matrix  mDisplayMatrixInverse = null;
-    private boolean mDirty                = false;
+    private int mIndicatorSize;
+    private int mRotation = 0;
+    private boolean mMovingBlock = false;
+    private Matrix mDisplayMatrix = null;
+    private Matrix mDisplayMatrixInverse = null;
+    private boolean mDirty = false;
 
-    private float   mPrevX  = 0;
-    private float   mPrevY  = 0;
-    private float   mSpotX  = 0;
-    private float   mSpotY  = 0;
+    private float mPrevX = 0;
+    private float mPrevY = 0;
+    private float mSpotX = 0;
+    private float mSpotY = 0;
     private boolean mDoSpot = false;
 
-    private int   mShadowMargin         = 15;
-    private int   mMargin               = 32;
-    private int   mOverlayShadowColor   = 0xCF000000;
-    private int   mOverlayWPShadowColor = 0x5F000000;
-    private int   mWPMarkerColor        = 0x7FFFFFFF;
-    private int   mMinSideSize          = 90;
-    private int   mTouchTolerance       = 40;
-    private float mDashOnLength         = 20;
-    private float mDashOffLength        = 10;
+    private int mShadowMargin = 15;
+    private int mMargin = 32;
+    private int mOverlayShadowColor = 0xCF000000;
+    private int mOverlayWPShadowColor = 0x5F000000;
+    private int mWPMarkerColor = 0x7FFFFFFF;
+    private int mMinSideSize = 90;
+    private int mTouchTolerance = 40;
+    private float mDashOnLength = 20;
+    private float mDashOffLength = 10;
+
+/// M: [BUG.MODIFY] @{
+/*    private enum Mode {
+        NONE, MOVE
+    }*/
+    private enum Mode {
+        NONE, MOVE, MODIFY_TOUCH_POINTER
+    }
+/// @}
+
     private Mode mState = Mode.NONE;
 
     public CropView(Context context) {
         super(context);
+        setup(context);
+    }
+
+    public CropView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setup(context);
+    }
+
+    public CropView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
         setup(context);
     }
 
@@ -88,21 +113,11 @@ public class CropView extends View {
         mMargin = (int) rsc.getDimension(R.dimen.preview_margin);
         mMinSideSize = (int) rsc.getDimension(R.dimen.crop_min_side);
         mTouchTolerance = (int) rsc.getDimension(R.dimen.crop_touch_tolerance);
-        mOverlayShadowColor = rsc.getColor(R.color.crop_shadow_color);
-        mOverlayWPShadowColor = rsc.getColor(R.color.crop_shadow_wp_color);
-        mWPMarkerColor = rsc.getColor(R.color.crop_wp_markers);
+        mOverlayShadowColor = (int) rsc.getColor(R.color.crop_shadow_color);
+        mOverlayWPShadowColor = (int) rsc.getColor(R.color.crop_shadow_wp_color);
+        mWPMarkerColor = (int) rsc.getColor(R.color.crop_wp_markers);
         mDashOnLength = rsc.getDimension(R.dimen.wp_selector_dash_length);
         mDashOffLength = rsc.getDimension(R.dimen.wp_selector_off_length);
-    }
-
-    public CropView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setup(context);
-    }
-
-    public CropView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        setup(context);
     }
 
     public void initialize(Bitmap image, RectF newCropBounds, RectF newPhotoBounds, int rotation) {
@@ -123,12 +138,6 @@ public class CropView extends View {
         }
     }
 
-    private void clearDisplay() {
-        mDisplayMatrix = null;
-        mDisplayMatrixInverse = null;
-        invalidate();
-    }
-
     public RectF getCrop() {
         return mCropObj.getInnerBounds();
     }
@@ -139,8 +148,18 @@ public class CropView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+/// M: [BUG.MODIFY] @{
+/*        float x = event.getX();
+        float y = event.getY();*/
+        // don't change crop region after click save
+        if (!mEnableTouchMotion) {
+            return true;
+        }
+        float[] point = getPoint(event);
+        float x = point[0];
+        float y = point[1];
+/// @}
+
         if (mDisplayMatrix == null || mDisplayMatrixInverse == null) {
             return true;
         }
@@ -178,12 +197,123 @@ public class CropView extends View {
                     mPrevX = x;
                     mPrevY = y;
                 }
+            /// M: [BUG.ADD] @{
+                else if (mState == Mode.MODIFY_TOUCH_POINTER) {
+                    mPrevX = x;
+                    mPrevY = y;
+                    mState = Mode.MOVE;
+                }
+                    break;
+                case (MotionEvent.ACTION_POINTER_DOWN):
+                case (MotionEvent.ACTION_POINTER_UP):
+                    mState = Mode.MODIFY_TOUCH_POINTER;
+            /// @}
                 break;
             default:
                 break;
         }
         invalidate();
         return true;
+    }
+
+    private void reset() {
+        Log.w(LOGTAG, "crop reset called");
+        mState = Mode.NONE;
+        mCropObj = null;
+        mRotation = 0;
+        mMovingBlock = false;
+        clearDisplay();
+    }
+
+    private void clearDisplay() {
+        mDisplayMatrix = null;
+        mDisplayMatrixInverse = null;
+        invalidate();
+    }
+
+    protected void configChanged() {
+        mDirty = true;
+    }
+
+    public void applyFreeAspect() {
+        mCropObj.unsetAspectRatio();
+        invalidate();
+    }
+
+    public void applyOriginalAspect() {
+        RectF outer = mCropObj.getOuterBounds();
+        float w = outer.width();
+        float h = outer.height();
+        if (w > 0 && h > 0) {
+            applyAspect(w, h);
+            mCropObj.resetBoundsTo(outer, outer);
+        } else {
+            Log.w(LOGTAG, "failed to set aspect ratio original");
+        }
+    }
+
+    public void applySquareAspect() {
+        applyAspect(1, 1);
+    }
+
+    public void applyAspect(float x, float y) {
+        if (x <= 0 || y <= 0) {
+            throw new IllegalArgumentException("Bad arguments to applyAspect");
+        }
+        // If we are rotated by 90 degrees from horizontal, swap x and y
+        if (((mRotation < 0) ? -mRotation : mRotation) % 180 == 90) {
+            float tmp = x;
+            x = y;
+            y = tmp;
+        }
+        if (!mCropObj.setInnerAspectRatio(x, y)) {
+            Log.w(LOGTAG, "failed to set aspect ratio");
+        }
+        invalidate();
+    }
+
+    public void setWallpaperSpotlight(float spotlightX, float spotlightY) {
+        mSpotX = spotlightX;
+        mSpotY = spotlightY;
+        if (mSpotX > 0 && mSpotY > 0) {
+            mDoSpot = true;
+        }
+    }
+
+    public void unsetWallpaperSpotlight() {
+        mDoSpot = false;
+    }
+
+    /**
+     * Rotates first d bits in integer x to the left some number of times.
+     */
+    private int bitCycleLeft(int x, int times, int d) {
+        int mask = (1 << d) - 1;
+        int mout = x & mask;
+        times %= d;
+        int hi = mout >> (d - times);
+        int low = (mout << times) & mask;
+        int ret = x & ~mask;
+        ret |= low;
+        ret |= hi;
+        return ret;
+    }
+
+    /**
+     * Find the selected edge or corner in screen coordinates.
+     */
+    private int decode(int movingEdges, float rotation) {
+        int rot = CropMath.constrainedRotation(rotation);
+        switch (rot) {
+            case 90:
+                return bitCycleLeft(movingEdges, 1, 4);
+            case 180:
+                return bitCycleLeft(movingEdges, 2, 4);
+            case 270:
+                return bitCycleLeft(movingEdges, 3, 4);
+            default:
+                return movingEdges;
+        }
     }
 
     @Override
@@ -224,9 +354,21 @@ public class CropView extends View {
                 mDisplayMatrixInverse = null;
                 return;
             }
-            // Scale min side and tolerance by display matrix scale factor
-            mCropObj.setMinInnerSideSize(mDisplayMatrixInverse.mapRadius(mMinSideSize));
+            /// M: [BUG.MODIFY] @{
+            /*            // Scale min side and tolerance by display matrix scale factor
+            mCropObj.setMinInnerSideSize(mDisplayMatrixInverse.mapRadius(mMinSideSize));*/
+            //set Image Min side as mMinSideSize
+            mMinSideSize = (int) Math.min(Math.min(mImageBounds.width(),
+                    mImageBounds.height()), mMinSideSize);
+            mCropObj.setMinInnerSideSize(mMinSideSize);
+            /// @}
             mCropObj.setTouchTolerance(mDisplayMatrixInverse.mapRadius(mTouchTolerance));
+            /// M: [BUG.ADD] @{
+            // Limitation the time for onDraw once time
+            invalidate();
+            return ;
+            /// @}
+
         }
 
         mScreenImageBounds.set(mImageBounds);
@@ -254,8 +396,17 @@ public class CropView extends View {
             Paint p = new Paint();
             p.setColor(mOverlayShadowColor);
             p.setStyle(Paint.Style.FILL);
-            CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, mScreenImageBounds);
-
+            /// M: [BUG.MODIFY] @{
+            /*  CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, mScreenImageBounds);
+             */
+            //To improve the precision. draw larger shadows for float data.
+            RectF imagebounds = new RectF(
+                    (float) Math.floor(mScreenImageBounds.left),
+                    (float) Math.floor(mScreenImageBounds.top),
+                    (float) Math.ceil(mScreenImageBounds.right),
+                    (float) Math.ceil(mScreenImageBounds.bottom));
+            CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, imagebounds);
+            /// @}
             // Draw crop rect and markers
             CropDrawingUtils.drawCropRect(canvas, mScreenCropBounds);
             if (!mDoSpot) {
@@ -272,106 +423,40 @@ public class CropView extends View {
                         mSpotX, mSpotY, wpPaint, p);
             }
             CropDrawingUtils.drawIndicators(canvas, mCropIndicator, mIndicatorSize,
-                    mScreenCropBounds, mCropObj.isFixedAspect(), decode(mCropObj.getSelectState(), mRotation));
+                    mScreenCropBounds, mCropObj.isFixedAspect(),
+                    decode(mCropObj.getSelectState(), mRotation));
         }
 
     }
 
-    private void reset() {
-        Log.w(LOGTAG, "crop reset called");
-        mState = Mode.NONE;
-        mCropObj = null;
-        mRotation = 0;
-        mMovingBlock = false;
-        clearDisplay();
-    }
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
 
-    /**
-     * Find the selected edge or corner in screen coordinates.
-     */
-    private int decode(int movingEdges, float rotation) {
-        int rot = CropMath.constrainedRotation(rotation);
-        switch (rot) {
-            case 90:
-                return bitCycleLeft(movingEdges, 1, 4);
-            case 180:
-                return bitCycleLeft(movingEdges, 2, 4);
-            case 270:
-                return bitCycleLeft(movingEdges, 3, 4);
-            default:
-                return movingEdges;
-        }
-    }
-
-    /**
-     * Rotates first d bits in integer x to the left some number of times.
-     */
-    private int bitCycleLeft(int x, int times, int d) {
-        int mask = (1 << d) - 1;
-        int mout = x & mask;
-        times %= d;
-        int hi = mout >> (d - times);
-        int low = (mout << times) & mask;
-        int ret = x & ~mask;
-        ret |= low;
-        ret |= hi;
-        return ret;
-    }
-
-    protected void configChanged() {
-        mDirty = true;
-    }
-
-    public void applyFreeAspect() {
-        mCropObj.unsetAspectRatio();
-        invalidate();
-    }
-
-    public void applyOriginalAspect() {
-        RectF outer = mCropObj.getOuterBounds();
-        float w = outer.width();
-        float h = outer.height();
-        if (w > 0 && h > 0) {
-            applyAspect(w, h);
-            mCropObj.resetBoundsTo(outer, outer);
+    //modify for Multi-touch operation
+    private float[] getPoint(MotionEvent event) {
+        if (event.getPointerCount() == 1) {
+            float[] touchPoint = {
+                    event.getX(), event.getY()
+            };
+            return touchPoint;
         } else {
-            Log.w(LOGTAG, "failed to set aspect ratio original");
+            float[] touchPoint = {
+                    (event.getX(0) + event.getX(1)) / 2, (event.getY(0) + event.getY(1)) / 2
+            };
+            return touchPoint;
         }
     }
 
-    public void applyAspect(float x, float y) {
-        if (x <= 0 || y <= 0) {
-            throw new IllegalArgumentException("Bad arguments to applyAspect");
-        }
-        // If we are rotated by 90 degrees from horizontal, swap x and y
-        if (((mRotation < 0) ? -mRotation : mRotation) % 180 == 90) {
-            float tmp = x;
-            x = y;
-            y = tmp;
-        }
-        if (!mCropObj.setInnerAspectRatio(x, y)) {
-            Log.w(LOGTAG, "failed to set aspect ratio");
-        }
-        invalidate();
+    private boolean mEnableTouchMotion = true;
+    public void enableTouchMotion(boolean enable) {
+        mEnableTouchMotion = enable;
     }
-
-    public void applySquareAspect() {
-        applyAspect(1, 1);
-    }
-
-    public void setWallpaperSpotlight(float spotlightX, float spotlightY) {
-        mSpotX = spotlightX;
-        mSpotY = spotlightY;
-        if (mSpotX > 0 && mSpotY > 0) {
-            mDoSpot = true;
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        if (changed) {
+            configChanged();
         }
     }
 
-    public void unsetWallpaperSpotlight() {
-        mDoSpot = false;
-    }
-
-    private enum Mode {
-        NONE, MOVE
-    }
 }

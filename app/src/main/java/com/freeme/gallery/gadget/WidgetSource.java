@@ -22,15 +22,15 @@ import android.net.Uri;
 import com.freeme.gallery.data.ContentListener;
 
 public interface WidgetSource {
-    int size();
-
-    Bitmap getImage(int index);
-
-    Uri getContentUri(int index);
-
-    void setContentListener(ContentListener listener);
-
-    void reload();
-
-    void close();
+    public int size();
+    public Bitmap getImage(int index);
+    public Uri getContentUri(int index);
+    public void setContentListener(ContentListener listener);
+    public void reload();
+    public void close();
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    /** No matter if content changed or not, notify the content dirty forced.
+     */
+    public void forceNotifyDirty();
+    /// @}
 }

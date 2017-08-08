@@ -16,6 +16,7 @@
 
 package com.freeme.gallery.gadget;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,8 +25,14 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 
+import com.freeme.gallery.R;
 import com.freeme.gallery.data.MediaItem;
+import com.freeme.gallery.gadget.WidgetDatabaseHelper.Entry;
 import com.freeme.gallerycommon.util.ThreadPool;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class WidgetUtils {
 
@@ -34,18 +41,32 @@ public class WidgetUtils {
     private static int sStackPhotoWidth  = 220;
     private static int sStackPhotoHeight = 170;
 
+    /// M: [BUG.ADD] get context in widget.@{
+    public static Context sContext;
+    /// @}
+
     private WidgetUtils() {
     }
 
     public static void initialize(Context context) {
+        /// M: [BUG.ADD] get context in widget.@{
+        sContext = context;
+        /// @}
         Resources r = context.getResources();
         sStackPhotoWidth = r.getDimensionPixelSize(com.freeme.gallery.R.dimen.stack_photo_width);
         sStackPhotoHeight = r.getDimensionPixelSize(com.freeme.gallery.R.dimen.stack_photo_height);
     }
 
     public static Bitmap createWidgetBitmap(MediaItem image) {
+        /// M: [BUG.ADD] @{
+        if (image == null) {
+            Log.i(TAG, "<createWidgetBitmap> image == null, return null");
+            return null;
+        }
+        Log.i(TAG, "<createWidgetBitmap> decode image path = " + image.getFilePath());
+        /// @}
         Bitmap bitmap = image.requestImage(MediaItem.TYPE_THUMBNAIL)
-                .run(ThreadPool.JOB_CONTEXT_STUB);
+               .run(ThreadPool.JOB_CONTEXT_STUB);
         if (bitmap == null) {
             Log.w(TAG, "fail to get image of " + image.toString());
             return null;
@@ -75,5 +96,33 @@ public class WidgetUtils {
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
         canvas.drawBitmap(bitmap, -w / 2, -h / 2, paint);
         return target;
+    }
+
+    public static void notifyAllWidgetViewChanged() {
+        List<Integer> ids = getAllWidgetId();
+        Iterator<Integer> itr = ids.iterator();
+        while (itr.hasNext()) {
+            AppWidgetManager.getInstance(sContext).notifyAppWidgetViewDataChanged(itr.next(),
+                    R.id.appwidget_stack_view);
+        }
+    }
+
+    private static List<Integer> getAllWidgetId() {
+        WidgetDatabaseHelper dbHelper = new WidgetDatabaseHelper(sContext);
+        List<Integer> ids = new ArrayList<Integer>();
+        List<Entry> entry1 = dbHelper.getEntries(WidgetDatabaseHelper.TYPE_SINGLE_PHOTO);
+        List<Entry> entry2 = dbHelper.getEntries(WidgetDatabaseHelper.TYPE_SHUFFLE);
+        List<Entry> entry3 = dbHelper.getEntries(WidgetDatabaseHelper.TYPE_ALBUM);
+        putIdsToList(entry1, ids);
+        putIdsToList(entry2, ids);
+        putIdsToList(entry3, ids);
+        return ids;
+    }
+
+    private static void putIdsToList(List<Entry> entry, List<Integer> ids) {
+        Iterator<Entry> itr = entry.iterator();
+        while (itr.hasNext()) {
+            ids.add(itr.next().widgetId);
+        }
     }
 }

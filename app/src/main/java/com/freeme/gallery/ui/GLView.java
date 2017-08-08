@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +23,7 @@ package com.freeme.gallery.ui;
 
 import android.graphics.Rect;
 import android.os.SystemClock;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import com.freeme.gallery.anim.CanvasAnimation;
@@ -43,29 +49,42 @@ import java.util.ArrayList;
 // lockRendering() if the rendering thread should not run at the same time.
 //
 public class GLView {
-    public static final int VISIBLE   = 0;
-    public static final int INVISIBLE = 1;
     private static final String TAG = "GLView";
-    private static final int FLAG_INVISIBLE         = 1;
+    public static final int VISIBLE = 0;
+    public static final int INVISIBLE = 1;
+
+    private static final int FLAG_INVISIBLE = 1;
     private static final int FLAG_SET_MEASURED_SIZE = 2;
-    private static final int FLAG_LAYOUT_REQUESTED  = 4;
-    protected final Rect mBounds   = new Rect();
+    private static final int FLAG_LAYOUT_REQUESTED = 4;
+
+    public interface OnClickListener {
+        void onClick(GLView v);
+    }
+
+    protected final Rect mBounds = new Rect();
     protected final Rect mPaddings = new Rect();
-    protected GLView            mParent;
-    protected int mMeasuredWidth  = 0;
-    protected int mMeasuredHeight = 0;
-    protected int mScrollY      = 0;
-    protected int mScrollX      = 0;
-    protected int mScrollHeight = 0;
-    protected int mScrollWidth  = 0;
-    private   GLRoot            mRoot;
-    private   ArrayList<GLView> mComponents;
-    private   GLView            mMotionTarget;
+
+    private GLRoot mRoot;
+    protected GLView mParent;
+    private ArrayList<GLView> mComponents;
+    private GLView mMotionTarget;
+
     private CanvasAnimation mAnimation;
+
     private int mViewFlags = 0;
-    private int mLastWidthSpec  = -1;
+
+    protected int mMeasuredWidth = 0;
+    protected int mMeasuredHeight = 0;
+
+    private int mLastWidthSpec = -1;
     private int mLastHeightSpec = -1;
-    private float[]                  mBackgroundColor;
+
+    protected int mScrollY = 0;
+    protected int mScrollX = 0;
+    protected int mScrollHeight = 0;
+    protected int mScrollWidth = 0;
+
+    private float [] mBackgroundColor;
     private StateTransitionAnimation mTransition;
 
     public void startAnimation(CanvasAnimation animation) {
@@ -79,22 +98,6 @@ public class GLView {
         invalidate();
     }
 
-    public GLRoot getGLRoot() {
-        return mRoot;
-    }
-
-    // Request re-rendering of the view hierarchy.
-    // This is used for animation or when the contents changed.
-    public void invalidate() {
-        GLRoot root = getGLRoot();
-        if (root != null) root.requestRender();
-    }
-
-    // Returns GLView.VISIBLE or GLView.INVISIBLE
-    public int getVisibility() {
-        return (mViewFlags & FLAG_INVISIBLE) == 0 ? VISIBLE : INVISIBLE;
-    }
-
     // Sets the visiblity of this GLView (either GLView.VISIBLE or
     // GLView.INVISIBLE).
     public void setVisibility(int visibility) {
@@ -106,6 +109,11 @@ public class GLView {
         }
         onVisibilityChanged(visibility);
         invalidate();
+    }
+
+    // Returns GLView.VISIBLE or GLView.INVISIBLE
+    public int getVisibility() {
+        return (mViewFlags & FLAG_INVISIBLE) == 0 ? VISIBLE : INVISIBLE;
     }
 
     // This should only be called on the content pane (the topmost GLView).
@@ -185,6 +193,25 @@ public class GLView {
         return mBounds;
     }
 
+    public int getWidth() {
+        return mBounds.right - mBounds.left;
+    }
+
+    public int getHeight() {
+        return mBounds.bottom - mBounds.top;
+    }
+
+    public GLRoot getGLRoot() {
+        return mRoot;
+    }
+
+    // Request re-rendering of the view hierarchy.
+    // This is used for animation or when the contents changed.
+    public void invalidate() {
+        GLRoot root = getGLRoot();
+        if (root != null) root.requestRender();
+    }
+
     // Request re-layout of the view hierarchy.
     public void requestLayout() {
         mViewFlags |= FLAG_LAYOUT_REQUESTED;
@@ -224,7 +251,7 @@ public class GLView {
         if (mTransition != null) mTransition.start();
     }
 
-    public float[] getBackgroundColor() {
+    public float [] getBackgroundColor() {
         return mBackgroundColor;
     }
 
@@ -274,7 +301,7 @@ public class GLView {
     }
 
     protected boolean dispatchTouchEvent(MotionEvent event,
-                                         int x, int y, GLView component, boolean checkBounds) {
+            int x, int y, GLView component, boolean checkBounds) {
         Rect rect = component.mBounds;
         int left = rect.left;
         int top = rect.top;
@@ -343,10 +370,6 @@ public class GLView {
         return sizeChanged;
     }
 
-    protected void onLayout(
-            boolean changeSize, int left, int top, int right, int bottom) {
-    }
-
     public void measure(int widthSpec, int heightSpec) {
         if (widthSpec == mLastWidthSpec && heightSpec == mLastHeightSpec
                 && (mViewFlags & FLAG_LAYOUT_REQUESTED) == 0) {
@@ -381,6 +404,10 @@ public class GLView {
         return mMeasuredHeight;
     }
 
+    protected void onLayout(
+            boolean changeSize, int left, int top, int right, int bottom) {
+    }
+
     /**
      * Gets the bounds of the given descendant that relative to this view.
      */
@@ -398,14 +425,6 @@ public class GLView {
         out.set(xoffset, yoffset, xoffset + descendant.getWidth(),
                 yoffset + descendant.getHeight());
         return true;
-    }
-
-    public int getWidth() {
-        return mBounds.right - mBounds.left;
-    }
-
-    public int getHeight() {
-        return mBounds.bottom - mBounds.top;
     }
 
     protected void onVisibilityChanged(int visibility) {
@@ -452,7 +471,22 @@ public class GLView {
         }
     }
 
-    public interface OnClickListener {
-        void onClick(GLView v);
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    protected void dispatchKeyEvent(KeyEvent event) {
+        for (int i = getComponentCount() - 1; i >= 0; --i) {
+            GLView component = getComponent(i);
+            if (component == null) {
+                continue;
+            }
+            if (component.getVisibility() != GLView.VISIBLE) {
+                continue;
+            }
+            component.onKeyEvent(event);
+        }
+    }
+
+    protected void onKeyEvent(KeyEvent event) {
     }
 }

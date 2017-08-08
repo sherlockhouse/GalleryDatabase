@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,9 +33,9 @@ import java.util.Arrays;
  * outer, rotated rectangle.
  */
 public class BoundedRect {
-    private float   rot;
-    private RectF   outer;
-    private RectF   inner;
+    private float rot;
+    private RectF outer;
+    private RectF inner;
     private float[] innerRotated;
 
     public BoundedRect(float rotation, Rect outerRect, Rect innerRect) {
@@ -41,40 +46,6 @@ public class BoundedRect {
         rotateInner();
         if (!isConstrained())
             reconstrain();
-    }
-
-    private void rotateInner() {
-        Matrix m = getInverseRotMatrix();
-        m.mapPoints(innerRotated);
-    }
-
-    private boolean isConstrained() {
-        for (int i = 0; i < 8; i += 2) {
-            if (!CropMath.inclusiveContains(outer, innerRotated[i], innerRotated[i + 1]))
-                return false;
-        }
-        return true;
-    }
-
-    private void reconstrain() {
-        // innerRotated has been changed to have incorrect values
-        CropMath.getEdgePoints(outer, innerRotated);
-        Matrix m = getRotMatrix();
-        float[] unrotated = Arrays.copyOf(innerRotated, 8);
-        m.mapPoints(unrotated);
-        inner = CropMath.trapToRect(unrotated);
-    }
-
-    private Matrix getInverseRotMatrix() {
-        Matrix m = new Matrix();
-        m.setRotate(-rot, outer.centerX(), outer.centerY());
-        return m;
-    }
-
-    private Matrix getRotMatrix() {
-        Matrix m = new Matrix();
-        m.setRotate(rot, outer.centerX(), outer.centerY());
-        return m;
     }
 
     public BoundedRect(float rotation, RectF outerRect, RectF innerRect) {
@@ -91,6 +62,19 @@ public class BoundedRect {
         rot = rotation;
         outer.set(outerRect);
         inner.set(innerRect);
+        innerRotated = CropMath.getCornersFromRect(inner);
+        rotateInner();
+        if (!isConstrained())
+            reconstrain();
+    }
+
+    /**
+     * Sets inner, and re-constrains it to fit within the rotated bounding rect.
+     */
+    public void setInner(RectF newInner) {
+        if (inner.equals(newInner))
+            return;
+        inner = newInner;
         innerRotated = CropMath.getCornersFromRect(inner);
         rotateInner();
         if (!isConstrained())
@@ -120,21 +104,6 @@ public class BoundedRect {
 
     public RectF getInner() {
         return new RectF(inner);
-    }
-
-    // internal methods
-
-    /**
-     * Sets inner, and re-constrains it to fit within the rotated bounding rect.
-     */
-    public void setInner(RectF newInner) {
-        if (inner.equals(newInner))
-            return;
-        inner = newInner;
-        innerRotated = CropMath.getCornersFromRect(inner);
-        rotateInner();
-        if (!isConstrained())
-            reconstrain();
     }
 
     public RectF getOuter() {
@@ -364,5 +333,49 @@ public class BoundedRect {
         innerRotated = retCorners;
         // reconstrain to update inner
         reconstrain();
+    }
+
+    // internal methods
+
+    private boolean isConstrained() {
+        for (int i = 0; i < 8; i += 2) {
+            if (!CropMath.inclusiveContains(outer, innerRotated[i], innerRotated[i + 1]))
+                return false;
+        }
+        return true;
+    }
+
+    private void reconstrain() {
+        // innerRotated has been changed to have incorrect values
+        CropMath.getEdgePoints(outer, innerRotated);
+        Matrix m = getRotMatrix();
+        float[] unrotated = Arrays.copyOf(innerRotated, 8);
+        m.mapPoints(unrotated);
+        inner = CropMath.trapToRect(unrotated);
+    }
+
+    private void rotateInner() {
+        Matrix m = getInverseRotMatrix();
+        m.mapPoints(innerRotated);
+    }
+
+    private Matrix getRotMatrix() {
+        Matrix m = new Matrix();
+        m.setRotate(rot, outer.centerX(), outer.centerY());
+        return m;
+    }
+
+    private Matrix getInverseRotMatrix() {
+        Matrix m = new Matrix();
+        m.setRotate(-rot, outer.centerX(), outer.centerY());
+        return m;
+    }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    public void resetInner(RectF origin) {
+        inner.set(origin);
     }
 }

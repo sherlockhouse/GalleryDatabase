@@ -24,18 +24,20 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Build;
 import android.util.Log;
-
+import android.os.Trace;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class BitmapUtils {
-    public static final  int    UNCONSTRAINED        = -1;
-    private static final String TAG                  = "BitmapUtils";
-    private static final int    DEFAULT_JPEG_QUALITY = 90;
+    private static final String TAG = "Gallery2/BitmapUtils";
+    /// M: [BUG.MODIFY] fix block effect issue, MTK compress quality will change to 100 from 90 @{
+    /*private static final int DEFAULT_JPEG_QUALITY = 90;*/
+    private static final int DEFAULT_JPEG_QUALITY = 100;
+    /// @}
+    public static final int UNCONSTRAINED = -1;
 
-    private BitmapUtils() {
-    }
+    private BitmapUtils(){}
 
     /*
      * Compute the sample size as a function of minSideLength
@@ -57,7 +59,7 @@ public class BitmapUtils {
      * request is 3. So we round up the sample size to avoid OOM.
      */
     public static int computeSampleSize(int width, int height,
-                                        int minSideLength, int maxNumOfPixels) {
+            int minSideLength, int maxNumOfPixels) {
         int initialSize = computeInitialSampleSize(
                 width, height, minSideLength, maxNumOfPixels);
 
@@ -67,7 +69,7 @@ public class BitmapUtils {
     }
 
     private static int computeInitialSampleSize(int w, int h,
-                                                int minSideLength, int maxNumOfPixels) {
+            int minSideLength, int maxNumOfPixels) {
         if (maxNumOfPixels == UNCONSTRAINED
                 && minSideLength == UNCONSTRAINED) return 1;
 
@@ -85,7 +87,7 @@ public class BitmapUtils {
     // This computes a sample size which makes the longer side at least
     // minSideLength long. If that's not possible, return 1.
     public static int computeSampleSizeLarger(int w, int h,
-                                              int minSideLength) {
+            int minSideLength) {
         int initialSize = Math.max(w / minSideLength, h / minSideLength);
         if (initialSize <= 1) return 1;
 
@@ -113,20 +115,16 @@ public class BitmapUtils {
                 : (initialSize + 7) / 8 * 8;
     }
 
-    public static Bitmap resizeDownBySideLength(
-            Bitmap bitmap, int maxLength, boolean recycle) {
-        int srcWidth = bitmap.getWidth();
-        int srcHeight = bitmap.getHeight();
-        float scale = Math.min(
-                (float) maxLength / srcWidth, (float) maxLength / srcHeight);
-        if (scale >= 1.0f) return bitmap;
-        return resizeBitmapByScale(bitmap, scale, recycle);
-    }
-
     public static Bitmap resizeBitmapByScale(
             Bitmap bitmap, float scale, boolean recycle) {
         int width = Math.round(bitmap.getWidth() * scale);
         int height = Math.round(bitmap.getHeight() * scale);
+        /// M: [BUG.ADD] fix certain wbmp no thumbnail issue. @{
+        if (width < 1 || height < 1) {
+            Log.i(TAG, "<resizeBitmapByScale> scaled width or height < 1, no need to resize");
+            return bitmap;
+        }
+        /// @}
         if (width == bitmap.getWidth()
                 && height == bitmap.getHeight()) return bitmap;
         Bitmap target = Bitmap.createBitmap(width, height, getConfig(bitmap));
@@ -146,6 +144,16 @@ public class BitmapUtils {
         return config;
     }
 
+    public static Bitmap resizeDownBySideLength(
+            Bitmap bitmap, int maxLength, boolean recycle) {
+        int srcWidth = bitmap.getWidth();
+        int srcHeight = bitmap.getHeight();
+        float scale = Math.min(
+                (float) maxLength / srcWidth, (float) maxLength / srcHeight);
+        if (scale >= 1.0f) return bitmap;
+        return resizeBitmapByScale(bitmap, scale, recycle);
+    }
+
     public static Bitmap resizeAndCropCenter(Bitmap bitmap, int size, boolean recycle) {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
@@ -153,16 +161,30 @@ public class BitmapUtils {
 
         // scale the image so that the shorter side equals to the target;
         // the longer side will be center-cropped.
-        float scale = (float) size / Math.min(w, h);
-
+        float scale = (float) size / Math.min(w,  h);
+        /// M: [DEBUG.ADD] @{
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW,
+                ">>>>BitmapUtils-resizeAndCropCenter");
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-createBitmap");
+        /// @}
         Bitmap target = Bitmap.createBitmap(size, size, getConfig(bitmap));
         int width = Math.round(scale * bitmap.getWidth());
         int height = Math.round(scale * bitmap.getHeight());
+        /// M: [DEBUG.ADD] @{
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        /// @}
         Canvas canvas = new Canvas(target);
         canvas.translate((size - width) / 2f, (size - height) / 2f);
         canvas.scale(scale, scale);
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
+        /// M: [DEBUG.ADD] @{
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-canvas.drawBitmap");
+        /// @}
         canvas.drawBitmap(bitmap, 0, 0, paint);
+        /// M: [DEBUG.ADD] @{
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        /// @}
         if (recycle) bitmap.recycle();
         return target;
     }
@@ -194,21 +216,51 @@ public class BitmapUtils {
         Object instance = null;
         try {
             clazz = Class.forName("android.media.MediaMetadataRetriever");
+            /// M: [DEBUG.ADD] @{
+            Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-MediaMetadataRetriever.new");
+            /// @}
             instance = clazz.newInstance();
+            /// M: [DEBUG.ADD] @{
+            Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+            /// @}
 
             Method method = clazz.getMethod("setDataSource", String.class);
+            /// M: [DEBUG.ADD] @{
+            Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-MediaMetadataRetriever.setDataSource");
+            /// @}
             method.invoke(instance, filePath);
+            /// M: [DEBUG.ADD] @{
+            Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+            /// @}
 
             // The method name changes between API Level 9 and 10.
             if (Build.VERSION.SDK_INT <= 9) {
                 return (Bitmap) clazz.getMethod("captureFrame").invoke(instance);
             } else {
+                /// M: [DEBUG.ADD] @{
+                Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-getEmbeddedPicture");
+                /// @}
                 byte[] data = (byte[]) clazz.getMethod("getEmbeddedPicture").invoke(instance);
+                /// M: [DEBUG.ADD] @{
+                Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+                /// @}
                 if (data != null) {
+                    /// M: [DEBUG.ADD] @{
+                    Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-decodeByteArray");
+                    /// @}
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    /// M: [DEBUG.ADD] @{
+                    Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+                    /// @}
                     if (bitmap != null) return bitmap;
                 }
-                return (Bitmap) clazz.getMethod("getFrameAtTime").invoke(instance);
+                /// M: [DEBUG.MODIFY] @{
+                /*return (Bitmap) clazz.getMethod("getFrameAtTime").invoke(instance);*/
+                Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-MediaMetadataRetriever.getFrameAtTime");
+                Bitmap bitmap = (Bitmap) clazz.getMethod("getFrameAtTime").invoke(instance);
+                Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+                return bitmap;
+                /// @}
             }
         } catch (IllegalArgumentException ex) {
             // Assume this is a corrupt video file
@@ -240,21 +292,62 @@ public class BitmapUtils {
     }
 
     public static byte[] compressToBytes(Bitmap bitmap, int quality) {
+        /// M: [DEBUG.ADD] @{
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-new ByteArrayOutputStream");
+        /// @}
         ByteArrayOutputStream baos = new ByteArrayOutputStream(65536);
+        /// M: [DEBUG.ADD] @{
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW, ">>>>BitmapUtils-bitmap.compress");
+        /// @}
         bitmap.compress(CompressFormat.JPEG, quality, baos);
+        /// M: [DEBUG.ADD] @{
+        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        /// @}
         return baos.toByteArray();
     }
 
     public static boolean isSupportedByRegionDecoder(String mimeType) {
         if (mimeType == null) return false;
         mimeType = mimeType.toLowerCase();
-        return mimeType.startsWith("image/") &&
-                (!mimeType.equals("image/gif") && !mimeType.endsWith("bmp"));
+        /// M: [FEATURE.MODIFY] mpo not support RegionDecoder @{
+        /*return mimeType.startsWith("image/") &&
+         (!mimeType.equals("image/gif") && !mimeType.endsWith("bmp"));*/
+        return mimeType.startsWith("image/") && !mimeType.endsWith("gif")
+                && !mimeType.endsWith("mpo") && !mimeType.endsWith("bmp");
+        /// @}
     }
 
     public static boolean isRotationSupported(String mimeType) {
         if (mimeType == null) return false;
         mimeType = mimeType.toLowerCase();
         return mimeType.equals("image/jpeg");
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    /// M: [FEATURE.ADD] Compress to input format @{
+    public static byte[] compressToBytes(Bitmap bitmap, CompressFormat format) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(65536);
+        bitmap.compress(format, DEFAULT_JPEG_QUALITY, baos);
+        return baos.toByteArray();
+    }
+    /// @}
+
+    public static Bitmap alignBitmapToEven(Bitmap bitmap, boolean recycle) {
+        int h = bitmap.getHeight();
+        int w = bitmap.getWidth();
+        int targetW = w + w % 2;
+        int targetH = h + h % 2;
+
+        if (targetW == w && targetH == h)
+            return bitmap;
+        else {
+            Bitmap res = Bitmap.createScaledBitmap(bitmap, targetW, targetH,
+                    true);
+            bitmap.recycle();
+            return res;
+        }
     }
 }

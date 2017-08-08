@@ -260,6 +260,15 @@ public class DataManager implements StitchingChangeListener {
         return getMediaObject(path).getMediaType();
     }
 
+    public Path findPathByUri(Uri uri, String type) {
+        if (uri == null) return null;
+        for (MediaSource source : mSourceMap.values()) {
+            Path path = source.findPathByUri(uri, type);
+            if (path != null) return path;
+        }
+        return null;
+    }
+
     public Path getDefaultSetOf(Path item) {
         MediaSource source = mSourceMap.get(item.getPrefix());
         return source == null ? null : source.getDefaultSetOf(item);
@@ -330,14 +339,7 @@ public class DataManager implements StitchingChangeListener {
         }
     }
 
-    public Path findPathByUri(Uri uri, String type) {
-        if (uri == null) return null;
-        for (MediaSource source : mSourceMap.values()) {
-            Path path = source.findPathByUri(uri, type);
-            if (path != null) return path;
-        }
-        return null;
-    }
+
 
     @Override
     public void onStitchingProgress(Uri uri, int progress) {

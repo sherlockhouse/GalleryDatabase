@@ -20,13 +20,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Binder;
 
+import com.freeme.gallery.util.Log;
+import com.freeme.gallerycommon.common.Utils;
 import com.freeme.gallery.data.ContentListener;
 import com.freeme.gallery.data.DataManager;
 import com.freeme.gallery.data.MediaItem;
 import com.freeme.gallery.data.MediaObject;
 import com.freeme.gallery.data.MediaSet;
 import com.freeme.gallery.data.Path;
-import com.freeme.gallerycommon.common.Utils;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,26 +58,49 @@ public class MediaSetSource implements WidgetSource, ContentListener {
         monitorRootPath();
     }
 
-    private void monitorRootPath() {
-        String rootPath = mDataManager.getTopSetPath(DataManager.INCLUDE_ALL);
-        mRootSet = (MediaSet) mDataManager.getMediaObject(rootPath);
-        mRootSet.addContentListener(this);
-    }
-
     @Override
     public int size() {
         return mSource.size();
-    }    @Override
+    }
+
+    @Override
     public Bitmap getImage(int index) {
         return mSource.getImage(index);
     }
 
     @Override
-    public void onContentDirty() {
-        resolveAlbumPath();
-    }    @Override
     public Uri getContentUri(int index) {
         return mSource.getContentUri(index);
+    }
+
+    @Override
+    public synchronized void setContentListener(ContentListener listener) {
+        if (mRootSet != null) {
+            mListener = listener;
+        } else {
+            mSource.setContentListener(listener);
+        }
+    }
+
+    @Override
+    public void reload() {
+        mSource.reload();
+    }
+
+    @Override
+    public void close() {
+        mSource.close();
+    }
+
+    @Override
+    public void onContentDirty() {
+        resolveAlbumPath();
+    }
+
+    private void monitorRootPath() {
+        String rootPath = mDataManager.getTopSetPath(DataManager.INCLUDE_ALL);
+        mRootSet = (MediaSet) mDataManager.getMediaObject(rootPath);
+        mRootSet.addContentListener(this);
     }
 
     private synchronized void resolveAlbumPath() {
@@ -94,13 +119,6 @@ public class MediaSetSource implements WidgetSource, ContentListener {
             }
             mDataManager = null;
             mAlbumPath = null;
-        }
-    }    @Override
-    public synchronized void setContentListener(ContentListener listener) {
-        if (mRootSet != null) {
-            mListener = listener;
-        } else {
-            mSource.setContentListener(listener);
         }
     }
 
@@ -145,14 +163,37 @@ public class MediaSetSource implements WidgetSource, ContentListener {
         @Override
         public synchronized Uri getContentUri(int index) {
             ensureCacheRange(index);
-            if (index < mCacheStart || index >= mCacheEnd) return null;
+            /// M: [DEBUG.MARK] @{
+            /*if (index < mCacheStart || index >= mCacheEnd) return null;*/
+            /// @}
+            if (index < mCacheStart || index >= mCacheEnd) {
+                /// M: [DEBUG.ADD] @{
+                Log.e(TAG, "getContentUri: index out of range: " + index + ", start=" + mCacheStart
+                        + ", end=" + mCacheEnd);
+                /// @}
+                return null;
+            }
             return mCache[index - mCacheStart].getContentUri();
         }
 
         @Override
         public synchronized Bitmap getImage(int index) {
             ensureCacheRange(index);
-            if (index < mCacheStart || index >= mCacheEnd) return null;
+            /// M: [DEBUG.MARK] @{
+            /*if (index < mCacheStart || index >= mCacheEnd) return null;*/
+            /// @}
+            if (index < mCacheStart || index >= mCacheEnd) {
+                /// M: [DEBUG.ADD] @{
+                Log.e(TAG, "getImage: index out of range: " + index + ", start=" + mCacheStart
+                        + ", end=" + mCacheEnd);
+                /// @}
+                return null;
+            }
+            /// M: [DEBUG.ADD] @{
+            MediaItem item = mCache[index - mCacheStart];
+            Log.i(TAG, "getImage: mediaitem="
+                    + (item == null ? "null" : item.getName()));
+            /// @}
             return WidgetUtils.createWidgetBitmap(mCache[index - mCacheStart]);
         }
 
@@ -160,6 +201,9 @@ public class MediaSetSource implements WidgetSource, ContentListener {
         public void reload() {
             long version = mSource.reload();
             if (mSourceVersion != version) {
+                /// M: [DEBUG.ADD] @{
+                Log.i(TAG, "reload: new data version!");
+                /// @}
                 mSourceVersion = version;
                 mCacheStart = 0;
                 mCacheEnd = 0;
@@ -186,9 +230,13 @@ public class MediaSetSource implements WidgetSource, ContentListener {
         public void onContentDirty() {
             if (mContentListener != null) mContentListener.onContentDirty();
         }
-    }    @Override
-    public void reload() {
-        mSource.reload();
+
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        @Override
+        public void forceNotifyDirty() {
+            onContentDirty();
+        }
+        /// @}
     }
 
     private static class EmptySource implements WidgetSource {
@@ -200,37 +248,39 @@ public class MediaSetSource implements WidgetSource, ContentListener {
 
         @Override
         public Bitmap getImage(int index) {
-            throw new UnsupportedOperationException();
+            /// M: [FEATURE.MODIFY] [Runtime permission] @{
+            /*throw new UnsupportedOperationException();*/
+            return null;
+            /// @}
         }
 
         @Override
         public Uri getContentUri(int index) {
-            throw new UnsupportedOperationException();
+            /// M: [FEATURE.MODIFY] [Runtime permission] @{
+            /*throw new UnsupportedOperationException();*/
+            return null;
+            /// @}
         }
 
         @Override
-        public void setContentListener(ContentListener listener) {
-        }
+        public void setContentListener(ContentListener listener) {}
 
         @Override
-        public void reload() {
-        }
+        public void reload() {}
 
         @Override
-        public void close() {
-        }
-    }    @Override
-    public void close() {
-        mSource.close();
+        public void close() {}
+
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        @Override
+        public void forceNotifyDirty() {}
+        /// @}
     }
 
-
-
-
-
-
-
-
-
-
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    @Override
+    public void forceNotifyDirty() {
+        onContentDirty();
+    }
+    /// @}
 }

@@ -20,47 +20,40 @@ import android.net.Uri;
 
 public class CropExtras {
 
-    public static final String KEY_CROPPED_RECT       = "cropped-rect";
-    public static final String KEY_OUTPUT_X           = "outputX";
-    public static final String KEY_OUTPUT_Y           = "outputY";
-    public static final String KEY_SCALE              = "scale";
+    public static final String KEY_CROPPED_RECT = "cropped-rect";
+    public static final String KEY_OUTPUT_X = "outputX";
+    public static final String KEY_OUTPUT_Y = "outputY";
+    public static final String KEY_SCALE = "scale";
     public static final String KEY_SCALE_UP_IF_NEEDED = "scaleUpIfNeeded";
-    public static final String KEY_ASPECT_X           = "aspectX";
-    public static final String KEY_ASPECT_Y           = "aspectY";
-    public static final String KEY_SET_AS_WALLPAPER   = "set-as-wallpaper";
-    public static final String KEY_RETURN_DATA        = "return-data";
-    public static final String KEY_DATA               = "data";
-    public static final String KEY_SPOTLIGHT_X        = "spotlightX";
-    public static final String KEY_SPOTLIGHT_Y        = "spotlightY";
-    public static final String KEY_SHOW_WHEN_LOCKED   = "showWhenLocked";
-    public static final String KEY_OUTPUT_FORMAT      = "outputFormat";
+    public static final String KEY_ASPECT_X = "aspectX";
+    public static final String KEY_ASPECT_Y = "aspectY";
+    public static final String KEY_SET_AS_WALLPAPER = "set-as-wallpaper";
+    public static final String KEY_RETURN_DATA = "return-data";
+    public static final String KEY_DATA = "data";
+    public static final String KEY_SPOTLIGHT_X = "spotlightX";
+    public static final String KEY_SPOTLIGHT_Y = "spotlightY";
+    public static final String KEY_SHOW_WHEN_LOCKED = "showWhenLocked";
+    public static final String KEY_OUTPUT_FORMAT = "outputFormat";
     //*/ tyd.biantao, 20140409. wallpaper.
     public static final String KEY_IS_INIT_FULL_SELECTION = "isInitFullSelection";
     public static final String KEY_SET_AS_LOCKSCREEN      = "set-as-lockscreen";
     public static final int    WALLPAPER_SCREEN_SPAN      = 2;
-    private int     mOutputX        = 0;
-    private int     mOutputY        = 0;
-    private boolean mScaleUp        = true;
-    private int     mAspectX        = 0;
-    private int     mAspectY        = 0;
+    private int mOutputX = 0;
+    private int mOutputY = 0;
+    private boolean mScaleUp = true;
+    private int mAspectX = 0;
+    private int mAspectY = 0;
     private boolean mSetAsWallpaper = false;
-    private boolean mReturnData     = false;
-    private Uri     mExtraOutput    = null;
-    private String  mOutputFormat   = null;
+    private boolean mReturnData = false;
+    private Uri mExtraOutput = null;
+    private String mOutputFormat = null;
     private boolean mShowWhenLocked = false;
-    private float   mSpotlightX     = 0;
-    private float   mSpotlightY     = 0;
+    private float mSpotlightX = 0;
+    private float mSpotlightY = 0;
     private boolean mSetAsLockWallpaper = false;
     private boolean mIsInitFullSelection = false;
 
-    public CropExtras(CropExtras c) {
-        this(c.mOutputX, c.mOutputY, c.mScaleUp, c.mAspectX, c.mAspectY, c.mSetAsWallpaper,
-                //*/ tyd.biantao, 20140409. wallpaper.
-                c.mSetAsLockWallpaper,
-                //*/
-                c.mReturnData, c.mExtraOutput, c.mOutputFormat, c.mShowWhenLocked,
-                c.mSpotlightX, c.mSpotlightY);
-    }
+
 
     public CropExtras(int outputX, int outputY, boolean scaleUp, int aspectX, int aspectY,
                       boolean setAsWallpaper, boolean setAsLockWallpaper,
@@ -73,8 +66,8 @@ public class CropExtras {
     }
 
     public CropExtras(int outputX, int outputY, boolean scaleUp, int aspectX, int aspectY,
-                      boolean setAsWallpaper, boolean returnData, Uri extraOutput, String outputFormat,
-                      boolean showWhenLocked, float spotlightX, float spotlightY) {
+            boolean setAsWallpaper, boolean returnData, Uri extraOutput, String outputFormat,
+            boolean showWhenLocked, float spotlightX, float spotlightY) {
         mOutputX = outputX;
         mOutputY = outputY;
         mScaleUp = scaleUp;
@@ -87,6 +80,21 @@ public class CropExtras {
         mShowWhenLocked = showWhenLocked;
         mSpotlightX = spotlightX;
         mSpotlightY = spotlightY;
+    }
+
+    public CropExtras(CropExtras c) {
+        /// M: [DEBUG.MODIFY] @{
+        // Add support for return compress data
+        /* this(c.mOutputX, c.mOutputY, c.mScaleUp, c.mAspectX, c.mAspectY, c.mSetAsWallpaper,
+                c.mReturnData, c.mExtraOutput, c.mOutputFormat, c.mShowWhenLocked,
+                c.mSpotlightX, c.mSpotlightY);*/
+        this(c.mOutputX, c.mOutputY, c.mScaleUp, c.mAspectX, c.mAspectY, c.mSetAsWallpaper,
+				//*/ tyd.biantao, 20140409. wallpaper.
+                c.mSetAsLockWallpaper,
+                //*/
+                c.mReturnData, c.mExtraOutput, c.mOutputFormat, c.mShowWhenLocked,
+                c.mSpotlightX, c.mSpotlightY, c.mReturnDataCompress);
+        /// @}
     }
 
     public int getOutputX() {
@@ -137,6 +145,34 @@ public class CropExtras {
         return mSpotlightY;
     }
 
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // In order to decrease the size of return data, add the way to return the compressed data
+    // If mReturnDataCompress is true, the return data is byte array of bitmap compressed,
+    // or else the return data is Bitmap.
+    public static final String KEY_RETURN_DATA_COMPRESS = "return-data-compress";
+    public static final String KEY_DATA_COMPRESS = "data-compress";
+
+    private boolean mReturnDataCompress = false;
+
+    public CropExtras(int outputX, int outputY, boolean scaleUp, int aspectX, int aspectY,
+            boolean setAsWallpaper, boolean setAsLockWallpaper,boolean returnData, Uri extraOutput,
+                      String outputFormat, boolean showWhenLocked, float spotlightX, float spotlightY,
+            boolean returnDataCompress) {
+        this(outputX, outputY, scaleUp, aspectX, aspectY,
+            setAsWallpaper, returnData, extraOutput, outputFormat,
+            showWhenLocked, spotlightX, spotlightY);
+        mReturnDataCompress = returnDataCompress;
+    }
+
+    public boolean getReturnDataCompressed() {
+        return mReturnDataCompress;
+    }
+
+
+//*****************freeme*******************************//
     public boolean getSetAsLockWallpaper() {
         return mSetAsLockWallpaper;
     }

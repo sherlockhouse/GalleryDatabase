@@ -39,38 +39,6 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
 
     private static final String TAG = "WidgetProvider";
 
-    @Override
-    public void onUpdate(Context context,
-                         AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-
-        if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
-            // migrate gallery widgets from pre-JB releases to JB due to bucket ID change
-            GalleryWidgetMigrator.migrateGalleryWidgets(context);
-        }
-
-        WidgetDatabaseHelper helper = new WidgetDatabaseHelper(context);
-        try {
-            for (int id : appWidgetIds) {
-                Entry entry = helper.getEntry(id);
-                if (entry != null) {
-                    RemoteViews views = buildWidget(context, id, entry);
-                    appWidgetManager.updateAppWidget(id, views);
-                } else {
-                    entry = new Entry();
-                    entry.type = WidgetDatabaseHelper.TYPE_ALBUM;
-                    entry.widgetId = id;
-                    entry.albumPath = "/local/image/"+MediaSetUtils.CAMERA_BUCKET_ID;
-                    RemoteViews views = buildWidget(context, id, entry);
-                    appWidgetManager.updateAppWidget(id, views);
-                    Log.e(TAG, "cannot load widget: " + id);
-                }
-            }
-        } finally {
-            helper.close();
-        }
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
-    }
-
     static RemoteViews buildWidget(Context context, int id, Entry entry) {
 
         switch (entry.type) {
@@ -83,11 +51,48 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
         throw new RuntimeException("invalid type - " + entry.type);
     }
 
+    @Override
+    public void onUpdate(Context context,
+            AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+
+        if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
+            // migrate gallery widgets from pre-JB releases to JB due to bucket ID change
+            GalleryWidgetMigrator.migrateGalleryWidgets(context);
+        }
+
+        WidgetDatabaseHelper helper = new WidgetDatabaseHelper(context);
+        try {
+            for (int id : appWidgetIds) {
+                Entry entry = helper.getEntry(id);
+                /// M: [DEBUG.ADD] @{
+                Log.i(TAG, " <onUpdate>: entry for id[" + id + "]="
+                        + (entry == null ? "null" : ("(" + entry.type + ", " + entry.imageUri
+                                + ", " + entry.albumPath + ", " + entry.imageData + ")")));
+                /// @}
+                if (entry != null) {
+                    RemoteViews views = buildWidget(context, id, entry);
+                    appWidgetManager.updateAppWidget(id, views);
+                } else {
+                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_main);
+                    views.setEmptyView(R.id.appwidget_stack_view, R.id.appwidget_empty_view);
+                    appWidgetManager.updateAppWidget(id, views);
+                    Log.e(TAG, "<onUpdate>cannot load widget: " + id);
+                }
+            }
+        } finally {
+            helper.close();
+        }
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
+
     @SuppressWarnings("deprecation")
     @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
     private static RemoteViews buildStackWidget(Context context, int widgetId, Entry entry) {
-        RemoteViews views = new RemoteViews(
-                context.getPackageName(), R.layout.appwidget_main);
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<buildStackWidget> for id=" + widgetId + ", entry=(" + entry.type + ", "
+                + entry.imageUri + ", " + entry.albumPath + ", " + entry.imageData + ")");
+        /// @}
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_main);
 
         Intent intent = new Intent(context, WidgetService.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
@@ -101,40 +106,64 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
 
         views.setEmptyView(R.id.appwidget_stack_view, R.id.appwidget_empty_view);
 
-        Intent clickIntent = new Intent(Intent.ACTION_VIEW);
-        clickIntent.setPackage(context.getPackageName());
-        clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        Intent clickIntent = new Intent(context, WidgetClickHandler.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setPendingIntentTemplate(R.id.appwidget_stack_view, pendingIntent);
 
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        Intent clickIntentForEmpty = new Intent(context, WidgetClickHandler.class);
+        clickIntentForEmpty.putExtra(WidgetClickHandler.FLAG_FROM_EMPTY_VIEW, true);
+        clickIntentForEmpty.putExtra(WidgetClickHandler.FLAG_WIDGET_ID, widgetId);
+        PendingIntent pendingIntentForEmpty = PendingIntent.getActivity(context, 0,
+                clickIntentForEmpty, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.appwidget_empty_view, pendingIntentForEmpty);
+        /// @}
         return views;
     }
 
     static RemoteViews buildFrameWidget(Context context, int appWidgetId, Entry entry) {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<buildFrameWidget> for id=" + appWidgetId + ", entry=(" + entry.type + ", "
+                + entry.imageUri + ", " + entry.albumPath + ", " + entry.imageData + ")");
+        /// @}
         RemoteViews views = new RemoteViews(
                 context.getPackageName(), R.layout.photo_frame);
         try {
             byte[] data = entry.imageData;
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            /// M: [BUG.ADD] make this bitmap mutable for editing@{
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inMutable = true;
+            /// @}
+            /// M: [BUG.MODIFY] @{
+            /*  Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);*/
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+            /// @}
             views.setImageViewBitmap(R.id.photo, bitmap);
         } catch (Throwable t) {
-            Log.w(TAG, "cannot load widget image: " + appWidgetId, t);
+            Log.w(TAG, "<buildFrameWidget> cannot load widget image: " + appWidgetId, t);
         }
 
         if (entry.imageUri != null) {
             try {
                 Uri uri = Uri.parse(entry.imageUri);
-                Intent clickIntent = new Intent(context, WidgetClickHandler.class);
-                clickIntent.setPackage(BuildConfig.APPLICATION_ID);
-                clickIntent.setDataAndType(uri, "image/*");
-                clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Intent clickIntent = new Intent(context, WidgetClickHandler.class)
+                        .setData(uri);
+                /// M: [BUG.ADD] fix bug that permission dialog pop up twice when click deny. @{
+                clickIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Log.d(TAG, "<buildFrameWidget> set FLAG_ACTIVITY_CLEAR_TASK..");
+                /// @}
+                /// M: [BUG.MODIFY] @{
+                // After add many frame widgets for one same image,
+                // old PendingIntent will be canceled because of PendingIntent.FLAG_CANCEL_CURRENT
+                /*PendingIntent pendingClickIntent = PendingIntent.getActivity(context, 0,
+                      clickIntent, PendingIntent.FLAG_CANCEL_CURRENT);*/
                 PendingIntent pendingClickIntent = PendingIntent.getActivity(context, 0,
                         clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                /// @}
                 views.setOnClickPendingIntent(R.id.photo, pendingClickIntent);
             } catch (Throwable t) {
-                Log.w(TAG, "cannot load widget uri: " + appWidgetId, t);
+                Log.w(TAG, "<buildFrameWidget>cannot load widget uri: " + appWidgetId, t);
             }
         }
         return views;
