@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingBottom="1dip">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/plaza_header_height"
+        android:background="@drawable/plaza_header_bg"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.freeme.community.view.CircleImageView
+            android:id="@+id/user_icon"
+            android:layout_width="@dimen/plaza_user_icon_size"
+            android:layout_height="@dimen/plaza_user_icon_size"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15dip"
+            android:contentDescription="@null"
+            android:src="@drawable/default_user_icon"
+            app:border_color="@color/border_color"
+            app:border_width="@dimen/border_width"/>
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/global_margin_small"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="@string/login_please"
+            android:textColor="@android:color/white"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/plaza_content_height"
+            android:background="@color/plaza_title_bg"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/photos"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_plaza_title"
+                android:gravity="center"
+                android:textColor="@color/plaza_title_text_color"
+                android:textSize="14dp"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/plaza_divider_height"
+                android:background="@drawable/plaza_divider"/>
+
+            <RelativeLayout
+                android:id="@+id/message_layout"
+                android:layout_width="0dip"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/btn_plaza_title">
+
+                <TextView
+                    android:id="@+id/messages"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textColor="@color/plaza_title_text_color"
+                    android:textSize="14dp"/>
+
+                <TextView
+                    android:id="@+id/badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5dip"
+                    android:layout_toEndOf="@id/messages"
+                    android:background="@drawable/ic_badge_background"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="12dp"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

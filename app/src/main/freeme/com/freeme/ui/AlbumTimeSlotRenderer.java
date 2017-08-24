@@ -19,16 +19,16 @@ package com.freeme.ui;
 import android.graphics.RectF;
 
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.app.AlbumDataLoader;
-import com.freeme.gallery.data.MediaObject;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.glrenderer.ColorTexture;
-import com.freeme.gallery.glrenderer.FadeInTexture;
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.glrenderer.Texture;
-import com.freeme.gallery.glrenderer.TiledTexture;
-import com.freeme.gallery.ui.AlbumSlidingWindow;
-import com.freeme.gallery.ui.SelectionManager;
+import com.android.gallery3d.app.AlbumDataLoader;
+import com.android.gallery3d.data.MediaObject;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.glrenderer.ColorTexture;
+import com.android.gallery3d.glrenderer.FadeInTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.glrenderer.Texture;
+import com.android.gallery3d.glrenderer.TiledTexture;
+import com.android.gallery3d.ui.AlbumSlidingWindow;
+import com.android.gallery3d.ui.SelectionManager;
 
 public class AlbumTimeSlotRenderer extends AbstractTimeSlotRenderer {
     @SuppressWarnings("unused")

@@ -25,8 +25,8 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.ui.AlbumSetSlotRenderer;
-import com.freeme.gallery.ui.SlotView;
+import com.android.gallery3d.ui.AlbumSetSlotRenderer;
+import com.android.gallery3d.ui.SlotView;
 import com.freeme.ui.DateSlotView;
 
 public final class PageConfig {

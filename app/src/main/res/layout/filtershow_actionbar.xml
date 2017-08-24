@@ -19,8 +19,11 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@drawable/filtershow_button_background"
+    android:drawableLeft="@drawable/menu_save_photo"
+    android:drawablePadding="8dip"
     android:gravity="center_vertical"
     android:text="@string/save"
     android:textAllCaps="true"
+    android:textColor="@color/filtershow_done_text"
     android:textSize="16sp"
     android:enabled="false"/>

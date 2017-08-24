@@ -22,7 +22,7 @@
             android:layout_weight="1"
             android:scrollbars="none">
 
-            <com.freeme.gallery.filtershow.state.StatePanelTrack
+            <com.android.gallery3d.filtershow.state.StatePanelTrack
                 android:id="@+id/listStates"
                 android:layout_width="match_parent"
                 android:layout_height="48dip"

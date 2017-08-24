@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <com.freeme.gallery.filtershow.crop.CropView
+                <com.android.gallery3d.filtershow.crop.CropView
                     android:id="@+id/cropView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
@@ -102,24 +102,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:background="@color/theme_color"
             android:divider="?android:attr/dividerHorizontal"
             android:visibility="gone">
 
             <Button
                 android:id="@+id/cancel_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/cancel"/>
+                android:text="@string/cancel"
+                android:textColor="@color/white"/>
 
             <Button
                 android:id="@+id/ok_btn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/crop_save_text"/>
+                android:text="@string/crop_save_text"
+                android:textColor="@color/white"/>
 
         </LinearLayout>
 

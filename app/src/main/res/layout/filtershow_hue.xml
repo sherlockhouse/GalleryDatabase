@@ -21,7 +21,7 @@
               android:orientation="vertical"
               android:visibility="visible">
 
-    <com.freeme.gallery.filtershow.colorpicker.ColorHueView
+    <com.android.gallery3d.filtershow.colorpicker.ColorHueView
         android:id="@+id/hueView"
         android:layout_width="match_parent"
         android:layout_height="90dp"

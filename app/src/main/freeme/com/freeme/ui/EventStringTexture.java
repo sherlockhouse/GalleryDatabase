@@ -23,7 +23,7 @@ import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.TextUtils;
 
-import com.freeme.gallery.glrenderer.CanvasTexture;
+import com.android.gallery3d.glrenderer.CanvasTexture;
 
 // Added By Linguanrong for story album
 public class EventStringTexture extends CanvasTexture {

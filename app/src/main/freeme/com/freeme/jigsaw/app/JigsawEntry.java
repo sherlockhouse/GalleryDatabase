@@ -40,21 +40,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.freeme.community.utils.ToastUtil;
+import com.freeme.community.utils.ToastUtil;
 import com.freeme.elementscenter.ECOfflineUtil;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.app.AlbumSetPage;
-import com.freeme.gallery.app.GalleryActionBar;
+import com.android.gallery3d.app.AlbumSetPage;
+import com.android.gallery3d.app.GalleryActionBar;
 import com.freeme.gallery.app.GalleryActivity;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.ui.GLRoot;
-import com.freeme.gallery.ui.SynchronizedHandler;
-import com.freeme.gallerycommon.util.Future;
-import com.freeme.gallerycommon.util.FutureListener;
-import com.freeme.gallerycommon.util.ThreadPool;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.ui.GLRoot;
+import com.android.gallery3d.ui.SynchronizedHandler;
+import com.android.gallery3d.util.Future;
+import com.android.gallery3d.util.FutureListener;
+import com.android.gallery3d.util.ThreadPool;
 import com.freeme.jigsaw.util.AsyncImageCache;
 import com.freeme.jigsaw.util.Helper;
 import com.freeme.utils.FreemeUtils;
@@ -80,7 +80,7 @@ public class JigsawEntry extends AbstractGalleryActivity implements
     private TextView             mPickerHint;
     private HorizontalScrollView mPickerListPanel;
     private ViewGroup            mPickerList;
-//    private ImageView            mElementsCenterDown;
+    private ImageView            mElementsCenterDown;
     private int                  mThumbItemWidth;
     /* tydtech:azmohan on: Mon, 19 Jan 2015 11:24:31 +0800
      * add elements center
@@ -173,11 +173,11 @@ public class JigsawEntry extends AbstractGalleryActivity implements
         mPickerList = (ViewGroup) findViewById(R.id.picker_listFilters);
 
         //add by mingjun when 2015-1-14 for elements_center down
-//        mElementsCenterDown = (ImageView) findViewById(R.id.elements_center_down_btn);
-//        mElementsCenterDown.setImageResource(FreemeUtils.isInternational(this)
-//                ? R.drawable.elements_center_jigsaw_down_btn_en
-//                : R.drawable.elements_center_jigsaw_down_btn);
-//        mElementsCenterDown.setOnClickListener(this);
+        mElementsCenterDown = (ImageView) findViewById(R.id.elements_center_down_btn);
+        mElementsCenterDown.setImageResource(FreemeUtils.isInternational(this)
+                ? R.drawable.elements_center_jigsaw_down_btn_en
+                : R.drawable.elements_center_jigsaw_down_btn);
+        mElementsCenterDown.setOnClickListener(this);
     }
 
     private void startPicker() {
@@ -376,9 +376,9 @@ public class JigsawEntry extends AbstractGalleryActivity implements
 /* tydtech:azmohan on: Mon, 19 Jan 2015 11:25:08 +0800
  * add elements center
  */
-//                case R.id.elements_center_down_btn:
-//                    startECJigsawActivity();
-//                    break;
+                case R.id.elements_center_down_btn:
+                    startECJigsawActivity();
+                    break;
 // End of tydtech: azmohan
                 default:
                     break;
@@ -414,7 +414,7 @@ public class JigsawEntry extends AbstractGalleryActivity implements
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
-//            ToastUtil.showToast(this, "ActivityNotFoundException");
+            ToastUtil.showToast(this, "ActivityNotFoundException");
             e.printStackTrace();
         }
     }

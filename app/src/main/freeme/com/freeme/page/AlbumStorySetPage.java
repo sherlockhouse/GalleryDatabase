@@ -55,46 +55,46 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-//import com.droi.sdk.analytics.DroiAnalytics;
+import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
-import com.freeme.gallery.app.ActivityState;
-import com.freeme.gallery.app.AlbumPage;
+import com.android.gallery3d.app.ActivityState;
+import com.android.gallery3d.app.AlbumPage;
 import com.freeme.gallery.app.AlbumPicker;
-import com.freeme.gallery.app.AlbumSetDataLoader;
-import com.freeme.gallery.app.AlbumSetPage;
-import com.freeme.gallery.app.EyePosition;
-import com.freeme.gallery.app.FilterUtils;
-import com.freeme.gallery.app.GalleryActionBar;
+import com.android.gallery3d.app.AlbumSetDataLoader;
+import com.android.gallery3d.app.AlbumSetPage;
+import com.android.gallery3d.app.EyePosition;
+import com.android.gallery3d.app.FilterUtils;
+import com.android.gallery3d.app.GalleryActionBar;
 import com.freeme.gallery.app.GalleryActivity;
-import com.freeme.gallery.app.LoadingListener;
-import com.freeme.gallery.app.OrientationManager;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaDetails;
-import com.freeme.gallery.data.MediaObject;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.glrenderer.FadeTexture;
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.ui.ActionModeHandler;
-import com.freeme.gallery.ui.AlbumSetSlotRenderer;
-import com.freeme.gallery.ui.DetailsHelper;
-import com.freeme.gallery.ui.GLRoot;
-import com.freeme.gallery.ui.GLView;
-import com.freeme.gallery.ui.MenuExecutor;
-import com.freeme.gallery.ui.SelectionManager;
-import com.freeme.gallery.ui.SlotView;
-import com.freeme.gallery.ui.SynchronizedHandler;
-import com.freeme.gallery.util.GalleryUtils;
-import com.freeme.gallery.util.HelpUtils;
-import com.freeme.gallerycommon.common.Utils;
-import com.freeme.gallerycommon.util.Future;
+import com.android.gallery3d.app.LoadingListener;
+import com.android.gallery3d.app.OrientationManager;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaDetails;
+import com.android.gallery3d.data.MediaObject;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.glrenderer.FadeTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.ui.ActionModeHandler;
+import com.android.gallery3d.ui.AlbumSetSlotRenderer;
+import com.android.gallery3d.ui.DetailsHelper;
+import com.android.gallery3d.ui.GLRoot;
+import com.android.gallery3d.ui.GLView;
+import com.android.gallery3d.ui.MenuExecutor;
+import com.android.gallery3d.ui.SelectionManager;
+import com.android.gallery3d.ui.SlotView;
+import com.android.gallery3d.ui.SynchronizedHandler;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.util.HelpUtils;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.util.Future;
 import com.freeme.settings.GallerySettings;
-//import com.freeme.statistic.StatisticData;
-//import com.freeme.statistic.StatisticUtil;
+import com.freeme.statistic.StatisticData;
+import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.ShareFreemeUtil;
 
@@ -405,11 +405,11 @@ public class AlbumStorySetPage extends ActivityState implements
                                             mStoryBucketId = ((StoryAlbumSet) mMediaSet).addAlbum(text);
                                             startStoryAddImagePage(mStoryBucketId);
                                             //*/ Added by tyd Linguanrong for statistic, 15-12-18
-//                                            StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_ADD);
+                                            StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_ADD);
                                             //*/
 
                                             // for baas analytics
-//                                            DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_ADD);
+                                            DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_ADD);
                                         }
                                         mRenameItemId = -1;
                                     }
@@ -710,12 +710,12 @@ public class AlbumStorySetPage extends ActivityState implements
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
         if (slotIndex == StoryAlbumSet.ALBUM_LOVE_ID || slotIndex == StoryAlbumSet.ALBUM_BABY_ID) {
             mBabyAlbum = slotIndex == StoryAlbumSet.ALBUM_BABY_ID;
-//            StatisticUtil.generateStatisticInfo(mActivity,
-//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
+            StatisticUtil.generateStatisticInfo(mActivity,
+                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
 
             // for baas analytics
-//            DroiAnalytics.onEvent(mActivity,
-//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
+            DroiAnalytics.onEvent(mActivity,
+                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
         }
         //*/
 
@@ -853,7 +853,7 @@ public class AlbumStorySetPage extends ActivityState implements
         CreateDialog();
         CreateDatePickerDialog();
 
-        /*/ freeme gulincheng 20170803 remove guide
+        //*/ Added by Linguanrong for guide, 2015-08-10
         if (mSharedPref.getBoolean(SHOW_STORYSET_GUIDE, true)) {
             mEditor.putBoolean(SHOW_STORYSET_GUIDE, false);
             mEditor.apply();
@@ -1051,12 +1051,12 @@ public class AlbumStorySetPage extends ActivityState implements
             mTitle = mActivity.getResources().getString(R.string.tab_by_story);
             mActionBar.setTitle(mTitle);
 
-//            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
-//            if(shareFreemeOS != null) {
-//                String title = mActivity.getResources().getString(R.string.share)
-//                        + " " + BuildConfig.SUPPORT_OS_TAG;
-//                shareFreemeOS.setTitle(title);
-//            }
+            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
+            if(shareFreemeOS != null) {
+                String title = mActivity.getResources().getString(R.string.share)
+                        + " " + BuildConfig.SUPPORT_OS_TAG;
+                shareFreemeOS.setTitle(title);
+            }
         }
         return true;
     }
@@ -1108,10 +1108,10 @@ public class AlbumStorySetPage extends ActivityState implements
                 showDialog(text);
                 return true;
 
-//            case R.id.action_share_freeme: {
-//                ShareFreemeUtil.shareFreemeOS(mActivity);
-//                return true;
-//            }
+            case R.id.action_share_freeme: {
+                ShareFreemeUtil.shareFreemeOS(mActivity);
+                return true;
+            }
 
             default:
                 return false;

@@ -1,7 +1,7 @@
 package com.freeme.ui;
 
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.glrenderer.ResourceTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.glrenderer.ResourceTexture;
 
 public class SelectButton {
     private int             mHeight;

@@ -7,30 +7,26 @@
 
     <permission
         android:name="com.freeme.gallery.permission.GALLERY_PROVIDER"
-        android:protectionLevel="signatureOrSystem"/>
+            android:protectionLevel="signatureOrSystem" />
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.NFC"/>
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS"/>
-    <uses-permission android:name="com.freeme.gallery.permission.GALLERY_PROVIDER"/>
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
-    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- M: [Camera independent from Gallery] mark unused permissions
+    <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <!-- For Community -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
@@ -40,7 +36,12 @@
 
     <uses-permission android:name="android.permission.ACCESS_ALL_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS"/>
+    <uses-permission android:name="com.freeme.gallery.permission.GALLERY_PROVIDER"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
     <!-- Added by tyd Linguanrong for droi push, 16-3-7 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- Tyd -->
@@ -55,23 +56,18 @@
         android:normalScreens="true"
         android:smallScreens="false"/>
 
-    <application
-        android:name=".app.GalleryAppImpl"
-        usesCleartextHttp="true"
-        android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher_gallery"
-        android:label="@string/app_name"
-        android:largeHeap="true"
-        android:logo="@mipmap/ic_launcher_gallery"
-        android:restoreAnyVersion="true"
-        android:supportsRtl="true"
-        android:theme="@style/GalleryTheme">
-        <uses-library
-            android:name="com.google.android.media.effects"
-            android:required="false"/>
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false"/>
+    <application android:icon="@mipmap/ic_launcher_gallery" android:label="@string/app_name"
+            android:name=".app.GalleryAppImpl"
+        
+            android:theme="@style/GalleryTheme"
+            android:logo="@mipmap/ic_launcher_gallery"
+            android:hardwareAccelerated="true"
+            android:largeHeap="true"
+            android:restoreAnyVersion="true"
+            android:supportsRtl="true"
+            usesCleartextHttp="true">
+        <uses-library android:name="com.google.android.media.effects" android:required="false" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
 
         <activity
             android:name=".app.MovieActivity"
@@ -131,92 +127,75 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <category android:name="android.intent.category.APP_GALLERY"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.APP_GALLERY" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT"/>
-
-                <category android:name="android.intent.category.OPENABLE"/>
-
-                <data android:mimeType="vnd.android.cursor.dir/image"/>
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <data android:mimeType="vnd.android.cursor.dir/image" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT"/>
-
-                <category android:name="android.intent.category.OPENABLE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="image/*"/>
-                <data android:mimeType="video/*"/>
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
             </intent-filter>
-            <!--
-                 We do NOT support the PICK intent, we add these intent-filter for
-                 backward compatibility. Handle it as GET_CONTENT.
-            -->
+            <!-- We do NOT support the PICK intent, we add these intent-filter for
+                 backward compatibility. Handle it as GET_CONTENT. -->
             <intent-filter>
-                <action android:name="android.intent.action.PICK"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="image/*"/>
-                <data android:mimeType="video/*"/>
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.PICK"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="vnd.android.cursor.dir/image"/>
-                <data android:mimeType="vnd.android.cursor.dir/video"/>
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/image" />
+                <data android:mimeType="vnd.android.cursor.dir/video" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="vnd.android.cursor.dir/image"/>
-                <data android:mimeType="vnd.android.cursor.dir/video"/>
+            <action android:name="android.intent.action.LAUNCH_FROM_CAMERA" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <action android:name="com.android.camera.action.REVIEW"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:scheme="content"/>
-                <data android:scheme="file"/>
-                <data android:mimeType="image/bmp"/>
-                <data android:mimeType="image/jpeg"/>
-                <data android:mimeType="image/gif"/>
-                <data android:mimeType="image/png"/>
-                <data android:mimeType="image/webp"/>
-                <data android:mimeType="image/x-ms-bmp"/>
-                <data android:mimeType="image/vnd.wap.wbmp"/>
-                <data android:mimeType="application/vnd.google.panorama360+jpg"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/image" />
+                <data android:mimeType="vnd.android.cursor.dir/video" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.android.camera.action.REVIEW"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-
-                <data android:scheme="http"/>
-                <data android:scheme="https"/>
-                <data android:scheme="content"/>
-                <data android:scheme="file"/>
-                <data android:mimeType="video/mpeg4"/>
-                <data android:mimeType="video/mp4"/>
-                <data android:mimeType="video/3gp"/>
-                <data android:mimeType="video/3gpp"/>
-                <data android:mimeType="video/3gpp2"/>
-                <data android:mimeType="application/sdp"/>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="com.android.camera.action.REVIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="application/vnd.google.panorama360+jpg" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.android.camera.action.REVIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="video/mpeg4" />
+                <data android:mimeType="video/mp4" />
+                <data android:mimeType="video/3gp" />
+                <data android:mimeType="video/3gpp" />
+                <data android:mimeType="video/3gpp2" />
+                <data android:mimeType="application/sdp" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.freeme.gallery3d.visitor"/>
@@ -228,108 +207,89 @@
             </intent-filter>
         </activity>
 
-        <!--
-             This activity acts as a trampoline to the new Gallery activity,
-             so that existing shortcuts are preserved.
-        -->
+        <!-- This activity acts as a trampoline to the new Gallery activity,
+             so that existing shortcuts are preserved. -->
         <activity
             android:name=".app.Gallery"
             android:theme="@style/android:Theme.NoDisplay">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <!-- we add this activity-alias for shortcut backward compatibility -->
         <!-- Note: The alias must put after the target activity -->
-        <activity-alias
-            android:name="com.cooliris.media.Gallery"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name"
-            android:targetActivity=".app.GalleryActivity">
+        <activity-alias android:name="com.cooliris.media.Gallery"
+	        android:targetActivity=".app.GalleryActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity-alias>
 
-        <!--
-             This activity acts as a trampoline to the new Camera activity
+        <!-- This activity acts as a trampoline to the new Camera activity
              in com.android.camera2 package, so that existing shortcuts
-             are preserved.
-        -->
+             are preserved. -->
         <activity
             android:name="com.freeme.camera.CameraActivity"
             android:icon="@mipmap/ic_launcher_camera"
             android:label="@string/camera_label"
-            android:taskAffinity="com.android.camera.CameraActivity"
-            android:theme="@style/android:Theme.NoDisplay"/>
-
-        <activity-alias
-            android:name="com.android.camera.CameraLauncher"
+            android:taskAffinity="com.android.camera.CameraActivitys"
+            android:theme="@style/android:Theme.NoDisplay" />
+        <!-- <activity-alias android:name="com.android.camera.CameraLauncher"
             android:label="@string/camera_label"
-            android:targetActivity="com.freeme.camera.CameraActivity">
+            android:targetActivity="com.android.camera.CameraActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity-alias>
+        </activity-alias> -->
 
-        <!--
-        This activity receives USB_DEVICE_ATTACHED intents and allows importing
-        media from attached MTP devices, like cameras and camera phones
-        -->
-        <activity
-            android:name=".ingest.IngestActivity"
+
+         <!-- This activity receives USB_DEVICE_ATTACHED intents and allows importing
+         media from attached MTP devices, like cameras and camera phones -->
+        <activity android:launchMode="singleInstance"
+             android:name=".ingest.IngestActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleInstance"
-            android:taskAffinity="">
+	    android:taskAffinity="">
             <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter"/>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
 
         <service android:name=".ingest.IngestService"/>
 
-        <activity
-            android:name=".app.Wallpaper"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/android:Theme.Translucent.NoTitleBar">
+        <activity android:name=".app.Wallpaper"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@style/android:Theme.Translucent.NoTitleBar">
             <intent-filter android:label="@string/camera_setas_wallpaper">
-                <action android:name="android.intent.action.ATTACH_DATA"/>
-
-                <data android:mimeType="image/*"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <data android:mimeType="image/*" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter android:label="@string/app_name">
-                <action android:name="android.intent.action.SET_WALLPAPER"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.SET_WALLPAPER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.wallpaper.preview"
-                android:resource="@xml/wallpaper_picker_preview"/>
+            <meta-data android:name="android.wallpaper.preview"
+                    android:resource="@xml/wallpaper_picker_preview" />
         </activity>
-        <activity
-            android:name=".app.TrimVideo"
-            android:label="@string/trim_label">
+        <!-- M:do not destroy TrimVideo activity when configuration changes -->
+        <activity android:name=".app.TrimVideo"
+	        android:taskAffinity=".app.TrimVideo"
+                android:configChanges="orientation|keyboardHidden|screenSize|mnc|mcc"
+                android:label="@string/trim_label" >
             <intent-filter android:label="@string/crop_label">
-                <action android:name="com.android.camera.action.TRIM"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:scheme="content"/>
-                <data android:scheme="file"/>
-                <data android:mimeType="video/*"/>
+                <action android:name="com.android.camera.action.TRIM" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
 
@@ -357,14 +317,12 @@
             android:label="@string/title_activity_filter_show"
             android:theme="@style/Theme.FilterShow">
             <intent-filter>
-                <action android:name="android.intent.action.EDIT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <data android:mimeType="image/*"/>
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
             </intent-filter>
             <intent-filter>
-                <action android:name="action_nextgen_edit"/>
+                <action android:name="action_nextgen_edit" />
 
                 <category android:name="android.intent.category.DEFAULT"/>
 
@@ -376,16 +334,14 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/crop"
             android:theme="@style/Theme.Crop">
-            <intent-filter android:label="@string/crop_label">
-                <action android:name="com.android.camera.action.CROP"/>
-
-                <data android:scheme="content"/>
-                <data android:scheme="file"/>
-                <data android:mimeType="image/*"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.ALTERNATIVE"/>
-                <category android:name="android.intent.category.SELECTED_ALTERNATIVE"/>
+           <intent-filter android:label="@string/crop_label">
+                <action android:name="com.android.camera.action.CROP" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="image/*" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+                <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
             </intent-filter>
         </activity>
         <activity
@@ -409,15 +365,15 @@
         <activity
             android:name=".app.DialogPicker"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            />
+            android:theme="@style/DialogPickerTheme"/>
         <activity
             android:name=".app.AlbumPicker"
             android:configChanges="keyboardHidden|orientation|screenSize"
-           />
+            android:theme="@style/DialogPickerTheme"/>
         <activity
             android:name=".gadget.WidgetTypeChooser"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            />
+            android:theme="@style/Theme.Gallery.Dialog"/>
 
         <receiver
             android:name=".gadget.PhotoAppWidgetProvider"
@@ -466,7 +422,73 @@
         <!-- <service android:name="com.android.camera.MediaSaveService" /> -->
 
 
+        <!-- For Community -->
+        <activity
+            android:name="com.freeme.community.activity.CommunityActivity"
+            android:label="@string/community"
+            android:screenOrientation="portrait"
+            android:theme="@style/CommunityTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <!-- category android:name="android.intent.category.LAUNCHER" / -->
+            </intent-filter>
+            <intent-filter>
+                <action android:name="action.intent.freeme.Community"/>
 
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.freeme.community.activity.ImageDetailActivity"
+            android:label="@string/title_activity_image_detail"
+            android:screenOrientation="portrait"
+            android:theme="@style/CommunityActivityTheme"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name="com.freeme.community.activity.ReportActivity"
+            android:label="@string/title_activity_report"
+            android:screenOrientation="portrait"
+            android:theme="@style/CommunityActivityTheme"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name="com.freeme.community.activity.CropImageActivity"
+            android:label="@string/crop_image"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/CommunityActivityTheme"/>
+        <activity
+            android:name="com.freeme.community.push.DroiPushActivity"
+            android:label="@string/title_activity_droi_push"
+            android:theme="@style/CommunityActivityTheme">
+        </activity>
+
+        <receiver
+            android:name="com.freeme.community.receiver.AccountReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="droi.account.intent.action.ACCOUNT_LOGIN"/>
+                <action android:name="droi.account.intent.action.ACCOUNT_UPDATED"/>
+                <action android:name="droi.account.intent.action.ACCOUNT_DELETED"/>
+            </intent-filter>
+        </receiver>
+
+        <activity
+            android:name="com.freeme.community.activity.ShareActivity"
+            android:label="@string/community"
+            android:theme="@style/activityStyle">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.SEND"/>-->
+
+                <!--<category android:name="android.intent.category.DEFAULT"/>-->
+
+                <!--<data android:mimeType="image/*"/>-->
+            <!--</intent-filter>-->
+        </activity>
+        <activity
+            android:name="com.freeme.community.activity.CommunitySettings"
+            android:label="@string/community_settings">
+        </activity>
+        <!-- For Community -->
 
         <provider
             android:name="com.freeme.provider.GalleryFilesProvider"
@@ -524,6 +546,98 @@
             android:windowSoftInputMode="stateUnchanged">
         </activity>
         <!-- Tyd -->
+
+
+        <!-- Added by tyd Linguanrong for droi push, 16-3-7 -->
+        <meta-data
+            android:name="DROI_APPKEY"
+            android:value="${DROI_APPKEY_VALUE}"/>
+        <meta-data
+            android:name="PUSH_MESSAGE_SECRET"
+            android:value="${PUSH_MESSAGE_SECRET_VALUE}"/>
+        <meta-data
+            android:name="DROI_CHANNEL"
+            android:value="${DROI_CHANNEL_VALUE}"/>
+
+        <!-- for baas analytics -->
+        <meta-data
+            android:name="${DROI_ANALYTICS_APPKEY}"
+            android:value="${DROI_ANALYTICS_APPKEY_VALUE}"/>
+
+        <meta-data
+            android:name="${DROI_ANALYTICS_CHANNEL}"
+            android:value="${DROI_ANALYTICS_CHANNEL_VALUE}"/>
+        <!-- Tyd -->
+
+        <!--<service-->
+            <!--android:name="com.droi.push.service.OnlineService"-->
+            <!--android:exported="true"-->
+            <!--android:label="PushService">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.droi.intent.action.START"/>-->
+            <!--</intent-filter>-->
+        <!--</service>-->
+
+        <!--<receiver-->
+            <!--android:name="com.droi.push.receiver.PushDataReceiver"-->
+            <!--android:exported="true"-->
+            <!--android:label="@string/app_name">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.droi.push.intent.DATA"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+        <!--<receiver android:name="com.droi.push.receiver.TickAlarmReceiver">-->
+        <!--</receiver>-->
+        <!--<receiver-->
+            <!--android:name="com.droi.push.receiver.ConnectivityAlarmReceiver"-->
+            <!--android:label="@string/app_name">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+        <!--<receiver-->
+            <!--android:name="com.droi.push.receiver.BootAlarmReceiver"-->
+            <!--android:label="@string/app_name">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.BOOT_COMPLETED"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+        <!--<receiver-->
+            <!--android:name="com.droi.push.receiver.MessageReceiver"-->
+            <!--android:exported="false"-->
+            <!--android:label="@string/app_name">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.freeme.gallery.Action.START"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+        <!-- Tyd -->
+
+        <!-- Added by tyd Linguanrong for statistic, 15-12-18 -->
+        <provider
+            android:name="com.freeme.statistic.StatisticContentProvider"
+            android:authorities="com.freeme.gallery.statistic"
+            android:exported="true"
+            android:multiprocess="false"/>
+        <!-- Tyd -->
+
+        <service
+            android:name="com.freeme.updateself.app.UpdateSelfService"
+            android:exported="true" >
+            <meta-data
+                android:name="UPDATESELF_APKNAME"
+                android:value="gallery"
+                tools:replace="android:value"/>
+            <meta-data
+                android:name="UPDATESELF_DOWNLOADPATH"
+                android:value="/.UpdateSelf/.Gallery"
+                tools:replace="android:value"/>
+            <meta-data
+                android:name="UPDATESELF_UPDATEURL"
+                android:value="${UPDATESELF_UPDATEURL_VALUE}"
+                tools:replace="android:value"/>
+        </service>
+
+
     </application>
 
 </manifest>

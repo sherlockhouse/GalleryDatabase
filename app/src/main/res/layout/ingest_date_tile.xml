@@ -13,10 +13,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<com.freeme.gallery.ingest.ui.DateTileView xmlns:android="http://schemas.android.com/apk/res/android"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="match_parent"
-                                           android:background="@android:color/black">
+<com.android.gallery3d.ingest.ui.DateTileView xmlns:android="http://schemas.android.com/apk/res/android"
+                                              android:layout_width="match_parent"
+                                              android:layout_height="match_parent"
+                                              android:background="@android:color/black">
 
     <GridLayout
         android:layout_width="wrap_content"
@@ -65,4 +65,4 @@
             android:textSize="44sp"
             android:textStyle="bold"/>
     </GridLayout>
-</com.freeme.gallery.ingest.ui.DateTileView>
+</com.android.gallery3d.ingest.ui.DateTileView>

@@ -16,7 +16,6 @@
 
         <LinearLayout
             android:id="@+id/tab_lockscreen"
-            android:visibility="gone"
             style="@style/WallpaperTabLinearLayout">
 
             <LinearLayout
@@ -65,7 +64,6 @@
 
         <LinearLayout
             android:id="@+id/tab_all"
-            android:visibility="gone"
             style="@style/WallpaperTabLinearLayout">
 
             <LinearLayout

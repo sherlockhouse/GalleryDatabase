@@ -21,7 +21,7 @@
              android:layout_height="wrap_content"
              android:layout_weight="1">
 
-    <com.freeme.gallery.filtershow.imageshow.ImageGrad
+    <com.android.gallery3d.filtershow.imageshow.ImageGrad
         android:id="@+id/imageShow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

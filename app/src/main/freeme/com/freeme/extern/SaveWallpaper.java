@@ -16,10 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-//import com.freeme.community.utils.ToastUtil;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
-import com.freeme.gallery.filtershow.crop.CropExtras;
+import com.android.gallery3d.filtershow.crop.CropExtras;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogUtil;
 
@@ -190,7 +189,7 @@ public class SaveWallpaper {
                 mLockTextBtn.setTextColor(mHighlightTextColor);
                 mHomeTextBtn.setTextColor(mNormalTextColor);
                 mAllTextBtn.setTextColor(mNormalTextColor);
-                mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
+                mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
                 mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
 
@@ -210,7 +209,7 @@ public class SaveWallpaper {
                 mHomeTextBtn.setTextColor(mHighlightTextColor);
                 mAllTextBtn.setTextColor(mNormalTextColor);
                 mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
-                mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
+                mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
                 mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
 
                 // +++
@@ -238,7 +237,7 @@ public class SaveWallpaper {
                 mAllTextBtn.setTextColor(mHighlightTextColor);
                 mLockUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
                 mHomeUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
-                mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_normal);
+                mAllUnderLine.setImageResource(R.drawable.wallpaper_drag_bottom_line_holo_light);
 
                 // +++
                 mHomeWallpaperMode.setVisibility(View.VISIBLE);

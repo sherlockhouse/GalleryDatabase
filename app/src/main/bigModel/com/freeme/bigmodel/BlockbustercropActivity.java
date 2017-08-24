@@ -23,16 +23,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-//import com.droi.sdk.analytics.DroiAnalytics;
+import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.bigmodel.filter.DecodeSpecLimitor;
 import com.freeme.bigmodel.util.LargeModeUtil;
-//import com.freeme.community.utils.ImageUtil;
+import com.freeme.community.utils.ImageUtil;
 import com.freeme.gallery.R;
-import com.freeme.gallery.filtershow.cache.ImageLoader;
-import com.freeme.gallery.filtershow.crop.CropView;
-import com.freeme.gallery.util.ImageUtil;
-//import com.freeme.statistic.StatisticData;
-//import com.freeme.statistic.StatisticUtil;
+import com.android.gallery3d.filtershow.cache.ImageLoader;
+import com.android.gallery3d.filtershow.crop.CropView;
+import com.freeme.statistic.StatisticData;
+import com.freeme.statistic.StatisticUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -130,10 +129,10 @@ public class BlockbustercropActivity extends BlockBaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-//                StatisticUtil.generateStatisticInfo(context, StatisticData.OPTION_BIGMODE);
+                StatisticUtil.generateStatisticInfo(context, StatisticData.OPTION_BIGMODE);
 
                 // for baas analytics
-//                DroiAnalytics.onEvent(context, StatisticData.OPTION_BIGMODE);
+                DroiAnalytics.onEvent(context, StatisticData.OPTION_BIGMODE);
             }
         });
         //*/

@@ -12,11 +12,11 @@ package com.freeme.extern;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.freeme.gallery.app.GalleryApp;
-import com.freeme.gallery.data.ContentListener;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
+import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.ContentListener;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
 
 import java.util.ArrayList;
 

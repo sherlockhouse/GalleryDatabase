@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".ImageDetailActivity">
+
+    <item
+        android:id="@+id/action_delete"
+        android:showAsAction="always"
+        android:title="@string/action_clear"/>
+</menu>

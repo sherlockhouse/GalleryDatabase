@@ -17,6 +17,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@color/background_main_toolbar"
               android:minWidth="340dp"
               android:orientation="vertical"
               android:padding="16dp">
@@ -44,6 +45,7 @@
                     android:layout_gravity="start"
                     android:layout_weight="1"
                     android:gravity="start"
+                    android:textColor="#80ffffff"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -55,6 +57,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:textAllCaps="true"
+                    android:textColor="#80ffffff"
                     android:textStyle="bold"/>
 
             </LinearLayout>
@@ -69,14 +72,15 @@
                     android:id="@+id/imageThumbnail"
                     android:layout_width="0dp"
                     android:layout_height="196dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
                     android:layout_weight="0.3"
                     android:background="@null"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"
 
-                <com.freeme.gallery.filtershow.info.HistogramView
+                    />
+
+                <com.android.gallery3d.filtershow.info.HistogramView
                     android:id="@+id/histogramView"
-                    android:background="@color/theme_color"
                     android:layout_width="0dp"
                     android:layout_height="196dp"
                     android:layout_margin="0dp"
@@ -91,6 +95,7 @@
                 android:layout_gravity="start"
                 android:layout_marginTop="16dp"
                 android:text="@string/filtershow_show_info_panel_exif"
+                android:textColor="#fff"
                 android:textStyle="bold"/>
 
             <TextView

@@ -15,7 +15,7 @@
  */
 
 #pragma version(1)
-#pragma rs java_package_name(com.freeme.renderscript)
+#pragma rs java_package_name(com.android.gallery3d.filtershow.filters)
 #pragma rs_fp_relaxed
 
 int32_t gWidth;
@@ -26,21 +26,37 @@ rs_allocation gIn;
 float gCoeffs[9];
 
 void root(const uchar4 *in, uchar4 *out, const void *usrData, uint32_t x, uint32_t y) {
+/// M: [BUG.MODIFY] @{
+    //uint32_t x1 = min((int32_t)x+1, gWidth-1);
+    //uint32_t x2 = max((int32_t)x-1, 0);
+    //uint32_t y1 = min((int32_t)y+1, gHeight-1);
+    //uint32_t y2 = max((int32_t)y-1, 0);
+
+    //float4 p00 = rsUnpackColor8888(gPixels[x1 + gWidth * y1]);
+    //float4 p01 = rsUnpackColor8888(gPixels[x + gWidth * y1]);
+    //float4 p02 = rsUnpackColor8888(gPixels[x2 + gWidth * y1]);
+    //float4 p10 = rsUnpackColor8888(gPixels[x1 + gWidth * y]);
+    //float4 p11 = rsUnpackColor8888(gPixels[x + gWidth * y]);
+    //float4 p12 = rsUnpackColor8888(gPixels[x2 + gWidth * y]);
+    //float4 p20 = rsUnpackColor8888(gPixels[x1 + gWidth * y2]);
+    //float4 p21 = rsUnpackColor8888(gPixels[x + gWidth * y2]);
+    //float4 p22 = rsUnpackColor8888(gPixels[x2 + gWidth * y2]);
+    int32_t stride = ((gWidth+3)/4)*4;
     uint32_t x1 = min((int32_t)x+1, gWidth-1);
     uint32_t x2 = max((int32_t)x-1, 0);
     uint32_t y1 = min((int32_t)y+1, gHeight-1);
     uint32_t y2 = max((int32_t)y-1, 0);
 
-    float4 p00 = rsUnpackColor8888(gPixels[x1 + gWidth * y1]);
-    float4 p01 = rsUnpackColor8888(gPixels[x + gWidth * y1]);
-    float4 p02 = rsUnpackColor8888(gPixels[x2 + gWidth * y1]);
-    float4 p10 = rsUnpackColor8888(gPixels[x1 + gWidth * y]);
-    float4 p11 = rsUnpackColor8888(gPixels[x + gWidth * y]);
-    float4 p12 = rsUnpackColor8888(gPixels[x2 + gWidth * y]);
-    float4 p20 = rsUnpackColor8888(gPixels[x1 + gWidth * y2]);
-    float4 p21 = rsUnpackColor8888(gPixels[x + gWidth * y2]);
-    float4 p22 = rsUnpackColor8888(gPixels[x2 + gWidth * y2]);
-
+    float4 p00 = rsUnpackColor8888(gPixels[x1 + stride * y1]);
+    float4 p01 = rsUnpackColor8888(gPixels[x + stride * y1]);
+    float4 p02 = rsUnpackColor8888(gPixels[x2 + stride * y1]);
+    float4 p10 = rsUnpackColor8888(gPixels[x1 + stride * y]);
+    float4 p11 = rsUnpackColor8888(gPixels[x + stride * y]);
+    float4 p12 = rsUnpackColor8888(gPixels[x2 + stride * y]);
+    float4 p20 = rsUnpackColor8888(gPixels[x1 + stride * y2]);
+    float4 p21 = rsUnpackColor8888(gPixels[x + stride * y2]);
+    float4 p22 = rsUnpackColor8888(gPixels[x2 + stride * y2]);
+/// @}
     p00 *= gCoeffs[0];
     p01 *= gCoeffs[1];
     p02 *= gCoeffs[2];

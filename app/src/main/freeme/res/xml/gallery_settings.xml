@@ -34,9 +34,9 @@
             android:key="key_slideshow_duration_time"
             android:title="@string/slideshow_duration_time"/>
 
-        <!--<Preference-->
-            <!--android:key="key_about"-->
-            <!--android:title="@string/freemeabout"/>-->
+        <Preference
+            android:key="key_about"
+            android:title="@string/freemeabout"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

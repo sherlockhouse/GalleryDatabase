@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import com.freeme.gallery.data.MediaObject;
-import com.freeme.gallerycommon.common.ApiHelper;
-import com.freeme.gallerycommon.common.Utils;
-import com.freeme.gallerycommon.util.ThreadPool;
+import com.android.gallery3d.data.MediaObject;
+import com.android.gallery3d.common.ApiHelper;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.util.ThreadPool;
 import com.freeme.provider.GalleryStore;
 import com.freeme.provider.GalleryStore.Files;
 import com.freeme.provider.GalleryStore.Files.FileColumns;

@@ -3,11 +3,11 @@ package com.freeme.bigmodel;
 import android.content.Context;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.filtershow.filters.FilterFxRepresentation;
-import com.freeme.gallery.filtershow.filters.FilterRepresentation;
-import com.freeme.gallery.filtershow.filters.ImageFilter;
-import com.freeme.gallery.filtershow.filters.ImageFilterFx;
-import com.freeme.gallery.filtershow.pipeline.FilterEnvironment;
+import com.android.gallery3d.filtershow.filters.FilterFxRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterRepresentation;
+import com.android.gallery3d.filtershow.filters.ImageFilter;
+import com.android.gallery3d.filtershow.filters.ImageFilterFx;
+import com.android.gallery3d.filtershow.pipeline.FilterEnvironment;
 
 import java.util.ArrayList;
 import java.util.HashMap;

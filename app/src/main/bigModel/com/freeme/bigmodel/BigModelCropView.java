@@ -40,7 +40,6 @@ import com.freeme.bigmodel.BigModeViewAttacher.OnMatrixChangedListener;
 import com.freeme.bigmodel.BigModeViewAttacher.OnPhotoTapListener;
 import com.freeme.bigmodel.BigModeViewAttacher.OnViewTapListener;
 import com.freeme.gallery.R;
-import com.freeme.gallery.app.Log;
 
 interface ICropPhotoView {
 

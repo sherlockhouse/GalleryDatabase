@@ -34,46 +34,46 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.droi.sdk.analytics.DroiAnalytics;
+import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
-import com.freeme.gallery.app.ActivityState;
-import com.freeme.gallery.app.AlbumDataLoader;
-import com.freeme.gallery.app.AlbumSetPage;
-import com.freeme.gallery.app.FilmstripPage;
-import com.freeme.gallery.app.FilterUtils;
-import com.freeme.gallery.app.GalleryActionBar;
+import com.android.gallery3d.app.ActivityState;
+import com.android.gallery3d.app.AlbumDataLoader;
+import com.android.gallery3d.app.AlbumSetPage;
+import com.android.gallery3d.app.FilmstripPage;
+import com.android.gallery3d.app.FilterUtils;
+import com.android.gallery3d.app.GalleryActionBar;
 import com.freeme.gallery.app.GalleryActivity;
-import com.freeme.gallery.app.LoadingListener;
-import com.freeme.gallery.app.OrientationManager;
-import com.freeme.gallery.app.PhotoPage;
-import com.freeme.gallery.app.SinglePhotoPage;
-import com.freeme.gallery.app.SlideshowPage;
-import com.freeme.gallery.app.TransitionStore;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaDetails;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.MediaObject;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.glrenderer.FadeTexture;
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.ui.ActionModeHandler;
-import com.freeme.gallery.ui.DetailsHelper;
-import com.freeme.gallery.ui.GLRoot;
-import com.freeme.gallery.ui.GLView;
-import com.freeme.gallery.ui.MenuExecutor;
-import com.freeme.gallery.ui.RelativePosition;
-import com.freeme.gallery.ui.SelectionManager;
-import com.freeme.gallery.ui.SynchronizedHandler;
-import com.freeme.gallery.util.GalleryUtils;
-import com.freeme.gallerycommon.common.Utils;
-import com.freeme.gallerycommon.util.Future;
-//import com.freeme.statistic.StatisticData;
-//import com.freeme.statistic.StatisticUtil;
+import com.android.gallery3d.app.LoadingListener;
+import com.android.gallery3d.app.OrientationManager;
+import com.android.gallery3d.app.PhotoPage;
+import com.android.gallery3d.app.SinglePhotoPage;
+import com.android.gallery3d.app.SlideshowPage;
+import com.android.gallery3d.app.TransitionStore;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaDetails;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaObject;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.glrenderer.FadeTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.ui.ActionModeHandler;
+import com.android.gallery3d.ui.DetailsHelper;
+import com.android.gallery3d.ui.GLRoot;
+import com.android.gallery3d.ui.GLView;
+import com.android.gallery3d.ui.MenuExecutor;
+import com.android.gallery3d.ui.RelativePosition;
+import com.android.gallery3d.ui.SelectionManager;
+import com.android.gallery3d.ui.SynchronizedHandler;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.util.Future;
+import com.freeme.statistic.StatisticData;
+import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.AlbumTimeSlotRenderer;
 import com.freeme.ui.DateSlotView;
 import com.freeme.utils.FreemeUtils;
@@ -390,12 +390,12 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             menu.findItem(R.id.action_slideshow).setVisible(mMediaSet.getMediaItemCount() != 0);
 
-//            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
-//            if(shareFreemeOS != null) {
-//                String title = mActivity.getResources().getString(R.string.share)
-//                        + " " + BuildConfig.SUPPORT_OS_TAG;
-//                shareFreemeOS.setTitle(title);
-//            }
+            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
+            if(shareFreemeOS != null) {
+                String title = mActivity.getResources().getString(R.string.share)
+                        + " " + BuildConfig.SUPPORT_OS_TAG;
+                shareFreemeOS.setTitle(title);
+            }
 
             FilterUtils.setupMenuItems(mActionBar, mMediaSetPath, true);
         }
@@ -435,10 +435,10 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH,
@@ -474,9 +474,9 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
                 }
                 mSlotView.setCoverItem(mCoverItem);
                 return true;
-//            case R.id.action_share_freeme:
-//                ShareFreemeUtil.shareFreemeOS(mActivity);
-//                return true;
+            case R.id.action_share_freeme:
+                ShareFreemeUtil.shareFreemeOS(mActivity);
+                return true;
             default:
                 return false;
         }

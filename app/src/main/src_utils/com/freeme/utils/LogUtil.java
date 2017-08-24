@@ -3,7 +3,7 @@ package com.freeme.utils;
 import android.content.Context;
 import android.util.Log;
 
-import com.freeme.gallery.util.AppConfig;
+import com.freeme.community.utils.AppConfig;
 
 import java.util.Calendar;
 

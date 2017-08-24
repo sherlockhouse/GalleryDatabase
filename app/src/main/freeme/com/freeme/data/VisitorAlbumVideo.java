@@ -8,16 +8,16 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.app.GalleryApp;
-import com.freeme.gallery.data.ChangeNotifier;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.LocalMediaItem;
-import com.freeme.gallery.data.LocalVideo;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.util.GalleryUtils;
-import com.freeme.gallerycommon.common.Utils;
+import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.ChangeNotifier;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.LocalMediaItem;
+import com.android.gallery3d.data.LocalVideo;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.common.Utils;
 import com.freeme.provider.GalleryStore.Video;
 import com.freeme.utils.LogUtil;
 

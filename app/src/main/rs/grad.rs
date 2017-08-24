@@ -15,7 +15,7 @@
  */
 
 #pragma version(1)
-#pragma rs java_package_name(com.freeme.renderscript)
+#pragma rs java_package_name(com.android.gallery3d.filtershow.filters)
 
 #define MAX_POINTS 16
 

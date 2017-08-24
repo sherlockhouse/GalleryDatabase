@@ -21,7 +21,7 @@
              android:layout_height="wrap_content"
              android:layout_weight="1">
 
-    <com.freeme.gallery.filtershow.imageshow.ImageTinyPlanet
+    <com.android.gallery3d.filtershow.imageshow.ImageTinyPlanet
         android:id="@+id/imageTinyPlanet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

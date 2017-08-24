@@ -53,8 +53,6 @@ android {
         targetSdkVersion cfg.targetSdkVersion
         versionCode cfg.versionCode
         versionName cfg.versionName
-        renderscriptTargetApi 18
-        renderscriptSupportModeEnabled true
         multiDexEnabled true
 
         // Support inner video
@@ -110,9 +108,9 @@ android {
 
     sourceSets {
         main {
-            java.srcDirs = ['src/main/java',
+            java.srcDirs = ['src/main/src',
                             'src/main/freeme',
-                            'src/main/gallerycommon',
+                            'src/main/gallerycommon/src',
                             'src/main/src_pd',
                             'src/main/src_utils',
                             'src/main/community',
@@ -257,8 +255,10 @@ android {
 
 
 dependencies {
+
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile libs['appcompat-v7']
+    compile libs['support-v4']
     compile libs["greendao"]
     compile libs['gson']
     devOfficialCompile project(':freemeEC')
@@ -271,5 +271,5 @@ dependencies {
     freemeos_6_0_nativeCompile project(':freemeEC')
     compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
     compile project(':baas_analytics')
-    compile 'com.android.support:multidex:1.0.1'
+    compile project(':mtkgallery2')
 }

@@ -1,1 +1,1 @@
-include ':app', ':freemeECInternational', ':freemeEC', ':swipemenu', ':freemeabout', ':baas_analytics'
+include ':app', ':freemeECInternational', ':freemeEC', ':swipemenu', ':freemeabout', ':baas_analytics', ':mtkgallery2'

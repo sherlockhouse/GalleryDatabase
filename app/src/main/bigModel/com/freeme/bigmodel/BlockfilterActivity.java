@@ -37,7 +37,7 @@ import com.freeme.bigmodel.filter.MyAdapter;
 import com.freeme.bigmodel.filter.SaveImage;
 import com.freeme.bigmodel.util.LargeModeUtil;
 import com.freeme.gallery.R;
-import com.freeme.gallery.filtershow.filters.ImageFilterFx;
+import com.android.gallery3d.filtershow.filters.ImageFilterFx;
 
 import java.io.File;
 import java.io.FileOutputStream;

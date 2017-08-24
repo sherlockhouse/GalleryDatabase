@@ -6,16 +6,16 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.app.GalleryApp;
-import com.freeme.gallery.data.ChangeNotifier;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.LocalImage;
-import com.freeme.gallery.data.LocalMediaItem;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.util.GalleryUtils;
-import com.freeme.gallerycommon.common.Utils;
+import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.ChangeNotifier;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.LocalImage;
+import com.android.gallery3d.data.LocalMediaItem;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.common.Utils;
 import com.freeme.provider.GalleryStore.Images;
 import com.freeme.utils.LogUtil;
 
@@ -44,7 +44,7 @@ public class VisitorAlbum extends MediaSet {
     private final ContentResolver mResolver;
     private             String     mBucketName;
     private int mCachedCount = INVALID_COUNT;
-    private String mWhereClause = "is_hidden = 1 ND media_type = 1";   // MEDIA_TYPE_IMAGE
+    private String mWhereClause = "is_hidden = 1 AND media_type = 1";   // MEDIA_TYPE_IMAGE
 
     public VisitorAlbum(Path path, GalleryApp galleryApp) {
         super(path, nextVersionNumber());

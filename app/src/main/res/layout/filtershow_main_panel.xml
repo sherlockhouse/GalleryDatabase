@@ -29,13 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
+        android:layout_weight="1"
         android:visibility="visible"/>
 
     <FrameLayout
         android:id="@+id/category_panel_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dip"
         android:layout_gravity="center"
+        android:layout_weight="1"
         android:visibility="visible"/>
 
     <View
@@ -43,7 +45,7 @@
         android:layout_height="1dip"
         android:background="@color/toolbar_separation_line"/>
 
-    <com.freeme.gallery.filtershow.CenteredLinearLayout
+    <com.android.gallery3d.filtershow.CenteredLinearLayout
         android:id="@+id/bottom_panel"
         xmlns:custom="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -64,7 +66,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/filtershow_button_background"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_effects_normal"/>
+                android:src="@drawable/ic_photoeditor_effects"/>
 
             <ImageButton
                 android:id="@+id/borderButton"
@@ -74,7 +76,7 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_border_normal"/>
+                android:src="@drawable/ic_photoeditor_border"/>
 
             <ImageButton
                 android:id="@+id/geometryButton"
@@ -84,7 +86,7 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_fix_normal"/>
+                android:src="@drawable/ic_photoeditor_fix"/>
 
             <ImageButton
                 android:id="@+id/colorsButton"
@@ -94,10 +96,10 @@
                 android:background="@drawable/filtershow_button_background"
                 android:padding="2dip"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photoeditor_color_normal"/>
+                android:src="@drawable/ic_photoeditor_color"/>
 
         </LinearLayout>
 
-    </com.freeme.gallery.filtershow.CenteredLinearLayout>
+    </com.android.gallery3d.filtershow.CenteredLinearLayout>
 
 </LinearLayout>

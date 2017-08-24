@@ -25,7 +25,7 @@
                   android:background="@color/background_main_toolbar"
                   android:orientation="vertical">
 
-        <com.freeme.gallery.filtershow.colorpicker.ColorCompareView
+        <com.android.gallery3d.filtershow.colorpicker.ColorCompareView
             android:id="@+id/btnSelect"
             android:layout_width="match_parent"
             android:layout_height="32dp"
@@ -35,20 +35,20 @@
             android:layout_marginTop="20dp"
             />
 
-        <com.freeme.gallery.filtershow.colorpicker.ColorSVRectView
+        <com.android.gallery3d.filtershow.colorpicker.ColorSVRectView
             android:id="@+id/colorRectView"
             android:layout_width="match_parent"
             android:layout_height="256dp"
-            android:layout_marginEnd="1dp"
+            android:layout_marginRight="1dp"
             android:layout_marginTop="0dp"/>
 
-        <com.freeme.gallery.filtershow.colorpicker.ColorHueView
+        <com.android.gallery3d.filtershow.colorpicker.ColorHueView
             android:id="@+id/ColorHueView"
             android:layout_width="match_parent"
             android:layout_height="32dp"
             android:layout_marginTop="0dp"/>
 
-        <com.freeme.gallery.filtershow.colorpicker.ColorOpacityView
+        <com.android.gallery3d.filtershow.colorpicker.ColorOpacityView
             android:id="@+id/colorOpacityView"
             android:layout_width="match_parent"
             android:layout_height="32dp"
@@ -63,28 +63,28 @@
             <ImageButton
                 android:id="@+id/cancelColorPick"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="start|center_vertical"
+                android:layout_height="fill_parent"
+                android:layout_gravity="left|center_vertical"
                 android:layout_weight=".1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_cancel_48dp"
+                android:src="@drawable/ic_menu_cancel_holo_light"
                 android:textSize="18dip"/>
 
             <ImageView
                 android:layout_width="2dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:src="@drawable/filtershow_vertical_bar"/>
 
             <ImageButton
                 android:id="@+id/applyColorPick"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="end|center_vertical"
+                android:layout_height="fill_parent"
+                android:layout_gravity="right|center_vertical"
                 android:layout_weight=".1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_done_48dp"
+                android:src="@drawable/ic_menu_done_holo_light"
                 android:textSize="18dip"/>
         </LinearLayout>
     </LinearLayout>

@@ -27,13 +27,13 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallerycommon.common.BitmapUtils;
-import com.freeme.gallerycommon.util.Future;
-import com.freeme.gallerycommon.util.FutureListener;
-import com.freeme.gallerycommon.util.ThreadPool;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.common.BitmapUtils;
+import com.android.gallery3d.util.Future;
+import com.android.gallery3d.util.FutureListener;
+import com.android.gallery3d.util.ThreadPool;
 import com.freeme.jigsaw.util.Helper;
 
 import java.util.ArrayList;

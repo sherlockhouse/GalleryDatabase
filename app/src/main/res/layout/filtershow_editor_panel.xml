@@ -35,6 +35,7 @@
             android:id="@+id/controlArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="horizontal"
             android:paddingBottom="5dip"
             android:paddingTop="5dip"
@@ -52,6 +53,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="48dip"
+            android:background="@color/background_main_toolbar"
             android:baselineAligned="false"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -59,16 +61,17 @@
             <ImageButton
                 android:id="@+id/cancelFilter"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="start|center_vertical"
+                android:layout_height="fill_parent"
+                android:layout_gravity="left|center_vertical"
                 android:layout_weight=".1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_cancel_48dp"/>
+                android:src="@drawable/ic_menu_cancel_holo_light"
+                android:textSize="18dip"/>
 
             <ImageView
                 android:layout_width="1dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:src="@drawable/filtershow_vertical_bar"/>
 
             <LinearLayout
@@ -79,7 +82,7 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <com.freeme.gallery.filtershow.editors.SwapButton
+                <com.android.gallery3d.filtershow.editors.SwapButton
                     android:id="@+id/applyEffect"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
@@ -88,24 +91,27 @@
                     android:drawableEnd="@drawable/filtershow_menu_marker_rtl"
                     android:text="@string/apply_effect"
                     android:textAllCaps="true"
+                    android:textColor="@color/white"
+                    android:textSize="18dip"
                     />
 
             </LinearLayout>
 
             <ImageView
                 android:layout_width="1dp"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:src="@drawable/filtershow_vertical_bar"/>
 
             <ImageButton
                 android:id="@+id/applyFilter"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="end|center_vertical"
+                android:layout_height="fill_parent"
+                android:layout_gravity="right|center_vertical"
                 android:layout_weight=".1"
                 android:background="@android:color/transparent"
                 android:gravity="center"
-                android:src="@drawable/ic_menu_done_48dp"/>
+                android:src="@drawable/ic_menu_done_holo_light"
+                android:textSize="18dip"/>
         </LinearLayout>
 
         <FrameLayout

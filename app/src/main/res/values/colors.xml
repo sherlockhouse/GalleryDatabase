@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <color name="default_background">#f8f8f8</color>
+    <color name="default_background">#1A1A1A</color>
 
     <!-- configuration for album set page -->
     <color name="albumset_background">#f8f8f8</color>
@@ -28,12 +28,12 @@
     <color name="album_placeholder">#E6E6E6</color>
 
     <!-- configuration for photo page -->
-    <color name="photo_background">#f8f8f8</color>
-    <color name="photo_placeholder">#f8f8f8</color>
+    <color name="photo_background">#1A1A1A</color>
+    <color name="photo_placeholder">#1A1A1A</color>
 
     <!-- configuration for manage cache page -->
-    <color name="cache_background">#f8f8f8</color>
-    <color name="cache_placeholder">#E6E6E6</color>
+    <color name="cache_background">#1A1A1A</color>
+    <color name="cache_placeholder">#1A1A1A</color>
 
     <color name="bitmap_screennail_placeholder">#00000000</color>
 

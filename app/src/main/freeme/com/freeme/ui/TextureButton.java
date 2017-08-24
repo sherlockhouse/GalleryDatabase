@@ -2,8 +2,8 @@ package com.freeme.ui;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.glrenderer.ResourceTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.glrenderer.ResourceTexture;
 
 //Added by ZY Theobald_Wu on 20150328 [begin]
 

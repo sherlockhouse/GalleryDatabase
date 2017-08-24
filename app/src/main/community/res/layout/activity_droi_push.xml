@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.freeme.swipemenu.SwipeMenuListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="@dimen/plaza_header_height"
+        android:drawablePadding="@dimen/global_margin_medium"
+        android:drawableTop="@drawable/ic_no_message"
+        android:gravity="center"
+        android:text="@string/no_message"
+        android:textColor="@color/no_photos_color"
+        android:textSize="15dip"
+        android:visibility="gone"
+        />
+</LinearLayout>
+

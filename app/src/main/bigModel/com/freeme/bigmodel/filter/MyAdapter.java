@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.filtershow.filters.ImageFilterFx;
+import com.android.gallery3d.filtershow.filters.ImageFilterFx;
 
 import java.util.ArrayList;
 import java.util.List;

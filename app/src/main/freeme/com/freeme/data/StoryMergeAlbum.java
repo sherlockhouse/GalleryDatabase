@@ -26,12 +26,12 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 
-import com.freeme.gallery.app.GalleryApp;
-import com.freeme.gallery.data.ContentListener;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallerycommon.common.Utils;
+import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.ContentListener;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.common.Utils;
 import com.freeme.provider.GalleryStore;
 import com.freeme.utils.FreemeUtils;
 

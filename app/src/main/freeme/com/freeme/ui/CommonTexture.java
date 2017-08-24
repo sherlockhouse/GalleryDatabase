@@ -2,8 +2,8 @@ package com.freeme.ui;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.glrenderer.ResourceTexture;
-import com.freeme.gallery.glrenderer.StringTexture;
+import com.android.gallery3d.glrenderer.ResourceTexture;
+import com.android.gallery3d.glrenderer.StringTexture;
 
 import java.util.HashMap;
 import java.util.Iterator;

@@ -20,11 +20,11 @@ import android.content.Context;
 import android.graphics.Rect;
 
 import com.freeme.gallery.R;
-import com.freeme.gallery.glrenderer.FadeOutTexture;
-import com.freeme.gallery.glrenderer.GLCanvas;
-import com.freeme.gallery.glrenderer.NinePatchTexture;
-import com.freeme.gallery.glrenderer.ResourceTexture;
-import com.freeme.gallery.glrenderer.Texture;
+import com.android.gallery3d.glrenderer.FadeOutTexture;
+import com.android.gallery3d.glrenderer.GLCanvas;
+import com.android.gallery3d.glrenderer.NinePatchTexture;
+import com.android.gallery3d.glrenderer.ResourceTexture;
+import com.android.gallery3d.glrenderer.Texture;
 
 public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRenderer {
 
@@ -37,7 +37,7 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
     private       FadeOutTexture   mFramePressedUp;
 
     protected AbstractTimeSlotRenderer(Context context) {
-        mVideoOverlay = new NinePatchTexture(context, R.drawable.ic_video_thumb);
+        mVideoOverlay = new NinePatchTexture(context, R.drawable.ic_video_thumb_freeme);
         mPanoramaIcon = new ResourceTexture(context, R.drawable.ic_360pano_holo_light);
         mFramePressed = new NinePatchTexture(context, R.drawable.grid_pressed);
         mFrameSelected = new NinePatchTexture(context, R.drawable.grid_selected);

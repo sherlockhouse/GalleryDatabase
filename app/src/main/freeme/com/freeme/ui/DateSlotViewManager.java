@@ -6,8 +6,8 @@ import android.graphics.Rect;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.data.MediaItem;
-import com.freeme.gallery.data.MediaSet;
+import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaSet;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogUtil;
 

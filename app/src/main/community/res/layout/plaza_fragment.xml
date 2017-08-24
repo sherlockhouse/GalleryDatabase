@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_bg"
+    android:gravity="top|center_horizontal"
+    android:orientation="vertical">
+
+    <com.freeme.community.view.PullToRefreshView
+        android:id="@+id/pullRefreshView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.freeme.community.view.HeaderGridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:columnWidth="90dip"
+            android:horizontalSpacing="@dimen/plaza_grid_padding"
+            android:numColumns="3"
+            android:verticalSpacing="@dimen/plaza_grid_padding"/>
+
+    </com.freeme.community.view.PullToRefreshView>
+
+    <include
+        layout="@layout/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/plaza_header_height"/>
+
+    <include
+        layout="@layout/system_err_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dip"/>
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/plaza_header_height"
+        android:gravity="center"
+        android:text="@string/empty"
+        android:textColor="@color/user_discrip_text_color"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+</FrameLayout>

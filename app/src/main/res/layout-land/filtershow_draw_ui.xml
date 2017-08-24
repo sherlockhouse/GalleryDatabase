@@ -106,7 +106,7 @@
                 android:text="@string/draw_color"
                 android:visibility="gone"/>
 
-            <com.freeme.gallery.filtershow.colorpicker.ColorCompareView
+            <com.android.gallery3d.filtershow.colorpicker.ColorCompareView
                 android:id="@+id/btnSelect"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
@@ -116,7 +116,7 @@
                 android:layout_marginTop="0dp"
                 />
 
-            <com.freeme.gallery.filtershow.colorpicker.ColorSVRectView
+            <com.android.gallery3d.filtershow.colorpicker.ColorSVRectView
                 android:id="@+id/colorRectView"
                 android:layout_width="@dimen/draw_ui_width"
                 android:layout_height="@dimen/draw_ui_width"
@@ -124,13 +124,13 @@
                 android:layout_marginRight="1dp"
                 android:layout_marginTop="8dp"/>
 
-            <com.freeme.gallery.filtershow.colorpicker.ColorHueView
+            <com.android.gallery3d.filtershow.colorpicker.ColorHueView
                 android:id="@+id/ColorHueView"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
                 android:layout_marginTop="0dp"/>
 
-            <com.freeme.gallery.filtershow.colorpicker.ColorOpacityView
+            <com.android.gallery3d.filtershow.colorpicker.ColorOpacityView
                 android:id="@+id/colorOpacityView"
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
@@ -200,7 +200,8 @@
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:background="@color/background_main_toolbar">
 
             <Button
                 android:id="@+id/draw_color_popupbutton"

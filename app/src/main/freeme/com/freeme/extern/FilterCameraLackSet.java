@@ -8,14 +8,14 @@
  **************************************************************************/
 package com.freeme.extern;
 
-import com.freeme.gallery.app.GalleryApp;
-import com.freeme.gallery.data.ContentListener;
-import com.freeme.gallery.data.DataManager;
-import com.freeme.gallery.data.MediaSet;
-import com.freeme.gallery.data.Path;
-import com.freeme.gallery.util.BucketNames;
-import com.freeme.gallery.util.GalleryUtils;
-import com.freeme.gallery.util.MediaSetUtils;
+import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.data.ContentListener;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.Path;
+import com.android.gallery3d.util.BucketNames;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.util.MediaSetUtils;
 import com.freeme.utils.DroiSDCardManager;
 
 import java.util.ArrayList;

@@ -19,11 +19,11 @@ import android.widget.TextView;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.app.ActivityState;
-import com.freeme.gallery.app.AlbumSetPage;
-import com.freeme.gallery.app.GalleryActionBar;
-import com.freeme.gallery.ui.SelectionManager;
-import com.freeme.gallerycommon.common.Utils;
+import com.android.gallery3d.app.ActivityState;
+import com.android.gallery3d.app.AlbumSetPage;
+import com.android.gallery3d.app.GalleryActionBar;
+import com.android.gallery3d.ui.SelectionManager;
+import com.android.gallery3d.common.Utils;
 
 public class HideModeHandler {
 
