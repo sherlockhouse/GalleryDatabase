@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.ui.GLRootView;
 import com.freeme.gallery.app.AbstractGalleryActivity;
 

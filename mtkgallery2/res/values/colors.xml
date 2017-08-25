@@ -14,28 +14,28 @@
      limitations under the License.
 -->
 <resources>
-    <color name="default_background">#000</color>
+    <color name="default_background">#1A1A1A</color>
 
     <!-- configuration for album set page -->
-    <color name="albumset_background">#1A1A1A</color>
-    <color name="albumset_placeholder">#333</color>
-    <color name="albumset_label_background">#EE414143</color>
-    <color name="albumset_label_title">#FBFBFB</color>
-    <color name="albumset_label_count">#A9ABAD</color>
+    <color name="albumset_background">#f8f8f8</color>
+    <color name="albumset_placeholder">#E6E6E6</color>
+    <color name="albumset_label_background">#00ffffff</color>
+    <color name="albumset_label_title">#616161</color>
+    <color name="albumset_label_count">#cdcdcd</color>
 
     <!-- configuration for album page -->
-    <color name="album_background">#1A1A1A</color>
-    <color name="album_placeholder">#333</color>
+    <color name="album_background">#f8f8f8</color>
+    <color name="album_placeholder">#E6E6E6</color>
 
     <!-- configuration for photo page -->
     <color name="photo_background">#1A1A1A</color>
-    <color name="photo_placeholder">#333</color>
+    <color name="photo_placeholder">#1A1A1A</color>
 
     <!-- configuration for manage cache page -->
     <color name="cache_background">#1A1A1A</color>
-    <color name="cache_placeholder">#333</color>
+    <color name="cache_placeholder">#1A1A1A</color>
 
-    <color name="bitmap_screennail_placeholder">#333</color>
+    <color name="bitmap_screennail_placeholder">#00000000</color>
 
     <color name="slideshow_background">#1A1A1A</color>
  

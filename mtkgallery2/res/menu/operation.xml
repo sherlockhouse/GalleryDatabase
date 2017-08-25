@@ -14,38 +14,43 @@
      limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_import"
-            android:title="@string/Import"
-            android:icon="@drawable/ic_menu_ptp_holo_light"
-            android:showAsAction="always|withText"
-            android:visible="false" />
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_menu_trash_holo_light"
+        android:showAsAction="ifRoom"
+        android:title="@string/delete"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_rename"
+        android:icon="@drawable/ic_menu_rename"
+        android:showAsAction="never"
+        android:title="@string/action_rename"
+        android:visible="false"/>
+
+    <item
+        android:icon="@drawable/ic_menu_ptp_holo_light"
+        android:showAsAction="never"
+        android:title="@string/Import"
+        android:visible="false"/>
     <!-- Ideally, showAsAction for share_panorama and share should be reversed.
          But, if share_panorama is set to never, it doesn't seem to get promoted
          to the action bar and stays on the overflow menu. -->
-    <item android:id="@+id/action_share_panorama"
-            android:icon="@drawable/ic_menu_share_holo_light"
-            android:title="@string/share_panorama"
-            android:visible="false"
-            android:actionProviderClass="android.widget.ShareActionProvider"
-            android:showAsAction="ifRoom">
+    <item
+        android:id="@+id/action_share_panorama"
+        android:actionProviderClass="android.widget.ShareActionProvider"
+        android:icon="@drawable/ic_menu_share"
+        android:showAsAction="never"
+        android:title="@string/share_panorama"
+        android:visible="false">
     </item>
-    <item android:id="@+id/action_share"
-            android:icon="@drawable/ic_menu_share_holo_light"
-            android:title="@string/share"
-            android:visible="false"
-            android:actionProviderClass="android.widget.ShareActionProvider"
-            android:showAsAction="never">
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_menu_share"
+        android:showAsAction="never"
+        android:title="@string/share"
+        android:visible="false">
     </item>
-    <item android:id="@+id/action_hotknot"
-            android:icon="@drawable/m_ic_hotknot"
-            android:showAsAction="always"
-            android:title="@string/hotknot"
-            android:visible="false" />
-    <item android:id="@+id/action_delete"
-            android:icon="@drawable/ic_menu_trash_holo_light"
-            android:title="@string/delete"
-            android:visible="false"
-            android:showAsAction="ifRoom" />
     <item android:id="@+id/action_edit"
             android:title="@string/edit"
             android:showAsAction="never"
@@ -75,9 +80,13 @@
             android:title="@string/show_on_map"
             android:showAsAction="never"
             android:visible="false" />
-    <item android:id="@+id/m_action_motion_preview"
-            android:title="@string/details"
-            android:visible="false"
-            android:showAsAction="never"/>
 
+    <!-- Added by Linguanrong for story album, 2015-5-25 -->
+    <item
+        android:id="@+id/action_setcover"
+        android:icon="@drawable/ic_menu_setcover"
+        android:showAsAction="never"
+        android:title="@string/action_setcover"
+        android:visible="false"/>
+    <!-- Tyd -->
 </menu>

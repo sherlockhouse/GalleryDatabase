@@ -14,6 +14,13 @@
      limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_camera"
+        android:icon="@drawable/ic_menu_camera_holo_light"
+        android:showAsAction="ifRoom"
+        android:title="@string/switch_to_camera"/>
+
     <item android:id="@+id/action_import"
             android:title="@string/Import"
             android:icon="@drawable/ic_menu_ptp_holo_light"
@@ -35,11 +42,6 @@
             android:actionProviderClass="android.widget.ShareActionProvider"
             android:showAsAction="ifRoom" />
             <!-- android:showAsAction="never" -->
-    <item android:id="@+id/action_hotknot"
-            android:icon="@drawable/m_ic_hotknot"
-            android:showAsAction="always"
-            android:title="@string/hotknot"
-            android:visible="false" />
     <item android:id="@+id/action_delete"
             android:icon="@drawable/ic_menu_trash_holo_light"
             android:title="@string/delete"
@@ -53,16 +55,12 @@
             android:title="@string/edit"
             android:showAsAction="never"
             android:visible="false" />
-    <!-- M: [FEATURE.ADD] @{-->
-    <item android:id="@+id/m_action_picture_quality"
-          android:title="@string/m_picture_quality"
-          android:showAsAction="never"
-          android:visible="false" />
-    <!-- @} -->
+
     <item android:id="@+id/action_simple_edit"
           android:title="@string/simple_edit"
           android:showAsAction="never"
           android:visible="false" />
+
     <item android:id="@+id/action_rotate_ccw"
             android:showAsAction="never"
             android:visible="false"
@@ -87,10 +85,7 @@
             android:title="@string/set_image"
             android:showAsAction="never" 
             android:visible="false" />
-    <item android:id="@+id/action_export"
-            android:title="@string/export_image"
-            android:showAsAction="never"
-            android:visible="false" />
+
     <item android:id="@+id/action_details"
             android:title="@string/details"
             android:showAsAction="never" 
@@ -99,9 +94,18 @@
             android:title="@string/show_on_map"
             android:showAsAction="never" 
             android:visible="false" />
+
     <item android:id="@+id/print"
           android:title="@string/print_image"
           android:showAsAction="never" 
           android:visible="false" />
 
+    <!--Added by tyd Linguanrong for comments, 16-2-1-->
+    <item
+        android:id="@+id/action_comment"
+        android:icon="@drawable/freeme_comment_menu"
+        android:showAsAction="never"
+        android:title="@string/freeme_comment_visible"
+        android:visible="false"/>
+    <!--Tyd-->
 </menu>

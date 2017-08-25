@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 
 public class PhotoPageProgressBar {
     private ViewGroup mContainer;

@@ -21,9 +21,4 @@
             android:actionProviderClass="android.widget.ShareActionProvider"
             android:showAsAction="ifRoom" />
 
-	<item android:id="@+id/action_hotknot"
-            android:icon="@drawable/m_ic_hotknot"
-            android:showAsAction="always"
-            android:title="@string/hotknot"
-            android:visible="false" />
 </menu>

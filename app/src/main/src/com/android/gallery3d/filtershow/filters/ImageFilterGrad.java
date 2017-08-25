@@ -37,6 +37,7 @@ import android.renderscript.RenderScript;
 import android.renderscript.Script.LaunchOptions;
 import android.renderscript.Type;
 
+import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.pipeline.FilterEnvironment;
 import com.mediatek.gallery3d.util.Log;
 

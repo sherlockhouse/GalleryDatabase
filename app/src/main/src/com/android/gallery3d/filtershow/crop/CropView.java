@@ -36,7 +36,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.mediatek.gallery3d.util.Log;
 
 

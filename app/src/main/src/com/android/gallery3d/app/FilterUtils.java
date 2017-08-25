@@ -21,7 +21,7 @@
 
 package com.android.gallery3d.app;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.Path;
 

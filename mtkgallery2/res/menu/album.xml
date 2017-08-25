@@ -18,6 +18,14 @@
             android:icon="@drawable/ic_menu_camera_holo_light"
             android:title="@string/switch_to_camera"
             android:showAsAction="ifRoom" />
+
+    <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
+    <item
+        android:id="@+id/action_jigsaw"
+        android:icon="@drawable/ic_menu_jigsaw_blue"
+        android:showAsAction="never"
+        android:title="@string/jigsaw_title"/>
+    <!-- Added by TYD Theobald_Wu on 2014/01 [end] -->
     <item android:id="@+id/action_slideshow"
             android:icon="@drawable/ic_menu_slideshow_holo_light"
             android:title="@string/slideshow"
@@ -25,7 +33,5 @@
     <item android:id="@+id/action_select"
             android:title="@string/select_item"
             android:showAsAction="never" />
-    <item android:id="@+id/action_group_by"
-            android:title="@string/group_by"
-            android:showAsAction="never"/>
+
 </menu>

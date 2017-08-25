@@ -19,8 +19,7 @@ package com.android.gallery3d.filtershow.editors;
 import android.content.Context;
 import android.widget.FrameLayout;
 
-
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterTinyPlanetRepresentation;
 import com.android.gallery3d.filtershow.imageshow.ImageTinyPlanet;

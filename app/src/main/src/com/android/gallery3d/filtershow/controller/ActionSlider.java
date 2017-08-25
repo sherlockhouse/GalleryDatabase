@@ -21,7 +21,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.editors.Editor;
 import com.mediatek.gallery3d.util.Log;
 

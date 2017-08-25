@@ -1,13 +1,12 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:id="@+id/crop_popupmenu" >
+    <group>
         <item
             android:id="@+id/crop_menu_1to1"
             android:title="@string/aspect1to1_effect"/>
         <item
-            android:id="@+id/crop_menu_4to6"
-            android:visible="false"
-            android:title="@string/aspect4to6_effect"/>
+            android:title="@string/aspect4to6_effect"
+            android:visible="false"/>
         <item
             android:id="@+id/crop_menu_4to3"
             android:title="@string/aspect4to3_effect"/>
@@ -21,9 +20,8 @@
             android:id="@+id/crop_menu_7to5"
             android:title="@string/aspect7to5_effect"/>
         <item
-            android:id="@+id/crop_menu_9to16"
-            android:visible="false"
-            android:title="@string/aspect9to16_effect"/>
+            android:title="@string/aspect9to16_effect"
+            android:visible="false"/>
         <item
             android:id="@+id/crop_menu_none"
             android:title="@string/aspectNone_effect"/>

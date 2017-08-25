@@ -19,7 +19,7 @@ package com.android.gallery3d.filtershow.filters;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.editors.EditorStraighten;
 import com.mediatek.gallery3d.util.Log;
 

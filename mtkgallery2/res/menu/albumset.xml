@@ -18,9 +18,27 @@
             android:icon="@drawable/ic_menu_camera_holo_light"
             android:title="@string/switch_to_camera"
             android:showAsAction="ifRoom" />
+
+
+    <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
+    <item
+        android:id="@+id/action_jigsaw"
+        android:icon="@drawable/ic_menu_jigsaw_blue"
+        android:showAsAction="never"
+        android:title="@string/jigsaw_title"/>
+    <!-- Added by TYD Theobald_Wu on 2014/01 [end] -->
+
     <item android:id="@+id/action_select"
             android:title="@string/select_album"
             android:showAsAction="never" />
+
+    <!-- Added by xueweili for album visble select, 2015-7-23 -->
+    <item
+        android:id="@+id/action_visible_all"
+        android:icon="@drawable/ic_menu_hide_album"
+        android:showAsAction="never"
+        android:title="@string/hide_album"/>
+    <!-- Tyd -->
 <!--
     <item android:id="@+id/action_manage_offline"
             android:title="@string/make_available_offline"

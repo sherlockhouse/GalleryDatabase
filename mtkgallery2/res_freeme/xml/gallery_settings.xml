@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<PreferenceCategory-->
+    <!--android:title="@string/media_scaned_setttings_category">-->
+    <!--<com.freeme.settings.MediaScannerSizePreference-->
+    <!--android:dialogTitle="@string/pref_scanner_min_image_size_title"-->
+    <!--android:key="scaned_image_size_setttings_key"-->
+    <!--android:title="@string/pref_scanner_min_image_size_title"/>-->
+    <!--&lt;!&ndash; android:summary="@string/pref_scanner_min_image_size_summay" &ndash;&gt;-->
+    <!--</PreferenceCategory>-->
+
+    <PreferenceCategory
+        android:title="@string/slideshow_setttings_category">
+        <com.freeme.settings.GallerySwitchPreference
+            android:key="key_background_music_on"
+            android:title="@string/background_music_settings"/>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="key_slideshow_repeat"
+            android:title="@string/repeat_settings"/>
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="key_slideshow_rand_order"
+            android:title="@string/rand_order_settings"/>
+
+        <ListPreference
+            android:defaultValue="@string/slideshow_duration_default"
+            android:dialogTitle="@string/slideshow_duration_time"
+            android:entries="@array/slideshow_duration_list"
+            android:entryValues="@array/slideshow_duration_values"
+            android:key="key_slideshow_duration_time"
+            android:title="@string/slideshow_duration_time"/>
+
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

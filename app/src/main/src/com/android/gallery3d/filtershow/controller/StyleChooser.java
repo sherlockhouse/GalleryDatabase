@@ -4,6 +4,7 @@ import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.android.gallery3d.filtershow.pipeline.RenderingRequest;
+import com.android.gallery3d.filtershow.pipeline.RenderingRequestCaller;
 import com.android.gallery3d.filtershow.editors.Editor;
 
 import java.util.Vector;
