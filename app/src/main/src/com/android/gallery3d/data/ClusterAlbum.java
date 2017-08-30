@@ -22,6 +22,8 @@
 package com.android.gallery3d.data;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+import java.util.HashSet;
 
 public class ClusterAlbum extends MediaSet implements ContentListener {
     @SuppressWarnings("unused")
@@ -40,20 +42,30 @@ public class ClusterAlbum extends MediaSet implements ContentListener {
         mClusterAlbumSet.addContentListener(this);
     }
 
-    @Override
-    public MediaItem getCoverMediaItem() {
-        return mCover != null ? mCover : super.getCoverMediaItem();
-    }
-
     public void setCoverMediaItem(MediaItem cover) {
         mCover = cover;
     }
 
+    /// M: [BUG.MARK] @{
+    /*
+     * @Override public MediaItem getCoverMediaItem() { return mCover != null ?
+     * mCover : super.getCoverMediaItem(); }
+     */
+    /// @}
 
     void setMediaItems(ArrayList<Path> paths) {
         mPaths = paths;
     }
 
+    /// M: [BUG.ADD] @{
+    // add paths ordered. @{
+    void addMediaItems(Path paths, int index) {
+        if (paths != null) {
+            mPaths.add(index, paths);
+            nextVersion();
+        }
+    }
+    /// @}
 
     ArrayList<Path> getMediaItems() {
         return mPaths;
@@ -91,11 +103,24 @@ public class ClusterAlbum extends MediaSet implements ContentListener {
             public void consume(int index, MediaItem item) {
                 buf[index] = item;
             }
+
+            /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         };
         dataManager.mapMediaItems(subset, consumer, 0);
         ArrayList<MediaItem> result = new ArrayList<MediaItem>(end - start);
         for (int i = 0; i < buf.length; i++) {
-            result.add(buf[i]);
+            /// M: [BUG.MODIFY] @{
+            /* result.add(buf[i]); */
+            if (buf[i] != null) {
+                // we only add available items
+                result.add(buf[i]);
+            }
+            /// @}
         }
         return result;
     }
@@ -108,8 +133,23 @@ public class ClusterAlbum extends MediaSet implements ContentListener {
 
     @Override
     public int getTotalMediaItemCount() {
-		return mPaths.size();
+
+        /// M: [BUG.MODIFY] @{
+        /* return mPaths.size(); */
+        // For Cluster album delete operation, do not fresh clusterContent
+        // and use mNumberOfDeletedImage note
+        // the deleted images.
+        return mPaths.size() - mNumberOfDeletedImage;
+        /// @}
     }
+
+    /// M: [BUG.MODIFY] @{
+    /*
+     * @Override public long reload() { if (mClusterAlbumSet.reload() >
+     * mDataVersion) { mDataVersion = nextVersionNumber(); } return
+     * mDataVersion; }
+     */
+    /// @}
 
     @Override
     public void onContentDirty() {
@@ -118,7 +158,7 @@ public class ClusterAlbum extends MediaSet implements ContentListener {
 
     @Override
     public int getSupportedOperations() {
-        return SUPPORT_SHARE | SUPPORT_DELETE;
+        return SUPPORT_SHARE | SUPPORT_DELETE | SUPPORT_INFO;
     }
 
     @Override
@@ -128,20 +168,104 @@ public class ClusterAlbum extends MediaSet implements ContentListener {
             public void consume(int index, MediaItem item) {
                 if ((item.getSupportedOperations() & SUPPORT_DELETE) != 0) {
                     item.delete();
+                    /// M: [BUG.ADD] @{
+                    // note the number of deleted image. for Cluster album
+                    // delete operation.
+                    mNumberOfDeletedImage++;
+                    /// @}
                 }
             }
+
+            /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         };
         mDataManager.mapMediaItems(mPaths, consumer, 0);
     }
+
     @Override
     public boolean isLeafAlbum() {
         return true;
     }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    private MediaItem mCoverBackUp;
+    // note the number of deleted image.
+    private int mNumberOfDeletedImage;
+    private final HashSet<Path> mPathSet = new HashSet<Path>();
+    // stop reload in time.
+    private boolean mStopReload = false;
     @Override
-    public long reload() {
+    public synchronized long reload() {
+        Log.d(TAG, "<reload>");
+        //  assign this object to ClusterAlbumSet.
+//        mClusterAlbumSet.mCurrentClusterAlbum = this;
+//        // note the offset to stack top
+//        mClusterAlbumSet.offsetInStack = offsetInStack + 1;
+        mStopReload = false;
         if (mClusterAlbumSet.reload() > mDataVersion) {
-            mDataVersion = nextVersionNumber();
+            if (!mStopReload) {
+                mDataVersion = nextVersionNumber();
+            }
+            Log.d(TAG,
+                    " <reload>mClusterAlbumSet.synchronizedAlbumData() > mDataVersion");
         }
+//        offsetInStack = 0;
         return mDataVersion;
     }
+
+    // if the album is been update, should modify mDataVersion.
+    public long nextVersion() {
+        mDataVersion = nextVersionNumber();
+        return mDataVersion;
+    }
+
+    @Override
+    public MediaItem getCoverMediaItem() {
+        if (mCover != null) {
+            return mCover;
+        }
+        try {
+            mCoverBackUp = super.getCoverMediaItem();
+        } catch (ConcurrentModificationException e) {
+            e.printStackTrace();
+        }
+        return mCoverBackUp;
+    }
+
+    // set and get delete number operation
+    public void setNumberOfDeletedImage(int number) {
+        mNumberOfDeletedImage = number;
+    }
+
+    public int getNumberOfDeletedImage() {
+        return mNumberOfDeletedImage;
+    }
+
+    public void pathSet() {
+        if (mPathSet == null) {
+            return;
+        }
+        mPathSet.clear();
+        mPathSet.addAll(mPaths);
+    }
+
+    public HashSet< Path > getPathSet() {
+        return mPathSet;
+    }
+
+//    @Override
+//    public void stopReload() {
+//        Log.d(TAG, "<stopReload> ......");
+//        mStopReload = true;
+//        if (null != mClusterAlbumSet) {
+//            mClusterAlbumSet.stopReload();
+//        }
+//    }
 }

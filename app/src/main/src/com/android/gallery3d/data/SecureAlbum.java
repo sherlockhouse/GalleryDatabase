@@ -24,13 +24,15 @@ package com.android.gallery3d.data;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.MediaColumns;
+import android.provider.MediaStore.Video;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.app.StitchingChangeListener;
 import com.android.gallery3d.util.MediaSetUtils;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.MediaColumns;
-import com.freeme.provider.GalleryStore.Video;
+import com.mediatek.galleryframework.base.MediaFilterSetting;
+
 
 import java.util.ArrayList;
 
@@ -106,6 +108,13 @@ public class SecureAlbum extends MediaSet implements StitchingChangeListener {
             public void consume(int index, MediaItem item) {
                 buf[index] = item;
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         };
         mDataManager.mapMediaItems(subset, consumer, 0);
         ArrayList<MediaItem> result = new ArrayList<MediaItem>(end - start);
@@ -140,8 +149,22 @@ public class SecureAlbum extends MediaSet implements StitchingChangeListener {
         if (minId == Integer.MAX_VALUE || maxId == Integer.MIN_VALUE) return ids;
 
         String[] selectionArgs = {String.valueOf(minId), String.valueOf(maxId)};
-        Cursor cursor = mContext.getContentResolver().query(uri, PROJECTION,
-                "_id BETWEEN ? AND ?", selectionArgs, null);
+        /// M: [FEATURE.MODIFY] @{
+        /*
+         Cursor cursor = mContext.getContentResolver().query(uri, PROJECTION,
+         "_id BETWEEN ? AND ?", selectionArgs, null);
+         */
+        String whereClause = "_id BETWEEN ? AND ?";
+        if (Images.Media.EXTERNAL_CONTENT_URI.equals(uri)) {
+            whereClause = MediaFilterSetting.getExtWhereClauseForImage(whereClause,
+                    MediaSetUtils.CAMERA_BUCKET_ID);
+        } else if (Video.Media.EXTERNAL_CONTENT_URI.equals(uri)) {
+            whereClause = MediaFilterSetting.getExtWhereClauseForVideo(whereClause,
+                    MediaSetUtils.CAMERA_BUCKET_ID);
+        }
+        Cursor cursor = mContext.getContentResolver().query(uri, PROJECTION, whereClause,
+                selectionArgs, null);
+        /// @}
         if (cursor == null) return ids;
         try {
             while (cursor.moveToNext()) {
@@ -208,4 +231,26 @@ public class SecureAlbum extends MediaSet implements StitchingChangeListener {
     @Override
     public void onStitchingProgress(Uri uri, final int progress) {
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    public int getExistingItemCount() {
+        return mExistingItems.size();
+    }
+
+    /// M: [FEATURE.ADD] [Camera independent from Gallery] @{
+    // Add for launch from secure camera
+    /**
+     * Clear all items and reset max & min id
+     */
+    public void clearAll() {
+        mAllItems.clear();
+        mAllItemTypes.clear();
+        mMinVideoId = Integer.MAX_VALUE;
+        mMaxVideoId = Integer.MIN_VALUE;
+        mMinImageId = Integer.MAX_VALUE;
+        mMaxImageId = Integer.MIN_VALUE;
+    }
+    /// @}
 }

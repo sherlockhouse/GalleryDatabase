@@ -487,26 +487,24 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     }
 
     private void registerGestureSensorListener() {
-//        mSlideByGestureEnable = GestureSensorManger.isGestureSensorEnable(this,GestureSensorManger.FREEME_GESTURE_GALLERY_SLIDE);
-//        if(BuildConfig.SUPPORT_LAGACY_FREEMEOS_PLATFORM){
-//            mSlideByGestureEnable = SystemPropertiesProxy.getBooleanbit(getContentResolver(),
-//                    "tyd_gesture_sets",
-//                    1 << 0,
-//                    false);
-//        }
-//        if (mSlideByGestureEnable && mHasGestureSensor
-//                && !mHasRegister) {
-//            mSensorManager.registerListener(mGestureListener, mGestureSensor,
-//                    SensorManager.SENSOR_DELAY_FASTEST);
-//            //setGestureIconVisiblity(true);
-//            mHasRegister = true;
-//        }
+        mSlideByGestureEnable = GestureSensorManger.isGestureSensorEnable(this,GestureSensorManger.FREEME_GESTURE_GALLERY_SLIDE);
+        if(BuildConfig.SUPPORT_LAGACY_FREEMEOS_PLATFORM){
+            mSlideByGestureEnable = SystemPropertiesProxy.getBooleanbit(getContentResolver(),
+                    "tyd_gesture_sets",
+                    1 << 0,
+                    false);
+        }
+        if (mSlideByGestureEnable && mHasGestureSensor
+                && !mHasRegister) {
+            mSensorManager.registerListener(mGestureListener, mGestureSensor,
+                    SensorManager.SENSOR_DELAY_FASTEST);
+            mHasRegister = true;
+        }
     }
 
     private void unregisterGestureSensorListener() {
         if (mSlideByGestureEnable && mHasGestureSensor
                 && mHasRegister) {
-            //setGestureIconVisiblity(false);
             mSensorManager.unregisterListener(mGestureListener);
             mHasRegister = false;
         }

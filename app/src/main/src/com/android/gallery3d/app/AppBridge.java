@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +25,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.gallery3d.ui.ScreenNail;
+import com.android.gallery3d.ui.GestureRecognizer.Listener;
 
 // This is the bridge to connect a PhotoPage to the external environment.
 public abstract class AppBridge implements Parcelable {
@@ -37,11 +43,8 @@ public abstract class AppBridge implements Parcelable {
     //////////////////////////////////////////////////////////////////////////
 
     public abstract boolean isPanorama();
-
     public abstract boolean isStaticCamera();
-
     public abstract ScreenNail attachScreenNail();
-
     public abstract void detachScreenNail();
 
     // Return true if the tap is consumed.
@@ -55,25 +58,21 @@ public abstract class AppBridge implements Parcelable {
     //  These are requests send from app to PhotoPage
     //////////////////////////////////////////////////////////////////////////
 
-    // If server is null, the services are not available.
-    public abstract void setServer(Server server);
-
     public interface Server {
         // Set the camera frame relative to GLRootView.
-        void setCameraRelativeFrame(Rect frame);
-
+        public void setCameraRelativeFrame(Rect frame);
         // Switch to the previous or next picture using the capture animation.
         // The offset is -1 to switch to the previous picture, 1 to switch to
         // the next picture.
-        boolean switchWithCaptureAnimation(int offset);
-
+        public boolean switchWithCaptureAnimation(int offset);
         // Enable or disable the swiping gestures (the default is enabled).
-        void setSwipingEnabled(boolean enabled);
-
+        public void setSwipingEnabled(boolean enabled);
         // Notify that the ScreenNail is changed.
-        void notifyScreenNailChanged();
-
+        public void notifyScreenNailChanged();
         // Add a new media item to the secure album.
-        void addSecureAlbumItem(boolean isVideo, int id);
+        public void addSecureAlbumItem(boolean isVideo, int id);
     }
+
+    // If server is null, the services are not available.
+    public abstract void setServer(Server server);
 }

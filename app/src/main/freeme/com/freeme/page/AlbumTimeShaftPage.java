@@ -825,6 +825,11 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     }
 
     @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    @Override
     public void onSyncDone(final MediaSet mediaSet, final int resultCode) {
         mActivity.runOnUiThread(new Runnable() {
             @Override

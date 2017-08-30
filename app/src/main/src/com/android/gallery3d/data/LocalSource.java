@@ -217,17 +217,6 @@ class LocalSource extends MediaSource {
     }
 
     @Override
-    public void pause() {
-        mClient.release();
-        mClient = null;
-    }
-
-    @Override
-    public void resume() {
-        mClient = mApplication.getContentResolver()
-                .acquireContentProviderClient(GalleryStore.AUTHORITY);
-    }
-    @Override
     public Path findPathByUri(Uri uri, String type) {
         try {
             switch (mUriMatcher.match(uri)) {
@@ -357,4 +346,16 @@ class LocalSource extends MediaSource {
         }
     }
     //*/
+
+    @Override
+    public void resume() {
+        mClient = mApplication.getContentResolver()
+                .acquireContentProviderClient(GalleryStore.AUTHORITY);
+    }
+
+    @Override
+    public void pause() {
+        mClient.release();
+        mClient = null;
+    }
 }

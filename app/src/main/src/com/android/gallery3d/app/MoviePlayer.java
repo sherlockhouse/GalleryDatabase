@@ -390,6 +390,11 @@ public class MoviePlayer implements
         startVideo();
     }
 
+    @Override
+    public boolean powerSavingNeedShowController() {
+        return false;
+    }
+
     private void startVideo() {
         // For streams that we expect to be slow to start up, show a
         // progress spinner until playback starts.

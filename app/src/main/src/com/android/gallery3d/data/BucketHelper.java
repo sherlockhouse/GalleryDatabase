@@ -186,9 +186,9 @@ class BucketHelper {
         return buffer.toArray(new BucketEntry[buffer.size()]);
     }
 
-   private static String getBucketNameInTable(
+    private static String getBucketNameInTable(
             ContentResolver resolver, Uri tableUri, int bucketId) {
-        String selectionArgs[] = new String[]{String.valueOf(bucketId)};
+        String selectionArgs[] = new String[] {String.valueOf(bucketId)};
         Uri uri = tableUri.buildUpon()
                 .appendQueryParameter("limit", "1")
                 .build();
@@ -223,16 +223,19 @@ class BucketHelper {
         }
     }
 
- 
-
     public static class BucketEntry {
         public String bucketName;
-        public int    bucketId;
-        public int    dateTaken;
+        public int bucketId;
+        public int dateTaken;
 
         public BucketEntry(int id, String name) {
             bucketId = id;
             bucketName = Utils.ensureNotNull(name);
+        }
+
+        @Override
+        public int hashCode() {
+            return bucketId;
         }
 
         @Override
@@ -241,12 +244,8 @@ class BucketHelper {
             BucketEntry entry = (BucketEntry) object;
             return bucketId == entry.bucketId;
         }
-
-        @Override
-        public int hashCode() {
-            return bucketId;
-        }
     }
+
     private static final String PURE_BUCKET_GROUP_BY = ") GROUP BY 1,(2";
     private static final String VIDEO_IMAGE_CLAUSE   = GalleryStore.Files.FileColumns.MEDIA_TYPE
             + "=" + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE + " OR "

@@ -422,5 +422,9 @@ public class ManageCachePage extends ActivityState implements
     public void onProgressStart() {
     }
 
-
+    /// M: [BEHAVIOR.ADD] @{
+    @Override
+    public void onSelectionRestoreDone() {
+    }
+    /// @}
 }

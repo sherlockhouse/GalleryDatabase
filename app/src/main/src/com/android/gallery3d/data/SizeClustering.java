@@ -78,6 +78,13 @@ public class SizeClustering extends Clustering {
                 }
                 list.add(item.getPath());
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
 
         int count = 0;

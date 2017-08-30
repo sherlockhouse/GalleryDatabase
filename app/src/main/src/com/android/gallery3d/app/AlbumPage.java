@@ -531,7 +531,14 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                 R.plurals.number_of_items_selected, count);
         mActionModeHandler.setTitle(String.format(format, count));
         mActionModeHandler.updateSupportedOperation(path, selected);
-    }    private void pickPhoto(int slotIndex, boolean startInFilmstrip) {
+    }
+
+    @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    private void pickPhoto(int slotIndex, boolean startInFilmstrip) {
         if (!mIsActive) return;
 
         // Modified by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature

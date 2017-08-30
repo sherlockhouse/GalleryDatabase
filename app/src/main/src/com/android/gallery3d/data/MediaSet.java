@@ -196,8 +196,12 @@ public abstract class MediaSet extends MediaObject {
     public void enumerateTotalMediaItems(ItemConsumer consumer) {
         enumerateTotalMediaItems(consumer, 0);
     }
-    public interface ItemConsumer {
+
+    public static interface ItemConsumer {
         void consume(int index, MediaItem item);
+        /// M: [BUG.ADD] add for stop reload  @{
+        boolean stopConsume();
+        /// @}
     }
     // The default implementation uses getMediaItem() for enumerateMediaItems().
     // Subclasses may override this and use more efficient implementations.

@@ -133,6 +133,13 @@ public class MediaItemsLoader extends AsyncTaskLoader<Cursor> implements LoaderC
                 cursor.addRow(row);
                 mediaItems.append(index, item);
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
         synchronized (mMediaSet) {
             mMediaItems = mediaItems;

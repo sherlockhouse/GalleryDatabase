@@ -258,9 +258,6 @@ public class GLView {
 
     public void setBackgroundColor(float [] color) {
         mBackgroundColor = color;
-        //*/ Added by Linguanrong for invalidate background, 2015-08-08
-        invalidate();
-        //*/
     }
 
     protected void renderBackground(GLCanvas view) {
@@ -472,4 +469,22 @@ public class GLView {
         }
     }
 
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    protected void dispatchKeyEvent(KeyEvent event) {
+        for (int i = getComponentCount() - 1; i >= 0; --i) {
+            GLView component = getComponent(i);
+            if (component == null) {
+                continue;
+            }
+            if (component.getVisibility() != GLView.VISIBLE) {
+                continue;
+            }
+            component.onKeyEvent(event);
+        }
+    }
+
+    protected void onKeyEvent(KeyEvent event) {
+    }
 }

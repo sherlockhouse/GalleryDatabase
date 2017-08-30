@@ -72,15 +72,11 @@ public class Path {
 
     public void setObject(MediaObject object) {
         synchronized (Path.class) {
-            //*/ Modified by Linguanrong for avoid assert
-            clearObject();
-            /*/
             Utils.assertTrue(mObject == null || mObject.get() == null);
-            //*/
             mObject = new WeakReference<MediaObject>(object);
         }
     }
-	
+
     MediaObject getObject() {
         synchronized (Path.class) {
             return (mObject == null) ? null : mObject.get();
@@ -248,15 +244,36 @@ public class Path {
         }
     }
 
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
 
+    public static void clearAllObject() {
+        Log.i(TAG, "<clearAllObject>");
+        clearAllObject(sRoot);
+    }
 
-    //*/ Modified by Linguanrong for avoid assert
+    private static void clearAllObject(Path p) {
+        synchronized (Path.class) {
+            p.mObject = null;
+            if (p.mChildren != null) {
+                ArrayList<String> childrenKeys = p.mChildren.keys();
+                int i = 0;
+                for (String key : childrenKeys) {
+                    Path child = p.mChildren.get(key);
+                    if (child == null) {
+                        ++i;
+                        continue;
+                    }
+                    clearAllObject(child);
+                }
+            }
+        }
+    }
     public void clearObject() {
         if (mObject != null) {
             mObject.clear();
         }
         mObject = null;
     }
-
-
 }

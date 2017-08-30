@@ -21,11 +21,16 @@
 
 package com.android.gallery3d.data;
 
+import com.android.gallery3d.R;
+import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
+import com.android.gallery3d.exif.Rational;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -166,8 +171,71 @@ public class MediaDetails implements Iterable<Entry<Integer, Object>> {
         if (focalTag != null) {
             details.addDetail(MediaDetails.INDEX_FOCAL_LENGTH,
                     focalTag.getValueAsRational(0).toDouble());
-            details.setUnit(MediaDetails.INDEX_FOCAL_LENGTH, com.freeme.gallery.R.string.unit_mm);
+            details.setUnit(MediaDetails.INDEX_FOCAL_LENGTH, R.string.unit_mm);
         }
     }
 
+    /// M: [BUG.ADD] read DNG EXIF details. @{
+    public static void extractDNGExifInfo(MediaDetails details, String filePath) {
+        try {
+            android.media.ExifInterface exif = new android.media.ExifInterface(filePath);
+
+            String value = exif.getAttribute(android.media.ExifInterface.TAG_FLASH);
+            if (value != null) {
+                MediaDetails.FlashState state =
+                        new MediaDetails.FlashState(Integer.valueOf(value));
+                details.addDetail(MediaDetails.INDEX_FLASH, state);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_IMAGE_WIDTH);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_WIDTH, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_IMAGE_LENGTH);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_HEIGHT, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_MAKE);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_MAKE, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_MODEL);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_MODEL, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_APERTURE_VALUE);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_APERTURE, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_ISO_SPEED_RATINGS);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_ISO, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_WHITE_BALANCE);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_WHITE_BALANCE, value);
+            }
+
+            value = exif.getAttribute(android.media.ExifInterface.TAG_EXPOSURE_TIME);
+            if (value != null) {
+                details.addDetail(MediaDetails.INDEX_EXPOSURE_TIME, value);
+            }
+
+            double focalLength =
+                    exif.getAttributeDouble(android.media.ExifInterface.TAG_FOCAL_LENGTH, 0);
+            if (focalLength != 0) {
+                details.addDetail(MediaDetails.INDEX_FOCAL_LENGTH, focalLength);
+                details.setUnit(MediaDetails.INDEX_FOCAL_LENGTH, R.string.unit_mm);
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "<extractDNGExifInfo> Could not read exif from file: " + filePath, e);
+        }
+    }
+    /// @}
 }

@@ -299,6 +299,11 @@ public class AlbumStorySetPage extends ActivityState implements
         updateMenuRename();
     }
 
+    @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
     private void getSlotCenter(int slotIndex, int center[]) {
         Rect offset = new Rect();
         mRootPane.getBoundsOf(mSlotView, offset);

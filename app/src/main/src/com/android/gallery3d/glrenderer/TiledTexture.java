@@ -32,6 +32,8 @@ import android.graphics.RectF;
 import android.os.SystemClock;
 
 import com.android.gallery3d.ui.GLRoot;
+import com.android.gallery3d.ui.GLRoot.OnGLIdleListener;
+import com.mediatek.gallery3d.util.Log;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -41,9 +43,18 @@ import java.util.ArrayList;
 // upload the whole bitmap but we reduce the time of uploading each tile
 // so it make the animation more smooth and prevents jank.
 public class TiledTexture implements Texture {
-    private static final int CONTENT_SIZE  = 254;
-    private static final int BORDER_SIZE   = 1;
-    private static final int TILE_SIZE     = CONTENT_SIZE + 2 * BORDER_SIZE;
+    /// M: [DEBUG.ADD] @{
+    private static final String TAG = "Gallery2/TiledTexture";
+    /// @}
+    /// M: [PERF.MODIFY] @{
+    /*private static final int CONTENT_SIZE = 254;
+     private static final int BORDER_SIZE = 1;
+     private static final int TILE_SIZE = CONTENT_SIZE + 2 * BORDER_SIZE;*/
+    //change public from private for FHD resolution
+    public static int CONTENT_SIZE = 254;
+    public static final int BORDER_SIZE = 1;
+    public static int TILE_SIZE = CONTENT_SIZE + 2 * BORDER_SIZE;
+    /// @}
     private static final int INIT_CAPACITY = 8;
 
     // We are targeting at 60fps, so we have 16ms for each frame.
@@ -67,9 +78,12 @@ public class TiledTexture implements Texture {
     private final RectF mSrcRect = new RectF();
     private final RectF mDestRect = new RectF();
 
+    /// M: [DEBUG.ADD] @{
+    public boolean mEnableDrawCover = false;
+    private static final float RENDER_DEBUG_ALPHA = 0.3f;
+    /// @}
 
-
-    public static class Uploader implements GLRoot.OnGLIdleListener {
+    public static class Uploader implements OnGLIdleListener {
         private final ArrayDeque<TiledTexture> mTextures =
                 new ArrayDeque<TiledTexture>(INIT_CAPACITY);
 
@@ -82,6 +96,11 @@ public class TiledTexture implements Texture {
 
         public synchronized void clear() {
             mTextures.clear();
+            /// M: [BUG.ADD] @{
+            // if not set mIsQueued as true here,
+            // it's possible that all textures can not upload when resume
+            mIsQueued = false;
+            /// @}
         }
 
         public synchronized void addTexture(TiledTexture t) {
@@ -135,6 +154,12 @@ public class TiledTexture implements Texture {
 
         @Override
         protected Bitmap onGetBitmap() {
+            /// M: [BUG.ADD] while freeResources , sCanvas maybe null @{
+            if (sCanvas == null) {
+                Log.i(TAG, "onGetBitmap(): sCanvas is null");
+                return  Bitmap.createBitmap(TILE_SIZE, TILE_SIZE, Config.ARGB_8888);
+            }
+            /// @}
             // make a local copy of the reference to the bitmap,
             // since it might be null'd in a different thread. b/8694871
             Bitmap localBitmapRef = bitmap;
@@ -238,8 +263,6 @@ public class TiledTexture implements Texture {
         }
     }
 
-
-
     public static void freeResources() {
         sUploadBitmap = null;
         sCanvas = null;
@@ -314,10 +337,18 @@ public class TiledTexture implements Texture {
                 mapRect(dest, src, 0, 0, x, y, scaleX, scaleY);
                 src.offset(BORDER_SIZE - t.offsetX, BORDER_SIZE - t.offsetY);
                 canvas.drawTexture(t, mSrcRect, mDestRect);
+                /// M: [DEBUG.ADD] @{
+                if (mEnableDrawCover) {
+                    float alpha = canvas.getAlpha();
+                    canvas.setAlpha(RENDER_DEBUG_ALPHA);
+                    canvas.fillRect(mDestRect.left, mDestRect.top, mDestRect.width(),
+                            mDestRect.height(), 0xFF0000FF);
+                    canvas.setAlpha(alpha);
+                }
+                /// @}
             }
         }
     }
-
 
     // Draws a sub region of this texture on to the specified rectangle.
     public void draw(GLCanvas canvas, RectF source, RectF target) {

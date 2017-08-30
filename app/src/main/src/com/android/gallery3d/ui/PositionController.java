@@ -33,8 +33,15 @@ import com.android.gallery3d.util.RangeArray;
 import com.android.gallery3d.util.RangeIntArray;
 
 import com.mediatek.gallery3d.util.Log;
+import com.mediatek.galleryframework.base.MediaData;
 
-class PositionController {
+/// M: [FEATURE.MODIFY] plugin @{
+// class PositionController {
+/**
+ * set PositionController as public for plug-in.
+ */
+public class PositionController {
+/// @}
     private static final String TAG = "Gallery2/PositionController";
 
     public static final int IMAGE_AT_LEFT_EDGE = 1;
@@ -281,26 +288,40 @@ class PositionController {
         return;
     }
 
-    public void setImageSize(int index, Size s, Rect cFrame) {
+    /// M: [FEATURE.MODIFY] @{
+    /*public void setImageSize(int index, Size s, Rect cFrame) {*/
+    /**
+     * In some cases, we need skip snap animation when setImageSize.
+     */
+    public void setImageSize(int index, Size s, Rect cFrame, boolean skipAnimationForced) {
+    /// @}
         if (s.width == 0 || s.height == 0) return;
-
+        /// M: [BUG.ADD] @{
+        boolean cFrameChanged = false;
+        /// @}
         boolean needUpdate = false;
         if (cFrame != null && !mConstrainedFrame.equals(cFrame)) {
             mConstrainedFrame.set(cFrame);
             mPlatform.updateDefaultXY();
             needUpdate = true;
+            /// M: [BUG.ADD] @{
+            if (index == 0) {
+                cFrameChanged = true;
+            }
+            /// @}
         }
         needUpdate |= setBoxSize(index, s.width, s.height, false);
-
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        if (mEndingScaleBy) {
-            mEndingScaleBy = false;
-        }
-        //*/
 
         if (!needUpdate) return;
         updateScaleAndGapLimit();
         snapAndRedraw();
+        /// M: [BUG.ADD] @{
+        //if camera frame changed (most probably due to preview size change)
+        // we skip the animation since it's unnecessary
+        if (cFrameChanged || skipAnimationForced) {
+            skipToFinalPosition();
+        }
+        /// @}
     }
 
     // Returns false if the box size doesn't change.
@@ -536,14 +557,6 @@ class PositionController {
         // (focusX' - currentX') / scale' = (focusX - currentX) / scale
         //
         s = b.clampScale(s * getTargetScale(b));
-
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        if (s > SCALE_MAX_EXTRA) {
-            s = SCALE_MAX_EXTRA;
-        }
-        mEndingScaleBy = false;
-        //*/
-
         int x = mFilmMode ? p.mCurrentX : (int) (focusX - s * mFocusX + 0.5f);
         int y = mFilmMode ? b.mCurrentY : (int) (focusY - s * mFocusY + 0.5f);
         startAnimation(x, y, s, ANIM_KIND_SCALE);
@@ -552,17 +565,8 @@ class PositionController {
         return 0;
     }
 
-
-
     public void endScale() {
         mInScale = false;
-
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        if (!mFilmMode) {
-            mEndingScaleBy = true;
-        }
-        //*/
-
         snapAndRedraw();
     }
 
@@ -1049,6 +1053,10 @@ class PositionController {
         mHasNext = hasNext;
 
         RangeIntArray from = new RangeIntArray(fromIndex, -BOX_MAX, BOX_MAX);
+        /// M: [BUG.ADD] @{
+        // used to avoid read null value when run moveBox
+        RangeArray<Box> boxesBackup = new RangeArray<Box>(-BOX_MAX, BOX_MAX);
+        /// @}
 
         // 1. Get the absolute X coordinates for the boxes.
         layoutAndSetPosition();
@@ -1061,7 +1069,11 @@ class PositionController {
         // 2. copy boxes and gaps to temporary storage.
         for (int i = -BOX_MAX; i <= BOX_MAX; i++) {
             mTempBoxes.put(i, mBoxes.get(i));
-            mBoxes.put(i, null);
+            /// M: [BUG.MODIFY] @{
+            // used to avoid read null value when run moveBox
+            /* mBoxes.put(i, null); */
+            boxesBackup.put(i, null);
+            /// @}
         }
         for (int i = -BOX_MAX; i < BOX_MAX; i++) {
             mTempGaps.put(i, mGaps.get(i));
@@ -1072,7 +1084,11 @@ class PositionController {
         for (int i = -BOX_MAX; i <= BOX_MAX; i++) {
             int j = from.get(i);
             if (j == Integer.MAX_VALUE) continue;
-            mBoxes.put(i, mTempBoxes.get(j));
+            /// M: [BUG.MODIFY] @{
+            // used to avoid read null value when run moveBox
+            /*  mBoxes.put(i, mTempBoxes.get(j)); */
+            boxesBackup.put(i, mTempBoxes.get(j));
+            /// @}
             mTempBoxes.put(j, null);
         }
 
@@ -1091,13 +1107,32 @@ class PositionController {
         // 5. recycle the boxes that are not used in the new array.
         int k = -BOX_MAX;
         for (int i = -BOX_MAX; i <= BOX_MAX; i++) {
-            if (mBoxes.get(i) != null) continue;
+            /// M: [BUG.MODIFY] @{
+            // used to avoid read null value when run moveBox
+            /*  if (mBoxes.get(i) != null) continue; */
+            if (boxesBackup.get(i) != null) {
+                continue;
+            }
+            /// @}
             while (mTempBoxes.get(k) == null) {
                 k++;
             }
+            /// M: [BUG.ADD] @{
+            // used to avoid read null value when run moveBox
+            boxesBackup.put(i, mTempBoxes.get(k));
+            /// @}
             mBoxes.put(i, mTempBoxes.get(k++));
+//            /// M: [FEATURE.ADD] plugin @{
+//            GalleryPluginUtils.getImageOptionsPlugin().updateBoxMediaData(
+//                    PositionController.this, i, datas[i + BOX_MAX]);
+//            /// @}
             initBox(i, sizes[i + BOX_MAX]);
         }
+
+        /// M: [BUG.ADD] @{
+        // used to avoid read null value when run moveBox
+        mBoxes = boxesBackup;
+        /// @}
 
         // 6. Now give the recycled box a reasonable absolute X position.
         //
@@ -1481,13 +1516,6 @@ class PositionController {
                 b.mScaleMin * SCALE_MIN_EXTRA : b.mScaleMin;
             float scaleMax = mExtraScalingRange ?
                 b.mScaleMax * SCALE_MAX_EXTRA : b.mScaleMax;
-
-            //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-            if (mEndingScaleBy && !mIsCamera) {
-                scaleMax = Math.max(1, b.mScaleMin);
-            }
-            //*/
-
             float scale = Utils.clamp(b.mCurrentScale, scaleMin, scaleMax);
             int x = mCurrentX;
             int y = mDefaultY;
@@ -1651,6 +1679,9 @@ class PositionController {
         // during moveBox().
         public int mAbsoluteX;
 
+        /// M: [FEATURE.ADD] plugin @{
+        public MediaData mMediaData;
+        /// @}
         @Override
         public boolean startSnapback() {
             if (mAnimationStartTime != NO_ANIMATION) return false;
@@ -1665,16 +1696,9 @@ class PositionController {
 
             if (this == mBoxes.get(0)) {
                 float scaleMin = mExtraScalingRange ?
-                        mScaleMin * SCALE_MIN_EXTRA : mScaleMin;
+                    mScaleMin * SCALE_MIN_EXTRA : mScaleMin;
                 float scaleMax = mExtraScalingRange ?
-                        mScaleMax * SCALE_MAX_EXTRA : mScaleMax;
-
-                //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-                if (mEndingScaleBy && !mIsCamera) {
-                    scaleMax = Math.max(1, mScaleMin);
-                }
-                //*/
-
+                    mScaleMax * SCALE_MAX_EXTRA : mScaleMax;
                 scale = Utils.clamp(mCurrentScale, scaleMin, scaleMax);
                 if (mFilmMode) {
                     y = 0;
@@ -1862,12 +1886,37 @@ class PositionController {
         }
     }
 
-    //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-    private boolean mEndingScaleBy = false;
-    private boolean mIsCamera = false;
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
 
-    public void setIsCamera(boolean isCamera) {
-        mIsCamera = isCamera;
+    /**
+     * Hit test to ignore top and bottom,
+     * only check left and right boundaries.
+     */
+    public int hitTestIgnoreVertical(int x, int y) {
+        for (int i = 0; i < 2 * BOX_MAX + 1; i++) {
+            int j = CENTER_OUT_INDEX[i];
+            Rect r = mRects.get(j);
+            if (x >= r.left && x <= r.right) {
+                return j;
+            }
+        }
+
+        return Integer.MAX_VALUE;
+    }
+
+
+    /// M: [FEATURE.ADD] plugin @{
+    /**
+     * Set mediaData for box.
+     */
+    public void setMediaData(int index, MediaData mediaData) {
+        Box b = mBoxes.get(index);
+        if (mediaData == b.mMediaData) {
+            return;
+        }
+        b.mMediaData = mediaData;
     }
 //*/
 }

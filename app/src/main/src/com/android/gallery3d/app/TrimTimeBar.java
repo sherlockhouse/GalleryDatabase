@@ -30,32 +30,50 @@ import android.view.MotionEvent;
 import com.mediatek.gallery3d.util.Log;
 import com.android.gallery3d.R;
 
+
 /**
  * The trim time bar view, which includes the current and total time, the progress
  * bar, and the scrubbers for current time, start and end time for trimming.
  */
 public class TrimTimeBar extends TimeBar {
 
-    public static final int SCRUBBER_NONE    = 0;
-    public static final int SCRUBBER_START   = 1;
+    public static final int SCRUBBER_NONE = 0;
+    public static final int SCRUBBER_START = 1;
     public static final int SCRUBBER_CURRENT = 2;
-    public static final int SCRUBBER_END     = 3;
-    private final Bitmap mTrimStartScrubber;
-    private final Bitmap mTrimEndScrubber;
+    public static final int SCRUBBER_END = 3;
+
     private int mPressedThumb = SCRUBBER_NONE;
+    private TrimLayoutExt mLayoutExt;
     // On touch event, the setting order is Scrubber Position -> Time ->
     // PlayedBar. At the setTimes(), activity can update the Time directly, then
     // PlayedBar will be updated too.
     private int mTrimStartScrubberLeft;
     private int mTrimEndScrubberLeft;
+
     private int mTrimStartScrubberTop;
     private int mTrimEndScrubberTop;
+
     private int mTrimStartTime;
     private int mTrimEndTime;
 
+    // /M: mIsScrubberingTrimStart and mIsScrubberingTrimEnd is for judging the
+    // scrubber dragging is
+    // trimStart and trimEnd or not. mNeedUpade is for this case: must
+    // re-computed the
+    // position when rotate devices layout from landscape to portrait or from
+    // portrait to landscape.@{
+    private boolean mIsScrubberingTrimStart;
+    private boolean mIsScrubberingTrimEnd;
+    private boolean mNeedUpdateTrimStart;
+    private boolean mNeedUpdateTrimEnd;
+    // / @}
+
+    private final Bitmap mTrimStartScrubber;
+    private final Bitmap mTrimEndScrubber;
+    private static final String TAG = "Gallery2/TrimTimeBar";
     public TrimTimeBar(Context context, Listener listener) {
         super(context, listener);
-
+        Log.v(TAG, "TrimTimeBar init");
         mTrimStartTime = 0;
         mTrimEndTime = 0;
         mTrimStartScrubberLeft = 0;
@@ -71,9 +89,11 @@ public class TrimTimeBar extends TimeBar {
         // touch padding since we have 3 scrubbers now.
         mScrubberPadding = 0;
         mVPaddingInPx = mVPaddingInPx * 3 / 2;
+        mLayoutExt = new TrimLayoutExt();
     }
 
     private int getBarPosFromTime(int time) {
+        Log.v(TAG, "getBarPosFromTime time is " + time);
         return mProgressBar.left +
                 (int) ((mProgressBar.width() * (long) time) / mTotalTime);
     }
@@ -89,18 +109,50 @@ public class TrimTimeBar extends TimeBar {
     // Based on all the time info (current, total, trimStart, trimEnd), we
     // decide the playedBar size.
     private void updatePlayedBarAndScrubberFromTime() {
+        Log.v(TAG, "updatePlayedBarAndScrubberFromTime()"
+                + ", mTrimStartTime = " + mTrimStartTime + ", mTrimEndTime = "
+                + mTrimEndTime + ", mTotalTime = " + mTotalTime);
         // According to the Time, update the Played Bar
+        // M:save the mPlayedBar.left, to avoid mPlayedBar set to mProgressBar's
+        // value after init.
+        int left = mPlayedBar.left;
         mPlayedBar.set(mProgressBar);
         if (mTotalTime > 0) {
             // set playedBar according to the trim time.
-            mPlayedBar.left = getBarPosFromTime(mTrimStartTime);
+            // /M: when not dragging trimStart bar, no need update it's pos.@{
+            if (mIsScrubberingTrimStart || mNeedUpdateTrimStart) {
+                mPlayedBar.left = getBarPosFromTime(mTrimStartTime);
+            } else {
+                mPlayedBar.left = left;
+            }
+            Log.v(TAG, "mIsScrubberingTrimStart = " + mIsScrubberingTrimStart
+                    + ", mIsScrubberingTrimEnd = " + mIsScrubberingTrimEnd
+                    + ", mNeedUpdateTrimStart = " + mNeedUpdateTrimStart
+                    + ", mNeedUpdateTrimEnd = " + mNeedUpdateTrimEnd
+                    + ", mPlayedBar.left = "
+                    + mPlayedBar.left);
+            // / @}
             mPlayedBar.right = getBarPosFromTime(mCurrentTime);
             if (!mScrubbing) {
                 mScrubberLeft = mPlayedBar.right - mScrubber.getWidth() / 2;
-                mTrimStartScrubberLeft = mPlayedBar.left - trimStartScrubberTipOffset();
-                mTrimEndScrubberLeft = getBarPosFromTime(mTrimEndTime)
-                        - trimEndScrubberTipOffset();
+                // /M: when not dragging trimStart bar, no need update it's pos.
+                if (mIsScrubberingTrimStart || mNeedUpdateTrimStart) {
+                    mTrimStartScrubberLeft = mPlayedBar.left
+                            - trimStartScrubberTipOffset();
+                }
+                // / @}
+                if (mIsScrubberingTrimEnd || mNeedUpdateTrimStart) {
+                    mTrimEndScrubberLeft = getBarPosFromTime(mTrimEndTime)
+                            - trimEndScrubberTipOffset();
+                }
             }
+            mNeedUpdateTrimStart = false;
+            mNeedUpdateTrimEnd = false;
+
+            Log.v(TAG, "mScrubbing = " + mScrubbing
+                    + ", mTrimStartScrubberLeft = " + mTrimStartScrubberLeft
+                    + ", mTrimEndScrubberLeft = " + mTrimEndScrubberLeft);
+
         } else {
             // If the video is not prepared, just show the scrubber at the end
             // of progressBar
@@ -108,8 +160,11 @@ public class TrimTimeBar extends TimeBar {
             mScrubberLeft = mProgressBar.left - mScrubber.getWidth() / 2;
             mTrimStartScrubberLeft = mProgressBar.left - trimStartScrubberTipOffset();
             mTrimEndScrubberLeft = mProgressBar.right - trimEndScrubberTipOffset();
+            Log.v(TAG, "mTrimStartScrubberLeft = " + mTrimStartScrubberLeft
+                    + ", mTrimEndScrubberLeft = " + mTrimEndScrubberLeft);
         }
     }
+
     private void initTrimTimeIfNeeded() {
         if (mTotalTime > 0 && mTrimEndTime == 0) {
             mTrimEndTime = mTotalTime;
@@ -117,6 +172,7 @@ public class TrimTimeBar extends TimeBar {
     }
 
     private void update() {
+        Log.v(TAG, "update()");
         initTrimTimeIfNeeded();
         updatePlayedBarAndScrubberFromTime();
         invalidate();
@@ -125,12 +181,21 @@ public class TrimTimeBar extends TimeBar {
     @Override
     public void setTime(int currentTime, int totalTime,
             int trimStartTime, int trimEndTime) {
+        Log.v(TAG, "setTime() currentTime " + currentTime + ", totalTime "
+                + totalTime + ", trimStartTime " + trimStartTime
+                + ", trimEndTime " + trimEndTime);
         if (mCurrentTime == currentTime && mTotalTime == totalTime
                 && mTrimStartTime == trimStartTime && mTrimEndTime == trimEndTime) {
             return;
         }
         mCurrentTime = currentTime;
         mTotalTime = totalTime;
+        if (mTrimStartTime != trimStartTime) {
+            mNeedUpdateTrimStart = true;
+        }
+        if (mTrimEndTime != trimEndTime) {
+            mNeedUpdateTrimEnd = true;
+        }
         mTrimStartTime = trimStartTime;
         mTrimEndTime = trimEndTime;
         update();
@@ -166,6 +231,7 @@ public class TrimTimeBar extends TimeBar {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        Log.v(TAG, "onLayout()");
         int w = r - l;
         int h = b - t;
         if (!mShowTimes && !mShowScrubber) {
@@ -175,7 +241,7 @@ public class TrimTimeBar extends TimeBar {
             if (mShowTimes) {
                 margin += mTimeBounds.width();
             }
-            int progressY = h / 4;
+            int progressY =  h / 4 + mLayoutExt.getProgressOffset(h);
             int scrubberY = progressY - mScrubber.getHeight() / 2 + 1;
             mScrubberTop = scrubberY;
             mTrimStartScrubberTop = progressY;
@@ -184,14 +250,27 @@ public class TrimTimeBar extends TimeBar {
                     getPaddingLeft() + margin, progressY,
                     w - getPaddingRight() - margin, progressY + 4);
         }
+        mNeedUpdateTrimStart = true;
+        mNeedUpdateTrimEnd = true;
         update();
     }
 
 
 
+    @Override
+    public int getPreferredHeight() {
+        Log.i(TAG, "getPreferredHeight mTrimStartScrubber " + mTrimStartScrubber.getHeight());
+        return  mLayoutExt.getPreferredHeight(super.getPreferredHeight());
+    }
+
+    @Override
+    public int getBarHeight() {
+        return getPreferredHeight();
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.v(TAG, "onDraw()");
         // draw progress bars
         canvas.drawRect(mProgressBar, mProgressPaint);
         canvas.drawRect(mPlayedBar, mPlayedPaint);
@@ -199,13 +278,13 @@ public class TrimTimeBar extends TimeBar {
         if (mShowTimes) {
             canvas.drawText(
                     stringForTime(mCurrentTime),
-                    mTimeBounds.width() / 2 + getPaddingLeft(),
-                    mTimeBounds.height() / 2 + mTrimStartScrubberTop,
+                            mTimeBounds.width() / 2 + getPaddingLeft() * 3,
+                            mTimeBounds.height() / 2 +  mTrimStartScrubberTop + mLayoutExt.getTimeOffset(),
                     mTimeTextPaint);
             canvas.drawText(
                     stringForTime(mTotalTime),
-                    getWidth() - getPaddingRight() - mTimeBounds.width() / 2,
-                    mTimeBounds.height() / 2 + mTrimStartScrubberTop,
+                            getWidth() - getPaddingRight() * 3 - mTimeBounds.width() / 2,
+                            mTimeBounds.height() / 2 +  mTrimStartScrubberTop + mLayoutExt.getTimeOffset(),
                     mTimeTextPaint);
         }
 
@@ -224,9 +303,13 @@ public class TrimTimeBar extends TimeBar {
         mTrimStartTime = getScrubberTime(mTrimStartScrubberLeft, trimStartScrubberTipOffset());
         mTrimEndTime = getScrubberTime(mTrimEndScrubberLeft, trimEndScrubberTipOffset());
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mShowScrubber) {
+        Log.v(TAG, "onTouchEvent() mTotalTime = " + mTotalTime);
+        // M: mTotalTime <= 0 means video is not prepared completed. in this case
+        // should not response touch event.
+        if (mShowScrubber && mTotalTime > 0) {
             int x = (int) event.getX();
             int y = (int) event.getY();
 
@@ -241,10 +324,12 @@ public class TrimTimeBar extends TimeBar {
                             mScrubberCorrection = x - mScrubberLeft;
                             break;
                         case SCRUBBER_START:
+                            mIsScrubberingTrimStart = true;
                             mScrubbing = true;
                             mScrubberCorrection = x - mTrimStartScrubberLeft;
                             break;
                         case SCRUBBER_END:
+                            mIsScrubberingTrimEnd = true;
                             mScrubbing = true;
                             mScrubberCorrection = x - mTrimEndScrubberLeft;
                             break;
@@ -331,7 +416,12 @@ public class TrimTimeBar extends TimeBar {
                                         trimStartScrubberTipOffset()),
                                 getScrubberTime(mTrimEndScrubberLeft, trimEndScrubberTipOffset()));
                         mScrubbing = false;
+                        mIsScrubberingTrimStart = false;
+                        mIsScrubberingTrimEnd = false;
                         mPressedThumb = SCRUBBER_NONE;
+                        ///M: add for fix google issue,when long press trimbar to trim maybe currenttime position don't sync whit trimbar
+                        update();
+                        mIsScrubberingTrimStart = false;
                         return true;
                     }
                     break;
@@ -339,6 +429,21 @@ public class TrimTimeBar extends TimeBar {
         }
         return false;
     }
+    /// M: @{
+    private class TrimLayoutExt {
 
- 
+        public  int getPreferredHeight(int originalPreferredHeight) {
+            return originalPreferredHeight + mTrimStartScrubber.getHeight();
+        }
+
+        public  int getProgressOffset(int height) {
+             return mTimeBounds.height() / 2 + height / 4;
+        }
+
+
+        public  int getTimeOffset() {
+            return  - mVPaddingInPx / 2;
+        }
+    }
+    /// @}
 }

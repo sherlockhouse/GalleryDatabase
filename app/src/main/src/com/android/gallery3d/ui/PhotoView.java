@@ -335,9 +335,7 @@ public class PhotoView extends GLView {
         mModel = model;
         mTileView.setModel(mModel);
 
-        //*/ Added by droi Linguanrong for scale max 1, 16-5-9
-        mPositionController.setIsCamera(mModel.isCamera(0));
-        //*/
+
     }
     class MyHandler extends SynchronizedHandler {
         public MyHandler(GLRoot root) {
@@ -490,7 +488,7 @@ public class PhotoView extends GLView {
     private void setPictureSize(int index) {
         Picture p = mPictures.get(index);
         mPositionController.setImageSize(index, p.getSize(),
-                index == 0 && p.isCamera() ? mCameraRect : null);
+                index == 0 && p.isCamera() ? mCameraRect : null, false);
     }
 
     @Override
@@ -1037,6 +1035,11 @@ public class PhotoView extends GLView {
         }
 
         @Override
+        public boolean onSingleTapConfirmed(float x, float y) {
+            return false;
+        }
+
+        @Override
         public boolean onDoubleTap(float x, float y) {
             if (mIgnoreSwipingGesture) return true;
             if (mPictures.get(0).isCamera()) return false;
@@ -1508,7 +1511,7 @@ public class PhotoView extends GLView {
                     case GestureSensorManger.GESTURE_UP:
                     case GestureSensorManger.GESTURE_RIGHT:
                         strAction = "--> RIGHT or UP";
-
+                        slideToNextPicture();
                         break;
 
                     default:

@@ -53,6 +53,13 @@ public class SelectionManager {
     private boolean mAutoLeave = true;
     private int mTotal;
 
+    public interface SelectionListener {
+        public void onSelectionModeChange(int mode);
+        public void onSelectionChange(Path path, boolean selected);
+        /// M: [BEHAVIOR.ADD] @{
+        public void onSelectionRestoreDone();
+        /// @}
+    }
     public SelectionManager(AbstractGalleryActivity activity, boolean isAlbumSet) {
         mDataManager = activity.getDataManager();
         mClickedSet = new HashSet<Path>();
@@ -310,10 +317,6 @@ public class SelectionManager {
         return mClickedSet.contains(path);
     }
 
-    public interface SelectionListener {
-        void onSelectionModeChange(int mode);
 
-        void onSelectionChange(Path path, boolean selected);
-    }
     //*/
 }

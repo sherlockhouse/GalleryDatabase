@@ -2,10 +2,12 @@ package com.android.gallery3d.glrenderer;
 
 import android.opengl.GLES20;
 
+import com.mediatek.galleryframework.gl.MGLCanvas.Generator;
+
 import javax.microedition.khronos.opengles.GL11;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
-public class GLES20IdImpl implements GLId {
+public class GLES20IdImpl implements GLId, Generator {
     private final int[] mTempIntArray = new int[1];
 
     @Override

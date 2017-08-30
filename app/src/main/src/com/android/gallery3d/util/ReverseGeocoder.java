@@ -58,11 +58,28 @@ public class ReverseGeocoder {
     private static final int GEO_CACHE_MAX_ENTRIES = 1000;
     private static final int GEO_CACHE_MAX_BYTES = 500 * 1024;
     private static final int GEO_CACHE_VERSION = 0;
-    private static Address             sCurrentAddress; // last known address
-    private        Context             mContext;
-    private        Geocoder            mGeocoder;
-    private        BlobCache           mGeoCache;
-    private        ConnectivityManager mConnectivityManager;
+
+    public static class SetLatLong {
+        // The latitude and longitude of the min latitude point.
+        public double mMinLatLatitude = LAT_MAX;
+        public double mMinLatLongitude;
+        // The latitude and longitude of the max latitude point.
+        public double mMaxLatLatitude = LAT_MIN;
+        public double mMaxLatLongitude;
+        // The latitude and longitude of the min longitude point.
+        public double mMinLonLatitude;
+        public double mMinLonLongitude = LON_MAX;
+        // The latitude and longitude of the max longitude point.
+        public double mMaxLonLatitude;
+        public double mMaxLonLongitude = LON_MIN;
+    }
+
+    private Context mContext;
+    private Geocoder mGeocoder;
+    private BlobCache mGeoCache;
+    private ConnectivityManager mConnectivityManager;
+    private static Address sCurrentAddress; // last known address
+
     public ReverseGeocoder(Context context) {
         mContext = context;
         mGeocoder = new Geocoder(mContext);
@@ -73,22 +90,18 @@ public class ReverseGeocoder {
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
-    public static final void writeUTF(DataOutputStream dos, String string) throws IOException {
-        if (string == null) {
-            dos.writeUTF("");
-        } else {
-            dos.writeUTF(string);
-        }
-    }
-
-    public static final String readUTF(DataInputStream dis) throws IOException {
-        String retVal = dis.readUTF();
-        if (retVal.length() == 0)
-            return null;
-        return retVal;
-    }
-
-    public String computeAddress(SetLatLong set) {
+    /// M: [BUG.MODIFY] @{
+    /*
+     * public String computeAddress(SetLatLong set) {
+     */
+    /**
+     * Compute the address according to latitude and longitude.
+     * @param set The settings for latitude and longitude
+     * @param useCache Find the location from cache or not
+     * @return The closest location of the input latitude and longitude
+     */
+    public String computeAddress(SetLatLong set, boolean useCache) {
+        /// @}
         // The overall min and max latitudes and longitudes of the set.
         double setMinLatitude = set.mMinLatLatitude;
         double setMinLongitude = set.mMinLatLongitude;
@@ -101,8 +114,14 @@ public class ReverseGeocoder {
             setMaxLatitude = set.mMaxLonLatitude;
             setMaxLongitude = set.mMaxLonLongitude;
         }
-        Address addr1 = lookupAddress(setMinLatitude, setMinLongitude, true);
-        Address addr2 = lookupAddress(setMaxLatitude, setMaxLongitude, true);
+        /// M: [FEATURE.MODIFY] @{
+        /*
+         * Address addr1 = lookupAddress(setMinLatitude, setMinLongitude, true);
+         * Address addr2 = lookupAddress(setMaxLatitude, setMaxLongitude, true);
+         */
+        Address addr1 = lookupAddress(setMinLatitude, setMinLongitude, useCache);
+        Address addr2 = lookupAddress(setMaxLatitude, setMaxLongitude, useCache);
+        /// @}
         if (addr1 == null)
             addr1 = addr2;
         if (addr2 == null)
@@ -119,7 +138,16 @@ public class ReverseGeocoder {
         List<String> providers = locationManager.getAllProviders();
         for (int i = 0; i < providers.size(); ++i) {
             String provider = providers.get(i);
-            location = (provider != null) ? locationManager.getLastKnownLocation(provider) : null;
+            /// M: [FEATURE.ADD] [Runtime exception] @{
+            try {
+            /// @}
+                location = (provider != null) ? locationManager.getLastKnownLocation(provider)
+                        : null;
+            /// M: [FEATURE.ADD] [Runtime exception] @{
+            } catch (SecurityException e) {
+                Log.i(TAG, "<computeAddress> SecurityException", e);
+            }
+            /// @}
             if (location != null)
                 break;
         }
@@ -127,8 +155,15 @@ public class ReverseGeocoder {
         String currentAdminArea = "";
         String currentCountry = Locale.getDefault().getCountry();
         if (location != null) {
-            Address currentAddress = lookupAddress(
-                    location.getLatitude(), location.getLongitude(), true);
+            /// M: [BUG.MODIFY] @{
+            /*
+             * Address currentAddress = lookupAddress(location.getLatitude(),
+             * location.getLongitude(), true);
+             */
+            Address currentAddress = lookupAddress(location.getLatitude(),
+                    location.getLongitude(), useCache);
+            /// @}
+
             if (currentAddress == null) {
                 currentAddress = sCurrentAddress;
             } else {
@@ -404,18 +439,18 @@ public class ReverseGeocoder {
         return (a != null && b != null && a.equalsIgnoreCase(b)) ? a : null;
     }
 
-    public static class SetLatLong {
-        // The latitude and longitude of the min latitude point.
-        public double mMinLatLatitude = LAT_MAX;
-        public double mMinLatLongitude;
-        // The latitude and longitude of the max latitude point.
-        public double mMaxLatLatitude = LAT_MIN;
-        public double mMaxLatLongitude;
-        // The latitude and longitude of the min longitude point.
-        public double mMinLonLatitude;
-        public double mMinLonLongitude = LON_MAX;
-        // The latitude and longitude of the max longitude point.
-        public double mMaxLonLatitude;
-        public double mMaxLonLongitude = LON_MIN;
+    public static final void writeUTF(DataOutputStream dos, String string) throws IOException {
+        if (string == null) {
+            dos.writeUTF("");
+        } else {
+            dos.writeUTF(string);
+        }
+    }
+
+    public static final String readUTF(DataInputStream dis) throws IOException {
+        String retVal = dis.readUTF();
+        if (retVal.length() == 0)
+            return null;
+        return retVal;
     }
 }

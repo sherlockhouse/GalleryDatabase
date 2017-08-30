@@ -36,7 +36,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 
 import java.util.ArrayList;
 
@@ -46,7 +46,10 @@ public class PopupList {
         public boolean onPopupItemClick(int itemId);
     }
 
-    public static class Item {
+    /// M: [BUG.MODIFY] @{
+    /* public static class Item { */
+    public class Item {
+    /// @}
         public final int id;
         public String title;
 
@@ -57,6 +60,12 @@ public class PopupList {
 
         public void setTitle(String title) {
             this.title = title;
+            /// M: [BUG.ADD] @{
+            // refresh content list right now
+            if (mContentList != null) {
+                mContentList.invalidateViews();
+            }
+            /// @}
         }
     }
 
@@ -208,4 +217,12 @@ public class PopupList {
             return convertView;
         }
     }
+
+    /// M: [BUG.ADD] @{
+    public void finish() {
+        if (mPopupWindow != null) {
+            mPopupWindow.dismiss();
+        }
+    }
+    /// @}
 }

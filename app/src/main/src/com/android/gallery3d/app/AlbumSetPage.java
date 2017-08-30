@@ -343,6 +343,11 @@ public class AlbumSetPage extends ActivityState implements
         //*/
     }
 
+    @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
     public void onSingleTapUp(int slotIndex) {
         if (!mIsActive) return;
 

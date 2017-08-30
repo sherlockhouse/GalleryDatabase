@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.android.gallery3d.common.BlobCache;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +51,19 @@ public class CacheManager {
             }
             BlobCache cache = sCacheMap.get(filename);
             if (cache == null) {
-                File cacheDir = context.getExternalCacheDir();
+                /// M: [BEHAVIOR.MODIFY] @{
+                /*File cacheDir = context.getExternalCacheDir();*/
+                File cacheDir = FeatureHelper.getExternalCacheDir(context);
+                if (cacheDir == null) {
+                    Log.e(TAG, "<getCache> failed to get cache dir");
+                    return null;
+                }
+                /// @}
                 String path = cacheDir.getAbsolutePath() + "/" + filename;
                 try {
+                    /// M: [DEBUG.ADD] @{
+                    Log.i(TAG, "<getCache> new BlobCache, path = " + path);
+                    /// @}
                     cache = new BlobCache(path, maxEntries, maxBytes, false,
                             version);
                     sCacheMap.put(filename, cache);
@@ -77,11 +88,50 @@ public class CacheManager {
         if (n != 0) return;
         pref.edit().putInt(KEY_CACHE_UP_TO_DATE, 1).commit();
 
-        File cacheDir = context.getExternalCacheDir();
+        /// M: [BEHAVIOR.MODIFY] @{
+        /*File cacheDir = context.getExternalCacheDir();*/
+        File cacheDir = FeatureHelper.getExternalCacheDir(context);
+        if (cacheDir == null) {
+            Log.e(TAG, "<removeOldFilesIfNecessary> failed to get cache dir");
+            return;
+        }
+        /// @}
+
         String prefix = cacheDir.getAbsolutePath() + "/";
 
         BlobCache.deleteFiles(prefix + "imgcache");
         BlobCache.deleteFiles(prefix + "rev_geocoding");
         BlobCache.deleteFiles(prefix + "bookmark");
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    /// M: [BUG.ADD] Disable cache when card got unmounted @{
+    private static boolean sNoStorage = false;
+    /**
+     * When storage state is changed, open or close cahce files.
+     * @param mounted Storage is mounted or not.
+     */
+    public static void storageStateChanged(boolean mounted) {
+        synchronized (sCacheMap) {
+            if (mounted) {
+                // This is lazy initialization, we do not re-open
+                // all cache files until they are needed again.
+                sNoStorage = false;
+            } else {
+                // clear cache map and disable cache access
+                sNoStorage = true;
+                for (BlobCache cache : sCacheMap.values()) {
+                    // close all entry's "value", which is a BlobCache
+                    Log.d(TAG, " => closing " + cache);
+                    cache.close();
+                    Log.d(TAG, " <= closing " + cache);
+                }
+                sCacheMap.clear();
+            }
+        }
+    }
+    /// @}}
 }

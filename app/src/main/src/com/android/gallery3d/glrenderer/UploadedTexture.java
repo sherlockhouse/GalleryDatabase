@@ -25,6 +25,9 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.opengl.GLUtils;
 
+import com.mediatek.gallery3d.util.Log;
+import com.mediatek.gallery3d.util.TraceHelper;
+
 import junit.framework.Assert;
 
 import java.util.HashMap;
@@ -193,7 +196,13 @@ public abstract class UploadedTexture extends BasicTexture {
             if (mThrottled && ++sUploadedCount > UPLOAD_LIMIT) {
                 return;
             }
+            /// M: [DEBUG.ADD] @{
+            TraceHelper.traceBegin(">>>>UploadedTexture-uploadToCanvas");
+            /// @}
             uploadToCanvas(canvas);
+            /// M: [DEBUG.ADD] @{
+            TraceHelper.traceEnd();
+            /// @}
         } else if (!mContentValid) {
             Bitmap bitmap = getBitmap();
             int format = GLUtils.getInternalFormat(bitmap);
@@ -224,6 +233,13 @@ public abstract class UploadedTexture extends BasicTexture {
                 int texWidth = getTextureWidth();
                 int texHeight = getTextureHeight();
 
+                /// M: [DEBUG.ADD] @{
+                if (bWidth > texWidth || bHeight > texHeight) {
+                    Log.d(TAG, "<uploadToCanvas> bWidth=" + bWidth
+                            + ", bHeight=" + bHeight + ", texWidth=" + texWidth
+                            + ", texHeight=" + texHeight);
+                }
+                /// @}
                 Assert.assertTrue(bWidth <= texWidth && bHeight <= texHeight);
 
                 // Upload the bitmap to a new texture.
@@ -231,39 +247,85 @@ public abstract class UploadedTexture extends BasicTexture {
                 canvas.setTextureParameters(this);
 
                 if (bWidth == texWidth && bHeight == texHeight) {
+                    /// M: [DEBUG.ADD] @{
+                    TraceHelper.traceBegin(">>>>UploadedTexture-initializeTexture");
+                    /// @}
                     canvas.initializeTexture(this, bitmap);
+                    /// M: [DEBUG.ADD] @{
+                    TraceHelper.traceEnd();
+                    /// @}
                 } else {
                     int format = GLUtils.getInternalFormat(bitmap);
                     int type = GLUtils.getType(bitmap);
                     Config config = bitmap.getConfig();
 
                     canvas.initializeTextureSize(this, format, type);
+                    /// M: [DEBUG.ADD] @{
+                    TraceHelper.traceBegin(">>>>UploadedTexture-texSubImage2D");
+                    /// @}
                     canvas.texSubImage2D(this, mBorder, mBorder, bitmap, format, type);
+                    /// M: [DEBUG.ADD] @{
+                    TraceHelper.traceEnd();
+                    /// @}
 
                     if (mBorder > 0) {
                         // Left border
                         Bitmap line = getBorderLine(true, config, texHeight);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceBegin(">>>>UploadedTexture-texSubImage2D");
+                        /// @}
                         canvas.texSubImage2D(this, 0, 0, line, format, type);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceEnd();
+                        /// @}
 
                         // Top border
                         line = getBorderLine(false, config, texWidth);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceBegin(">>>>UploadedTexture-texSubImage2D");
+                        /// @}
                         canvas.texSubImage2D(this, 0, 0, line, format, type);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceEnd();
+                        /// @}
                     }
 
                     // Right border
                     if (mBorder + bWidth < texWidth) {
                         Bitmap line = getBorderLine(true, config, texHeight);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceBegin(">>>>UploadedTexture-texSubImage2D");
+                        /// @}
                         canvas.texSubImage2D(this, mBorder + bWidth, 0, line, format, type);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceEnd();
+                        /// @}
                     }
 
                     // Bottom border
                     if (mBorder + bHeight < texHeight) {
                         Bitmap line = getBorderLine(false, config, texWidth);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceBegin(">>>>UploadedTexture-texSubImage2D");
+                        /// @}
                         canvas.texSubImage2D(this, 0, mBorder + bHeight, line, format, type);
+                        /// M: [DEBUG.ADD] @{
+                        TraceHelper.traceEnd();
+                        /// @}
                     }
                 }
             } finally {
-                freeBitmap();
+                /// M: [BUG.MODIFY] @{
+                /* freeBitmap(); */
+                // It's possible that mBitmap has been set as null in recycle() when
+                // uploadToCanvas running, so we need to check if mBitmap == null before
+                // freeBitmap, and synchronize it with recycle()
+                synchronized (this) {
+                    if (mBitmap != null) {
+                        freeBitmap();
+                    }
+                }
+                /// @}
             }
             // Update texture state.
             setAssociatedCanvas(canvas);
@@ -274,6 +336,7 @@ public abstract class UploadedTexture extends BasicTexture {
             throw new RuntimeException("Texture load fail, no bitmap");
         }
     }
+
     @Override
     protected boolean onBind(GLCanvas canvas) {
         updateContent(canvas);
@@ -297,7 +360,14 @@ public abstract class UploadedTexture extends BasicTexture {
     @Override
     public void recycle() {
         super.recycle();
-        if (mBitmap != null) freeBitmap();
+        /// M: [BUG.ADD] @{
+        synchronized (this) {
+        /// @}
+            if (mBitmap != null) {
+                freeBitmap();
+            }
+        /// M: [BUG.ADD] @{
+        }
+        /// @}
     }
-    
 }

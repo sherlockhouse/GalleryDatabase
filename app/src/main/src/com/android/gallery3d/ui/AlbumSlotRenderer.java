@@ -33,7 +33,7 @@ import com.android.gallery3d.glrenderer.TiledTexture;
 
 public class AlbumSlotRenderer extends AbstractSlotRenderer {
     @SuppressWarnings("unused")
-    private static final String TAG = "AlbumView";
+    private static final String TAG = "Gallery2/AlbumView";
     private static final int CACHE_SIZE = 96;
 
     public interface SlotFilter {
@@ -51,7 +51,15 @@ public class AlbumSlotRenderer extends AbstractSlotRenderer {
     private boolean mAnimatePressedUp;
     private Path mHighlightItemPath = null;
     private boolean mInSelectionMode;
+
     private SlotFilter mSlotFilter;
+
+    /// M: [PERF.ADD] add for performance test case@{
+    private boolean mHasShowLog = false;
+    public static boolean sPerformanceCaseRunning = false;
+    /// M: added for performance auto test
+    public static long sWaitFinishedTime = 0;
+    /// @}
 
     public AlbumSlotRenderer(AbstractGalleryActivity activity, SlotView slotView,
             SelectionManager selectionManager, int placeholderColor) {

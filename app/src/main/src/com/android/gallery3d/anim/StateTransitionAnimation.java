@@ -16,6 +16,7 @@
 
 package com.android.gallery3d.anim;
 
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
@@ -94,14 +95,14 @@ public class StateTransitionAnimation extends Animation {
     private static final int DURATION_OUT = 350;
     private static       int mOffsetX     = 0;
     private static       int mOffsetY     = 0;
-    private final Spec       mTransitionSpec;
-    private       float      mCurrentContentScale;
-    private       float      mCurrentContentAlpha;
-    private       float      mCurrentBackgroundScale;
-    private       float      mCurrentBackgroundAlpha;
-    private       float      mCurrentOverlayScale;
-    private       float      mCurrentOverlayAlpha;
-    private       RawTexture mOldScreenTexture;
+    private final Spec mTransitionSpec;
+    private float mCurrentContentScale;
+    private float mCurrentContentAlpha;
+    private float mCurrentBackgroundScale;
+    private float mCurrentBackgroundAlpha;
+    private float mCurrentOverlayScale;
+    private float mCurrentOverlayAlpha;
+    private RawTexture mOldScreenTexture;
     public StateTransitionAnimation(Transition t, RawTexture oldScreen) {
         this(Spec.specForTransition(t), oldScreen);
         //*/ Added by droi Linguanrong for gallery pick animation, 2014-9-3

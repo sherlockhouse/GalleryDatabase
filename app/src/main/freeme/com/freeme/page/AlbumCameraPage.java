@@ -832,6 +832,11 @@ public class AlbumCameraPage extends ActivityState implements GalleryActionBar.C
     }
 
     @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    @Override
     public void onSyncDone(final MediaSet mediaSet, final int resultCode) {
         mActivity.runOnUiThread(new Runnable() {
             @Override

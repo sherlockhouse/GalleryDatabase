@@ -116,6 +116,13 @@ public class FaceClustering extends Clustering {
                     cluster.add(item, j);
                 }
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
 
         int m = map.size();

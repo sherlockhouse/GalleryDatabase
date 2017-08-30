@@ -99,6 +99,9 @@ public class TimeClustering extends Clustering {
         mContext = context;
         mClusters = new ArrayList<Cluster>();
         mCurrCluster = new Cluster();
+        /// M: [BUG.ADD] stop flag @{
+        mStopEnumerate = false;
+        /// @}
     }
 
     @Override
@@ -119,6 +122,13 @@ public class TimeClustering extends Clustering {
                 s.lng = latLng[1];
                 buf[index] = s;
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return mStopEnumerate;
+            }
+            /// @}
         });
 
         ArrayList<SmallItem> items = new ArrayList<SmallItem>(total);
@@ -161,7 +171,13 @@ public class TimeClustering extends Clustering {
 
     @Override
     public int getNumberOfClusters() {
-        return mClusters.size();
+        /// M: [BUG.MODIFY] @{
+        /* return mClusters.size(); */
+        if (mClusters != null) {
+            return mClusters.size();
+        }
+        return 0;
+        /// @}
     }
 
     @Override
@@ -343,6 +359,24 @@ public class TimeClustering extends Clustering {
         return Math.abs(a.dateInMs - b.dateInMs);
     }
 
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+
+    //refresh cluster name when switch system language.
+    public boolean reGenerateName() {
+        if (mClusters == null) {
+            return false;
+        }
+        Log.i(TAG, "<reGenerateName>refreshClusterName");
+        synchronized (mClusters) {
+            int m = mClusters.size();
+            for (int i = 0; i < m; i++) {
+                mNames[i] = mClusters.get(i).generateCaption(mContext);
+            }
+        }
+        return true;
+    }
 }
 
 class SmallItem {

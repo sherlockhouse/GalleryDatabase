@@ -27,6 +27,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -34,6 +35,7 @@ import android.view.WindowManager;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.GalleryUtils;
 
+//import com.mediatek.gallery3d.layout.FancyHelper;
 
 public class EyePosition {
     @SuppressWarnings("unused")
@@ -229,6 +231,34 @@ public class EyePosition {
         mListener.onEyePositionChanged(mX, mY, mZ);
     }
 
-
-
+//    /// M: [FEATURE.ADD] fancy layout @{
+//    public int getLayoutType() {
+//        if (mDisplay == null) {
+//            return FancyHelper.INVALID_LAYOUT;
+//        }
+//
+//        /// M: [BUG.ADD] fancy layout for all size platform @{
+//        /**switch (mDisplay.getRotation()) {
+//            case Surface.ROTATION_90:
+//            case Surface.ROTATION_270:
+//                //LAND
+//                return FancyHelper.DEFAULT_LAYOUT;
+//            case Surface.ROTATION_180:
+//            case Surface.ROTATION_0:
+//                //PORT
+//                return FancyHelper.FANCY_LAYOUT;
+//            default:
+//                return FancyHelper.INVALID_LAYOUT;
+//        }*/
+//        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+//        DisplayMetrics reMetrics = new DisplayMetrics();
+//        wm.getDefaultDisplay().getRealMetrics(reMetrics);
+//        if (reMetrics.widthPixels < reMetrics.heightPixels) {
+//            return FancyHelper.FANCY_LAYOUT;
+//        } else {
+//            return FancyHelper.DEFAULT_LAYOUT;
+//        }
+//        /// @}
+//    }
+//    /// @}
 }

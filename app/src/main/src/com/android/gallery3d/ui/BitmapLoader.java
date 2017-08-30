@@ -115,5 +115,9 @@ public abstract class BitmapLoader implements FutureListener<Bitmap> {
     abstract protected Future<Bitmap> submitBitmapTask(FutureListener<Bitmap> l);
     abstract protected void onLoadComplete(Bitmap bitmap);
 
-
+    /// M: [PERF.ADD] @{
+    public synchronized boolean isLoadingCompleted() {
+        return ((mState == STATE_RECYCLED) || (mState == STATE_LOADED) || (mState == STATE_ERROR));
+    }
+    /// @}
 }

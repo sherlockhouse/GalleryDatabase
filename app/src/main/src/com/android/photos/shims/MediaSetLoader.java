@@ -167,6 +167,13 @@ public class MediaSetLoader extends AsyncTaskLoader<Cursor> implements LoaderCom
                     result.add(item.getContentUri());
                 }
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
         return result;
     }

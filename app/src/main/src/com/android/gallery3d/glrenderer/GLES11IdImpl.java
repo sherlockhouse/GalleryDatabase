@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +20,8 @@
  */
 package com.android.gallery3d.glrenderer;
 
+import com.mediatek.galleryframework.gl.MGLCanvas.Generator;
+
 import javax.microedition.khronos.opengles.GL11;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
@@ -22,10 +29,10 @@ import javax.microedition.khronos.opengles.GL11ExtensionPack;
  * Open GL ES 1.1 implementation for generating and destroying texture IDs and
  * buffer IDs
  */
-public class GLES11IdImpl implements GLId {
-    private static int    sNextId = 1;
+public class GLES11IdImpl implements GLId, Generator {
+    private static int sNextId = 1;
     // Mutex for sNextId
-    private static Object sLock   = new Object();
+    private static Object sLock = new Object();
 
     @Override
     public int generateTexture() {

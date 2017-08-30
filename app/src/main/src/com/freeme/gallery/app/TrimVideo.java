@@ -317,6 +317,11 @@ public class TrimVideo extends Activity implements
     }
 
     @Override
+    public boolean powerSavingNeedShowController() {
+        return false;
+    }
+
+    @Override
     public void onCompletion(MediaPlayer mp) {
         mController.showEnded();
     }

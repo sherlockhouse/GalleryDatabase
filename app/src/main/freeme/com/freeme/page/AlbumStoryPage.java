@@ -901,6 +901,11 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
     }
 
     @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    @Override
     public void onSyncDone(final MediaSet mediaSet, final int resultCode) {
         LogUtil.d(TAG, "onSyncDone: " + Utils.maskDebugInfo(mediaSet.getName()) + " result="
                 + resultCode);

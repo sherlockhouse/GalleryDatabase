@@ -113,6 +113,13 @@ public class FilterTypeSet extends MediaSet implements ContentListener {
                     buf[index] = path;
                 }
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
 
         for (int i = 0; i < total; i++) {
@@ -136,6 +143,13 @@ public class FilterTypeSet extends MediaSet implements ContentListener {
                     item.delete();
                 }
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         };
         mDataManager.mapMediaItems(mPaths, consumer, 0);
     }

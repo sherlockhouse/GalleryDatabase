@@ -60,6 +60,11 @@ public class ScrollerHelper {
     }
 
     public int getPosition() {
+        /// M: [FEATURE.ADD] fancy layout @{
+        if (mScrollMax != -1 && mScrollMin != -1) {
+            return Utils.clamp(mScroller.getCurrX(), mScrollMin, mScrollMax);
+        }
+        /// @}
         return mScroller.getCurrX();
     }
 
@@ -75,7 +80,14 @@ public class ScrollerHelper {
         // This forces the scroller to reach the final position.
         mScroller.abortAnimation();
     }
+
     public void fling(int velocity, int min, int max) {
+        /// M: [FEATURE.ADD] fancy layout @{
+        mScrollMax = max;
+        mScrollMin = min;
+        mScroller.setMaxScrollLength(max);
+        mScroller.setMinScrollLength(min);
+        /// @}
         int currX = getPosition();
         mScroller.fling(
                 currX, 0,      // startX, startY
@@ -87,15 +99,29 @@ public class ScrollerHelper {
 
     // Returns the distance that over the scroll limit.
     public int startScroll(int distance, int min, int max) {
+        /// M: [FEATURE.ADD] fancy layout @{
+        mScrollMax = max;
+        mScrollMin = min;
+        mScroller.setMaxScrollLength(max);
+        mScroller.setMinScrollLength(min);
+        /// @}
         int currPosition = mScroller.getCurrX();
         int finalPosition = mScroller.isFinished() ? currPosition :
                 mScroller.getFinalX();
         int newPosition = Utils.clamp(finalPosition + distance, min, max);
         if (newPosition != currPosition) {
             mScroller.startScroll(
-                    currPosition, 0,                    // startX, startY
-                    newPosition - currPosition, 0, 0);  // dx, dy, duration
+                currPosition, 0,                    // startX, startY
+                newPosition - currPosition, 0, 0);  // dx, dy, duration
         }
         return finalPosition + distance - newPosition;
     }
+
+//********************************************************************
+//*                              MTK                                 *
+//********************************************************************
+    /// M: [FEATURE.ADD] fancy layout @{
+    private int mScrollMax = -1;
+    private int mScrollMin = -1;
+    /// @}
 }

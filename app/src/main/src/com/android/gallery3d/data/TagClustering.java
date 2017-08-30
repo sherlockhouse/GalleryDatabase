@@ -67,6 +67,13 @@ public class TagClustering extends Clustering {
                     list.add(path);
                 }
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return false;
+            }
+            /// @}
         });
 
         int m = map.size();
@@ -85,7 +92,13 @@ public class TagClustering extends Clustering {
 
     @Override
     public int getNumberOfClusters() {
-        return mClusters.size();
+        /// M: [BUG.MODIFY] @{
+        /* return mClusters.size(); */
+        if (mClusters != null) {
+            return mClusters.size();
+        }
+        return 0;
+        /// @}
     }
 
     @Override

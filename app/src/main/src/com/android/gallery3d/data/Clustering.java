@@ -31,4 +31,13 @@ public abstract class Clustering {
     public MediaItem getClusterCover(int index) {
         return null;
     }
+
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+    protected boolean mStopEnumerate = false;
+    // refresh cluster name when switch system language
+    public boolean reGenerateName() {
+        return true;
+    }
 }

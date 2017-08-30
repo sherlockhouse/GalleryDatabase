@@ -144,44 +144,42 @@ public class MtpDeviceIndexRunnable implements Runnable {
     mDateInstance.setTimestamp(objectInfo.getDateCreated());
     List<IngestObjectInfo> bucket = bucketsTemp.get(mDateInstance);
     if (bucket == null) {
-            bucket = new ArrayList<IngestObjectInfo>();
-            bucketsTemp.put(mDateInstance, bucket);
-            mDateInstance = new SimpleDate(); // only create new date objects when they are used
-        }
-        bucket.add(objectInfo);
-        mIndex.onObjectIndexed(objectInfo, numObjects);
+      bucket = new ArrayList<IngestObjectInfo>();
+      bucketsTemp.put(mDateInstance, bucket);
+      mDateInstance = new SimpleDate(); // only create new date objects when they are used
     }
+    bucket.add(objectInfo);
+    mIndex.onObjectIndexed(objectInfo, numObjects);
+  }
 
-
-    protected int addAllObjects(SortedMap<SimpleDate, List<IngestObjectInfo>> bucketsTemp)
-            throws IndexingException {
-        int numObjects = 0;
-        for (int storageId : mDevice.getStorageIds()) {
-            if (!mIndex.isAtGeneration(mDevice, mIndexGeneration)) {
-                throw new IndexingException();
-            }
-            Stack<Integer> pendingDirectories = new Stack<Integer>();
-            pendingDirectories.add(0xFFFFFFFF); // start at the root of the device
-            while (!pendingDirectories.isEmpty()) {
-                if (!mIndex.isAtGeneration(mDevice, mIndexGeneration)) {
-                    throw new IndexingException();
-                }
-                int dirHandle = pendingDirectories.pop();
-                for (int objectHandle : mDevice.getObjectHandles(storageId, 0, dirHandle)) {
-                    MtpObjectInfo mtpObjectInfo = mDevice.getObjectInfo(objectHandle);
-                    if (mtpObjectInfo == null) {
-                        throw new IndexingException();
-                    }
-                    int format = mtpObjectInfo.getFormat();
-                    if (format == MtpConstants.FORMAT_ASSOCIATION) {
-                        pendingDirectories.add(objectHandle);
-                    } else if (mIndex.isFormatSupported(format)) {
-                        numObjects++;
-                        addObject(new IngestObjectInfo(mtpObjectInfo), bucketsTemp, numObjects);
-                    }
-                }
-            }
+  protected int addAllObjects(SortedMap<SimpleDate, List<IngestObjectInfo>> bucketsTemp)
+      throws IndexingException {
+    int numObjects = 0;
+    for (int storageId : mDevice.getStorageIds()) {
+      if (!mIndex.isAtGeneration(mDevice, mIndexGeneration)) {
+        throw new IndexingException();
+      }
+      Stack<Integer> pendingDirectories = new Stack<Integer>();
+      pendingDirectories.add(0xFFFFFFFF); // start at the root of the device
+      while (!pendingDirectories.isEmpty()) {
+        if (!mIndex.isAtGeneration(mDevice, mIndexGeneration)) {
+          throw new IndexingException();
         }
-        return numObjects;
+        int dirHandle = pendingDirectories.pop();
+        for (int objectHandle : mDevice.getObjectHandles(storageId, 0, dirHandle)) {
+          MtpObjectInfo mtpObjectInfo = mDevice.getObjectInfo(objectHandle);
+          if (mtpObjectInfo == null) {
+            throw new IndexingException();
+          }
+          if (mtpObjectInfo.getFormat() == MtpConstants.FORMAT_ASSOCIATION) {
+            pendingDirectories.add(objectHandle);
+          } else if (mIndex.isFormatSupported(mtpObjectInfo)) {
+            numObjects++;
+            addObject(new IngestObjectInfo(mtpObjectInfo), bucketsTemp, numObjects);
+          }
+        }
+      }
     }
+    return numObjects;
+  }
 }

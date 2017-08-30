@@ -26,7 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.ReverseGeocoder;
 
@@ -66,6 +66,9 @@ class LocationClustering extends Clustering {
         mContext = context;
         mNoLocationString = mContext.getResources().getString(R.string.no_location);
         mHandler = new Handler(Looper.getMainLooper());
+        /// M: [BUG.ADD] @{
+        mStopEnumerate = false;
+        /// @}
     }
 
     @Override
@@ -85,6 +88,13 @@ class LocationClustering extends Clustering {
                 s.lng = latLong[1];
                 buf[index] = s;
             }
+
+            /// M: [BUG.ADD] @{
+            @Override
+            public boolean stopConsume() {
+                return mStopEnumerate;
+            }
+            /// @}
         });
 
         final ArrayList<SmallItem> withLatLong = new ArrayList<SmallItem>();
@@ -125,13 +135,25 @@ class LocationClustering extends Clustering {
         boolean hasUnresolvedAddress = false;
         mClusters = new ArrayList<ArrayList<SmallItem>>();
         for (ArrayList<SmallItem> cluster : clusters) {
-            String name = generateName(cluster, geocoder);
+            /// M: [BUG.MODIFY] @{
+            /* String name = generateName(cluster, geocoder); */
+            String name = generateName(cluster, geocoder, true);
+            // / @}
             if (name != null) {
                 mNames.add(name);
                 mClusters.add(cluster);
             } else {
-                // move cluster-i to no location cluster
-                withoutLatLong.addAll(cluster);
+                /// M: [FEATURE.MODIFY]  make the No_Location cluster named (longitude,latitude)@{
+                //withoutLatLong.addAll(cluster);
+                StringBuilder location = new StringBuilder()
+                .append((float) cluster.get(0).lat)
+                .append(",")
+                .append((float) cluster.get(0).lng);
+                mNames.add(new String(location));
+                mClusters.add(cluster);
+
+                /// @}
+
                 hasUnresolvedAddress = true;
             }
         }
@@ -152,8 +174,14 @@ class LocationClustering extends Clustering {
         }
     }
 
+    /// M: [BUG.MODIFY] @{
+    /*
+     * private static String generateName(ArrayList<SmallItem> items,
+     * ReverseGeocoder geocoder) {
+     */
     private static String generateName(ArrayList<SmallItem> items,
-                                       ReverseGeocoder geocoder) {
+            ReverseGeocoder geocoder, boolean useCache) {
+   /// @}
         ReverseGeocoder.SetLatLong set = new ReverseGeocoder.SetLatLong();
 
         int n = items.size();
@@ -180,11 +208,21 @@ class LocationClustering extends Clustering {
             }
         }
 
-        return geocoder.computeAddress(set);
+        /// M: [BUG.MODIFY] @{
+        /* return geocoder.computeAddress(set); */
+        return geocoder.computeAddress(set, useCache);
+        /// @}
     }
+
     @Override
     public int getNumberOfClusters() {
-        return mClusters.size();
+        /// M: [BUG.MODIFY] @{
+        //return mClusters.size();
+        if (mClusters != null) {
+            return mClusters.size();
+        }
+        return 0;
+        /// @}
     }
 
     @Override
@@ -318,4 +356,30 @@ class LocationClustering extends Clustering {
     }
 
 
+    // ********************************************************************
+    // * MTK *
+    // ********************************************************************
+    public boolean reGenerateName() {
+        if (mClusters == null) {
+            return false;
+        }
+        ReverseGeocoder geocoder = new ReverseGeocoder(mContext);
+        synchronized (mClusters) {
+            int lenght = mClusters.size();
+            for (int i = 0; i < lenght; i++) {
+                ArrayList<SmallItem> cluster  =  mClusters.get(i);
+                String name = mNames.get(i);
+                if (name != mNoLocationString) {
+                    String newName = generateName(cluster, geocoder, false);
+                    if (newName != null) {
+                        mNames.set(i, newName);
+                    }
+                } else {
+                    mNoLocationString = mContext.getResources().getString(R.string.no_location);
+                    mNames.set(i, mNoLocationString);
+                }
+            }
+            return true;
+        }
+    }
 }

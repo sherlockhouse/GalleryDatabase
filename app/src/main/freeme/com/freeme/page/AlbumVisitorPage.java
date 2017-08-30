@@ -277,7 +277,14 @@ public class AlbumVisitorPage extends ActivityState implements GalleryActionBar.
                 R.plurals.number_of_items_selected, count);
         mActionModeHandler.setTitle(String.format(format, count));
         mActionModeHandler.updateSupportedOperation(path, selected);
-    }    private void pickPhoto(int slotIndex) {
+    }
+
+    @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    private void pickPhoto(int slotIndex) {
         pickPhoto(slotIndex, false);
     }
 

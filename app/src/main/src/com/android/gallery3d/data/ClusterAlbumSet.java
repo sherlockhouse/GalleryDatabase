@@ -27,7 +27,9 @@ import android.net.Uri;
 import com.android.gallery3d.app.GalleryApp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class ClusterAlbumSet extends MediaSet implements ContentListener {
     @SuppressWarnings("unused")
@@ -49,6 +51,16 @@ public class ClusterAlbumSet extends MediaSet implements ContentListener {
 
     @Override
     public MediaSet getSubMediaSet(int index) {
+        /// M: [BUG.ADD] @{
+        // When index >= mAlbums.size(), exception occours because of
+        // multi-thread accessing. Add special check before get MediaSet.
+        if (index >= mAlbums.size()) {
+            Log.d(TAG, "<getSubMediaSet> index = " + index
+                    + ", mAlbums.size() = " + mAlbums.size()
+                    + ", return null");
+            return null;
+        }
+        /// @}
         return mAlbums.get(index);
     }
 
@@ -139,8 +151,21 @@ public class ClusterAlbumSet extends MediaSet implements ContentListener {
         mBaseSet.enumerateTotalMediaItems(new MediaSet.ItemConsumer() {
             @Override
             public void consume(int index, MediaItem item) {
+                /// M: [BUG.ADD] Avoid Null pointer exception @{
+                if (item == null) {
+                    Log.i(TAG, "<updateClustersContents> consume, item is null, return");
+                    return;
+                }
+                /// @}
                 existing.add(item.getPath());
             }
+
+            /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload @{
+            @Override
+            public boolean stopConsume() {
+                return mStopReload;
+            }
+            /// @}
         });
 
         int n = mAlbums.size();
@@ -163,5 +188,217 @@ public class ClusterAlbumSet extends MediaSet implements ContentListener {
             }
         }
     }
+
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+    public int currentIndexOfSet;
+    private String mCurrentLanguage = Locale.getDefault().getLanguage().toString();
+    private String mTimeFormat;
+    // while Cluster object delete operation. should set sIsDeleteOperation
+    // = true in delete operation Thread.
+    private static boolean sIsDeleteOperation = false;
+    private Clustering clustering;
+    private boolean mStopReload;
+
+    private void reloadName() {
+        String language = Locale.getDefault().getLanguage().toString();
+        String timeFormat = android.provider.Settings.System.getString(
+                mApplication.getContentResolver(),
+                android.provider.Settings.System.TIME_12_24);
+        if (language != null && !language.equals(mCurrentLanguage)
+                || (timeFormat != null && !timeFormat.equals(mTimeFormat))) {
+            Log.d(TAG, "<reloadName> Change Language > current language = " + mCurrentLanguage
+                    + " New language = " + language
+                    + " current timeFormat = " + mTimeFormat
+                    + " New timeFormat = " + timeFormat);
+            synchronized (clustering) {
+                clustering.reGenerateName();
+                for (int i = 0; i < mAlbums.size(); i++) {
+                    ClusterAlbum album = mAlbums.get(i);
+                    album.setName(clustering.getClusterName(i));
+                }
+                mCurrentLanguage = language;
+                mTimeFormat = timeFormat;
+                mDataVersion = nextVersionNumber();
+            }
+        }
+    }
+//
+//    private void updateClustersContentsForDeleteOperation() {
+//        int n = mAlbums.size();
+//        for (int i = n - 1; i >= 0; i--) {
+//            // If the number of deleted image equal with albums size
+//            // ,means there is not image in this album.
+//            // So should delete the album.
+//            if (mAlbums.get(i).getNumberOfDeletedImage() == mAlbums.get(i).getMediaItemCount()) {
+//                mAlbums.get(i).setNumberOfDeletedImage(0);
+//                mAlbums.remove(i);
+//            }
+//        }
+//    }
+
+//    // synchronous reload to avoid loading item before it's got from db @{
+//    @Override
+//    public long reloadForSlideShow() {
+//        // if mBaseSet is instance of ComboAlbumSet and is not first
+//        // reload, should use function synchronizedAlbumData @{
+//        boolean needSyncAlbum = (mFirstReloadDone)
+//                && (mBaseSet instanceof LocalAlbumSet
+//                       || mBaseSet instanceof ComboAlbumSet);
+//        if (mBaseSet instanceof ClusterAlbum) {
+//            /// M: mBaseSet is instance of ClusterAlbum,should offsetInStack +1
+//            mBaseSet.offsetInStack = offsetInStack + 1;
+//        }
+//        // if offsetInStack%2 == 1, mean the reload is start by
+//        // ClusterAlbum, in this case ,should call synchronizedAlbumData
+//        // if offsetInStack%2 != 1, mean the reload start by ClusterAlbumSet,
+//        // should call reload of mBaseSet.
+//        long mLastDataVersion = ((offsetInStack % 2 == 1) && needSyncAlbum) ? mBaseSet
+//                .synchronizedAlbumData() : mBaseSet.reloadForSlideShow();
+//        if (mLastDataVersion > mDataVersion) {
+//            Log.d(TAG, "<reloadForSlideShow>total media item count: "
+//                    + mBaseSet.getTotalMediaItemCount());
+//            if (mFirstReloadDone) {
+//                if (!sIsDeleteOperation) {
+//                    updateClustersContents();
+//                } else {
+//                    // add for Cluster delete operation.
+//                    updateClustersContentsForDeleteOperation();
+//                }
+//            } else {
+//                updateClusters();
+//                mFirstReloadDone = true;
+//            }
+//            mDataVersion = nextVersionNumber();
+//        } else {
+//            Log.d(TAG, "<reloadForSlideShow>ClusterAlbumSet: mBaseSet.reload() <= mDataVersion");
+//        }
+//        // reassign for next time reload
+//        mCurrentClusterAlbum = null;
+//        offsetInStack = 0;
+//
+//        return mDataVersion;
+//    }
+//
+//    public void setCurrentIndexOfSet() {
+//        int albumSize = mAlbums.size();
+//        if (mCurrentClusterAlbum != null) {
+//            boolean hasFindSet = false;
+//            for (int i = 0; i < albumSize; i++) {
+//                if (mAlbums.get(i) == mCurrentClusterAlbum) {
+//                    currentIndexOfSet = i;
+//                    hasFindSet = true;
+//                    break;
+//                }
+//            }
+//            if (!hasFindSet) {
+//                currentIndexOfSet = 0;
+//                Log.d(TAG, "[setCurrentIndexOfSet]: has not find set");
+//            }
+//        }
+//    }
+//
+//    // update one Album, instant of doing updateClusters.
+//    public void updateAlbumInClusters(ArrayList<Path> paths,
+//            HashMap<Path, MediaItem> exisingMediaItem) {
+//        if (mAlbums != null) {
+//            if (currentIndexOfSet < mAlbums.size() && currentIndexOfSet >= 0) {
+//                try {
+//                    addNewPathToAlbum(mAlbums.get(currentIndexOfSet), paths, exisingMediaItem);
+//                } catch (OutOfMemoryError e) {
+//                    Log.w(TAG, "<updateAlbumInClusters> maybe sizeOldMediaItems is too big:" + e);
+//                }
+//            }
+//            Log.d(TAG, "<updateAlbumInClusters>currentIndexOfSet==" + currentIndexOfSet);
+//        }
+//    }
+//
+//    public ArrayList<Path> rollBackAlbumInClusters(ArrayList<Path> addedPath,
+//            HashMap<Path, MediaItem> existingMediaItem) {
+//        if (mAlbums != null) {
+//            try {
+//                int numberOfAlbum = mAlbums.size();
+//                for (int i = 0; i < numberOfAlbum; i++) {
+//                    ArrayList<Path> albumPath = new ArrayList<Path>();
+//                    ClusterAlbum clusterAlbum = mAlbums.get(i);
+//                    if (clusterAlbum != null) {
+//                        HashSet<Path> oldPath = clusterAlbum.getPathSet();
+//                        int size = addedPath.size();
+//                        for (int j = size - 1; j >= 0; j--) {
+//                            if (oldPath.contains(addedPath.get(j))) {
+//                                albumPath.add(addedPath.remove(j));
+//                            }
+//                        }
+//                        addNewPathToAlbum(clusterAlbum, albumPath, existingMediaItem);
+//                    }
+//                }
+//            } catch (OutOfMemoryError e) {
+//                Log.w(TAG, "<rollBackAlbumInClusters> maybe sizeOldMediaItems is too big:" + e);
+//            }
+//        }
+//        return addedPath;
+//    }
+
+//    private void addNewPathToAlbum(ClusterAlbum album, ArrayList<Path> paths,
+//            HashMap<Path, MediaItem> exisingMediaItem) {
+//        MediaSet mMediaSet = mApplication.getDataManager().getMediaSet(album.mPath);
+//        if (null == mMediaSet) {
+//            return;
+//        }
+//        ArrayList<MediaItem> mOldItem = mMediaSet.getMediaItem(0, mMediaSet.getMediaItemCount());
+//        int sizeOfOldMediaItems = mOldItem.size();
+//        int sizeofAddPaths = paths.size();
+//        // get each Path that need to add in old path list.
+//        for (int j = 0; j < sizeofAddPaths; j++) {
+//            MediaItem item = exisingMediaItem.get(paths.get(j));
+//            if (null == item) {
+//                continue;
+//            }
+//            int k = 0;
+//            for (; k < sizeOfOldMediaItems; k++) {
+//                if (item.getDateInMs() == mOldItem.get(k).getDateInMs()) {
+//                    album.addMediaItems(paths.get(j), k);
+//                    break;
+//                }
+//            }
+//            // if not find the item ,should insert the item in index 0
+//            if (k == sizeOfOldMediaItems) {
+//                album.addMediaItems(paths.get(j), 0);
+//            }
+//        }
+//    }
+
+    // synchronizedAlbumData should be started by ClusterAlbum. Using reload
+    // should not update Albums in time.
+//    public long synchronizedAlbumData() {
+//        if (mBaseSet.synchronizedAlbumData() > mDataVersion) {
+//            updateClustersContents();
+//            mDataVersion = nextVersionNumber();
+//        }
+//        return mDataVersion;
+//    }
+
+    // set and get ClusterDeleteOperation.
+    public static void setClusterDeleteOperation(boolean deleteOperation) {
+        Log.d(TAG, "<setClusterDeleteOperation>setClusterDeleteOperation sIsDeleteOperation: "
+                + deleteOperation);
+        sIsDeleteOperation = deleteOperation;
+    }
+
+    public static boolean getClusterDeleteOperation() {
+        Log.d(TAG, "<getClusterDeleteOperation> sIsDeleteOperation: " + sIsDeleteOperation);
+        return sIsDeleteOperation;
+    }
+
+    // set stop reload flag.
+//    @Override
+//    public void stopReload() {
+//        Log.d(TAG, "<stopReload> ClusterAlbumSet ------------------------");
+//        mStopReload = true;
+//        if (null != clustering) {
+//            clustering.mStopEnumerate = true;
+//        }
+//    }
 
 }

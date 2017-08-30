@@ -56,10 +56,14 @@ public class FilterEmptyPromptSet extends MediaSet implements ContentListener {
         } else if (start == 0 && count == 1) {
             return mEmptyItem;
         } else {
-            throw new ArrayIndexOutOfBoundsException();
+            /// M: [BUG.MODIFY] @{
+            // Not throw exception if there is no any media item,
+            // but return a empty ArrayList like other MediaSet
+            /*throw new ArrayIndexOutOfBoundsException();*/
+            return new ArrayList<MediaItem>();
+            /// @}
         }
     }
-
 
     @Override
     public void onContentDirty() {

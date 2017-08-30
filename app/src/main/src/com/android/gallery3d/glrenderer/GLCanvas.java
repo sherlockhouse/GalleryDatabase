@@ -25,6 +25,10 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
+import com.mediatek.galleryframework.gl.MGLCanvas;
+
+import javax.microedition.khronos.opengles.GL11;
+
 //
 // GLCanvas gives a convenient interface to draw using OpenGL.
 //
@@ -217,4 +221,10 @@ public interface GLCanvas {
      * @param height The height of the input rectangle.
      */
     public abstract void getBounds(Rect bounds, int x, int y, int width, int height);
+
+//********************************************************************
+//*                              MTK                                 *
+//********************************************************************
+
+    public abstract MGLCanvas getMGLCanvas();
 }

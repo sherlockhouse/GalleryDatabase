@@ -26,6 +26,8 @@ import android.os.StatFs;
 
 import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.android.gallery3d.util.ThreadPool.JobContext;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
+import com.mediatek.gallery3d.util.Log;
 
 import java.io.File;
 
@@ -59,8 +61,14 @@ public class CacheStorageUsageInfo {
     }
 
     public void loadStorageInfo(JobContext jc) {
-        File cacheDir = mContext.getExternalCacheDir();
+        /// M: [BEHAVIOR.MODIFY] @{
+        /* File cacheDir = mContext.getExternalCacheDir();*/
+        File cacheDir = FeatureHelper.getExternalCacheDir(mContext);
+        /// @}
         if (cacheDir == null) {
+            /// M: [DEBUG.ADD] @{
+            Log.i(TAG, "<loadStorageInfo> failed to get cache dir, call Context.getCacheDir()");
+            /// @}
             cacheDir = mContext.getCacheDir();
         }
 

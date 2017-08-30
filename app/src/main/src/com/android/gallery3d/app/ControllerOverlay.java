@@ -33,6 +33,7 @@ public interface ControllerOverlay {
     void onShown();
     void onHidden();
     void onReplay();
+    boolean powerSavingNeedShowController();
   }
 
   void setListener(Listener listener);

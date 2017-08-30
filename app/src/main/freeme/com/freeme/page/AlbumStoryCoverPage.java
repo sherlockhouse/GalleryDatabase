@@ -184,7 +184,14 @@ public class AlbumStoryCoverPage extends ActivityState
 
     @Override
     public void onSelectionChange(Path path, boolean selected) {
-    }    private void onUp(boolean followedByLongPress) {
+    }
+
+    @Override
+    public void onSelectionRestoreDone() {
+
+    }
+
+    private void onUp(boolean followedByLongPress) {
         if (followedByLongPress) {
             // Avoid showing press-up animations for long-press.
             mAlbumView.setPressedIndex(-1);
