@@ -26,6 +26,7 @@ import android.content.Context;
 import com.android.gallery3d.common.BlobCache;
 import com.android.gallery3d.common.BlobCache.LookupRequest;
 import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.data.BytesBufferPool.BytesBuffer;
 import com.android.gallery3d.util.CacheManager;
 import com.android.gallery3d.util.GalleryUtils;
 
@@ -36,39 +37,66 @@ public class ImageCacheService {
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/ImageCacheService";
 
-    private static final String IMAGE_CACHE_FILE        = "imgcache";
-    private static final int    IMAGE_CACHE_MAX_ENTRIES = 5000;
-    private static final int    IMAGE_CACHE_MAX_BYTES   = 200 * 1024 * 1024;
-    private static final int    IMAGE_CACHE_VERSION     = 7;
+    /// M: [BUG.MODIFY] For rename file name @{
+    /*    private static final String IMAGE_CACHE_FILE = "imgcache";*/
+    private static String IMAGE_CACHE_FILE = "imgcache";
+    /// @}
+    private static final int IMAGE_CACHE_MAX_ENTRIES = 5000;
+    private static final int IMAGE_CACHE_MAX_BYTES = 200 * 1024 * 1024;
+    private static final int IMAGE_CACHE_VERSION = 7;
 
     private BlobCache mCache;
 
     public ImageCacheService(Context context) {
+        /// M: [BUG.ADD] @{
+        mContext = context;
+        /// @}
         mCache = CacheManager.getCache(context, IMAGE_CACHE_FILE,
                 IMAGE_CACHE_MAX_ENTRIES, IMAGE_CACHE_MAX_BYTES,
                 IMAGE_CACHE_VERSION);
-    }
+        // / M: [BUG.ADD] @{
+        Log.d(TAG, " <ImageCacheService> IMAGE_CACHE_FILE = "
+                + IMAGE_CACHE_FILE + " mCache = " + mCache);
+        // / @}
+        }
 
     /**
      * Gets the cached image data for the given <code>path</code>,
-     * <code>timeModified</code> and <code>type</code>.
-     * <p/>
+     *  <code>timeModified</code> and <code>type</code>.
+     *
      * The image data will be stored in <code>buffer.data</code>, started from
      * <code>buffer.offset</code> for <code>buffer.length</code> bytes. If the
      * buffer.data is not big enough, a new byte array will be allocated and returned.
      *
      * @return true if the image data is found; false if not found.
      */
-    public boolean getImageData(Path path, long timeModified, int type, BytesBufferPool.BytesBuffer buffer) {
+    public boolean getImageData(Path path, long timeModified, int type, BytesBuffer buffer) {
+        /// M: [BUG.ADD] @{
+        synchronized (mCacheLock) {
+            if (mCache == null) {
+                Log.e(TAG, "<getImageData>: cache file is null!");
+                return false;
+            }
+        }
+        /// @}
+
         byte[] key = makeKey(path, timeModified, type);
         long cacheKey = Utils.crc64Long(key);
         try {
             LookupRequest request = new LookupRequest();
             request.key = cacheKey;
             request.buffer = buffer.data;
-            synchronized (mCache) {
+            /// M: [BUG.MODIFY] @{
+            /*synchronized (mCache) {
+             if (!mCache.lookup(request)) return false;
+             }*/
+            synchronized (mCacheLock) {
+                if (mCache == null) {
+                    return false;
+                }
                 if (!mCache.lookup(request)) return false;
             }
+            /// @}
             if (isSameKey(key, request.buffer)) {
                 buffer.data = request.buffer;
                 buffer.offset = key.length;
@@ -82,14 +110,29 @@ public class ImageCacheService {
     }
 
     public void putImageData(Path path, long timeModified, int type, byte[] value) {
+        /// M: [BUG.ADD] @{
+        synchronized (mCacheLock) {
+            if (mCache == null) {
+                Log.e(TAG, "<putImageData>: cache file is null!");
+                return;
+            }
+        }
+        /// @}
         byte[] key = makeKey(path, timeModified, type);
         long cacheKey = Utils.crc64Long(key);
         ByteBuffer buffer = ByteBuffer.allocate(key.length + value.length);
         buffer.put(key);
         buffer.put(value);
-        synchronized (mCache) {
+        /// M: [BUG.MODIFY] @{
+        /*synchronized (mCache) {
+         try {
+         mCache.insert(cacheKey, buffer.array());*/
+        synchronized (mCacheLock) {
             try {
-                mCache.insert(cacheKey, buffer.array());
+                if (mCache != null) {
+                    mCache.insert(cacheKey, buffer.array());
+                }
+        /// @}
             } catch (IOException ex) {
                 // ignore.
             }
@@ -99,9 +142,18 @@ public class ImageCacheService {
     public void clearImageData(Path path, long timeModified, int type) {
         byte[] key = makeKey(path, timeModified, type);
         long cacheKey = Utils.crc64Long(key);
-        synchronized (mCache) {
+        /// M: [BUG.MODIFY] @{
+        /*
+        synchronized (mCache) {*/
+        synchronized (mCacheLock) {
+        /// @}
             try {
-                mCache.clearEntry(cacheKey);
+                /// M: [BUG.MODIFY] check mCache is not null, fix JE @{
+                /*mCache.clearEntry(cacheKey);*/
+                if (mCache != null) {
+                    mCache.clearEntry(cacheKey);
+                }
+                /// @}
             } catch (IOException ex) {
                 // ignore.
             }
@@ -125,5 +177,37 @@ public class ImageCacheService {
         return true;
     }
 
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    // M: for closing/re-opening cache
+    private Context mContext;
+    private Object mCacheLock = new Object();
+    // force to mark an image cache out of date
+    public static volatile String sForceObsoletePath = null;
 
+    // M: for closing/re-opening cache
+    public void closeCache() {
+        synchronized (mCacheLock) {
+            // simply clear the reference,
+            // since the BlobCache should already be closed in CacheManager
+            mCache = null;
+        }
+    }
+
+    public void openCache() {
+        synchronized (mCacheLock) {
+            if (mCache == null) {
+                // re-open the cache
+                mCache = CacheManager.getCache(mContext, IMAGE_CACHE_FILE,
+                        IMAGE_CACHE_MAX_ENTRIES, IMAGE_CACHE_MAX_BYTES,
+                        IMAGE_CACHE_VERSION);
+            }
+        }
+    }
+
+    /// create new cache for gallery widget.
+    public static void setCacheName(String name) {
+        IMAGE_CACHE_FILE = name;
+    }
 }

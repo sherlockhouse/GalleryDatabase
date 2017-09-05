@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,15 +21,19 @@
 
 package com.freeme.gallery.filtershow.crop;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -36,7 +45,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,16 +54,23 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import com.freeme.gallery.R;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.filtershow.crop.CropExtras;
 import com.android.gallery3d.filtershow.crop.CropMath;
-import com.android.gallery3d.filtershow.crop.CropView;
-import com.freeme.extern.SaveWallpaper;
-import com.freeme.gallery.R;
-import com.android.gallery3d.filtershow.cache.ImageLoader;
-import com.android.gallery3d.filtershow.tools.SaveImage;
-import com.android.gallery3d.common.Utils;
 
+import com.android.gallery3d.filtershow.crop.CropView;
+import com.freeme.bigmodel.filter.DecodeSpecLimitor;
+import com.freeme.extern.SaveWallpaper;
+
+import com.android.gallery3d.filtershow.cache.ImageLoader;
+import com.android.gallery3d.exif.ExifInterface;
+import com.android.gallery3d.filtershow.tools.SaveImage;
+import com.mediatek.gallery3d.util.Log;
+import com.mediatek.gallery3d.util.PermissionHelper;
+import com.mediatek.galleryframework.util.BitmapUtils;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,6 +78,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.TimeZone;
+
+
 
 /**
  * Activity for cropping an image.
@@ -83,11 +101,15 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
     private CropView mCropView = null;
     private View mSaveButton = null;
     private boolean finalIOGuard = false;
+    /// M: [BUG.ADD] The "My Picture" will become small when you select it from Gallery.@{
+    public static final String KEY_SCALE_UP_IF_NEEDED = "scaleUpIfNeeded";
+    /// @}
+    /// M: [BUG.ADD] added for support high resolution.@{
+    private static final long LIMIT_SUPPORTS_HIGHRES = 134217728; // 128Mb
+    /// @}
+    private static final int SELECT_PICTURE = 1; // request code for picker
 
-    private static final int            SELECT_PICTURE           = 1; // request code for picker
-    //*/ Modified by tyd Jack 20140603 for, adjust DEFAULT_COMPRESS_QUALITY 100
-    private static final int            DEFAULT_COMPRESS_QUALITY = 100;
-
+    private static final int DEFAULT_COMPRESS_QUALITY = 90;
     /**
      * The maximum bitmap size we allow to be returned through the intent.
      * Intents have a maximum of 1MB in total size. However, the Bitmap seems to
@@ -95,8 +117,11 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
      * sure the intent stays below 1MB.We should consider just returning a byte
      * array instead of a Bitmap instance to avoid overhead.
      */
-    public static final  int            MAX_BMAP_IN_INTENT       = 750000;
-
+    /// M: [BUG.MODIFY] Intents have a maximum of 1MB in total size,
+    // 750000 is too large for bitmap. so resize to 300000. @{
+    /* public static final int MAX_BMAP_IN_INTENT = 750000;*/
+    public static final int MAX_BMAP_IN_INTENT = 30000;
+    /// @}
     // Flags
     private static final int DO_SET_WALLPAPER = 1;
     private static final int DO_RETURN_DATA = 1 << 1;
@@ -147,7 +172,10 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
                 actionBar.setCustomView(R.layout.crop_actionbar);
 
-                View mSaveButton = actionBar.getCustomView();
+            /// M: [BUG.MODIFY]set the savebutton disable till load image finish. @{
+            mSaveButton = actionBar.getCustomView();
+            mSaveButton.setEnabled(false);
+            /// @}
                 mSaveButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -156,21 +184,36 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 });
             }
             //*/ tyd.biantao 20140409. wallpaper.
-        }
-        //*/
-
-        if (intent.getData() != null) {
-            mSourceUri = intent.getData();
-            startLoadBitmap(mSourceUri);
+            /// M: [FEATURE.MODIFY] [Runtime permission] @{
+        /*
+        if (savedInstanceState != null) {
+            getStateManager().restoreFromState(savedInstanceState);
         } else {
-            pickImage();
+            initializeByIntent();
+        }
+        */
+            boolean granted = PermissionHelper.checkAndRequestForGallery(this);
+            if (granted) {
+                if (intent.getData() != null) {
+                    mSourceUri = intent.getData();
+                    startLoadBitmap(mSourceUri);
+                } else {
+                    pickImage();
+                }
+            } else {
+                View loading = findViewById(R.id.loading);
+                loading.setVisibility(View.INVISIBLE);
+            }
+            /// @}
         }
     }
+
     private void enableSave(boolean enable) {
         if (mSaveButton != null) {
             mSaveButton.setEnabled(enable);
         }
     }
+
     @Override
     protected void onDestroy() {
         if (mLoadBitmapTask != null) {
@@ -183,36 +226,24 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
     public void onConfigurationChanged (Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mCropView.configChanged();
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        /*/ Disabled by Linguanrong for set wallpaper & lockscreen, 2015-7-2
-        if (mCropExtras != null && (mCropExtras.getSetAsWallpaper() || mCropExtras.getSetAsLockWallpaper())) {
-			getMenuInflater().inflate(R.menu.crop, menu);
-		}
-		//*/
-        return true;
-    }
+        /// M: [BUG.ADD] @{
+                //update resource for text string after configuration changed @{
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.filtershow_actionbar);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                finish();
-                break;
-            }
-//            case R.id.cancel: {
-//                setResult(RESULT_CANCELED, new Intent());
-//                done();
-//                break;
-//            }
-//            case R.id.save: {
-//                startFinishOutput();
-//                break;
-//            }
+            mSaveButton = actionBar.getCustomView();
+            mSaveButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startFinishOutput();
+                }
+            });
         }
-        return true;
+        /// @}
+
     }
 
     /**
@@ -244,14 +275,18 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
     private int getScreenImageSize() {
         DisplayMetrics outMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
-        return Math.max(outMetrics.heightPixels, outMetrics.widthPixels);
+        return (int) Math.max(outMetrics.heightPixels, outMetrics.widthPixels);
     }
 
     /**
      * Method that loads a bitmap in an async task.
      */
     private void startLoadBitmap(Uri uri) {
-        if (uri != null) {
+        /// M: [BUG.MODIFY] @{
+        /* if (uri != null) {*/
+        boolean outOfDecodeSpec = DecodeSpecLimitor.isOutOfSpecLimit(getApplicationContext(), uri);
+        if (!outOfDecodeSpec && uri != null) {
+        /// @}
             enableSave(false);
             final View loading = findViewById(R.id.loading);
             loading.setVisibility(View.VISIBLE);
@@ -269,6 +304,9 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
     private void doneLoadBitmap(Bitmap bitmap, RectF bounds, int orientation) {
         final View loading = findViewById(R.id.loading);
         loading.setVisibility(View.GONE);
+        /// M: [BUG.ADD] set the savebutton disable till load image finish.@{
+        mSaveButton.setEnabled(true);
+        /// @}
         mOriginalBitmap = bitmap;
         mOriginalBounds = bounds;
         mOriginalRotation = orientation;
@@ -310,23 +348,6 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         toast.show();
     }
-    // Added by Tyd bianhenghao for show result toast, 2016-3-28
-    private void showToast(int flags, boolean isOk) {
-        if ((flags & DO_SET_WALLPAPER) != 0) {
-            int id = -1;
-            if (isOk) {
-                id = mSaveWallPaper.getSavingMessageId();
-            } else {
-                id = mSaveWallPaper.getFailMessageId();
-            }
-
-            if (id != -1) {
-                Toast.makeText(this, id, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-
 
     /**
      * AsyncTask for loading a bitmap into memory.
@@ -350,6 +371,13 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         @Override
         protected Bitmap doInBackground(Uri... params) {
             Uri uri = params[0];
+
+            /// M: [BUG.ADD] added for support hight resolution@{
+            if (Runtime.getRuntime().maxMemory() < LIMIT_SUPPORTS_HIGHRES) {
+                mBitmapSize = mBitmapSize / 2;
+                }
+            /// @}
+
             Bitmap bmap = ImageLoader.loadConstrainedBitmap(uri, mContext, mBitmapSize,
                     mOriginalBounds, false);
             mOrientation = ImageLoader.getMetadataRotation(mContext, uri);
@@ -369,6 +397,11 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
             finalIOGuard = true;
         }
         enableSave(false);
+        /// M: [BUG.ADD] @{
+        // don't change crop region after click save
+        mCropView.enableTouchMotion(false);
+        /// @}
+
         Uri destinationUri = null;
         int flags = 0;
         if (mOriginalBitmap != null && mCropExtras != null) {
@@ -407,62 +440,6 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         done();
         return;
     }
-
-    //*/ tyd.biantao 20140409. wallpaper.
-    @Override
-    public void onTabClicked() {
-        applyCropParameters();
-    }
-
-    @Override
-    public Bitmap onGetCropBitmap(Rect rect, int outputX, int outputY) {
-        return null;
-    }
-    //*/
-
-    private void applyCropParameters() {
-        if (mCropExtras != null) {
-            int aspectX = mCropExtras.getAspectX();
-            int aspectY = mCropExtras.getAspectY();
-            mOutputX = mCropExtras.getOutputX();
-            mOutputY = mCropExtras.getOutputY();
-            if (aspectX > 0 && aspectY > 0) {
-                // reset full aspect
-                if (mCropExtras.getInitFullSelection()) {
-                    mCropView.applyOriginalAspect();
-                }
-                // set aspect
-                mCropView.applyAspect(aspectX, aspectY);
-            }
-
-            float spotX = mCropExtras.getSpotlightX();
-            float spotY = mCropExtras.getSpotlightY();
-            if (spotX > 0 && spotY > 0) {
-                mCropView.setWallpaperSpotlight(spotX, spotY);
-            } else {
-                mCropView.setWallpaperSpotlight(0, 0);
-            }
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.cancel_btn:
-                setResult(RESULT_CANCELED, new Intent());
-                done();
-                break;
-
-            case R.id.ok_btn:
-                startFinishOutput();
-                break;
-        }
-    }
-
-
-
-
-
 
     private void startBitmapIO(int flags, Bitmap currentBitmap, Uri sourceUri, Uri destUri,
             RectF cropBounds, RectF photoBounds, RectF currentBitmapBounds, String format,
@@ -509,8 +486,7 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         }
         done();
     }
- 
-    private SaveWallpaper mSaveWallPaper;
+
     private class BitmapIOTask extends AsyncTask<Bitmap, Void, Boolean> {
 
         private final WallpaperManager mWPManager;
@@ -603,10 +579,20 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
             }
 
             // Find the small cropped bitmap that is returned in the intent
-            if ((mFlags & DO_RETURN_DATA) != 0) {
+            /// M: [BUG.MODIFY] @{
+            // RETURN_DATA and RETURN_DATA_COMPRESS is almost same flow
+            /* if ((mFlags & DO_RETURN_DATA) != 0) {*/
+            if ((mFlags & DO_RETURN_DATA) != 0 ||
+                    (mCropExtras != null && mCropExtras.getReturnDataCompressed())) {
+            /// @}
                 assert (img != null);
                 Bitmap ret = getCroppedImage(img, mCrop, mPhoto);
-                if (ret != null) {
+                /// M: [BUG.MODIFY] @{
+                // If it need scale up, no need to down size to MAX_BMAP_IN_INTENT
+                /* if (ret != null) {*/
+                if (ret != null &&
+                        !(mCropExtras != null && mCropExtras.getScaleUp())) {
+                /// @}
                     ret = getDownsampledBitmap(ret, MAX_BMAP_IN_INTENT);
                 }
                 if (ret == null) {
@@ -622,7 +608,33 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                             ret = tmp;
                         }
                     }
-                    mResultIntent.putExtra(CropExtras.KEY_DATA, ret);
+
+                    /// M: [BUG.MODIFY] @{
+                    /* mResultIntent.putExtra(CropExtras.KEY_DATA, ret); */
+                    // Scale bitmap if needed
+                    Bitmap outputBmp = null;
+                    Rect rect = new Rect(0, 0, ret.getWidth(), ret.getHeight());
+                    if (mCropExtras != null && (mCropExtras.getScaleUp()
+                            || (mOutputX > 0 && mOutputY > 0))) {
+                        outputBmp = Bitmap.createBitmap(mOutputX, mOutputY, Config.ARGB_8888);
+                        Canvas c = new Canvas(outputBmp);
+                        c.drawBitmap(ret, rect, new Rect(0, 0, mOutputX, mOutputY), null);
+                    } else {
+                        outputBmp = ret;
+                    }
+                    // Return compressed data if needed, or else return bitmap directly
+                    if (mCropExtras != null && mCropExtras.getReturnDataCompressed()) {
+                        byte[] dataCompressed = BitmapUtils.compressToBytes(outputBmp);
+                        outputBmp.recycle();
+                        mResultIntent.putExtra(CropExtras.KEY_DATA_COMPRESS, dataCompressed);
+                    } else {
+                        mResultIntent.putExtra(CropExtras.KEY_DATA, outputBmp);
+                    }
+                    /// @}
+
+                    /// M: [BUG.ADD] add source URI for Photo widget build fail.@{
+                    mResultIntent.setData(mInUri);
+                    /// @}
                 }
             }
 
@@ -669,7 +681,6 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                     crop = decoder.decodeRegion(roundedTrueCrop, options);
                     decoder.recycle();
                 }
-
                 if (crop == null) {
                     // BitmapRegionDecoder has failed, try to crop in-memory
                     regenerateInputStream();
@@ -683,7 +694,9 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                                 roundedTrueCrop.height());
                     }
                 }
-
+                /// M: Add background color for alpha bitmap. @{
+                crop = BitmapUtils.replaceBackgroundColor(crop, true);
+                /// @}
                 if (crop == null) {
                     Log.w(LOGTAG, "cannot decode file: " + mInUri.toString());
                     failure = true;
@@ -731,6 +744,12 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 // Get output compression format
                 CompressFormat cf =
                         convertExtensionToCompressFormat(getFileExtension(mOutputFormat));
+                /// M: [BUG.ADD] @{
+                // insert orientation and time to JPE head @{
+                if (mOutputFormat == null || mOutputFormat.equalsIgnoreCase("jpg")) {
+                    mOutStream = getExifData(mOutStream);
+                }
+                /// @}
 
                 // If we only need to output to a URI, compress straight to file
                 if (mFlags == DO_EXTRA_OUTPUT) {
@@ -739,6 +758,12 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                         Log.w(LOGTAG, "failed to compress bitmap to file: " + mOutUri.toString());
                         failure = true;
                     } else {
+                        /// M: [BUG.ADD] @{
+                        int width = crop.getWidth();
+                        int height = crop.getHeight();
+                        SaveImage.updataImageDimensionInDB(getApplicationContext(),
+                                mFile , width, height);
+                        /// @}
                         mResultIntent.setData(mOutUri);
                     }
                 } else {
@@ -750,12 +775,16 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                         // bitmap out
                         if ((mFlags & DO_EXTRA_OUTPUT) != 0) {
                             if (mOutStream == null) {
-                                Log.w(LOGTAG,
-                                        "failed to compress bitmap to file: " + mOutUri.toString());
+                                Log.w(LOGTAG, "failed to compress bitmap to file: " +
+                                        mOutUri.toString());
                                 failure = true;
                             } else {
                                 try {
                                     mOutStream.write(tmpOut.toByteArray());
+                                    int width = crop.getWidth();
+                                    int height = crop.getHeight();
+                                    SaveImage.updataImageDimensionInDB(getApplicationContext(),
+                                            mFile , width, height);
                                     mResultIntent.setData(mOutUri);
                                 } catch (IOException e) {
                                     Log.w(LOGTAG,
@@ -863,7 +892,12 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                     extras.getString(CropExtras.KEY_OUTPUT_FORMAT),
                     extras.getBoolean(CropExtras.KEY_SHOW_WHEN_LOCKED, false),
                     extras.getFloat(CropExtras.KEY_SPOTLIGHT_X),
-                    extras.getFloat(CropExtras.KEY_SPOTLIGHT_Y));
+                    /// M: [BUG.MODIFY] @{
+                    // Initialize if return compressed data
+                    /* extras.getFloat(CropExtras.KEY_SPOTLIGHT_Y));*/
+                    extras.getFloat(CropExtras.KEY_SPOTLIGHT_Y),
+                    extras.getBoolean(CropExtras.KEY_RETURN_DATA_COMPRESS));
+                    /// @}
         }
         return null;
     }
@@ -890,11 +924,56 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
             return null;
         }
         RectF scaledCrop = CropMath.getScaledCropBounds(crop, photo, imageBounds);
+        if (scaledCrop != null) {
+            /// M: [BUG.ADD] @{
+            // while cropped Image width or height is 0, should reset the width or height as 1. @{
+            if (scaledCrop.height() == 0) {
+                scaledCrop.inset(0, -1);
+            }
+            if (scaledCrop.width() == 0) {
+                scaledCrop.inset(-1, 0);
+            }
+
+            /// @}
+        }
         return scaledCrop;
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
 
-    //*/ Added by droi Linguanrong for ensure crop image success, 16-5-10
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+            String[] permissions, int[] grantResults) {
+        if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
+            Log.i(LOGTAG, "<onRequestPermissionsResult> all permission granted");
+            Intent intent = getIntent();
+            if (intent.getData() != null) {
+                mSourceUri = intent.getData();
+                startLoadBitmap(mSourceUri);
+            } else {
+                pickImage();
+            }
+        } else {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i])
+                        && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    PermissionHelper.showDeniedPrompt(this);
+                    break;
+                }
+
+                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])
+                        && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    PermissionHelper.showDeniedPrompt(this);
+                    break;
+                }
+            }
+            Log.i(LOGTAG, "<onRequestPermissionsResult> permission denied, finish");
+            finish();
+        }
+    }
+
     private File getFile(Uri outUri) {
         if (outUri == null) {
             return null;
@@ -931,8 +1010,144 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         }
     }
 
+    private long availableMemory() {
+        ActivityManager am = (ActivityManager) (getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE));
+        android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+        am.getMemoryInfo(mi);
+        long availableMemory = mi.availMem;
+        Log.d(LOGTAG,
+                "<availableMemory>current available memory: "
+                        + availableMemory);
+        return availableMemory;
+    }
 
-    // for avoid OOM
-    private final static int CROP_PHOTO_SIZE_LIMIT = 10 * 1024 * 1024;
+
+    //use ExifInterface insert orientation and time to JPG EXIF
+    private OutputStream getExifData(OutputStream outStream) {
+        OutputStream stream = null;
+        if (outStream != null) {
+            ExifInterface exif = new ExifInterface();
+            long time = System.currentTimeMillis();
+            updateExifData(exif, time);
+            // Compress to byte array
+            stream = exif.getExifWriterStream(outStream);
+            return stream;
+        } else {
+            return outStream;
+        }
+    }
+
+    private void updateExifData(ExifInterface exif, long time) {
+        // Set tags
+        exif.addDateTimeStampTag(ExifInterface.TAG_DATE_TIME, time,
+                TimeZone.getDefault());
+        exif.setTag(exif.buildTag(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.Orientation.TOP_LEFT));
+        // Remove old thumbnail
+        exif.removeCompressedThumbnail();
+    }
+
+    /// M: [BUG.ADD] adjust sample size according size limit @{
+    private final static int CROP_PHOTO_SIZE_LIMIT =  10 * 1024 * 1024;
+    /// @}
+	
+    // ********************************************************************
+    // *                             freemeos                                   *
+    // ********************************************************************
+	    private void applyCropParameters() {
+        if (mCropExtras != null) {
+            int aspectX = mCropExtras.getAspectX();
+            int aspectY = mCropExtras.getAspectY();
+            mOutputX = mCropExtras.getOutputX();
+            mOutputY = mCropExtras.getOutputY();
+            if (aspectX > 0 && aspectY > 0) {
+                // reset full aspect
+                if (mCropExtras.getInitFullSelection()) {
+                    mCropView.applyOriginalAspect();
+                }
+                // set aspect
+                mCropView.applyAspect(aspectX, aspectY);
+            }
+
+            float spotX = mCropExtras.getSpotlightX();
+            float spotY = mCropExtras.getSpotlightY();
+            if (spotX > 0 && spotY > 0) {
+                mCropView.setWallpaperSpotlight(spotX, spotY);
+            } else {
+                mCropView.setWallpaperSpotlight(0, 0);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.cancel_btn:
+                setResult(RESULT_CANCELED, new Intent());
+                done();
+                break;
+
+            case R.id.ok_btn:
+                startFinishOutput();
+                break;
+        }
+    }
+	   //*/ tyd.biantao 20140409. wallpaper.
+    @Override
+    public void onTabClicked() {
+        applyCropParameters();
+    }
+
+    @Override
+    public Bitmap onGetCropBitmap(Rect rect, int outputX, int outputY) {
+        return null;
+    }
     //*/
+
+	    // Added by Tyd bianhenghao for show result toast, 2016-3-28
+    private void showToast(int flags, boolean isOk) {
+        if ((flags & DO_SET_WALLPAPER) != 0) {
+            int id = -1;
+            if (isOk) {
+                id = mSaveWallPaper.getSavingMessageId();
+            } else {
+                id = mSaveWallPaper.getFailMessageId();
+            }
+
+            if (id != -1) {
+                Toast.makeText(this, id, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+	    private SaveWallpaper mSaveWallPaper;
+	    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        /*/ Disabled by Linguanrong for set wallpaper & lockscreen, 2015-7-2
+        if (mCropExtras != null && (mCropExtras.getSetAsWallpaper() || mCropExtras.getSetAsLockWallpaper())) {
+			getMenuInflater().inflate(R.menu.crop, menu);
+		}
+		//*/
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home: {
+                finish();
+                break;
+            }
+//            case R.id.cancel: {
+//                setResult(RESULT_CANCELED, new Intent());
+//                done();
+//                break;
+//            }
+//            case R.id.save: {
+//                startFinishOutput();
+//                break;
+//            }
+        }
+        return true;
+    }
 }

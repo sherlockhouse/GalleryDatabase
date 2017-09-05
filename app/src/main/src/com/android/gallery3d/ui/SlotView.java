@@ -24,9 +24,16 @@ import android.view.animation.DecelerateInterpolator;
 
 import com.android.gallery3d.anim.Animation;
 import com.android.gallery3d.anim.StateTransitionAnimation;
+import com.android.gallery3d.app.GalleryActionBar;
+import com.android.gallery3d.data.MediaItem;
 import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.android.gallery3d.glrenderer.GLCanvas;
 import com.android.gallery3d.common.Utils;
+import com.mediatek.gallery3d.layout.FancyHelper;
+import com.mediatek.galleryframework.base.MediaData.MediaType;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SlotView extends GLView {
 
@@ -844,6 +851,150 @@ public class SlotView extends GLView {
             return mVerticalPadding.calculate(animTime) | mHorizontalPadding.calculate(animTime);
         }
     }
+    /// M: [FEATURE.ADD] fancy layout @{
+    private ArrayList<SlotEntry> mSlotArray = new ArrayList<SlotEntry>();
+    private HashMap<Integer, ArrayList<SlotEntry>> mSlotMapByColumn =
+            new HashMap<Integer, ArrayList<SlotEntry>>();
+
+    /**
+     * slotEntry stands for each slot.
+     */
+    public static class SlotEntry {
+        public int slotIndex;
+        public int imageWidth;
+        public int imageHeight;
+        public int scaledWidth;
+        // use these info to judge if slot is changed
+        public int oriImageWidth;
+        public int oriImageHeight;
+        public String mimeType;
+        public int rotation;
+        public String albumName;
+
+        public int scaledHeight;
+        public int inWhichCol;
+        public int inWhichRow;
+        public Rect slotRect;
+        public boolean isLandCameraFolder = false;
+        private MediaType mMediaType = MediaType.INVALID;
+
+        /**
+         * Construction of SlotEntry.
+         * @param index The index of slot
+         * @param oritation The orientation of item, PORT or LAND
+         * @param imageW the width of slot image
+         * @param imageH the height of slot image
+         * @param item the MediaItem of current index
+         * @param imageRotation the rotation of media item
+         * @param slotW the width of slot
+         * @param gap the gap between slot
+         * @param isCameraFolder if current folder is camera or not
+         * @param name the name of current item
+         */
+        public SlotEntry(int index, int oritation, int imageW, int imageH, MediaItem item,
+                         int imageRotation, int slotW, int gap, boolean isCameraFolder, String name) {
+            slotIndex = index;
+            imageWidth = imageW;
+            imageHeight = imageH;
+            rotation = imageRotation;
+            oriImageWidth = item.getWidth();
+            oriImageHeight = item.getHeight();
+            mimeType = item.getMimeType();
+            albumName = name;
+
+            if (imageWidth <= 0 || imageHeight <= 0) {
+                // fix JE: item width or height is 0 in db
+                imageWidth = slotW;
+                imageHeight = slotW;
+                isLandCameraFolder = false;
+                scaledWidth = scaledHeight = slotW;
+                Log.d(TAG, "<SlotEntry> imageWidth or imageHeight is 0, make default entry!!");
+            } else {
+                if (isCameraFolder && oritation == LAND) {
+                    isLandCameraFolder = true;
+                    scaledWidth = 2 * slotW + gap;
+                    // scaledWidth and scaledHeight must meet 5:2 or 2:5
+                    scaledHeight = Utils.clamp(imageHeight * scaledWidth / imageWidth,
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO_LAND),
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO));
+                    MediaType mediaType = item.getMediaData().mediaType;
+                    if (mediaType != MediaType.VIDEO) {
+                        scaledHeight = Math.round((float) scaledWidth
+                                / FancyHelper.FANCY_CROP_RATIO_CAMERA);
+                    }
+                    mMediaType = mediaType;
+                } else {
+                    scaledWidth = slotW;
+                    // scaledWidth and scaledHeight must meet 5:2 or 2:5
+                    scaledHeight = Utils.clamp(imageHeight * scaledWidth / imageWidth,
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO_LAND),
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO));
+                }
+            }
+        }
+
+        /**
+         * Update the parameters of slot entry.
+         * @param slotWidth
+         * @param slotGap
+         */
+        public void update(int slotWidth, int slotGap) {
+            if (imageWidth == 0 || imageHeight == 0) {
+                scaledWidth = scaledHeight = slotWidth;
+            } else {
+                if (isLandCameraFolder) {
+                    scaledWidth = 2 * slotWidth + slotGap;
+                    // scaledWidth and scaledHeight must meet 5:2 or 2:5
+                    scaledHeight = Utils.clamp(imageHeight * scaledWidth / imageWidth,
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO_LAND),
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO));
+                    if (mMediaType != MediaType.VIDEO) {
+                        scaledHeight = Math.round((float) scaledWidth
+                                / FancyHelper.FANCY_CROP_RATIO_CAMERA);
+                    }
+                } else {
+                    scaledWidth = slotWidth;
+                    // scaledWidth and scaledHeight must meet 5:2 or 2:5
+                    scaledHeight = Utils.clamp(imageHeight * scaledWidth / imageWidth,
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO_LAND),
+                            (int) (scaledWidth * FancyHelper.FANCY_CROP_RATIO));
+                }
+            }
+        }
+    }
+
+    // use this Array to collect all slots
+    public ArrayList mSlotEntry = new ArrayList<SlotEntry>();
+    private AbstractGalleryActivity mActivity = null;
+
+    public static final int COL_NUM = 2;
+    public static final int LAND = 0;
+    public static final int PORT = 1;
+
+    public ArrayList <Layout> mLayoutArray = new ArrayList();
+    private Spec mDefaultLayoutSpec;
+
+    private int mBackUpSlotCount = -1;
+    private Layout mSwitchFromLayout;
+    private GalleryActionBar mActionBar;
+
+    /// M: [FEATURE.ADD] Multi-window. @{
+    private Spec mMultiWindowLayoutSpec;
+
+    /**
+     * Set SlotView spec of multi-window mode.
+     * @param spec spec
+     */
+    public void setMultiWindowSpec(Spec spec) {
+        mMultiWindowLayoutSpec = spec;
+    }
+    /// @}
+
+    public void setActionBar(GalleryActionBar actionBar) {
+        mActionBar = actionBar;
+    }
+
+
 
     
 }

@@ -38,8 +38,9 @@ import com.android.gallery3d.glrenderer.UploadedTexture;
 public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
     @SuppressWarnings("unused")
     private static final String TAG        = "AlbumSetView";
-    private static final int    CACHE_SIZE = 96;
+
     protected final LabelSpec               mLabelSpec;
+    public static final int CACHE_SIZE =  96;
     private final int mPlaceholderColor;
     private final   ColorTexture            mWaitLoadingTexture;
     private final   ResourceTexture         mCameraOverlay;

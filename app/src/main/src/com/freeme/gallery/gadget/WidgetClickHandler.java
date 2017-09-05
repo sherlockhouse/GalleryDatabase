@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,14 +34,34 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
+import com.android.gallery3d.gadget.WidgetUtils;
 import com.freeme.gallery.BuildConfig;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.app.GalleryActivity;
+import com.mediatek.gallery3d.util.Log;
 import com.android.gallery3d.app.PhotoPage;
 import com.android.gallery3d.common.ApiHelper;
+import com.mediatek.gallery3d.util.PermissionHelper;
 import com.freeme.provider.GalleryStore;
 
 public class WidgetClickHandler extends Activity {
+    private static final String TAG = "Gallery2/WidgetClickHandler";
+
+
+    private boolean isValidDataUri(Uri dataUri) {
+        if (dataUri == null) {
+            return false;
+        }
+
+        try {
+            AssetFileDescriptor f = getContentResolver()
+                    .openAssetFileDescriptor(dataUri, "r");
+            f.close();
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -72,27 +97,10 @@ public class WidgetClickHandler extends Activity {
             }
         }, 500);
     }
-
-    private boolean isValidDataUri(Uri dataUri) {
-        if (dataUri == null) {
-            return false;
-        }
-
-        try {
-            AssetFileDescriptor f = getContentResolver()
-                    .openAssetFileDescriptor(dataUri, "r");
-            f.close();
-            return true;
-        } catch (Throwable e) {
-            return false;
-        }
-    }
-
     public static Uri getContentUri(Uri uri, Context context) {
         if (uri == null) {
             return null;
         }
-
         String absolutePath = uri.toString();
         Cursor cursor = null;
         int ID;
@@ -118,4 +126,90 @@ public class WidgetClickHandler extends Activity {
         }
         return uri;
     }
+    /// @}
+
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    public static final String FLAG_FROM_EMPTY_VIEW = "on_click_from_empty_view";
+    public static final String FLAG_WIDGET_ID = "widget_id";
+
+    private boolean mLaunchFromEmptyView = false;
+
+    // Remove the initialize operation in onCreate to startToViewImage.
+    // When not launch from empty view and permission is granted,
+    // do initialize, and start activity to view image.
+    private void startToViewImage() {
+        // The behavior is changed in JB, refer to b/6384492 for more details
+        boolean tediousBack = Build.VERSION.SDK_INT >= ApiHelper.VERSION_CODES.JELLY_BEAN;
+        Uri uri = getIntent().getData();
+
+        /// M: [FEATURE.MODIFY] change BuckID to Uri@{
+        //Intent intent;
+        Intent intent = null;
+        /// @}
+        /// M: [BEHAVIOR.ADD] Transform absolute path to URI
+        //(//content://media/external/images/media/id)@{
+        //if (isValidDataUri(uri)) {
+        if ((isValidDataUri(uri)
+                 || (uri = getContentUri(uri, this.getBaseContext())) != null)) {
+        /// @}
+            intent = new Intent(Intent.ACTION_VIEW, uri);
+            /// M: [BUG.MARK] commented out  for MTK UX issues.@{
+            /*if (tediousBack) {
+                intent.putExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
+            }*/
+            /// @}
+        } else {
+            Toast.makeText(this,
+                    R.string.no_such_item, Toast.LENGTH_LONG).show();
+            intent = new Intent(this, GalleryActivity.class);
+        }
+        if (tediousBack) {
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                    Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        }
+//        /// M: [BUG.ADD] for widget flash issue.@{
+//        intent.putExtra(GalleryActivity.EXTRA_FROM_WIDGET, true);
+//        /// @}
+        startActivity(intent);
+        finish();
+    }
+
+    // An activity without a UI must call finish() before onResume() completes.
+    // When permission is not granted, current activity is not finished when onResume.
+    // In order to avoid IllegalStateException when performResume, not use GalleryNoDisplay any more
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!isFinishing()) {
+            setVisible(true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+            String[] permissions, int[] grantResults) {
+        if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
+            Log.i(TAG, "<onRequestPermissionsResult> all permission granted");
+            if (mLaunchFromEmptyView) {
+                permissionGrantedWhenLaunchFromEmpty();
+            } else {
+                startToViewImage();
+            }
+            return;
+        } else {
+            Log.i(TAG, "<onRequestPermissionsResult> permission denied, finish");
+            PermissionHelper.showDeniedPrompt(this);
+            finish();
+        }
+    }
+
+    private void permissionGrantedWhenLaunchFromEmpty() {
+        Log.i(TAG, "<permissionGrantedWhenLaunchFromEmpty>");
+        // when gallery permssion changed, notify all widgets to update
+        WidgetUtils.notifyAllWidgetViewChanged();
+        finish();
+    }
+    /// @}
 }

@@ -26,6 +26,8 @@ import android.graphics.BitmapRegionDecoder;
 
 import com.android.gallery3d.ui.ScreenNail;
 import com.android.gallery3d.util.ThreadPool;
+import com.mediatek.galleryframework.base.ExtItem;
+import com.mediatek.galleryframework.base.MediaData;
 
 // MediaItem represents an image or a video item.
 public abstract class MediaItem extends MediaObject {
@@ -132,4 +134,27 @@ public abstract class MediaItem extends MediaObject {
     public abstract ThreadPool.Job<Bitmap> requestImage(int type);
 
     public abstract ThreadPool.Job<BitmapRegionDecoder> requestLargeImage();
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // the max thumbnail size of 1G ram device, set as that of 720p device
+    private static final int MAX_THUMBNAIL_SIZE_1G_RAM = 592;
+    private static final int MAX_MICRO_THUMBNAIL_SIZE_1G_RAM = 236;
+    private static final int MAX_FANCYTHUMBNAIL_SIZE_1G_RAM = 240;
+    private static final long RAM_IN_KB_1G = 1024 * 1024;
+
+    protected ExtItem mExtItem = null;
+    protected MediaData mMediaData = null;
+    protected Object mMediaDataLock = new Object();
+
+    public ExtItem getExtItem() {
+        return mExtItem;
+    }
+
+    public MediaData getMediaData() {
+        synchronized (mMediaDataLock) {
+            return mMediaData;
+        }
+    }
 }

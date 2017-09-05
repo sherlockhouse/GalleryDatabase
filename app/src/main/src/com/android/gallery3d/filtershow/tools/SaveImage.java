@@ -224,13 +224,17 @@ public class SaveImage {
             String filename = currentFile.getName();
             int firstDotPos = filename.indexOf(".");
             final String filenameNoExt = (firstDotPos == -1) ? filename :
-                    filename.substring(0, firstDotPos);
+                filename.substring(0, firstDotPos);
             File auxDir = getLocalAuxDirectory(currentFile);
             if (auxDir.exists()) {
                 FilenameFilter filter = new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String name) {
-                        return name.startsWith(filenameNoExt + ".");
+                        if (name.startsWith(filenameNoExt + ".")) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
                 };
 
@@ -272,6 +276,12 @@ public class SaveImage {
         String mimeType = mContext.getContentResolver().getType(mSelectedImageUri);
         if (mimeType == null) {
             mimeType = ImageLoader.getMimeType(mSelectedImageUri);
+            /// M: [BUG.ADD] @{
+            //mimeType may be null in some cases
+            if (mimeType == null) {
+                return exif;
+            }
+            /// @}
         }
         if (mimeType.equals(ImageLoader.JPEG_MIME_TYPE)) {
             InputStream inStream = null;
@@ -349,6 +359,20 @@ public class SaveImage {
                 ExifInterface.Orientation.TOP_LEFT));
         // Remove old thumbnail
         exif.removeCompressedThumbnail();
+        /// M: [FEATURE.ADD] clear refocus Exif when edit photo @{
+        ExifTag tag = exif.getTag(ExifInterface.TAG_REFOCUS);
+        if (tag != null) {
+            int type = tag.getDataType();
+            String value = tag.getValueAsString();
+            Log.d(LOGTAG, " <updateExifData> type = " + type
+                    + " tag.getValueAsString() = " + value);
+            if (value != null && value.contains("refocus")) {
+                exif.deleteTag(ExifInterface.TAG_REFOCUS);
+                Log.i(LOGTAG, " <updateExifData>" +
+                        "Delete refocus exif tag when saving edited image!");
+            }
+        }
+        /// @}
     }
 
     public Uri processAndSaveImage(ImagePreset preset, boolean flatten,
@@ -619,7 +643,7 @@ public class SaveImage {
         long time = System.currentTimeMillis();
         String filename = new SimpleDateFormat(TIME_STAMP_NAME).format(new Date(time));
         File saveDirectory = getFinalSaveDirectory(context, sourceUri);
-        File file = new File(saveDirectory, filename + ".JPG");
+        File file = new File(saveDirectory, PREFIX_IMG + filename  + ".JPG");
         return linkNewFileToUri(context, sourceUri, file, time, false);
     }
 
@@ -831,11 +855,46 @@ public class SaveImage {
      */
     private static boolean isFileUri(Uri sourceUri) {
         String scheme = sourceUri.getScheme();
-        return scheme != null && scheme.equals(ContentResolver.SCHEME_FILE);
+        if (scheme != null && scheme.equals(ContentResolver.SCHEME_FILE)) {
+            return true;
+        }
+        return false;
     }
 
 
-    //*/ Added by droi Linguanrong for ensure crop image success, 16-5-10
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    public static OutputStream getOutPutStream(Context mContext, Uri mOutUri, String[] filePath) {
+        OutputStream mOutStream = null;
+        try {
+            final String[] fullPath = new String[1];
+            SaveImage.querySource(mContext,
+                    mOutUri, new String[] { ImageColumns.DATA },
+                    new ContentResolverQueryCallback() {
+                        @Override
+                        public void onCursorResult(Cursor cursor) {
+                            fullPath[0] = cursor.getString(0);
+                        }
+                    }
+            );
+            Log.d(LOGTAG, "get filePath=" + fullPath[0]);
+            File file = null;
+            OutputStream outputStream = null;
+            if (fullPath[0] != null) {
+                filePath[0] = fullPath[0];
+                file = new File(fullPath[0]);
+                mOutStream = new FileOutputStream(file);
+            }
+        } catch (FileNotFoundException e) {
+            mOutStream = null;
+            Log.w(LOGTAG, "cannot write file: " + mOutUri.toString(), e);
+        } finally {
+            return mOutStream;
+        }
+    }
+
     public static boolean updataImageDimensionInDB(Context context,
             File file, int width, int height) {
         if (file == null) {
@@ -855,6 +914,7 @@ public class SaveImage {
         Log.d(LOGTAG, "updataImageDimensionInDB for " + file.getAbsolutePath() + ", r = " + r);
         return (r > 0);
     }
+
     public static File getOutPutFile(Context mContext, Uri mOutUri) {
         File file = null;
         final String[] fullPath = new String[1];
@@ -873,10 +933,39 @@ public class SaveImage {
         }
         return file;
     }
-    //*/
 
+    // limit max saving size for lca at 32Mb
+    // it could cost more than double of that when geometry transformation exists
+    private static final long MAX_LCA_SAVE_SIZE = 32 * 1024 * 1024;
+    /// @}
 
-    // ********************************************************************
+    // delete the old file.
+    private void deleteOldFile(File file) {
+        if (file != null) {
+            Log.d(LOGTAG, "<deleteOldFile> fullPath=" + file);
+            boolean res = file.delete();
+            if (!res) {
+                Log.w(LOGTAG, "<deleteOldFile> can not deleteOldFile: " + file);
+            }
+        }
+    }
+    /// M: [FEATURE.ADD] clear refocus Exif when edit photo @{
+    private static boolean sClearRefocusFlag = false;
+    public static void setClearRefocusFlag(boolean clearRefocusFlag) {
+        sClearRefocusFlag = clearRefocusFlag;
+    }
+    /// @}
+
+    /// M: [BUG.ADD] adjust sample size according size limit @{
+    private final static int EDIT_PHOTO_SIZE_LIMIT =  10 * 1024 * 1024;
+    /// @}
+
+    /// M: [BUG.ADD] If file already exists, add EXTRA_TIME_STAMP to avid
+    // SQLITE UNIQUE exception when update _DATA column. @{
+    private static final String EXTRA_TIME_STAMP = "_SSS";
+    /// @}
+	
+	// ********************************************************************
     // *                             FREEME OS                                   *
     // ********************************************************************
     //*/ freeme.gulincheng,20170619,save image as a copy
@@ -899,21 +988,4 @@ public class SaveImage {
                     Toast.LENGTH_SHORT).show();
         }
     }
-  // delete the old file.
-    private void deleteOldFile(File file) {
-        if (file != null) {
-            Log.d(LOGTAG, "<deleteOldFile> fullPath=" + file);
-            boolean res = file.delete();
-            if (!res) {
-                Log.w(LOGTAG, "<deleteOldFile> can not deleteOldFile: " + file);
-            }
-        }
-    }
-
-
-
-    /// M: [BUG.ADD] If file already exists, add EXTRA_TIME_STAMP to avid
-    // SQLITE UNIQUE exception when update _DATA column. @{
-    private static final String EXTRA_TIME_STAMP = "_SSS";
-    /// @}
 }

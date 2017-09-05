@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +31,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.freeme.gallery.app.WidgetDatabaseHelper;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AlbumPicker;
@@ -39,23 +44,28 @@ import com.android.gallery3d.data.Path;
 import com.freeme.gallery.filtershow.crop.CropActivity;
 import com.android.gallery3d.filtershow.crop.CropExtras;
 import com.android.gallery3d.common.ApiHelper;
+import com.mediatek.gallery3d.util.PermissionHelper;
 
 public class WidgetConfigure extends Activity {
-    public static final  String KEY_WIDGET_TYPE = "widget-type";
-    public static final int RESULT_ERROR = RESULT_FIRST_USER;
     @SuppressWarnings("unused")
-    private static final String TAG = "WidgetConfigure";
+    private static final String TAG = "Gallery2/WidgetConfigure";
+
+    public static final String KEY_WIDGET_TYPE = "widget-type";
     private static final String KEY_PICKED_ITEM = "picked-item";
-    private static final int REQUEST_WIDGET_TYPE  = 1;
+
+    private static final int REQUEST_WIDGET_TYPE = 1;
     private static final int REQUEST_CHOOSE_ALBUM = 2;
-    private static final int REQUEST_CROP_IMAGE   = 3;
-    private static final int REQUEST_GET_PHOTO    = 4;
+    private static final int REQUEST_CROP_IMAGE = 3;
+    private static final int REQUEST_GET_PHOTO = 4;
+
+    public static final int RESULT_ERROR = RESULT_FIRST_USER;
+
     // Scale up the widget size since we only specified the minimized
     // size of the gadget. The real size could be larger.
     // Note: There is also a limit on the size of data that can be
     // passed in Binder's transaction.
     private static float WIDGET_SCALE_FACTOR = 1.5f;
-    private static int   MAX_WIDGET_SIDE     = 360;
+    private static int MAX_WIDGET_SIDE = 360;
 
     private int mAppWidgetId = -1;
     private Uri mPickedItem;
@@ -70,20 +80,42 @@ public class WidgetConfigure extends Activity {
             finish();
             return;
         }
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<onCreate> widget id=" + mAppWidgetId);
+        /// @}
 
         if (savedState == null) {
-            if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
-                Intent intent = new Intent(this, WidgetTypeChooser.class);
-                startActivityForResult(intent, REQUEST_WIDGET_TYPE);
-            } else { // Choose the photo type widget
-                setWidgetType(new Intent()
-                        .putExtra(KEY_WIDGET_TYPE, R.id.widget_type_photo));
+            /// M: [FEATURE.ADD] [Runtime permission] @{
+            if (PermissionHelper.checkAndRequestForWidget(this)) {
+            /// @}
+                if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
+                    Intent intent = new Intent(this, WidgetTypeChooser.class);
+                    startActivityForResult(intent, REQUEST_WIDGET_TYPE);
+                } else { // Choose the photo type widget
+                    setWidgetType(new Intent()
+                            .putExtra(KEY_WIDGET_TYPE, R.id.widget_type_photo));
+                }
+            /// M: [FEATURE.ADD] [Runtime permission] @{
             }
+            /// @}
         } else {
             mPickedItem = savedState.getParcelable(KEY_PICKED_ITEM);
         }
     }
 
+    protected void onSaveInstanceStates(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_PICKED_ITEM, mPickedItem);
+    }
+
+    private void updateWidgetAndFinish(WidgetDatabaseHelper.Entry entry) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(this);
+        RemoteViews views = PhotoAppWidgetProvider.buildWidget(this, mAppWidgetId, entry);
+        manager.updateAppWidget(mAppWidgetId, views);
+        setResult(RESULT_OK, new Intent().putExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
+        finish();
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK) {
@@ -105,26 +137,12 @@ public class WidgetConfigure extends Activity {
             throw new AssertionError("unknown request: " + requestCode);
         }
     }
-
-    private void setChoosenAlbum(Intent data) {
-        String albumPath = data.getStringExtra(AlbumPicker.KEY_ALBUM_PATH);
+    private void setPhotoWidget(Intent data) {
+        // Store the cropped photo in our database
+        Bitmap bitmap = data.getParcelableExtra("data");
         WidgetDatabaseHelper helper = new WidgetDatabaseHelper(this);
         try {
-            String relativePath = null;
-            GalleryApp galleryApp = (GalleryApp) getApplicationContext();
-            DataManager manager = galleryApp.getDataManager();
-            Path path = Path.fromString(albumPath);
-            MediaSet mediaSet = (MediaSet) manager.getMediaObject(path);
-            if (mediaSet instanceof LocalAlbum) {
-                int bucketId = Integer.parseInt(path.getSuffix());
-                // If the chosen album is a local album, find relative path
-                // Otherwise, leave the relative path field empty
-                relativePath = LocalAlbum.getRelativePath(bucketId);
-                Log.i(TAG, "Setting widget, album path: " + albumPath
-                        + ", relative path: " + relativePath);
-            }
-            helper.setWidget(mAppWidgetId,
-                    WidgetDatabaseHelper.TYPE_ALBUM, albumPath, relativePath);
+            helper.setPhoto(mAppWidgetId, mPickedItem, bitmap);
             updateWidgetAndFinish(helper.getEntry(mAppWidgetId));
         } finally {
             helper.close();
@@ -158,12 +176,25 @@ public class WidgetConfigure extends Activity {
         startActivityForResult(request, REQUEST_CROP_IMAGE);
     }
 
-    private void setPhotoWidget(Intent data) {
-        // Store the cropped photo in our database
-        Bitmap bitmap = data.getParcelableExtra("data");
+    private void setChoosenAlbum(Intent data) {
+        String albumPath = data.getStringExtra(AlbumPicker.KEY_ALBUM_PATH);
         WidgetDatabaseHelper helper = new WidgetDatabaseHelper(this);
         try {
-            helper.setPhoto(mAppWidgetId, mPickedItem, bitmap);
+            String relativePath = null;
+            GalleryApp galleryApp = (GalleryApp) getApplicationContext();
+            DataManager manager = galleryApp.getDataManager();
+            Path path = Path.fromString(albumPath);
+            MediaSet mediaSet = (MediaSet) manager.getMediaObject(path);
+            if (mediaSet instanceof LocalAlbum) {
+                int bucketId = Integer.parseInt(path.getSuffix());
+                // If the chosen album is a local album, find relative path
+                // Otherwise, leave the relative path field empty
+                relativePath = LocalAlbum.getRelativePath(bucketId);
+                Log.i(TAG, "Setting widget,album path:" + albumPath
+                        + ",relative path:" + relativePath);
+            }
+            helper.setWidget(mAppWidgetId,
+                    WidgetDatabaseHelper.TYPE_ALBUM, albumPath, relativePath);
             updateWidgetAndFinish(helper.getEntry(mAppWidgetId));
         } finally {
             helper.close();
@@ -190,19 +221,5 @@ public class WidgetConfigure extends Activity {
                     .setType("image/*");
             startActivityForResult(request, REQUEST_GET_PHOTO);
         }
-    }
-
-    private void updateWidgetAndFinish(WidgetDatabaseHelper.Entry entry) {
-        AppWidgetManager manager = AppWidgetManager.getInstance(this);
-        RemoteViews views = PhotoAppWidgetProvider.buildWidget(this, mAppWidgetId, entry);
-        manager.updateAppWidget(mAppWidgetId, views);
-        setResult(RESULT_OK, new Intent().putExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId));
-        finish();
-    }
-
-    protected void onSaveInstanceStates(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_PICKED_ITEM, mPickedItem);
     }
 }

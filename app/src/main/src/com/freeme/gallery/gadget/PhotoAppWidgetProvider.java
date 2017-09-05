@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,53 +30,21 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.freeme.gallery.app.WidgetDatabaseHelper;
+
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper.Entry;
 import com.android.gallery3d.onetimeinitializer.GalleryWidgetMigrator;
-import com.android.gallery3d.util.MediaSetUtils;
+import com.mediatek.gallery3d.util.Log;
 import com.android.gallery3d.common.ApiHelper;
-
 public class PhotoAppWidgetProvider extends AppWidgetProvider {
 
-    private static final String TAG = "WidgetProvider";
+    private static final String TAG = "Gallery2/PhotoAppWidgetProvider";
 
-    @Override
-    public void onUpdate(Context context,
-                         AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-
-        if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
-            // migrate gallery widgets from pre-JB releases to JB due to bucket ID change
-            GalleryWidgetMigrator.migrateGalleryWidgets(context);
-        }
-
-        WidgetDatabaseHelper helper = new WidgetDatabaseHelper(context);
-        try {
-            for (int id : appWidgetIds) {
-                WidgetDatabaseHelper.Entry entry = helper.getEntry(id);
-                if (entry != null) {
-                    RemoteViews views = buildWidget(context, id, entry);
-                    appWidgetManager.updateAppWidget(id, views);
-                } else {
-                    entry = new WidgetDatabaseHelper.Entry();
-                    entry.type = WidgetDatabaseHelper.TYPE_ALBUM;
-                    entry.widgetId = id;
-                    entry.albumPath = "/local/image/"+MediaSetUtils.CAMERA_BUCKET_ID;
-                    RemoteViews views = buildWidget(context, id, entry);
-                    appWidgetManager.updateAppWidget(id, views);
-                    Log.e(TAG, "cannot load widget: " + id);
-                }
-            }
-        } finally {
-            helper.close();
-        }
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
-    }
-
-    public static RemoteViews buildWidget(Context context, int id, WidgetDatabaseHelper.Entry entry) {
+    static RemoteViews buildWidget(Context context, int id, Entry entry) {
 
         switch (entry.type) {
             case WidgetDatabaseHelper.TYPE_ALBUM:
@@ -83,11 +56,48 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
         throw new RuntimeException("invalid type - " + entry.type);
     }
 
+    @Override
+    public void onUpdate(Context context,
+            AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+
+        if (ApiHelper.HAS_REMOTE_VIEWS_SERVICE) {
+            // migrate gallery widgets from pre-JB releases to JB due to bucket ID change
+            GalleryWidgetMigrator.migrateGalleryWidgets(context);
+        }
+
+        WidgetDatabaseHelper helper = new WidgetDatabaseHelper(context);
+        try {
+            for (int id : appWidgetIds) {
+                Entry entry = helper.getEntry(id);
+                /// M: [DEBUG.ADD] @{
+                Log.i(TAG, " <onUpdate>: entry for id[" + id + "]="
+                        + (entry == null ? "null" : ("(" + entry.type + ", " + entry.imageUri
+                                + ", " + entry.albumPath + ", " + entry.imageData + ")")));
+                /// @}
+                if (entry != null) {
+                    RemoteViews views = buildWidget(context, id, entry);
+                    appWidgetManager.updateAppWidget(id, views);
+                } else {
+                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_main);
+                    views.setEmptyView(R.id.appwidget_stack_view, R.id.appwidget_empty_view);
+                    appWidgetManager.updateAppWidget(id, views);
+                    Log.e(TAG, "<onUpdate>cannot load widget: " + id);
+                }
+            }
+        } finally {
+            helper.close();
+        }
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
+
     @SuppressWarnings("deprecation")
     @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
-    private static RemoteViews buildStackWidget(Context context, int widgetId, WidgetDatabaseHelper.Entry entry) {
-        RemoteViews views = new RemoteViews(
-                context.getPackageName(), R.layout.appwidget_main);
+    private static RemoteViews buildStackWidget(Context context, int widgetId, Entry entry) {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<buildStackWidget> for id=" + widgetId + ", entry=(" + entry.type + ", "
+                + entry.imageUri + ", " + entry.albumPath + ", " + entry.imageData + ")");
+        /// @}
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_main);
 
         Intent intent = new Intent(context, WidgetService.class);
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
@@ -109,10 +119,22 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
                 context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setPendingIntentTemplate(R.id.appwidget_stack_view, pendingIntent);
 
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        Intent clickIntentForEmpty = new Intent(context, WidgetClickHandler.class);
+        clickIntentForEmpty.putExtra(WidgetClickHandler.FLAG_FROM_EMPTY_VIEW, true);
+        clickIntentForEmpty.putExtra(WidgetClickHandler.FLAG_WIDGET_ID, widgetId);
+        PendingIntent pendingIntentForEmpty = PendingIntent.getActivity(context, 0,
+                clickIntentForEmpty, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.appwidget_empty_view, pendingIntentForEmpty);
+        /// @}
         return views;
     }
 
-    static RemoteViews buildFrameWidget(Context context, int appWidgetId, WidgetDatabaseHelper.Entry entry) {
+    static RemoteViews buildFrameWidget(Context context, int appWidgetId, Entry entry) {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<buildFrameWidget> for id=" + appWidgetId + ", entry=(" + entry.type + ", "
+                + entry.imageUri + ", " + entry.albumPath + ", " + entry.imageData + ")");
+        /// @}
         RemoteViews views = new RemoteViews(
                 context.getPackageName(), R.layout.photo_frame);
         try {
@@ -130,11 +152,18 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
                 clickIntent.setPackage(BuildConfig.APPLICATION_ID);
                 clickIntent.setDataAndType(uri, "image/*");
                 clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                /// @}
+                /// M: [BUG.MODIFY] @{
+                // After add many frame widgets for one same image,
+                // old PendingIntent will be canceled because of PendingIntent.FLAG_CANCEL_CURRENT
+                /*PendingIntent pendingClickIntent = PendingIntent.getActivity(context, 0,
+                      clickIntent, PendingIntent.FLAG_CANCEL_CURRENT);*/
                 PendingIntent pendingClickIntent = PendingIntent.getActivity(context, 0,
                         clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                /// @}
                 views.setOnClickPendingIntent(R.id.photo, pendingClickIntent);
             } catch (Throwable t) {
-                Log.w(TAG, "cannot load widget uri: " + appWidgetId, t);
+                Log.w(TAG, "<buildFrameWidget>cannot load widget uri: " + appWidgetId, t);
             }
         }
         return views;

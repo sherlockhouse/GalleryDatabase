@@ -77,9 +77,16 @@ public class CropView extends View {
     private int mTouchTolerance = 40;
     private float mDashOnLength = 20;
     private float mDashOffLength = 10;
-    private enum Mode {
+
+/// M: [BUG.MODIFY] @{
+/*    private enum Mode {
         NONE, MOVE
+    }*/
+    private enum Mode {
+        NONE, MOVE, MODIFY_TOUCH_POINTER
     }
+/// @}
+
     private Mode mState = Mode.NONE;
 
     public CropView(Context context) {
@@ -106,9 +113,9 @@ public class CropView extends View {
         mMargin = (int) rsc.getDimension(R.dimen.preview_margin);
         mMinSideSize = (int) rsc.getDimension(R.dimen.crop_min_side);
         mTouchTolerance = (int) rsc.getDimension(R.dimen.crop_touch_tolerance);
-        mOverlayShadowColor = rsc.getColor(R.color.crop_shadow_color);
-        mOverlayWPShadowColor = rsc.getColor(R.color.crop_shadow_wp_color);
-        mWPMarkerColor = rsc.getColor(R.color.crop_wp_markers);
+        mOverlayShadowColor = (int) rsc.getColor(R.color.crop_shadow_color);
+        mOverlayWPShadowColor = (int) rsc.getColor(R.color.crop_shadow_wp_color);
+        mWPMarkerColor = (int) rsc.getColor(R.color.crop_wp_markers);
         mDashOnLength = rsc.getDimension(R.dimen.wp_selector_dash_length);
         mDashOffLength = rsc.getDimension(R.dimen.wp_selector_off_length);
     }
@@ -141,8 +148,18 @@ public class CropView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+/// M: [BUG.MODIFY] @{
+/*        float x = event.getX();
+        float y = event.getY();*/
+        // don't change crop region after click save
+        if (!mEnableTouchMotion) {
+            return true;
+        }
+        float[] point = getPoint(event);
+        float x = point[0];
+        float y = point[1];
+/// @}
+
         if (mDisplayMatrix == null || mDisplayMatrixInverse == null) {
             return true;
         }
@@ -180,6 +197,17 @@ public class CropView extends View {
                     mPrevX = x;
                     mPrevY = y;
                 }
+            /// M: [BUG.ADD] @{
+                else if (mState == Mode.MODIFY_TOUCH_POINTER) {
+                    mPrevX = x;
+                    mPrevY = y;
+                    mState = Mode.MOVE;
+                }
+                    break;
+                case (MotionEvent.ACTION_POINTER_DOWN):
+                case (MotionEvent.ACTION_POINTER_UP):
+                    mState = Mode.MODIFY_TOUCH_POINTER;
+            /// @}
                 break;
             default:
                 break;
@@ -326,9 +354,21 @@ public class CropView extends View {
                 mDisplayMatrixInverse = null;
                 return;
             }
-            // Scale min side and tolerance by display matrix scale factor
-            mCropObj.setMinInnerSideSize(mDisplayMatrixInverse.mapRadius(mMinSideSize));
+            /// M: [BUG.MODIFY] @{
+            /*            // Scale min side and tolerance by display matrix scale factor
+            mCropObj.setMinInnerSideSize(mDisplayMatrixInverse.mapRadius(mMinSideSize));*/
+            //set Image Min side as mMinSideSize
+            mMinSideSize = (int) Math.min(Math.min(mImageBounds.width(),
+                    mImageBounds.height()), mMinSideSize);
+            mCropObj.setMinInnerSideSize(mMinSideSize);
+            /// @}
             mCropObj.setTouchTolerance(mDisplayMatrixInverse.mapRadius(mTouchTolerance));
+            /// M: [BUG.ADD] @{
+            // Limitation the time for onDraw once time
+            invalidate();
+            return ;
+            /// @}
+
         }
 
         mScreenImageBounds.set(mImageBounds);
@@ -356,8 +396,17 @@ public class CropView extends View {
             Paint p = new Paint();
             p.setColor(mOverlayShadowColor);
             p.setStyle(Paint.Style.FILL);
-            CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, mScreenImageBounds);
-
+            /// M: [BUG.MODIFY] @{
+            /*  CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, mScreenImageBounds);
+             */
+            //To improve the precision. draw larger shadows for float data.
+            RectF imagebounds = new RectF(
+                    (float) Math.floor(mScreenImageBounds.left),
+                    (float) Math.floor(mScreenImageBounds.top),
+                    (float) Math.ceil(mScreenImageBounds.right),
+                    (float) Math.ceil(mScreenImageBounds.bottom));
+            CropDrawingUtils.drawShadows(canvas, p, mScreenCropBounds, imagebounds);
+            /// @}
             // Draw crop rect and markers
             CropDrawingUtils.drawCropRect(canvas, mScreenCropBounds);
             if (!mDoSpot) {
@@ -374,10 +423,40 @@ public class CropView extends View {
                         mSpotX, mSpotY, wpPaint, p);
             }
             CropDrawingUtils.drawIndicators(canvas, mCropIndicator, mIndicatorSize,
-                    mScreenCropBounds, mCropObj.isFixedAspect(), decode(mCropObj.getSelectState(), mRotation));
+                    mScreenCropBounds, mCropObj.isFixedAspect(),
+                    decode(mCropObj.getSelectState(), mRotation));
         }
 
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    //modify for Multi-touch operation
+    private float[] getPoint(MotionEvent event) {
+        if (event.getPointerCount() == 1) {
+            float[] touchPoint = {
+                    event.getX(), event.getY()
+            };
+            return touchPoint;
+        } else {
+            float[] touchPoint = {
+                    (event.getX(0) + event.getX(1)) / 2, (event.getY(0) + event.getY(1)) / 2
+            };
+            return touchPoint;
+        }
+    }
+
+    private boolean mEnableTouchMotion = true;
+    public void enableTouchMotion(boolean enable) {
+        mEnableTouchMotion = enable;
+    }
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        if (changed) {
+            configChanged();
+        }
+    }
 
 }

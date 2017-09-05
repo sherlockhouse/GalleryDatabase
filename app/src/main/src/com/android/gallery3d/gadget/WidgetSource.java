@@ -28,4 +28,9 @@ public interface WidgetSource {
     public void setContentListener(ContentListener listener);
     public void reload();
     public void close();
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    /** No matter if content changed or not, notify the content dirty forced.
+     */
+    public void forceNotifyDirty();
+    /// @}
 }

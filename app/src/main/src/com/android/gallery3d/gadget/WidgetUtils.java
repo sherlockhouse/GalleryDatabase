@@ -31,9 +31,8 @@ import android.graphics.Paint;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.data.MediaItem;
-import com.freeme.gallery.app.WidgetDatabaseHelper.Entry;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper.Entry;
 import com.android.gallery3d.util.ThreadPool;
-import com.freeme.gallery.app.WidgetDatabaseHelper;
 import com.mediatek.gallery3d.util.Log;
 
 import java.util.ArrayList;

@@ -190,10 +190,12 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
     public ScreenNail getScreenNail() {
         return mScreenNail;
     }
+
     @Override
     public int getImageHeight() {
         return mImageHeight;
     }
+
     @Override
     public int getImageWidth() {
         return mImageWidth;

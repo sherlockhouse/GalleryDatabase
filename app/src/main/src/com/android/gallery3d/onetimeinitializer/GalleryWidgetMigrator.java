@@ -33,8 +33,8 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.LocalAlbum;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
-import com.freeme.gallery.app.WidgetDatabaseHelper;
-import com.freeme.gallery.app.WidgetDatabaseHelper.Entry;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper;
+import com.android.gallery3d.gadget.WidgetDatabaseHelper.Entry;
 import com.android.gallery3d.util.GalleryUtils;
 import com.mediatek.gallery3d.util.Log;
 

@@ -99,8 +99,17 @@ public class CropObject {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Width and Height must be greater than zero");
         }
-        RectF inner = mBoundedRect.getInner();
+        /// M: [BUG.MODIFY] @{
+        /*        RectF inner = mBoundedRect.getInner();*/
+        //M: should use mOriginalInnerRect for calculate.
+        RectF inner = mOriginalInnerRect ==
+                null ? mBoundedRect.getInner() : new RectF(mOriginalInnerRect);
+        /// @}
+
         CropMath.fixAspectRatioContained(inner, width, height);
+        Log.d(TAG, " inner.width() = " +
+                inner.width() + " inner.height() = " +
+                inner.height() + " mMinSideSize = " + mMinSideSize);
         if (inner.width() < mMinSideSize || inner.height() < mMinSideSize) {
             return false;
         }
@@ -130,6 +139,13 @@ public class CropObject {
         mFixAspectRatio = false;
         clearSelectState();
     }
+    /// M: [BUG.ADD] @{
+        // set mFixAspectRatio as true;
+    public void setAspectRatio() {
+        mFixAspectRatio = true;
+        clearSelectState();
+    }
+    /// @}
 
     public boolean hasSelectedEdge() {
         return mMovingEdges != MOVE_NONE;
@@ -260,7 +276,28 @@ public class CropObject {
                 if ((movingEdges & MOVE_BOTTOM) != 0) {
                     crop.bottom += dy;
                 }
+
+                /// M: [BUG.ADD] keep record of old BoundedRect @{
+                RectF oldBoundedRect = mBoundedRect.getInner();
+                /// @}
+
                 mBoundedRect.resizeInner(crop);
+
+                /// M: [BUG.ADD] @{
+                // Bounding box of adjust bar may be not correctly calculated
+                // under some boundary conditions. Here we handle a case in which
+                // the bounding box gains a sudden shrink, which makes the bar move
+                // backwards suddenly when reaching the bound of the image. As a
+                // primary solution, we simply give up such unexpected bounding
+                // box updating.
+                RectF newBoundedRect = mBoundedRect.getInner();
+                if (((dx > 0) && (newBoundedRect.right < oldBoundedRect.right))
+                        || ((dx < 0) && (newBoundedRect.left > oldBoundedRect.left))
+                        || ((dy > 0) && (newBoundedRect.bottom < oldBoundedRect.bottom))
+                        || ((dy < 0) && (newBoundedRect.top > oldBoundedRect.top))) {
+                    mBoundedRect.resizeInner(oldBoundedRect);
+                }
+                /// @}
             }
         }
         return true;
@@ -333,4 +370,30 @@ public class CropObject {
         }
         return moving_edges;
     }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    // save original inner as mOriginalInnerRect.
+    private RectF mOriginalInnerRect = null;
+
+    public void setOriginalInnerRect(RectF inner) {
+        mOriginalInnerRect = new RectF(inner);
+    }
+
+    public void resetInnerRect() {
+        if (mOriginalInnerRect != null) {
+            mBoundedRect.resetInner(mOriginalInnerRect);
+        }
+    }
+    public RectF getOriginalInnerRect() {
+        return mOriginalInnerRect;
+    }
+
+    public float getMinSideSize() {
+        return mMinSideSize;
+    }
+
+
 }

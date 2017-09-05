@@ -22,6 +22,8 @@ import android.support.multidex.MultiDexApplication;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.droi.sdk.analytics.DroiAnalytics;
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.freeme.community.utils.AccountUtil;
 import com.freeme.gallery.R;
 import com.android.gallery3d.data.DataManager;
@@ -35,6 +37,7 @@ import com.android.gallery3d.util.ThreadPool;
 import com.freeme.provider.GalleryDBManager;
 import com.freeme.updateself.update.UpdateMonitor;
 import com.freeme.utils.CustomJsonParser;
+import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
 
@@ -52,6 +55,8 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
     @Override
     public void onCreate() {
         super.onCreate();
+        Stetho.initializeWithDefaults(this);
+        new OkHttpClient().networkInterceptors().add(new StethoInterceptor());
         //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
         GalleryDBManager.getInstance().initDB(this, "gallery.db");
         //*/
