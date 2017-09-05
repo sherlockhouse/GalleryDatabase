@@ -363,11 +363,15 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
         }
 
         //mTools.add(getRepresentation(ImageFilterRedEye.class));
-        //mTools.add(getRepresentation(ImageFilterDraw.class));
+        /// M: [BUG.MARK] @{
+        /*
+         * //marked for the tool of "Draw " translate.
+       mTools.add(getRepresentation(ImageFilterDraw.class));*/
+        /// @}
     }
 
     public void removeRepresentation(ArrayList<FilterRepresentation> list,
-                                     FilterRepresentation representation) {
+                                          FilterRepresentation representation) {
         for (int i = 0; i < list.size(); i++) {
             FilterRepresentation r = list.get(i);
             if (r.getFilterClass() == representation.getFilterClass()) {
@@ -379,10 +383,34 @@ public abstract class BaseFiltersManager implements FiltersManagerInterface {
 
     public void setFilterResources(Resources resources) {
         ImageFilterBorder filterBorder = (ImageFilterBorder) getFilter(ImageFilterBorder.class);
+        /// M: [BUG.ADD] @{
+        //fix OOM issue caused by borders. @{
+        ImageFilterBorder.setBorderSampleSize(sBorderSampleSize);
+        /// @}
         filterBorder.setResources(resources);
         ImageFilterFx filterFx = (ImageFilterFx) getFilter(ImageFilterFx.class);
         filterFx.setResources(resources);
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    //fix OOM issue caused by borders.
+    private static int sBorderSampleSize = 2;
+    public static void setBorderSampleSize(int sampleSize) {
+        sBorderSampleSize = sampleSize;
+    }
+
+    //free all filter resources (not only for unused ones)
+    public void finalizeFilterResources() {
+        ImageFilter filter;
+        for (Class c : mFilters.keySet()) {
+            filter = mFilters.get(c);
+            if (filter != null) { // should not happen, though
+                filter.freeResources();
+            }
+        }
+    }
 
 }

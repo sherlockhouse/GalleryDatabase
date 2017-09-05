@@ -52,10 +52,10 @@
     <dimen name="draw_rect_round">10dip</dimen>
 
     <!-- draw color icon size -->
-    <dimen name="draw_style_icon_dim">42dip</dimen>
+    <dimen name="draw_style_icon_dim">54dip</dimen>
 
     <!-- draw color icon size -->
-    <dimen name="draw_color_icon_dim">42dip</dimen>
+    <dimen name="draw_color_icon_dim">48dip</dimen>
 
     <!-- draw check UI size  -->
     <dimen name="draw_color_check_dim">5dip</dimen>

@@ -103,7 +103,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/theme_color"
+            android:background="?android:colorBackground"
             android:divider="?android:attr/dividerHorizontal"
             android:visibility="gone">
 
@@ -114,8 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/cancel"
-                android:textColor="@color/white"/>
+                android:text="@string/cancel"/>
 
             <Button
                 android:id="@+id/ok_btn"
@@ -124,8 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:text="@string/crop_save_text"
-                android:textColor="@color/white"/>
+                android:text="@string/crop_save_text"/>
 
         </LinearLayout>
 

@@ -12,7 +12,9 @@
 
     <PreferenceCategory
         android:title="@string/slideshow_setttings_category">
-        <com.freeme.settings.GallerySwitchPreference
+        <SwitchPreference
+
+            android:defaultValue="false"
             android:key="key_background_music_on"
             android:title="@string/background_music_settings"/>
 

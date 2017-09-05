@@ -204,6 +204,9 @@
 
                 <data android:mimeType="*/*"/>
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
 
         <!-- This activity acts as a trampoline to the new Gallery activity,
@@ -215,6 +218,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
 
         <!-- we add this activity-alias for shortcut backward compatibility -->
@@ -327,6 +333,9 @@
 
                 <data android:mimeType="image/*"/>
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
         <activity
             android:name=".filtershow.crop.CropActivity"
@@ -342,10 +351,18 @@
                 <category android:name="android.intent.category.ALTERNATIVE" />
                 <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
         <activity
             android:name="com.freeme.settings.GallerySettings"
-            android:configChanges="orientation|keyboardHidden|screenSize"/>
+            android:configChanges="orientation|keyboardHidden|screenSize">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
+        </activity>
+
 
         <provider
             android:name=".provider.GalleryProvider"
@@ -360,7 +377,11 @@
             android:exported="false"
             android:syncable="false"/>
 
-        <activity android:name=".gadget.WidgetClickHandler"/>
+        <activity android:name=".gadget.WidgetClickHandler">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
+            </activity>
         <activity
             android:name=".app.DialogPicker"
             android:configChanges="keyboardHidden|orientation|screenSize"

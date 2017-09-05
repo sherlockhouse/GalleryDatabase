@@ -40,11 +40,20 @@ public class SaveVideoFileUtils {
     // This function can decide which folder to save the video file, and generate
     // the needed information for the video file including filename.
     public static SaveVideoFileInfo getDstMp4FileInfo(String fileNameFormat,
-                                                      ContentResolver contentResolver, Uri uri, String defaultFolderName) {
+            ContentResolver contentResolver, Uri uri, File srcVideoParent, boolean isTrim, String defaultFolderName) {
         SaveVideoFileInfo dstFileInfo = new SaveVideoFileInfo();
         // Use the default save directory if the source directory cannot be
         // saved.
-        dstFileInfo.mDirectory = getSaveDirectory(contentResolver, uri);
+
+        ///M: different with Google trim, we also support uri begin with "///file:",
+        // so we need get dsfFile directory from srcVideo.
+        // mute video stay the same with Google@{
+        if (isTrim) {
+            dstFileInfo.mDirectory = srcVideoParent;
+        } else {
+            dstFileInfo.mDirectory = getSaveDirectory(contentResolver, uri);
+        }
+        ///@}
         if ((dstFileInfo.mDirectory == null) || !dstFileInfo.mDirectory.canWrite()) {
             dstFileInfo.mDirectory = new File(Environment.getExternalStorageDirectory(),
                     BucketNames.DOWNLOAD);
@@ -60,10 +69,22 @@ public class SaveVideoFileUtils {
     }
 
     private static void querySource(ContentResolver contentResolver, Uri uri,
-                                    String[] projection, ContentResolverQueryCallback callback) {
+            String[] projection, ContentResolverQueryCallback callback) {
         Cursor cursor = null;
         try {
+            //query from "content://....."
             cursor = contentResolver.query(uri, projection, null, null, null);
+            //query from "file:///......"
+            if (cursor == null) {
+                String data = Uri.decode(uri.toString());
+                if (data == null) {
+                    return;
+                }
+                data = data.replaceAll("'", "''");
+                final String where = "_data LIKE '%" + data.replaceFirst("file:///", "") + "'";
+                cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    projection, where, null, null);
+            }
             if ((cursor != null) && cursor.moveToNext()) {
                 callback.onCursorResult(cursor);
             }
@@ -164,5 +185,4 @@ public class SaveVideoFileUtils {
         retriever.release();
         return durationMs;
     }
-
 }

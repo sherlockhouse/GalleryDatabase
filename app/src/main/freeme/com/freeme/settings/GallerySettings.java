@@ -38,6 +38,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.MediaStore.Audio.Media;
 import android.view.MenuItem;
 
@@ -63,7 +64,7 @@ public class GallerySettings extends PreferenceActivity {
     private static final int REQUEST_PICK_MUSIC   = 0xfff;
     private static final int SELECT_MUSIC_DEFAULT = 0;
     private static final int SELECT_MUSIC_OTHER   = 1;
-    private GallerySwitchPreference mBackMusicPref;
+    private SwitchPreference mBackMusicPref;
     private ListPreference    mSlideshowDurPref;
     private SharedPreferences mSharedPrefs;
     private int mSelectedIndex;
@@ -96,7 +97,7 @@ public class GallerySettings extends PreferenceActivity {
         addPreferencesFromResource(R.xml.gallery_settings);
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mBackMusicPref = (GallerySwitchPreference) findPreference(BACK_MUSIC_ON_KEY);
+        mBackMusicPref = (SwitchPreference) findPreference(BACK_MUSIC_ON_KEY);
         boolean on = CustomJsonParser.getInstance().getCustomConfig()
                 .isSlideshow_background_music_on();
         mBackMusicPref.setChecked(on);

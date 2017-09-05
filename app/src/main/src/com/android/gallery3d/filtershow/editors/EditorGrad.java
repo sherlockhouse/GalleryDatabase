@@ -56,8 +56,8 @@ public class EditorGrad extends ParametricEditor
     private static final int MODE_BRIGHTNESS = FilterGradRepresentation.PARAM_BRIGHTNESS;
     private static final int MODE_SATURATION = FilterGradRepresentation.PARAM_SATURATION;
     private static final int MODE_CONTRAST = FilterGradRepresentation.PARAM_CONTRAST;
-    private static final int ADD_ICON = R.drawable.ic_grad_add;
-    private static final int DEL_ICON = R.drawable.ic_grad_del;
+    private static final int ADD_ICON = R.drawable.ic_grad_add_48dp;
+    private static final int DEL_ICON = R.drawable.ic_grad_del_48dp;
     private int mSliderMode = MODE_BRIGHTNESS;
     ImageGrad mImageGrad;
     ParamAdapter []mAdapters = new ParamAdapter[3];

@@ -365,7 +365,7 @@ public class GalleryActionBar {
                     .getDrawable(R.color.transparent));
         } else {
             mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(R.color.theme_color));
+                    .getDrawable(R.color.default_background));
         }
     }
 

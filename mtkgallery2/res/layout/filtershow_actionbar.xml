@@ -22,8 +22,5 @@
     android:textAllCaps="true"
     android:text="@string/save"
     android:gravity="center_vertical"
-    android:textColor="@color/filtershow_done_text"
     android:textSize="16sp"
-    android:drawableLeft="@drawable/menu_save_photo"
-    android:drawablePadding="8dip"
     android:enabled="false"/>

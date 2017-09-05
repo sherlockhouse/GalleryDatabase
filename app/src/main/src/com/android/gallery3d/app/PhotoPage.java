@@ -1082,15 +1082,15 @@ public abstract class PhotoPage extends ActivityState implements
                     }
                 });
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (mSharedPref.getBoolean("showBlockGuide", true) && mSetPathString != null
-                        && !mPhotoView.getFilmMode() && mShowBars) {
+//        new Handler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (mSharedPref.getBoolean("showBlockGuide", true) && mSetPathString != null
+//                        && !mPhotoView.getFilmMode() && mShowBars) {
 //                    showGuideDialog();
-                }
-            }
-        });
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -1196,9 +1196,6 @@ public abstract class PhotoPage extends ActivityState implements
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
-        setActionBarBackground(false);
-        //*/
 
         mActionBar.createActionBarMenu(R.menu.photo, menu);
         mHaveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
@@ -1403,13 +1400,7 @@ public abstract class PhotoPage extends ActivityState implements
         super.onDestroy();
     }
 
-    private void setActionBarBackground(boolean translucent) {
-        if (translucent) {
-            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.photopage_actionbar_bg));
-        } else {
-            mActionBar.setBackgroundDrawable(mActivity.getResources().getDrawable(R.color.theme_color));
-        }
-    }
+
 
     private void updateMenuOperations() {
         Menu menu = mActionBar.getMenu();

@@ -14,7 +14,8 @@
      limitations under the License.
 -->
 <resources>
-    <color name="default_background">#1A1A1A</color>
+    <color name="default_background">#f8f8f8</color>
+
 
     <!-- configuration for album set page -->
     <color name="albumset_background">#f8f8f8</color>

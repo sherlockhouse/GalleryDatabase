@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -80,21 +81,6 @@ public class PhotopageComments {
 
                 LayoutInflater inflater = LayoutInflater.from(mContext);
                 final View textEntryView = inflater.inflate(R.layout.freeme_alert_custom, null);
-                final AlertDialog dlg = new AlertDialog.Builder(
-                        new ContextThemeWrapper(mContext,
-                                android.R.style.Theme_Holo_Light)).create();
-                dlg.setView(textEntryView);
-                dlg.show();
-                Button mCancel = (Button) textEntryView
-                        .findViewById(R.id.cancel);
-                mCancel.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        dlg.cancel();
-                    }
-                });
-
                 final EditText mInfoEdit = (EditText) textEntryView
                         .findViewById(R.id.detail_text);
                 if (!mInfoText.getText().equals(
@@ -105,6 +91,48 @@ public class PhotopageComments {
                 mInfoEdit.setFocusable(true);
                 mInfoEdit.setFocusableInTouchMode(true);
                 mInfoEdit.requestFocus();
+                final AlertDialog dlg = new AlertDialog.Builder(mContext).
+                        setTitle(R.string.freeme_comment_add_comments).
+                        setPositiveButton(R.string.secret_mode_confirm,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        if (mInfoEdit.getText().toString().equals("")) {
+                                            Toast.makeText(
+                                                    mContext,
+                                                    mContext.getResources().getString(
+                                                            R.string.freeme_comment_input_text),
+                                                    Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            ContentValues cv = new ContentValues(1);
+                                            cv.put(MediaStore.Images.Media.DESCRIPTION,
+                                                    mInfoEdit.getText().toString() + time);
+                                            StringBuilder stringBuilder = new StringBuilder();
+                                            stringBuilder.append(MediaStore.Images.Media._ID);
+                                            stringBuilder.append(" = " + id);
+
+                                            String selection = stringBuilder.toString();
+                                            Uri base;
+                                            ContentResolver resolver = mContext
+                                                    .getContentResolver();
+                                            if (mType == 2) {
+                                                base = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                                            } else {
+                                                base = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                                            }
+                                            int result = resolver.update(base, cv, selection,
+                                                    null);
+                                            mInfoText.setText(mInfoEdit.getText().toString());
+                                        }
+                                    }
+                                }).
+                        setNegativeButton(android.R.string.cancel,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int i) {
+                                    }
+                                }).create();
+                dlg.setView(textEntryView);
+                dlg.show();
+
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
                     public void run() {
@@ -138,44 +166,6 @@ public class PhotopageComments {
 
                     }
                 });
-
-                Button mContinue = (Button) textEntryView
-                        .findViewById(R.id.mcontinue);
-                mContinue.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        if (mInfoEdit.getText().toString().equals("")) {
-                            Toast.makeText(
-                                    mContext,
-                                    mContext.getResources().getString(
-                                            R.string.freeme_comment_input_text),
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            ContentValues cv = new ContentValues(1);
-                            cv.put(MediaStore.Images.Media.DESCRIPTION,
-                                    mInfoEdit.getText().toString() + time);
-                            StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.append(MediaStore.Images.Media._ID);
-                            stringBuilder.append(" = " + id);
-
-                            String selection = stringBuilder.toString();
-                            Uri base;
-                            ContentResolver resolver = mContext
-                                    .getContentResolver();
-                            if (mType == 2) {
-                                base = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                            } else {
-                                base = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                            }
-                            int result = resolver.update(base, cv, selection,
-                                    null);
-                            mInfoText.setText(mInfoEdit.getText().toString());
-                            dlg.cancel();
-                        }
-                    }
-                });
-
             }
         });
     }

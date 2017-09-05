@@ -172,10 +172,10 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
                 actionBar.setCustomView(R.layout.crop_actionbar);
 
-            /// M: [BUG.MODIFY]set the savebutton disable till load image finish. @{
-            mSaveButton = actionBar.getCustomView();
-            mSaveButton.setEnabled(false);
-            /// @}
+                /// M: [BUG.MODIFY]set the savebutton disable till load image finish. @{
+                mSaveButton = actionBar.getCustomView();
+                mSaveButton.setEnabled(false);
+                /// @}
                 mSaveButton.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -184,6 +184,7 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 });
             }
             //*/ tyd.biantao 20140409. wallpaper.
+        }
             /// M: [FEATURE.MODIFY] [Runtime permission] @{
         /*
         if (savedInstanceState != null) {
@@ -205,7 +206,6 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
                 loading.setVisibility(View.INVISIBLE);
             }
             /// @}
-        }
     }
 
     private void enableSave(boolean enable) {
@@ -305,7 +305,9 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
         final View loading = findViewById(R.id.loading);
         loading.setVisibility(View.GONE);
         /// M: [BUG.ADD] set the savebutton disable till load image finish.@{
-        mSaveButton.setEnabled(true);
+        if (mSaveButton != null) {
+            mSaveButton.setEnabled(true);
+        }
         /// @}
         mOriginalBitmap = bitmap;
         mOriginalBounds = bounds;

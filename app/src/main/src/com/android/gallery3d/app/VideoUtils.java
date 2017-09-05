@@ -29,19 +29,21 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaMuxer;
-import android.util.Log;
+import android.app.ProgressDialog;
 
+import com.android.gallery3d.common.ApiHelper;
+import com.android.gallery3d.util.SaveVideoFileInfo;
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.TimeToSampleBox;
-import com.android.gallery3d.util.SaveVideoFileInfo;
-import com.android.gallery3d.common.ApiHelper;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.authoring.tracks.CroppedTrack;
+import com.mediatek.gallery3d.util.Log;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -53,19 +55,20 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class VideoUtils {
-    private static final String LOGTAG              = "VideoUtils";
-    private static final int    DEFAULT_BUFFER_SIZE = 1 * 1024 * 1024;
+    private static final String LOGTAG = "Gallery2/VideoUtils";
+    private static final int DEFAULT_BUFFER_SIZE = 1 * 1024 * 1024;
 
     /**
      * Remove the sound track.
      */
-    public static void startMute(String filePath, SaveVideoFileInfo dstFileInfo)
+    public static boolean startMute(String filePath, SaveVideoFileInfo dstFileInfo,
+            ProgressDialog mProgress)
             throws IOException {
         if (ApiHelper.HAS_MEDIA_MUXER) {
-            genVideoUsingMuxer(filePath, dstFileInfo.mFile.getPath(), -1, -1,
+            return genVideoUsingMuxer(filePath, dstFileInfo.mFile.getPath(), -1, -1,
                     false, true);
         } else {
-            startMuteUsingMp4Parser(filePath, dstFileInfo);
+            return startMuteUsingMp4Parser(filePath, dstFileInfo);
         }
     }
     /*
@@ -82,12 +85,18 @@ public class VideoUtils {
     }
  
 
-    private static void startMuteUsingMp4Parser(String filePath,
-                                                SaveVideoFileInfo dstFileInfo) throws IOException {
+    private static boolean startMuteUsingMp4Parser(String filePath,
+            SaveVideoFileInfo dstFileInfo) throws FileNotFoundException, IOException {
         File dst = dstFileInfo.mFile;
         File src = new File(filePath);
         RandomAccessFile randomAccessFile = new RandomAccessFile(src, "r");
         Movie movie = MovieCreator.build(randomAccessFile.getChannel());
+        ///M: if this video can not be mute, show error@{
+        if (movie == null) {
+            Log.d(LOGTAG, "MovieCreator fail:" + filePath);
+            return false;
+        }
+        /// @}
 
         // remove all tracks we will create new tracks from the old
         List<Track> tracks = movie.getTracks();
@@ -100,6 +109,7 @@ public class VideoUtils {
         }
         writeMovieIntoFile(dst, movie);
         randomAccessFile.close();
+        return true;
     }
 
     private static void writeMovieIntoFile(File dst, Movie movie)
@@ -128,7 +138,7 @@ public class VideoUtils {
      * @param useVideo true if keep the video track from the source.
      * @throws IOException
      */
-    private static void genVideoUsingMuxer(String srcPath, String dstPath,
+    private static boolean genVideoUsingMuxer(String srcPath, String dstPath,
                                            int startMs, int endMs, boolean useAudio, boolean useVideo)
             throws IOException {
         // Set up MediaExtractor to read from the source.
@@ -226,10 +236,11 @@ public class VideoUtils {
         } catch (IllegalStateException e) {
             // Swallow the exception due to malformed source.
             Log.w(LOGTAG, "The source video file is malformed");
+            return false;
         } finally {
             muxer.release();
         }
-        return;
+        return true;
     }
 
     private static void trimUsingMp4Parser(File src, File dst, int startMs, int endMs)

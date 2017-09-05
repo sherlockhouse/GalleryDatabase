@@ -1056,12 +1056,12 @@ public class AlbumStorySetPage extends ActivityState implements
             mTitle = mActivity.getResources().getString(R.string.tab_by_story);
             mActionBar.setTitle(mTitle);
 
-            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
-            if(shareFreemeOS != null) {
-                String title = mActivity.getResources().getString(R.string.share)
-                        + " " + BuildConfig.SUPPORT_OS_TAG;
-                shareFreemeOS.setTitle(title);
-            }
+//            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
+//            if(shareFreemeOS != null) {
+//                String title = mActivity.getResources().getString(R.string.share)
+//                        + " " + BuildConfig.SUPPORT_OS_TAG;
+//                shareFreemeOS.setTitle(title);
+//            }
         }
         return true;
     }
@@ -1113,10 +1113,10 @@ public class AlbumStorySetPage extends ActivityState implements
                 showDialog(text);
                 return true;
 
-            case R.id.action_share_freeme: {
-                ShareFreemeUtil.shareFreemeOS(mActivity);
-                return true;
-            }
+//            case R.id.action_share_freeme: {
+//                ShareFreemeUtil.shareFreemeOS(mActivity);
+//                return true;
+//            }
 
             default:
                 return false;

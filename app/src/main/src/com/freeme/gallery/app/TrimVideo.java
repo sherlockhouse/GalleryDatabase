@@ -1,4 +1,9 @@
 /*
+ * Copyright (C) 2014 MediaTek Inc.
+ * Modification based on code covered by the mentioned copyright
+ * and/or permission notice(s).
+ */
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -172,9 +177,11 @@ public class TrimVideo extends Activity implements
 
     private void trimVideo() {
 
-        mDstFileInfo = SaveVideoFileUtils.getDstMp4FileInfo(TIME_STAMP_NAME,
-                getContentResolver(), mUri, getString(R.string.folder_download));
         final File mSrcFile = new File(mSrcVideoPath);
+        mDstFileInfo = SaveVideoFileUtils.getDstMp4FileInfo(TIME_STAMP_NAME,
+                getContentResolver(), mUri, mSrcFile.getParentFile(), true,
+                getString(R.string.folder_download));
+
 
         showProgressDialog();
 

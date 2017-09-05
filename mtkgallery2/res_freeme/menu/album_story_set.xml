@@ -38,10 +38,10 @@
         android:title="@string/help"
         android:visible="false"/>
 
-    <item
-        android:id="@+id/action_share_freeme"
-        android:icon="@null"
-        android:showAsAction="never"
-        android:visible="false"
-        android:title="@string/share_freeme_item_title"/>
+    <!--<item-->
+        <!--android:id="@+id/action_share_freeme"-->
+        <!--android:icon="@null"-->
+        <!--android:showAsAction="never"-->
+        <!--android:visible="false"-->
+        <!--android:title="@string/share_freeme_item_title"/>-->
 </menu>

@@ -72,7 +72,11 @@ public class Path {
 
     public void setObject(MediaObject object) {
         synchronized (Path.class) {
+            //*/ Modified by Linguanrong for avoid assert
+            clearObject();
+            /*/
             Utils.assertTrue(mObject == null || mObject.get() == null);
+            //*/
             mObject = new WeakReference<MediaObject>(object);
         }
     }

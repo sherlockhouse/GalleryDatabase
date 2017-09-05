@@ -21,8 +21,7 @@
     <color name="blue">#0000FF</color>
     <color name="text_toolbar">#FFFFFF</color>
     <color name="background_screen">@color/default_background</color>
-    <color name="background_toolbar">#363949</color>
-    <color name="background_main_toolbar">@color/theme_color</color>
+    <color name="background_main_toolbar">@color/default_background</color>
     <color name="toolbar_separation_line">#333333</color>
     <color name="slider_dot_color">#646464</color>
     <color name="slider_line_color">#888888</color>
