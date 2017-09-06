@@ -28,7 +28,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -60,6 +63,8 @@ public class GalleryActionBar {
     private ActionBar mActionBar;
     private int mCurrentIndex;
     private ClusterAdapter mAdapter = new ClusterAdapter();
+    private final int colorPrimary;
+
 
     private AlbumModeAdapter mAlbumModeAdapter;
     private OnAlbumModeSelectedListener mAlbumModeListener;
@@ -206,6 +211,11 @@ public class GalleryActionBar {
         mActivity = activity;
         mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
+        TypedArray array = mActivity.getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorPrimary
+        });
+        colorPrimary = array.getResourceId(0, 0);
+        array.recycle();
     }
 
     private void createDialogData() {
@@ -360,12 +370,13 @@ public class GalleryActionBar {
     }
 
     private void setActionBarBackground(boolean translucent) {
+
         if (translucent) {
             mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(R.color.transparent));
+                    .getDrawable(R.color.transparent, null));
         } else {
             mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(R.color.default_background));
+                    .getDrawable(colorPrimary, null));
         }
     }
 

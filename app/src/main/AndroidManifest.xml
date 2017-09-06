@@ -534,7 +534,11 @@
         <activity
             android:name="com.freeme.jigsaw.app.JigsawEntry"
             android:hardwareAccelerated="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
+        </activity>
         <!-- Added by TYD Theobald_Wu on 2014/01 [end] -->
 
 
@@ -555,15 +559,24 @@
                 <data android:scheme="file"/>
                 <data android:mimeType="image/*"/>
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
         <activity
             android:name="com.freeme.bigmodel.BlockfilterActivity"
             android:screenOrientation="portrait">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
         <activity
             android:name="com.freeme.bigmodel.TranslateActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnchanged">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
         <!-- Tyd -->
 

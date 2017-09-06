@@ -74,7 +74,7 @@
             android:id="@+id/picker_list_panel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/default_background"
+            android:background="?android:attr/windowBackground"
             android:scrollbars="none">
 
             <LinearLayout
