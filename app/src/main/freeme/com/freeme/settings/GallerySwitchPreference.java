@@ -24,9 +24,12 @@ import android.preference.SwitchPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Checkable;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.freeme.gallery.R;
+import com.freeme.gallery.app.Gallery;
 
 public class GallerySwitchPreference extends SwitchPreference {
 
@@ -59,13 +62,30 @@ public class GallerySwitchPreference extends SwitchPreference {
     }
 
     @Override
-    protected View onCreateView(ViewGroup parent) {
-        View view = super.onCreateView(parent);
-        int switchWidget = mResources.getIdentifier("android:id/switchWidget", null, null);
-        View checkableView = view.findViewById(switchWidget);
+    protected void onBindView(View view) {
+        super.onBindView(view);
+        View checkableView = view.findViewById(R.id.switchWidget);
         if (checkableView != null && checkableView instanceof Switch) {
             checkableView.setClickable(true);
+            checkableView.setFocusable(false);
+            boolean tt = isChecked();
+            ((Checkable) checkableView).setChecked(tt);
+            ((Switch) checkableView).setOnCheckedChangeListener(mListener);
         }
-        return view;
+    }
+
+    private final Listener mListener = new Listener();
+    private class Listener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (!callChangeListener(isChecked)) {
+                // Listener didn't like it, change it back.
+                // CompoundButton will make sure we don't recurse.
+                buttonView.setChecked(!isChecked);
+                return;
+            }
+
+            GallerySwitchPreference.this.setChecked(isChecked);
+        }
     }
 }

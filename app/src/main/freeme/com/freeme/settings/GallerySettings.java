@@ -98,9 +98,9 @@ public class GallerySettings extends PreferenceActivity {
 
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mBackMusicPref = (SwitchPreference) findPreference(BACK_MUSIC_ON_KEY);
-        boolean on = CustomJsonParser.getInstance().getCustomConfig()
-                .isSlideshow_background_music_on();
-        mBackMusicPref.setChecked(on);
+//        boolean on = CustomJsonParser.getInstance().getCustomConfig()
+//                .isSlideshow_background_music_on();
+//        mBackMusicPref.setChecked(on);
         mSlideshowDurPref = (ListPreference) findPreference(SLIDESHOW_DURATION_KEY);
         mSlideshowDurPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override

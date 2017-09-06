@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Colors specific to Freeme themes. -->
+<resources>
+    <color name="foreground_freeme_dark">@color/freeme_grey_50</color>
+    <color name="foreground_freeme_light">@color/freeme_grey_900</color>
+
+    <color name="background_freeme_dark">#333333</color>
+    <color name="background_freeme_light">#f7f7f7</color>
+    <color name="background_floating_freeme_dark">#333333</color>
+    <color name="background_floating_freeme_light">#f7f7f7</color>
+
+    <color name="primary_freeme_dark">@color/freeme_grey_900</color>
+    <color name="primary_freeme_light">@color/freeme_grey_50</color>
+    <color name="primary_dark_freeme_dark">@color/freeme_grey_900</color>
+    <color name="primary_dark_freeme_light">@color/freeme_grey_50</color>
+    <color name="primary_dark_freeme_light_light_status_bar">@color/freeme_grey_300</color>
+
+    <color name="accent_freeme_dark">#29bd68</color>
+    <color name="accent_freeme_light">#29bd68</color>
+
+    <color name="button_freeme_dark">#ff5a595b</color>
+    <color name="button_freeme_light">#ffd6d7d7</color>
+
+    <color name="switch_thumb_normal_freeme_dark">#ffbdbdbd</color>
+    <color name="switch_thumb_normal_freeme_light">#fff1f1f1</color>
+    <color name="switch_thumb_disabled_freeme_dark">#ff616161</color>
+    <color name="switch_thumb_disabled_freeme_light">#ffbdbdbd</color>
+
+    <!-- Text & foreground colors -->
+    <eat-comment />
+
+    <!-- 87% black -->
+    <color name="primary_text_default_freeme_light">#de000000</color>
+    <!-- 54% black -->
+    <color name="secondary_text_default_freeme_light">#8a000000</color>
+
+    <!-- 100% white -->
+    <color name="primary_text_default_freeme_dark">#ffffffff</color>
+    <!-- 70% white -->
+    <color name="secondary_text_default_freeme_dark">#b3ffffff</color>
+
+    <item name="hint_alpha_freeme_dark" format="float" type="dimen">0.50</item>
+    <item name="hint_alpha_freeme_light" format="float" type="dimen">0.54</item>
+
+    <item name="disabled_alpha_freeme_light" format="float" type="dimen">0.35</item>
+    <item name="disabled_alpha_freeme_dark" format="float" type="dimen">0.50</item>
+
+    <item name="highlight_alpha_freeme_light" format="float" type="dimen">0.20</item>
+    <item name="highlight_alpha_freeme_dark" format="float" type="dimen">0.20</item>
+    <item name="highlight_alpha_freeme_colored" format="float" type="dimen">0.26</item>
+
+    <!-- Primary & accent colors -->
+    <eat-comment />
+
+    <color name="freeme_grey_900">#ff212121</color>
+    <color name="freeme_grey_850">#ff303030</color>
+    <color name="freeme_grey_800">#ff424242</color>
+    <color name="freeme_grey_600">#ff757575</color>
+    <color name="freeme_grey_300">#ffe0e0e0</color>
+    <color name="freeme_grey_100">#fff5f5f5</color>
+    <color name="freeme_grey_50">#fffafafa</color>
+
+    <color name="freeme_deep_teal_100">#ffb2dfdb</color>
+    <color name="freeme_deep_teal_200">#ff80cbc4</color>
+    <color name="freeme_deep_teal_300">#ff4db6ac</color>
+    <color name="freeme_deep_teal_500">#ff009688</color>
+
+    <color name="freeme_blue_grey_800">#ff37474f</color>
+    <color name="freeme_blue_grey_900">#ff263238</color>
+    <color name="freeme_blue_grey_950">#ff21272b</color>
+
+    <!-- Time picker defaults when no theme is set -->
+    <eat-comment />
+
+    <color name="timepicker_default_background_freeme">@color/primary_text_default_freeme_light</color>
+    <color name="timepicker_default_text_color_freeme">@android:color/black</color>
+    <color name="timepicker_default_ampm_selected_background_color_freeme">@color/freeme_deep_teal_200</color>
+    <color name="timepicker_default_ampm_unselected_background_color_freeme">@android:color/transparent</color>
+    <color name="timepicker_default_selector_color_freeme">@color/freeme_deep_teal_200</color>
+    <color name="timepicker_default_numbers_background_color_freeme">@android:color/transparent</color>
+
+    <!-- DatePicker colors -->
+    <eat-comment />
+
+    <color name="datepicker_default_header_selector_background_freeme_light">@android:color/white</color>
+    <color name="datepicker_default_header_selector_background_freeme_dark">#ff303030</color>
+
+    <color name="datepicker_default_header_dayofweek_background_color_freeme_light">#999999</color>
+    <color name="datepicker_default_header_dayofweek_background_color_freeme_dark">@android:color/white</color>
+
+    <color name="datepicker_default_normal_text_color_freeme_light">#ff999999</color>
+    <color name="datepicker_default_normal_text_color_freeme_dark">@android:color/white</color>
+
+    <color name="datepicker_default_disabled_text_color_freeme_light">#80999999</color>
+    <color name="datepicker_default_disabled_text_color_freeme_dark">#80999999</color>
+
+    <color name="datepicker_default_selected_text_color_freeme_light">#ff33b5e5</color>
+    <color name="datepicker_default_selected_text_color_freeme_dark">#ff33b5e5</color>
+
+    <color name="datepicker_default_pressed_text_color_freeme_light">#ff0099cc</color>
+    <color name="datepicker_default_pressed_text_color_freeme_dark">#ff0099cc</color>
+
+    <color name="datepicker_default_circle_background_color_freeme_light">@color/freeme_deep_teal_500</color>
+    <color name="datepicker_default_circle_background_color_freeme_dark">@color/freeme_deep_teal_200</color>
+
+    <color name="datepicker_default_view_animator_color_freeme_light">#fff2f2f2</color>
+    <color name="datepicker_default_view_animator_color_freeme_dark">#ff303030</color>
+
+    <!-- switch colors -->
+    <color name="switch_dim_freeme">#ffebebeb</color>
+    <color name="switch_track_off_freeme">#b3d0d0d0</color>
+    <color name="switch_track_dim_freeme">#66d0d0d0</color>
+
+    <!-- spinner colors -->
+    <color name="spinner_dropdown_item_text_color_normal_freeme">#ff252525</color>
+    <color name="spinner_dropdown_item_text_color_disabled_freeme">#5e252525</color>
+    <color name="spinner_normal_freeme">#ff646464</color>
+    <color name="spinner_disabled_freeme">#66000000</color>
+    <color name="ab_spinner_normal_freeme">#fffafafa</color>
+    <color name="ab_spinner_disabled_freeme">#80fafafa</color>
+
+    <!-- popup colors -->
+    <color name="popup_text_color_normal_freeme">#ff252525</color>
+    <color name="popup_text_color_checked_freeme">#ff00a0ce</color>
+    <color name="popup_stroke_color_freeme">#ffa8a8a8</color>
+
+    <!-- edit text colors -->
+    <color name="edit_text_hint_text_color_enabled_true_freeme_light">#54252525</color>
+    <color name="edit_text_hint_text_color_enabled_false_freeme_light">#47252525</color>
+    <color name="edit_text_hint_text_color_enabled_true_freeme_dark">#54ffffff</color>
+    <color name="edit_text_hint_text_color_enabled_false_freeme_dark">#47ffffff</color>
+    <color name="edit_text_text_color_freeme_light">#ff252525</color>
+    <color name="edit_text_text_color_freeme_dark">#ffffffff</color>
+    <color name="edit_text_bg_tint_color_focused_false_freeme_dark">#6effffff</color>
+    <color name="edit_text_bg_tint_color_enabled_false_freeme_dark">#47ffffff</color>
+
+    <!-- listview colors -->
+    <color name="list_divider_freeme_color">#ffe6e6e6</color>
+    <color name="list_ripple_freeme_light">#1e000000</color>
+
+    <!-- scrollbar colors -->
+    <color name="scrollbar_handle_tint_color_freeme_light">#ffa1a3a5</color>
+
+    <!-- expanded listview colors -->
+    <color name="expander_group_indicator_freeme">#7f000000</color>
+
+    <!-- preference colors -->
+    <color name="preference_information_bg_color_freeme_light">#05000000</color>
+
+    <!-- dialog colors -->
+    <color name="dialog_title_text_color_freeme_light">#ff252525</color>
+    <color name="dialog_body_text_color_freeme_light">#ff252525</color>
+    <color name="dialog_horizontal_progress_text_color_freeme_light">#ff545454</color>
+    <color name="dialog_sub_text_color_freeme_light">#ff86898b</color>
+    <color name="dialog_scrollbar_handle_tint_color_freeme_light">#ffa1a3a5</color>
+
+    <!-- search view colors -->
+    <color name="searchview_hint_text_freeme">#80252525</color>
+    <color name="searchview_text_freeme">#ff252525</color>
+    <color name="searchview_textfiled_normal_freeme">#fff5f5f5</color>
+    <color name="search_popup_stroke_color_freeme">#ffdcdcdc</color>
+
+    <!-- ProgressBar colors -->
+    <color name="progress_indeterminate_loading_color1">#ff3fc51e</color>
+    <color name="progress_indeterminate_loading_color2">#ff01adcd</color>
+
+    <!-- widget - FreemeTimePicker -->
+    <color name="freeme_time_picker_stroke_color_light">#19000000</color>
+    <color name="freeme_number_picker_spinner_sub_text_color_light">#ff252525</color>
+</resources>

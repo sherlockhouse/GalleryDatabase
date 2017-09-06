@@ -12,18 +12,19 @@
 
     <PreferenceCategory
         android:title="@string/slideshow_setttings_category">
-        <SwitchPreference
-
-            android:defaultValue="false"
+        <com.freeme.settings.GallerySwitchPreference
+            android:widgetLayout="@layout/setting_switch"
             android:key="key_background_music_on"
             android:title="@string/background_music_settings"/>
 
-        <SwitchPreference
+        <com.freeme.settings.GallerySwitchPreference
+            android:widgetLayout="@layout/setting_switch"
             android:defaultValue="true"
             android:key="key_slideshow_repeat"
             android:title="@string/repeat_settings"/>
 
-        <SwitchPreference
+        <com.freeme.settings.GallerySwitchPreference
+            android:widgetLayout="@layout/setting_switch"
             android:defaultValue="false"
             android:key="key_slideshow_rand_order"
             android:title="@string/rand_order_settings"/>
