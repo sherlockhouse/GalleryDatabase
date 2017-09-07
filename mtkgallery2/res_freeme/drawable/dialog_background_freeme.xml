@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset android:insetLeft="@dimen/dialog_background_inset_horizontal_freeme"
+       android:insetRight="@dimen/dialog_background_inset_horizontal_freeme"
+       android:insetTop="@dimen/dialog_background_inset_vertical_freeme"
+       android:insetBottom="@dimen/dialog_background_inset_vertical_freeme"
+       xmlns:android="http://schemas.android.com/apk/res/android">
+    <shape android:shape="rectangle">
+        <corners android:radius="14.0dip" />
+        <solid android:color="?android:colorBackground" />
+    </shape>
+</inset>

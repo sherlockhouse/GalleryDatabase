@@ -24,7 +24,6 @@
     <!--Modified by Linguanrong for Gallery new style, 2014-02-14-->
     <TextView
         android:id="@+id/selection_menu"
-        style="?android:attr/actionButtonStyle"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="start|center_vertical"
@@ -34,8 +33,7 @@
         android:gravity="start|center_vertical"
         android:requiresFadingEdge="none"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse"
-        android:textColor="?android:attr/textColorPrimaryInverse"/>
+    />
 
     <CheckBox
         android:id="@+id/selection_all"
@@ -50,15 +48,12 @@
     <!-- Added by Linguanrong for story album, 2015-6-27 -->
     <TextView
         android:id="@+id/selection_confirm"
-        style="?android:attr/actionButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center"
         android:singleLine="true"
         android:text="@string/ok"
-        android:textAppearance="?android:attr/textAppearanceMediumInverse"
-        android:textColor="?android:attr/textColorPrimaryInverse"
         android:visibility="gone"/>
     <!-- Tyd -->
 

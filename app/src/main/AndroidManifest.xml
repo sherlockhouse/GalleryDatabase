@@ -204,9 +204,9 @@
 
                 <data android:mimeType="*/*"/>
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+            <!--<meta-data-->
+                <!--android:name="com.freeme.app.theme"-->
+                <!--android:value="freeme:style/Theme.Freeme.Light"/>-->
         </activity>
 
         <!-- This activity acts as a trampoline to the new Gallery activity,
@@ -218,9 +218,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
 
         <!-- we add this activity-alias for shortcut backward compatibility -->

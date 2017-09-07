@@ -727,12 +727,12 @@ public class AlbumStorySetPage extends ActivityState implements
         if (targetSet.getTotalMediaItemCount() == 0 && (slotIndex == StoryAlbumSet.ALBUM_LOVE_ID
                 || slotIndex == StoryAlbumSet.ALBUM_BABY_ID)) {
             mBabyAlbum = slotIndex == StoryAlbumSet.ALBUM_BABY_ID;
-            if (mSharedPref.getBoolean(SHOW_STORY_GUIDE, true)) {
-                createGuideDialog(mBabyAlbum);
-                mEditor.putBoolean(SHOW_STORY_GUIDE, false);
-                mEditor.commit();
-                return;
-            } else {
+//            if (mSharedPref.getBoolean(SHOW_STORY_GUIDE, true)) {
+//                createGuideDialog(mBabyAlbum);
+//                mEditor.putBoolean(SHOW_STORY_GUIDE, false);
+//                mEditor.commit();
+//                return;
+//            } else {
                 if (targetSet instanceof StoryMergeAlbum) {
                     mStoryBucketId = ((StoryMergeAlbum) targetSet).getStoryBucketId();
                 } else {
@@ -747,7 +747,7 @@ public class AlbumStorySetPage extends ActivityState implements
                     mDatePickerDialog.show();
                     return;
                 }
-            }
+//            }
         }
 
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-13
@@ -859,11 +859,11 @@ public class AlbumStorySetPage extends ActivityState implements
         CreateDatePickerDialog();
 
         //*/ Added by Linguanrong for guide, 2015-08-10
-        if (mSharedPref.getBoolean(SHOW_STORYSET_GUIDE, true)) {
-            mEditor.putBoolean(SHOW_STORYSET_GUIDE, false);
-            mEditor.apply();
-            showGuideDialog();
-        }
+//        if (mSharedPref.getBoolean(SHOW_STORYSET_GUIDE, true)) {
+//            mEditor.putBoolean(SHOW_STORYSET_GUIDE, false);
+//            mEditor.apply();
+//            showGuideDialog();
+//        }
         //*/
     }
 
