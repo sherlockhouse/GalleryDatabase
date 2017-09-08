@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
@@ -107,11 +108,20 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     //*/ Added by droi Linguanrong for statistic, 16-7-19
     private boolean mStartOutside = false;
+    public static int colorPrimary;
+    public static int colorPrimaryDarkValue;
     //*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorPrimary, android.R.attr.colorPrimaryDark
+        });
+        colorPrimary = array.getResourceId(0, 0);
+        colorPrimaryDarkValue = getResources().getColor(array.getResourceId(1, 0));
+        array.recycle();
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
@@ -173,6 +183,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         if (mVersionCheckDialog != null) {
             mVersionCheckDialog.show();
         }
+
 
         //*/ Added by tyd Linguanrong for freeme gallery, 16-1-13
         if (!(getStateManager().getTopState() instanceof AlbumSetPage

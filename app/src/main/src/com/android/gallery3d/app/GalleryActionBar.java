@@ -45,6 +45,7 @@ import com.freeme.gallery.R;
 import com.android.gallery3d.anim.StateTransitionAnimation;
 import com.android.gallery3d.common.ApiHelper;
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.utils.FreemeUtils;
 
@@ -63,7 +64,6 @@ public class GalleryActionBar {
     private ActionBar mActionBar;
     private int mCurrentIndex;
     private ClusterAdapter mAdapter = new ClusterAdapter();
-    private final int colorPrimary;
 
 
     private AlbumModeAdapter mAlbumModeAdapter;
@@ -211,11 +211,7 @@ public class GalleryActionBar {
         mActivity = activity;
         mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
-        TypedArray array = mActivity.getTheme().obtainStyledAttributes(new int[] {
-                android.R.attr.colorPrimary
-        });
-        colorPrimary = array.getResourceId(0, 0);
-        array.recycle();
+
     }
 
     private void createDialogData() {
@@ -376,7 +372,7 @@ public class GalleryActionBar {
                     .getDrawable(R.color.transparent, null));
         } else {
             mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(colorPrimary, null));
+                    .getDrawable(GalleryActivity.colorPrimary, null));
         }
     }
 

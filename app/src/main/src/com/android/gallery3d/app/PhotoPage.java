@@ -1196,7 +1196,9 @@ public abstract class PhotoPage extends ActivityState implements
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-
+        //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
+        setActionBarBackground(true);
+        //*/
         mActionBar.createActionBarMenu(R.menu.photo, menu);
         mHaveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
         updateMenuOperations();
@@ -1400,7 +1402,12 @@ public abstract class PhotoPage extends ActivityState implements
         super.onDestroy();
     }
 
-
+    private void setActionBarBackground(boolean translucent) {
+        if (translucent) {
+            mActionBar.setBackgroundDrawable(mActivity.getResources()
+                    .getDrawable(GalleryActivity.colorPrimary, null));
+        }
+    }
 
     private void updateMenuOperations() {
         Menu menu = mActionBar.getMenu();

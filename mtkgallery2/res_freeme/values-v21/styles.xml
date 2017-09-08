@@ -16,14 +16,14 @@
 
 <resources>
 
-    <style name="GalleryTheme" parent="android:Theme.Material.Light">
+    <style name="GalleryTheme">
         <!--<item name="@*android:panelMenuListTheme">@*android:style/Theme.Material.Light.CompactMenu</item>-->
         <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
         <item name="switchStyle">@android:style/Widget.CompoundButton</item>
         <item name="android:actionBarStyle">@style/GalleryActionBar</item>
         <item name="android:actionModeStyle">@style/GalleryActionMode</item>
+        <!--<item name="android:windowLightStatusBar">true</item>-->
         <!--<item name="android:actionModeStyle">@style/ActionBarStyle</item>-->
-
         <item name="android:colorForeground">@color/foreground_freeme_light</item>
         <item name="android:colorForegroundInverse">@color/foreground_freeme_dark</item>
         <item name="android:colorBackground">@color/background_freeme_light</item>
@@ -152,8 +152,8 @@
         <item name="android:windowActionModeOverlay">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <!--<item name="*android:windowActionBarFullscreenDecorLayout">@*android:layout/screen_toolbar</item>-->
-        <item name="android:statusBarColor">?android:attr/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>
+        <!--<item name="android:statusBarColor">?android:attr/colorPrimaryDark</item>-->
+        <!--<item name="android:navigationBarColor">?android:attr/colorPrimaryDark</item>-->
         <item name="android:windowEnterTransition">@android:transition/fade</item>
         <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
