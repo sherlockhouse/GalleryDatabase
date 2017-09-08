@@ -43,7 +43,9 @@ def META_TEST = [DROI_APPKEY_VALUE          : "2ab6c0071eab4f50bc41514a0709b9af"
                  DROI_ANALYTICS_APPKEY_VALUE: "u87umbzhdFMFNbavVqG_6FOcJER0ZzirlQANVloA",
                  DROI_ANALYTICS_CHANNEL      : "com.droi.sdk.channel_name",
                  DROI_ANALYTICS_CHANNEL_VALUE: "frosxc00"]
-
+def getTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getDefault());
+}
 android {
     compileSdkVersion cfg.compileSdkVersion
     buildToolsVersion cfg.buildToolsVersion
@@ -233,6 +235,23 @@ android {
 
     dexOptions {
         incremental true
+    }
+
+    //打包后应用名称
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            def fileName
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                if (variant.buildType.name.equals('release')) {
+                    fileName = "FreemeGallery.apk"
+                } else if (variant.buildType.name.equals('debug')) {
+                    fileName = "FreemeGalleryDEBUG${defaultConfig.versionName}.${getTime()}.apk"
+                }
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+
+        }
     }
 
     afterEvaluate {
