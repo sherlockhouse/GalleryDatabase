@@ -21,7 +21,10 @@
 
 package com.freeme.gallery.gadget;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -31,89 +34,116 @@ import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.widget.Toast;
 
 import com.android.gallery3d.gadget.WidgetUtils;
-import com.freeme.gallery.BuildConfig;
 import com.android.gallery3d.R;
 import com.freeme.gallery.app.GalleryActivity;
 import com.mediatek.gallery3d.util.Log;
-import com.android.gallery3d.app.PhotoPage;
+
+/// M: [BUG.MARK] @{
+/*// M: comment out for MTK UX issue
+ //import com.android.gallery3d.app.PhotoPage;*/
+/// @}
 import com.android.gallery3d.common.ApiHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
-import com.freeme.provider.GalleryStore;
 
 public class WidgetClickHandler extends Activity {
     private static final String TAG = "Gallery2/WidgetClickHandler";
 
-
     private boolean isValidDataUri(Uri dataUri) {
-        if (dataUri == null) {
+        if (dataUri == null) return false;
+        /// M: [BUG.ADD] scheme is content @{
+        String scheme = dataUri.getScheme();
+        if (scheme == null || !ContentResolver.SCHEME_CONTENT.equals(scheme)) {
             return false;
         }
-
+        /// @}
         try {
             AssetFileDescriptor f = getContentResolver()
                     .openAssetFileDescriptor(dataUri, "r");
             f.close();
             return true;
         } catch (Throwable e) {
+            Log.w(TAG, "cannot open uri: " + dataUri, e);
             return false;
         }
     }
 
     @Override
+    @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
     protected void onCreate(Bundle savedState) {
         super.onCreate(savedState);
-        // The behavior is changed in JB, refer to b/6384492 for more details
-        boolean tediousBack = Build.VERSION.SDK_INT >= ApiHelper.VERSION_CODES.JELLY_BEAN;
-        Uri uri = getIntent().getData();
-        Intent intent;
-        if (isValidDataUri(uri) || (uri = getContentUri(uri, this.getBaseContext())) != null) {
-            intent = new Intent(Intent.ACTION_VIEW, uri);
-            intent.setPackage(BuildConfig.APPLICATION_ID);
-            if (tediousBack) {
-                intent.putExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
+        /// M: [FEATURE.MODIFY] [Runtime permission] @{
+        /*
+         // The behavior is changed in JB, refer to b/6384492 for more details
+         boolean tediousBack = Build.VERSION.SDK_INT >= ApiHelper.VERSION_CODES.JELLY_BEAN;
+         Uri uri = getIntent().getData();
+         Intent intent;
+         if (isValidDataUri(uri)) {
+         intent = new Intent(Intent.ACTION_VIEW, uri);
+         if (tediousBack) {
+         intent.putExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
+         }
+         } else {
+         Toast.makeText(this,
+         R.string.no_such_item, Toast.LENGTH_LONG).show();
+         intent = new Intent(this, GalleryActivity.class);
+         }
+         if (tediousBack) {
+         intent.setFlags(
+         Intent.FLAG_ACTIVITY_NEW_TASK |
+         Intent.FLAG_ACTIVITY_CLEAR_TASK |
+         Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+         }
+         startActivity(intent);
+         finish();
+        */
+        mLaunchFromEmptyView = getIntent().getBooleanExtra(FLAG_FROM_EMPTY_VIEW, false)
+                && (getIntent().getData() == null);
+        Log.i(TAG, "<onCreate> FLAG_FROM_EMPTY_VIEW is "
+                        + getIntent().getBooleanExtra(FLAG_FROM_EMPTY_VIEW, false)
+                        + ", data = "
+                        + getIntent().getData());
+        if (PermissionHelper.checkAndRequestForWidget(this)) {
+            if (!mLaunchFromEmptyView) {
+                startToViewImage();
+            } else {
+                permissionGrantedWhenLaunchFromEmpty();
             }
-        } else {
-            Toast.makeText(getApplicationContext(), R.string.no_such_item,
-                    Toast.LENGTH_LONG).show();
-            intent = new Intent(this, GalleryActivity.class);
+            return;
         }
-
-        if (tediousBack) {
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                    Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                    Intent.FLAG_ACTIVITY_TASK_ON_HOME);
-        }
-
-        startActivity(intent);
-        overridePendingTransition(0, 0);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        }, 500);
+        /// @}
     }
-    public static Uri getContentUri(Uri uri, Context context) {
+
+    /// M: [BUG.ADD] @{
+    // The URI(/storage/sdcard1/) is absolute path, so transform the path to
+    // URI(content://media/external/images/media/id)
+    public static Uri getContentUri(Uri uri,
+            Context context) {
         if (uri == null) {
             return null;
         }
         String absolutePath = uri.toString();
+        Log.d(TAG, "<getContentUri> Single Photo mode absolutePath = "
+                + absolutePath);
         Cursor cursor = null;
-        int ID;
+        int id;
         try {
             cursor = context.getContentResolver().query(
-                    GalleryStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{GalleryStore.Images.ImageColumns._ID},
-                    GalleryStore.Images.ImageColumns.DATA + " = ?",
-                    new String[]{absolutePath},
+                    Images.Media.EXTERNAL_CONTENT_URI,
+                    new String[] { ImageColumns._ID },
+                    ImageColumns.DATA + " = ?", new String[] { absolutePath },
                     null);
             if (cursor != null && cursor.moveToFirst()) {
-                ID = cursor.getInt(0);
-                uri = ContentUris.withAppendedId(GalleryStore.Images.Media.EXTERNAL_CONTENT_URI, ID);
+                id = cursor.getInt(0);
+                Log.d(TAG, " <getContentUri> " + Images.Media.EXTERNAL_CONTENT_URI);
+                uri = ContentUris.withAppendedId(
+                        Images.Media.EXTERNAL_CONTENT_URI, id);
+                Log.d(TAG, "<getContentUri> Single Photo mode : The URI base of absolte path = "
+                                        + uri);
             } else {
                 uri = null;
             }
@@ -169,9 +199,10 @@ public class WidgetClickHandler extends Activity {
                     Intent.FLAG_ACTIVITY_CLEAR_TASK |
                     Intent.FLAG_ACTIVITY_TASK_ON_HOME);
         }
-//        /// M: [BUG.ADD] for widget flash issue.@{
-//        intent.putExtra(GalleryActivity.EXTRA_FROM_WIDGET, true);
-//        /// @}
+        /// M: [BUG.ADD] for widget flash issue.@{
+        intent.putExtra(GalleryActivity.EXTRA_FROM_WIDGET, true);
+        /// @}
+        intent.setPackage(getPackageName());
         startActivity(intent);
         finish();
     }

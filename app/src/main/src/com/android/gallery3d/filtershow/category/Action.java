@@ -32,12 +32,12 @@ import android.graphics.RectF;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
-import com.android.gallery3d.filtershow.pipeline.RenderingRequest;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
-
-import com.android.gallery3d.filtershow.pipeline.ImagePreset;
+import com.android.gallery3d.filtershow.filters.FilterDrawRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterUserPresetRepresentation;
+import com.android.gallery3d.filtershow.pipeline.RenderingRequest;
 import com.android.gallery3d.filtershow.pipeline.RenderingRequestCaller;
-import com.freeme.gallery.R;
 import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.android.gallery3d.filtershow.pipeline.ImagePreset;
@@ -62,6 +62,11 @@ public class Action implements RenderingRequestCaller {
     private boolean mCanBeRemoved = false;
     private int mTextSize = 32;
     private boolean mIsDoubleAction = false;
+    /// M: [BUG.ADD] @{
+    // add for add menu click.
+    public boolean mHasFinishAppliedFilterOperation = false;
+    public boolean mIsAddVersionOperation = false;
+    /// @}
 
     public Action(FilterShowActivity context, FilterRepresentation representation, int type,
                   boolean canBeRemoved) {
@@ -173,6 +178,12 @@ public class Action implements RenderingRequestCaller {
         if (mImageFrame.height() > mImageFrame.width()) {
             // if portrait
             dy -= mTextSize;
+            /// M: [BUG.ADD] @{
+            // keep source bitmap always inside the destination bitmap
+            if (dy < 0) {
+                dy = 0;
+             }
+            /// @}
         }
         m.setScale(scaleFactor, scaleFactor);
         m.postTranslate(dx, dy);
@@ -184,6 +195,11 @@ public class Action implements RenderingRequestCaller {
     public void available(RenderingRequest request) {
         clearBitmap();
         mImage = request.getBitmap();
+        /// M: [BUG.ADD] @{
+        if (mIsAddVersionOperation && mImage != null) {
+            mHasFinishAppliedFilterOperation = true;
+        }
+        /// @}
         if (mImage == null) {
             mImageFrame = null;
             return;

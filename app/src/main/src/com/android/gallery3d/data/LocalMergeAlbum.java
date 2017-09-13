@@ -22,6 +22,7 @@
 package com.android.gallery3d.data;
 
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import com.freeme.extern.IBucketAlbum;
 import com.android.gallery3d.common.ApiHelper;
@@ -101,13 +102,13 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
     public Uri getContentUri() {
         String bucketId = String.valueOf(mBucketId);
         if (ApiHelper.HAS_MEDIA_PROVIDER_FILES_TABLE) {
-            return GalleryStore.Files.getContentUri("external").buildUpon()
+            return MediaStore.Files.getContentUri("external").buildUpon()
                     .appendQueryParameter(LocalSource.KEY_BUCKET_ID, bucketId)
                     .build();
         } else {
             // We don't have a single URL for a merged image before ICS
             // So we used the image's URL as a substitute.
-            return GalleryStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return MediaStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(LocalSource.KEY_BUCKET_ID, bucketId)
                     .build();
         }

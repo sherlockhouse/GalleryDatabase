@@ -47,8 +47,12 @@ public class HistoryManager {
     private int getCount() {
         return mHistoryItems.size();
     }
+
     public HistoryItem getItem(int position) {
-        if (position > mHistoryItems.size() - 1) {
+        /// M: [BUG.MODIFY] position maybe is -1 @{
+        //if (position > mHistoryItems.size() - 1) {
+        if (position < 0 || position > mHistoryItems.size() - 1) {
+        /// @}
             return null;
         }
         return mHistoryItems.elementAt(position);
@@ -176,4 +180,15 @@ public class HistoryManager {
         return mCurrentPresetPosition;
     }
 
+    /// M: [BUG.ADD] fix display abnormal when back from crop @{
+    public void removeLast() {
+        if (mHistoryItems == null || mHistoryItems.size() == 0) {
+            return;
+        }
+        Log.i(LOGTAG, "<removeLast>");
+        mHistoryItems.removeElementAt(0);
+        notifyDataSetChanged();
+        updateMenuItems();
+    }
+    /// @}
 }

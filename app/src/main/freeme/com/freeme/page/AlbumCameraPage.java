@@ -368,7 +368,7 @@ public class AlbumCameraPage extends ActivityState implements GalleryActionBar.C
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(false, true);
+        mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
 
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);

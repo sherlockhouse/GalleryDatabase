@@ -145,4 +145,5 @@
     <dimen name="template_layout_v4_gap">112px</dimen>
     <!-- end -->
     <!--Tyd-->
+    <dimen name="actionbar_tab_min_wdith">65dp</dimen>
 </resources>

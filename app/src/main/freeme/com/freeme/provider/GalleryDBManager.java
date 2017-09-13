@@ -16,6 +16,7 @@ public class GalleryDBManager {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             LogUtil.i("onServiceConnected = " + name + " | " + service);
+            mContext.unbindService(mediaStoreConnection);
         }
 
         @Override
@@ -44,6 +45,12 @@ public class GalleryDBManager {
     private void bindServer() {
         Intent intent = new Intent(mContext, MediaStoreImportService.class);
         mContext.bindService(intent, mediaStoreConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public  void unbindServer() {
+        if (mContext != null) {
+            mContext.unbindService(mediaStoreConnection);
+        }
     }
 
     public SQLiteDatabase getDataBase() {

@@ -430,7 +430,7 @@ public class AlbumStoryCoverPage extends ActivityState
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(true, true);
+        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
         mActionBar.setTitle(mTitle);
         mActionBar.setSubtitle(null);
 

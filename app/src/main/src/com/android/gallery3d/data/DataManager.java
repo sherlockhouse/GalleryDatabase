@@ -22,19 +22,24 @@
 package com.android.gallery3d.data;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.app.Log;
 import com.android.gallery3d.app.StitchingChangeListener;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.data.MediaObject.PanoramaSupportCallback;
+import com.android.gallery3d.data.MediaSet.ItemConsumer;
+import com.android.gallery3d.data.MediaSource.PathId;
+import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.BucketNames;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.MediaSetUtils;
-import com.android.gallery3d.common.Utils;
 import com.freeme.utils.DroiSDCardManager;
-import com.android.gallery3d.picasasource.PicasaSource;
 
 
 import java.util.ArrayList;
@@ -191,6 +196,9 @@ public class DataManager implements StitchingChangeListener {
                 return object;
             } catch (Throwable t) {
                 Log.w(TAG, "exception in creating media object: " + path, t);
+                /// M: [BUG.ADD] @{
+                path.clearObject();
+                /// @}
                 return null;
             }
         }
@@ -223,26 +231,26 @@ public class DataManager implements StitchingChangeListener {
     // An index number is also passed to consumer.consume() to identify
     // the original position in the input list of the corresponding Path (plus
     // startIndex).
-    public void mapMediaItems(ArrayList<Path> list, MediaSet.ItemConsumer consumer,
-                              int startIndex) {
-        HashMap<String, ArrayList<MediaSource.PathId>> map =
-                new HashMap<String, ArrayList<MediaSource.PathId>>();
+    public void mapMediaItems(ArrayList<Path> list, ItemConsumer consumer,
+            int startIndex) {
+        HashMap<String, ArrayList<PathId>> map =
+                new HashMap<String, ArrayList<PathId>>();
 
         // Group the path by the prefix.
         int n = list.size();
         for (int i = 0; i < n; i++) {
             Path path = list.get(i);
             String prefix = path.getPrefix();
-            ArrayList<MediaSource.PathId> group = map.get(prefix);
+            ArrayList<PathId> group = map.get(prefix);
             if (group == null) {
-                group = new ArrayList<MediaSource.PathId>();
+                group = new ArrayList<PathId>();
                 map.put(prefix, group);
             }
-            group.add(new MediaSource.PathId(path, i + startIndex));
+            group.add(new PathId(path, i + startIndex));
         }
 
         // For each group, ask the corresponding media source to map it.
-        for (Entry<String, ArrayList<MediaSource.PathId>> entry : map.entrySet()) {
+        for (Entry<String, ArrayList<PathId>> entry : map.entrySet()) {
             String prefix = entry.getKey();
             MediaSource source = mSourceMap.get(prefix);
             source.mapMediaItems(entry.getValue(), consumer);
@@ -254,7 +262,7 @@ public class DataManager implements StitchingChangeListener {
         return getMediaObject(path).getSupportedOperations();
     }
 
-    public void getPanoramaSupport(Path path, MediaObject.PanoramaSupportCallback callback) {
+    public void getPanoramaSupport(Path path, PanoramaSupportCallback callback) {
         getMediaObject(path).getPanoramaSupport(callback);
     }
 
@@ -391,5 +399,60 @@ public class DataManager implements StitchingChangeListener {
             newPath = "/local/camera" + "/{/local/all/" + MediaSetUtils.CAMERA_BUCKET_ID+"}";
         }
         return newPath;
+    }
+	
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+
+    private static final String ACTION_UPDATE_PICTURE =
+            "com.android.gallery3d.action.UPDATE_PICTURE";
+
+    /**
+     * Sends a local broadcast if a local image or video is deleted. This is
+     * used to update the thumbnail shown in the camera app.
+     */
+    public void broadcastUpdatePicture() {
+        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(
+                mApplication.getAndroidContext());
+        Intent intent = new Intent(ACTION_UPDATE_PICTURE);
+        manager.sendBroadcast(intent);
+    }
+
+    // for refresh all set
+    public void forceRefreshAll() {
+        Log.d(TAG, "<forceRefreshAll>");
+        ArrayList<NotifyBroker> notifierBrokers;
+        synchronized (mNotifierMap) {
+            notifierBrokers = new ArrayList<NotifyBroker>(mNotifierMap.size());
+            for (NotifyBroker n : mNotifierMap.values()) {
+                notifierBrokers.add(n);
+            }
+        }
+        for (NotifyBroker n : notifierBrokers) {
+            // notify each broker to force refresh all items in Gallery2
+            n.onChange(false);
+        }
+    }
+
+    /** Check if current object of DataManager is a same instance as last object of DataManager.
+     * @param lastDataManager Last instance of DataManager
+     * @param lastProcessId Last process id which last DataManager running on
+     * @return True if they are a same instance, or else false
+     */
+    public boolean reuseDataManager(String lastDataManager, String lastProcessId) {
+        String newDataManager = this.toString();
+        String newProcessId = String.valueOf(android.os.Process.myPid());
+        Log.v(TAG, "<reuseDataManager> lastDataManager = " + lastDataManager
+                + ", newDataManager = " + newDataManager);
+        Log.v(TAG, "<reuseDataManager> lastProcessId = " + lastProcessId
+                + ", newProcessId = " + newProcessId);
+        if (lastDataManager != null && newDataManager.equals(lastDataManager)
+                && lastProcessId != null && newProcessId.equals(lastProcessId)) {
+            Log.v(TAG, "<reuseDataManager> return true");
+            return true;
+        }
+        Log.v(TAG, "<reuseDataManager> return false");
+        return false;
     }
 }

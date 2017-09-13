@@ -17,10 +17,10 @@
     <item android:id="@+id/action_camera"
             android:icon="@drawable/ic_menu_camera_holo_light"
             android:title="@string/switch_to_camera"
-            android:showAsAction="ifRoom" />
+            android:showAsAction="never" />
 
 
-    <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
+    <!-- Addfed by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
     <item
         android:id="@+id/action_jigsaw"
         android:icon="@drawable/ic_menu_jigsaw_blue"

@@ -44,6 +44,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -185,7 +186,7 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
             }
             //*/ tyd.biantao 20140409. wallpaper.
         }
-            /// M: [FEATURE.MODIFY] [Runtime permission] @{
+        /// M: [FEATURE.MODIFY] [Runtime permission] @{
         /*
         if (savedInstanceState != null) {
             getStateManager().restoreFromState(savedInstanceState);
@@ -193,19 +194,19 @@ public class CropActivity extends Activity implements SaveWallpaper.SaveWallPape
             initializeByIntent();
         }
         */
-            boolean granted = PermissionHelper.checkAndRequestForGallery(this);
-            if (granted) {
-                if (intent.getData() != null) {
-                    mSourceUri = intent.getData();
-                    startLoadBitmap(mSourceUri);
-                } else {
-                    pickImage();
-                }
+        boolean granted = PermissionHelper.checkAndRequestForGallery(this);
+        if (granted) {
+            if (intent.getData() != null) {
+                mSourceUri = intent.getData();
+                startLoadBitmap(mSourceUri);
             } else {
-                View loading = findViewById(R.id.loading);
-                loading.setVisibility(View.INVISIBLE);
+                pickImage();
             }
-            /// @}
+        } else {
+            View loading = findViewById(R.id.loading);
+            loading.setVisibility(View.INVISIBLE);
+        }
+        /// @}
     }
 
     private void enableSave(boolean enable) {

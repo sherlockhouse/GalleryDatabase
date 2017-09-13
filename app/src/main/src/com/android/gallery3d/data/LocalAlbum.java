@@ -39,6 +39,7 @@ import com.freeme.provider.GalleryStore;
 import com.freeme.provider.GalleryStore.Images;
 import com.freeme.provider.GalleryStore.Video;
 import com.freeme.utils.FreemeUtils;
+import com.mediatek.galleryframework.base.MediaFilterSetting;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -183,9 +184,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
             GalleryApp application, boolean isImage, ArrayList<Integer> ids) {
         // get the lower and upper bound of (path) id
         MediaItem[] result = new MediaItem[ids.size()];
-        if (ids.isEmpty()) {
-            return result;
-        }
+        if (ids.isEmpty()) return result;
         int idLow = ids.get(0);
         int idHigh = ids.get(ids.size() - 1);
 
@@ -352,9 +351,93 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         }
         return relativePath;
     }
-
     @Override
     public int getBucketId() {
         return mBucketId;
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    private String mDefaultWhereClause;
+    private String mWhereClauseForDelete;
+
+    /// M: [BUG.ADD] Relative path is the absolute path minus external storage path.@{
+    public String getRelativePath() {
+        String relativePath = "/";
+        if (mBucketId == MediaSetUtils.CAMERA_BUCKET_ID) {
+            relativePath += BucketNames.CAMERA;
+        } else if (mBucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
+            relativePath += BucketNames.DOWNLOAD;
+        } else if (mBucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
+            relativePath += BucketNames.IMPORTED;
+        } else if (mBucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
+            relativePath += BucketNames.SCREENSHOTS;
+        } else if (mBucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
+            relativePath += BucketNames.EDITED_ONLINE_PHOTOS;
+        // stereo - copy & paste {
+//        } else if (mBucketId == MediaSetUtils.STEREO_CLIPPINGS_BUCKET_ID) {
+//            relativePath += BucketNames.STEREO_CLIPPINGS;
+        // stereo - copy & paste }
+        } else {
+            // If the first few cases didn't hit the matching path, do a
+            // thorough search in the local directories.
+            /// M: SearchDirForPath is a recursive procedure,
+            /// if there are a large number of folder on storage, it will take a long time,
+            /// so we change the way of getting relative path @{
+            MediaItem cover = getCoverMediaItem();
+            File extStorage = Environment.getExternalStorageDirectory();
+            if (cover != null) {
+                relativePath = null;
+                String storage = extStorage.getAbsolutePath();
+                String path = cover.getFilePath();
+                Log.i(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
+                if (path != null && storage != null && !storage.equals("")
+                        && path.startsWith(storage)) {
+                    relativePath = path.substring(storage.length());
+                    relativePath = relativePath.substring(0, relativePath
+                            .lastIndexOf("/"));
+                    Log.i(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
+                                    + mBucketId + " is " + relativePath);
+                }
+                /// @}
+            } else {
+                String path = GalleryUtils.searchDirForPath(extStorage, mBucketId);
+                if (path == null) {
+                    Log.w(TAG, "<getRelativePath> 2.Relative path for bucket id: "
+                            + mBucketId + " is not found.");
+                    relativePath = null;
+                } else {
+                    relativePath = path.substring(extStorage.getAbsolutePath().length());
+                    Log.i(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
+                            + mBucketId + " is " + relativePath);
+                }
+            }
+        }
+        Log.i(TAG, "<getRelativePath> return " + relativePath);
+        return relativePath;
+    }
+    /// @}
+
+    private void exInitializeWhereClause() {
+        mDefaultWhereClause = mWhereClause;
+        reloadWhereClause();
+    }
+
+    private void reloadWhereClause() {
+        if (mIsImage) {
+            mWhereClauseForDelete = MediaFilterSetting
+                    .getExtDeleteWhereClauseForImage(mDefaultWhereClause,
+                            mBucketId);
+            mWhereClause = MediaFilterSetting.getExtWhereClauseForImage(
+                    mDefaultWhereClause, mBucketId);
+        } else {
+            mWhereClauseForDelete = MediaFilterSetting
+                    .getExtDeleteWhereClauseForVideo(mDefaultWhereClause,
+                            mBucketId);
+            mWhereClause = MediaFilterSetting.getExtWhereClauseForVideo(
+                    mDefaultWhereClause, mBucketId);
+        }
     }
 }

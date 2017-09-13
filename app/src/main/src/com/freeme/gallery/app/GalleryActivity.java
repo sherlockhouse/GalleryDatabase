@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +21,7 @@
 
 package com.freeme.gallery.app;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -25,6 +31,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.database.ContentObserver;
@@ -62,8 +69,15 @@ import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
+import com.android.gallery3d.gadget.WidgetUtils;
 import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
+
+import com.freeme.provider.GalleryDBManager;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
+import com.mediatek.gallery3d.util.PermissionHelper;
+import com.mediatek.gallery3d.util.TraceHelper;
+import com.mediatek.galleryfeature.config.FeatureConfig;
 import com.android.gallery3d.common.Utils;
 import com.freeme.page.AlbumCameraPage;
 import com.freeme.page.AlbumStorySetPage;
@@ -78,6 +92,9 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     public static final String EXTRA_SLIDESHOW = "slideshow";
     public static final String EXTRA_DREAM = "dream";
     public static final String EXTRA_CROP = "crop";
+    /// M: [BUG.ADD] @{
+    public static final String EXTRA_FROM_WIDGET = "fromWidget";
+    /// @}
 
     public static final String ACTION_REVIEW = "com.android.camera.action.REVIEW";
     public static final String KEY_GET_CONTENT = "get-content";
@@ -90,14 +107,14 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     //*/ Added by tyd Linguanrong for freeme gallery, 16-1-13
     private static final String SHOW_TAB_GUIDE = "showTabGuide";
     private final static int REQUEST_COMMUNITY = 1100;
-    private final static int INDEX_CAMERA = 0;
-    private final static int INDEX_STORY = 1;
-    private final static int INDEX_ALBUM = 2;
-    private final static int INDEX_COMMUNITY = 3;
-    //*/ Added by Tyd Linguanrong for secret photos, 2014-3-10
+    public final static int INDEX_CAMERA = 0;
+    public final static int INDEX_STORY = 1;
+    public final static int INDEX_ALBUM = 2;
+    public final static int INDEX_COMMUNITY = 3;
+    //*/ Added by Tyd Lpublicinguanrong for secret photos, 2014-3-10
     private static final String VISITOR_MODE_ON = "com.freeme.ACTION_VISITOR_MODE_ON";
     private Dialog mVersionCheckDialog;
-    private RadioGroup radiogroup;
+//    private RadioGroup radiogroup;
     private Animation bottomdown;
     private Animation bottomup;
     private VisitorModeChangedReceiver mReceiver;
@@ -108,20 +125,16 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     //*/ Added by droi Linguanrong for statistic, 16-7-19
     private boolean mStartOutside = false;
-    public static int colorPrimary;
-    public static int colorPrimaryDarkValue;
     //*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /// M: [DEBUG.ADD] @{
+        TraceHelper.traceBegin(">>>>Gallery-onCreate");
+        /// @}
         super.onCreate(savedInstanceState);
 
-        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
-                android.R.attr.colorPrimary, android.R.attr.colorPrimaryDark
-        });
-        colorPrimary = array.getResourceId(0, 0);
-        colorPrimaryDarkValue = getResources().getColor(array.getResourceId(1, 0));
-        array.recycle();
+
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
@@ -134,19 +147,11 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             FreemeUtils.setScreenBrightness(getWindow());
         }
 
-        setContentView(com.freeme.gallery.R.layout.main);
+        setContentView(R.layout.main);
 
         //*/freemeos.xueweili 16-6-20  add for set cover visable when app first in
-        Intent intent = getIntent();
-        if (intent != null
-                && (intent
-                .getAction() != null && intent.getAction().equals(
-                intent.ACTION_MAIN))) {
-            View view = findViewById(R.id.gl_root_cover);
-            if (view != null) {
-                view.setVisibility(View.VISIBLE);
-            }
-        }
+
+
         //*/
 
         mContext = this;
@@ -159,12 +164,60 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         initAnimation();
         initBottomTab();
         //*/
-
+        /// M: [FEATURE.MODIFY] [Runtime permission] @{
+        /*
         if (savedInstanceState != null) {
             getStateManager().restoreFromState(savedInstanceState);
         } else {
             initializeByIntent();
         }
+         */
+        if (mGranted) {
+            //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
+//            GalleryDBManager.getInstance().initDB(this, "gallery.db");
+            //*/
+
+            /// M: [BUG.ADD] set gl_root_cover visible if open from widget or launch by @{
+            // launcher, or else it will flash
+            Intent intent = getIntent();
+            if (intent != null
+                    && (intent.getBooleanExtra(EXTRA_FROM_WIDGET, false) || (intent
+                    .getAction() != null && intent.getAction().equals(
+                    intent.ACTION_MAIN)))) {
+                View view = findViewById(R.id.gl_root_cover);
+                if (view != null) {
+                    view.setVisibility(View.VISIBLE);
+                    Log.i(TAG, "<onCreate> from widget or launcher, set gl_root_cover VISIBLE");
+                }
+            }
+
+            /// @}
+            if (savedInstanceState != null) {
+                getStateManager().restoreFromState(savedInstanceState);
+            } else {
+                initializeByIntent();
+            }
+
+            //*/ Added by tyd Linguanrong for freeme gallery, 16-1-13
+            if (!getStateManager().isStackEmpty()) {
+                if (!(getStateManager().getTopState() instanceof AlbumSetPage
+                        || getStateManager().getTopState() instanceof AlbumTimeShaftPage
+                        || getStateManager().getTopState() instanceof AlbumCameraPage
+                        || getStateManager().getTopState() instanceof AlbumStorySetPage)) {
+                    setBottomTabVisibility(false);
+                }
+            }
+            //*/
+        } else {
+            mSaveInstanceState = savedInstanceState;
+        }
+        /// @}
+        /// M: [PERF.ADD] Modify CPU boost policy for first launch performance @{
+        FeatureHelper.modifyBoostPolicy(this);
+        /// @}
+        /// M: [DEBUG.ADD] @{
+        TraceHelper.traceEnd();
+        /// @}
 
         //*/ Added by Tyd Linguanrong for secret photos, 2014-3-10
         IntentFilter visitorModeChangedFilter = new IntentFilter();
@@ -176,38 +229,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         //*/
     }
 
-    @Override
-    protected void onResume() {
-        Utils.assertTrue(getStateManager().getStateCount() > 0);
-        super.onResume();
-        if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.show();
-        }
 
-
-        //*/ Added by tyd Linguanrong for freeme gallery, 16-1-13
-        if (!(getStateManager().getTopState() instanceof AlbumSetPage
-                || getStateManager().getTopState() instanceof AlbumTimeShaftPage
-                || getStateManager().getTopState() instanceof AlbumCameraPage
-                || getStateManager().getTopState() instanceof AlbumStorySetPage)) {
-            setBottomTabVisibility(false);
-        }
-        //*/
-
-        //*/ Added by Linguanrong for secret photos, 2014-9-17
-        int state = Settings.System.getInt(getContentResolver(), "tydtech_vistor_mode_state", 0);
-        if (state == 1 && mVisitorMode) {
-            finish();
-        }
-
-        if (mVisitorMode) {
-            Settings.System.putInt(getContentResolver(), FreemeUtils.INNER_VISTOR_MODE, 1);
-        }
-        //*/
-
-        // for baas analytic
-        DroiAnalytics.onResume(this);
-    }
 
     @Override
     protected void onPause() {
@@ -258,6 +280,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         if (BuildConfig.DEBUG) {
             LogcatHelper.getInstance(this).stop();
         }
+        GalleryDBManager.getInstance().unbindServer();
     }
 
     @Override
@@ -293,7 +316,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
         switch (index) {
             case INDEX_CAMERA:
-                radiogroup.check(R.id.bottom_tab_camera);
+//                radiogroup.check(R.id.bottom_tab_camera);
                 newPath = getDataManager().makeCameraSetPath();
                 boolean mTimeShaftPage = mSharedPreferences.getBoolean("default_page", true);
                 if (mTimeShaftPage) {
@@ -306,7 +329,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 break;
 
             case INDEX_STORY:
-                radiogroup.check(R.id.bottom_tab_story);
+//                radiogroup.check(R.id.bottom_tab_story);
                 data.putBoolean(GalleryActivity.KEY_GET_CONTENT, false);
                 data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, StoryAlbumSet.PATH.toString());
                 data.putInt(AlbumStorySetPage.KEY_SELECTED_CLUSTER_TYPE,
@@ -315,7 +338,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 break;
 
             case INDEX_ALBUM:
-                radiogroup.check(R.id.bottom_tab_album);
+//                radiogroup.check(R.id.bottom_tab_album);
                 basePath = getDataManager().getTopSetPath(DataManager.INCLUDE_ALL);
                 newPath = FilterUtils.switchClusterPath(basePath, FreemeUtils.CLUSTER_BY_ALBUM);
                 data.putString(AlbumSetPage.KEY_MEDIA_PATH, newPath);
@@ -326,10 +349,10 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     }
 
     public void setBottomTabVisibility(boolean visible) {
-        if (radiogroup != null) {
-            //radiogroup.startAnimation(visible ? bottomup : bottomdown);
-            radiogroup.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+//        if (radiogroup != null) {
+//            //radiogroup.startAnimation(visible ? bottomup : bottomdown);
+//            radiogroup.setVisibility(visible ? View.VISIBLE : View.GONE);
+//        }
     }
 
     private void initAnimation() {
@@ -338,39 +361,39 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     }
 
     private void initBottomTab() {
-        radiogroup = (RadioGroup) findViewById(R.id.bottom_tab);
+//        radiogroup = (RadioGroup) findViewById(R.id.bottom_tab);
         final SharedPreferences sharedPref = getSharedPreferences(
                 FreemeUtils.STORY_SHAREPREFERENCE_KEY, MODE_PRIVATE);
         final SharedPreferences.Editor editor = sharedPref.edit();
         boolean showStoryGuide = sharedPref.getBoolean(SHOW_TAB_GUIDE, true);
         updateStoryGuide(showStoryGuide);
-        radiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.bottom_tab_camera:
-                        getGalleryActionBar().onBottomTabSelected(INDEX_CAMERA);
-                        break;
-
-                    case R.id.bottom_tab_story:
-                        getGalleryActionBar().onBottomTabSelected(INDEX_STORY);
-                        if (sharedPref.getBoolean(SHOW_TAB_GUIDE, true)) {
-                            updateStoryGuide(false);
-                            editor.putBoolean(SHOW_TAB_GUIDE, false);
-                            editor.apply();
-                        }
-                        break;
-
-                    case R.id.bottom_tab_album:
-                        getGalleryActionBar().onBottomTabSelected(INDEX_ALBUM);
-                        break;
-
-                    case R.id.bottom_tab_community:
-                        getGalleryActionBar().onBottomTabSelected(INDEX_COMMUNITY);
-                        break;
-                }
-            }
-        });
+//        radiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                switch (checkedId) {
+//                    case R.id.bottom_tab_camera:
+//                        getGalleryActionBar().onBottomTabSelected(INDEX_CAMERA);
+//                        break;
+//
+//                    case R.id.bottom_tab_story:
+//                        getGalleryActionBar().onBottomTabSelected(INDEX_STORY);
+//                        if (sharedPref.getBoolean(SHOW_TAB_GUIDE, true)) {
+//                            updateStoryGuide(false);
+//                            editor.putBoolean(SHOW_TAB_GUIDE, false);
+//                            editor.apply();
+//                        }
+//                        break;
+//
+//                    case R.id.bottom_tab_album:
+//                        getGalleryActionBar().onBottomTabSelected(INDEX_ALBUM);
+//                        break;
+//
+//                    case R.id.bottom_tab_community:
+//                        getGalleryActionBar().onBottomTabSelected(INDEX_COMMUNITY);
+//                        break;
+//                }
+//            }
+//        });
     }
 
     private void initializeByIntent() {
@@ -389,12 +412,8 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             Log.w(TAG, "action PICK is not supported");
             String type = Utils.ensureNotNull(intent.getType());
             if (type.startsWith("vnd.android.cursor.dir/")) {
-                if (type.endsWith("/image")) {
-                    intent.setType("image/*");
-                }
-                if (type.endsWith("/video")) {
-                    intent.setType("video/*");
-                }
+                if (type.endsWith("/image")) intent.setType("image/*");
+                if (type.endsWith("/video")) intent.setType("video/*");
             }
             startGetContent(intent);
         } else if (Intent.ACTION_VIEW.equalsIgnoreCase(action)
@@ -411,11 +430,48 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
     }
 
+    public void startDefaultPage() {
+        PicasaSource.showSignInReminder(this);
+        Bundle data = new Bundle();
+        /*/Modified by Tyd Linguanrong for Gallery new style, 2013-12-23
+        data.putString(AlbumSetPage.KEY_MEDIA_PATH,
+                getDataManager().getTopSetPath(DataManager.INCLUDE_ALL));
+        getStateManager().startState(AlbumSetPage.class, data);
+        /*/
+        String newPath;
+        newPath = getDataManager().makeCameraSetPath();
+        boolean mTimeShaftPage = mSharedPreferences.getBoolean("default_page", true);
+        if (mTimeShaftPage) {
+            data.putString(AlbumTimeShaftPage.KEY_MEDIA_PATH, newPath);
+            getStateManager().startState(AlbumTimeShaftPage.class, data);
+        } else {
+            data.putString(AlbumCameraPage.KEY_MEDIA_PATH, newPath);
+            getStateManager().startState(AlbumCameraPage.class, data);
+        }
+        //*/
+        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.setOnCancelListener(this);
+        }
+
+        //*/ Added by tyd Linguanrong for statistic, 15-12-18
+        mStartOutside = false;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
+                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
+                // for baas analytics
+                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
+            }
+        });
+        //*/
+    }
     private void updateStoryGuide(boolean showStoryGuide) {
-        RadioButton story = (RadioButton) findViewById(R.id.bottom_tab_story);
-        story.setCompoundDrawablesWithIntrinsicBounds(0,
-                showStoryGuide ? R.drawable.guide_tab_story : R.drawable.tab_story,
-                0, 0);
+//        RadioButton story = (RadioButton) findViewById(R.id.bottom_tab_story);
+//        story.setCompoundDrawablesWithIntrinsicBounds(0,
+//                showStoryGuide ? R.drawable.guide_tab_story : R.drawable.tab_story,
+//                0, 0);
     }
 
     private void startGetContent(Intent intent) {
@@ -539,44 +595,37 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         getStateManager().startState(AlbumVisitorPage.class, data);
     }
     //*/
-
-    public void startDefaultPage() {
-        PicasaSource.showSignInReminder(this);
-        Bundle data = new Bundle();
-        /*/Modified by Tyd Linguanrong for Gallery new style, 2013-12-23
-        data.putString(AlbumSetPage.KEY_MEDIA_PATH,
-                getDataManager().getTopSetPath(DataManager.INCLUDE_ALL));
-        getStateManager().startState(AlbumSetPage.class, data);
-        /*/
-        String newPath;
-        newPath = getDataManager().makeCameraSetPath();
-        boolean mTimeShaftPage = mSharedPreferences.getBoolean("default_page", true);
-        if (mTimeShaftPage) {
-            data.putString(AlbumTimeShaftPage.KEY_MEDIA_PATH, newPath);
-            getStateManager().startState(AlbumTimeShaftPage.class, data);
-        } else {
-            data.putString(AlbumCameraPage.KEY_MEDIA_PATH, newPath);
-            getStateManager().startState(AlbumCameraPage.class, data);
-        }
-        //*/
-        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
+    @Override
+    protected void onResume() {
+        /// M: [DEBUG.ADD] @{
+        TraceHelper.traceBegin(">>>>Gallery-onResume");
+        /// @}
+        /// M: [FEATURE.MARK] [Runtime permission] @{
+        /*Utils.assertTrue(getStateManager().getStateCount() > 0);*/
+        /// @}
+        super.onResume();
         if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.setOnCancelListener(this);
+            mVersionCheckDialog.show();
+        }
+        /// M: [DEBUG.ADD] @{
+        TraceHelper.traceEnd();
+
+
+        //*/ Added by Linguanrong for secret photos, 2014-9-17
+        int state = Settings.System.getInt(getContentResolver(), "tydtech_vistor_mode_state", 0);
+        if (state == 1 && mVisitorMode) {
+            finish();
         }
 
-        //*/ Added by tyd Linguanrong for statistic, 15-12-18
-        mStartOutside = false;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
-                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
-                // for baas analytics
-                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
-            }
-        });
+        if (mVisitorMode) {
+            Settings.System.putInt(getContentResolver(), FreemeUtils.INNER_VISTOR_MODE, 1);
+        }
         //*/
+
+        // for baas analytic
+        DroiAnalytics.onResume(this);
     }
+
 
     private String getContentType(Intent intent) {
         String type = intent.getType();
@@ -667,4 +716,107 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
     }
     //*/
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // <CTA Data Protection> @{
+    // Start with CTA DataProtection action,
+    // View the Image as FL drm file format.
+    private static final String ACTION_VIEW_LOCKED_FILE =
+            "com.mediatek.dataprotection.ACTION_VIEW_LOCKED_FILE";
+    private String mToken = null;
+    private String mTokenKey = null;
+
+    private void startViewLockedFileAction() {
+        Intent intent = getIntent();
+        mToken = intent.getStringExtra("TOKEN");
+        mTokenKey = intent.getStringExtra("TOKEN_KEY");
+        if (intent.getData() == null) {
+            Log.i(TAG, "<startViewLockedFileAction> intent.getData() is null, finish activity");
+            finish();
+        }
+
+//        if (null == mToken
+//                || !FeatureHelper.isTokenValid(this, mTokenKey, mToken)) {
+//            Log.i(TAG, "<startViewLockedFileAction> token invalid, finish activity");
+//            finish();
+//        }
+        Bundle data = new Bundle();
+        DataManager dm = getDataManager();
+        Path itemPath = dm.findPathByUri(intent.getData(), intent.getType());
+        if (itemPath == null) {
+            Toast.makeText(this, R.string.no_such_item, Toast.LENGTH_LONG)
+                    .show();
+            Log.i(TAG, "<startViewLockedFileAction> find path is null, finish activity");
+            finish();
+            return;
+        }
+        /// M: [BUG.MODIFY] Clear old mediaObject, query database again @{
+        itemPath.clearObject();
+        /// @}
+        data.putBoolean(PhotoPage.KEY_READONLY, true);
+        data.putString(SinglePhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
+        Log.i(TAG, "<startViewLockedFileAction> startState SinglePhotoPage, path = "
+                        + itemPath);
+        getStateManager().startState(SinglePhotoPage.class, data);
+    }
+
+    private void pauseViewLockedFileAction() {
+        if (mToken == null) {
+            return;
+        }
+        Log.i(TAG, "<pauseViewLockedFileAction> Finish activity when pause");
+//        FeatureHelper.clearToken(this, mTokenKey, mToken);
+        finish();
+    }
+    // @}
+
+    // add for log trace @{
+    protected void onStart() {
+        TraceHelper.traceBegin(">>>>Gallery-onStart");
+        super.onStart();
+        TraceHelper.traceEnd();
+    }
+    // @}
+
+    // [Runtime permission] @{
+    private Bundle mSaveInstanceState;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+            String[] permissions, int[] grantResults) {
+        // when gallery permssion changed, notify all widgets to update
+        WidgetUtils.notifyAllWidgetViewChanged();
+        if (getStateManager().getStateCount() != 0) {
+            Log.i(TAG, "<onRequestPermissionsResult> dispatch to ActivityState");
+            getStateManager().getTopState().onRequestPermissionsResult(requestCode, permissions,
+                    grantResults);
+        } else if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
+            Log.i(TAG, "<onRequestPermissionsResult> all permission granted");
+            GalleryDBManager.getInstance().initDB(this, "gallery.db");
+            if (mSaveInstanceState != null) {
+                getStateManager().restoreFromState(mSaveInstanceState);
+            } else {
+                initializeByIntent();
+            }
+        } else {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i])
+                        && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    PermissionHelper.showDeniedPrompt(this);
+                    break;
+                }
+
+                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])
+                        && grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    PermissionHelper.showDeniedPrompt(this);
+                    break;
+                }
+            }
+            Log.i(TAG, "<onRequestPermissionsResult> permission denied, finish");
+            finish();
+        }
+    }
+    // @}
 }

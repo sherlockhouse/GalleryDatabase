@@ -30,10 +30,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.android.gallery3d.anim.StateTransitionAnimation;
-import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.data.DataManager;
+import com.android.gallery3d.util.UsageStatistics;
 import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.utils.LogUtil;
+
 
 import java.util.Stack;
 
@@ -197,7 +199,12 @@ public class StateManager {
                 return;
             }
             Log.v(TAG, "no more state, finish activity");
+
+        /// M: [BUG.ADD] size is zero, not need finish @{
+        } else if (mStack.size() == 0) {
+            return;
         }
+        /// @}
 
         Log.v(TAG, "finishState " + state);
         if (state != mStack.peek().activityState) {
@@ -299,6 +306,33 @@ public class StateManager {
                 throw new AssertionError(e);
             }
             activityState.initialize(mActivity, data);
+            /// M: [BUG.ADD] Reset to default AlbumSetPage by default path.
+            //While Gallery process is killed by system in ClusterAlbum page @{
+            if (activityState instanceof AlbumSetPage && state != null && data != null) {
+                boolean isReused = mActivity.getDataManager().reuseDataManager(
+                        state.getString(ActivityState.KEY_DATA_OBJECT),
+                        state.getString(ActivityState.KEY_PROCESS_ID));
+                int type = data.getInt(AlbumSetPage.KEY_SELECTED_CLUSTER_TYPE,
+                        FilterUtils.CLUSTER_BY_ALBUM);
+                if (!isReused && type != FilterUtils.CLUSTER_BY_ALBUM) {
+                    Log.v(TAG, "<restoreFromState> CLUSTER BY:" + type);
+                    String topSetPathName = mActivity.getDataManager().getTopSetPath(
+                            DataManager.INCLUDE_ALL);
+                    data.putString(AlbumSetPage.KEY_MEDIA_PATH, topSetPathName);
+                    data.putInt(AlbumSetPage.KEY_SELECTED_CLUSTER_TYPE,
+                            FilterUtils.CLUSTER_BY_ALBUM);
+                }
+            }
+            /// @}
+            /// M: [BUG.ADD] store state result information @{
+            if (state != null && state.getBoolean(KEY_HAS_RESULT)) {
+                activityState.mResult = new ActivityState.ResultEntry();
+                activityState.mResult.requestCode = state.getInt(KEY_RESULT_REQUEST_CODE);
+                if (!mStack.isEmpty()) {
+                    mStack.peek().activityState.mReceivedResults = activityState.mResult;
+                }
+            }
+            /// @}
             activityState.onCreate(data, state);
             mStack.push(new StateEntry(data, activityState));
             topState = activityState;
@@ -320,6 +354,12 @@ public class StateManager {
             bundle.putBundle(KEY_DATA, entry.data);
             Bundle state = new Bundle();
             entry.activityState.onSaveState(state);
+            /// M: [BUG.ADD] restore state result information @{
+            if (entry.activityState.mResult != null) {
+                state.putBoolean(KEY_HAS_RESULT, true);
+                state.putInt(KEY_RESULT_REQUEST_CODE, entry.activityState.mResult.requestCode);
+            }
+            /// @}
             bundle.putBundle(KEY_STATE, state);
             Log.v(TAG, "saveState " + entry.activityState.getClass());
             list[i++] = bundle;
@@ -349,5 +389,27 @@ public class StateManager {
             this.data = data;
             this.activityState = state;
         }
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mStack.isEmpty()) {
+            return false;
+        } else {
+            return getTopState().onPrepareOptionsMenu(menu);
+        }
+    }
+
+    // Keys used to store and restore state result information
+    private static final String KEY_HAS_RESULT = "has-result";
+    private static final String KEY_RESULT_REQUEST_CODE = "result-request-code";
+
+    //********************************************************************
+    //*                              FREEMEOS                            *
+    //********************************************************************
+    public boolean isStackEmpty() {
+        return mStack.empty();
     }
 }

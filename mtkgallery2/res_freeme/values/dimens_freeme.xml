@@ -189,12 +189,12 @@
     <!-- The platform's desired minimum size for a dialog's width when it
     is along the major axis (that is the screen is landscape).  This may
     be either a fraction or a dimension. -->
-    <item type="dimen" name="dialog_min_width_major_freeme">94.00001%</item>
+    <item type="dimen" name="dialog_min_width_major_freeme">90.00001%</item>
 
     <!-- The platform's desired minimum size for a dialog's width when it
     is along the minor axis (that is the screen is portrait).  This may
     be either a fraction or a dimension. -->
-    <item type="dimen" name="dialog_min_width_minor_freeme">95%</item>
+    <item type="dimen" name="dialog_min_width_minor_freeme">90%</item>
 
     <dimen name="dialog_background_inset_horizontal_freeme">16dip</dimen>
     <dimen name="dialog_background_inset_vertical_freeme">16dip</dimen>

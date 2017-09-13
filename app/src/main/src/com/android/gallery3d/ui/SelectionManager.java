@@ -21,11 +21,19 @@
 
 package com.android.gallery3d.ui;
 
+import android.os.Handler;
 import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
+import com.android.gallery3d.util.Future;
+import com.android.gallery3d.util.FutureListener;
+import com.android.gallery3d.util.ThreadPool.Job;
+import com.android.gallery3d.util.ThreadPool.JobContext;
+
+import com.mediatek.galleryframework.base.MediaData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,7 +68,12 @@ public class SelectionManager {
         public void onSelectionRestoreDone();
         /// @}
     }
+
     public SelectionManager(AbstractGalleryActivity activity, boolean isAlbumSet) {
+        /// M: [BEHAVIOR.ADD] @{
+        mActivity = activity;
+        mMainHandler = new Handler(activity.getMainLooper());
+        /// @}
         mDataManager = activity.getDataManager();
         mClickedSet = new HashSet<Path>();
         mIsAlbumSet = isAlbumSet;
@@ -103,9 +116,12 @@ public class SelectionManager {
     }
 
     public boolean inSelectAllMode() {
+        /// M: [BUG.ADD] @{
+        // Not in select all mode, if not all items are selected now
         if (getTotalCount() != 0) {
             return getTotalCount() == getSelectedCount();
         }
+        /// @}
         return mInverseSelection;
     }
 
@@ -123,9 +139,20 @@ public class SelectionManager {
     public void leaveSelectionMode() {
         if (!mInSelectionMode) return;
 
+        Log.i(TAG, "<leaveSelectionMode>");
         mInSelectionMode = false;
         mInverseSelection = false;
         mClickedSet.clear();
+        /// M: [BUG.ADD] @{
+        // Clear mTotal so that it will be re-calculated
+        // next time user enters selection mode
+        mTotal = -1;
+        /// @}
+        /// M: [BEHAVIOR.ADD] @{
+        if (mRestoreSelectionTask != null) {
+            mRestoreSelectionTask.cancel();
+        }
+        /// @}
         if (mListener != null) mListener.onSelectionModeChange(LEAVE_SELECTION_MODE);
     }
 
@@ -212,13 +239,24 @@ public class SelectionManager {
         return getSelected(expandSet, Integer.MAX_VALUE);
     }
 
+    /// M: [BUG.MODIFY] @{
+    /*
     public ArrayList<Path> getSelected(boolean expandSet, int maxSelection) {
         ArrayList<Path> selected = new ArrayList<Path>();
+    */
+    public ArrayList<Path> getSelected(boolean expandSet, final int maxSelection) {
+        final ArrayList<Path> selected = new ArrayList<Path>();
+    /// @}
         if (mIsAlbumSet) {
             if (mInverseSelection) {
                 int total = getTotalCount();
                 for (int i = 0; i < total; i++) {
                     MediaSet set = mSourceMediaSet.getSubMediaSet(i);
+                    /// M: [BUG.ADD] if set is null, should continue and return directly. @{
+                    if (set == null) {
+                        continue;
+                    }
+                    /// @}
                     Path id = set.getPath();
                     if (!mClickedSet.contains(id)) {
                         if (expandSet) {
@@ -267,12 +305,34 @@ public class SelectionManager {
                     index += count;
                 }
             } else {
+                /// M: [BUG.MODIFY] @{
+                /*
                 for (Path id : mClickedSet) {
                     selected.add(id);
                     if (selected.size() > maxSelection) {
                         return null;
                     }
                 }
+                */
+                // Check if items in click set are still in mSourceMediaSet,
+                // if not, we do not add it to selected list.
+                ArrayList<Path> selectedPathTemple = new ArrayList<Path>();
+                selectedPathTemple.addAll(mClickedSet);
+                mDataManager.mapMediaItems(selectedPathTemple, new MediaSet.ItemConsumer() {
+                    public void consume(int index, MediaItem item) {
+                        if (selected.size() < maxSelection && item != null) {
+                            selected.add(item.getPath());
+                        }
+                    }
+
+                    /// M: [BUG.ADD] @{
+                    @Override
+                    public boolean stopConsume() {
+                        return false;
+                    }
+                    /// @}
+                }, 0);
+                /// @}
             }
         }
         return selected;
@@ -281,6 +341,327 @@ public class SelectionManager {
     public void setSourceMediaSet(MediaSet set) {
         mSourceMediaSet = set;
         mTotal = -1;
+    }
+	
+	
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    ArrayList<Path> mPrepared;
+    public static final Object LOCK = new Object();
+
+    // Save and restore selection in thread pool to avoid ANR
+    private AbstractGalleryActivity mActivity = null;
+    private final Handler mMainHandler;
+    private ArrayList<Path> mSelectionPath = null;
+    private ArrayList<Long> mSelectionGroupId = null;
+    private Future<?> mSaveSelectionTask;
+    private Future<?> mRestoreSelectionTask;
+
+    public ArrayList<Path> getPrepared() {
+        return mPrepared;
+    }
+
+    public void setPrepared(ArrayList<Path> prepared) {
+        mPrepared = prepared;
+    }
+
+    public boolean contains(Path path) {
+        if (inSelectAllMode()) {
+            return true;
+        }
+        return mClickedSet.contains(path);
+    }
+
+    public void onSourceContentChanged() {
+        // reset and reload total count since source set data has changed
+        mTotal = -1;
+        int count = getTotalCount();
+        Log.d(TAG, "<onSourceContentChanged> New total=" + count);
+        if (count == 0) {
+            leaveSelectionMode();
+        }
+    }
+
+    // used by ActionModeHandler computeShareIntent
+    public ArrayList<Path> getSelected(JobContext jc, boolean expandSet, final int maxSelection) {
+        final ArrayList<Path> selected = new ArrayList<Path>();
+        if (mIsAlbumSet) {
+            if (mInverseSelection) {
+                int total = getTotalCount();
+                for (int i = 0; i < total; i++) {
+                    if (jc.isCancelled()) {
+                        Log.i(TAG, "<getSelected> jc.isCancelled() - 1");
+                        return null;
+                    }
+                    MediaSet set = mSourceMediaSet.getSubMediaSet(i);
+                    // if set is null, should continue and return directly.
+                    if (set == null) {
+                        continue;
+                    }
+                    Path id = set.getPath();
+                    if (!mClickedSet.contains(id)) {
+                        if (expandSet) {
+                            if (!expandMediaSet(jc, selected, set, maxSelection)) {
+                                return null;
+                            }
+                        } else {
+                            selected.add(id);
+                            if (selected.size() > maxSelection) {
+                                return null;
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (Path id : mClickedSet) {
+                    if (jc.isCancelled()) {
+                        Log.i(TAG, "<getSelected> jc.isCancelled() - 2");
+                        return null;
+                    }
+                    if (expandSet) {
+                        if (!expandMediaSet(jc, selected, mDataManager.getMediaSet(id),
+                                maxSelection)) {
+                            return null;
+                        }
+                    } else {
+                        selected.add(id);
+                        if (selected.size() > maxSelection) {
+                            return null;
+                        }
+                    }
+                }
+            }
+        } else {
+            if (mInverseSelection) {
+                int total = getTotalCount();
+                int index = 0;
+                while (index < total) {
+                    int count = Math.min(total - index, MediaSet.MEDIAITEM_BATCH_FETCH_COUNT);
+                    ArrayList<MediaItem> list = mSourceMediaSet.getMediaItem(index, count);
+                    for (MediaItem item : list) {
+                        if (jc.isCancelled()) {
+                            Log.i(TAG, "<getSelected> jc.isCancelled() - 3");
+                            return null;
+                        }
+                        Path id = item.getPath();
+                        if (!mClickedSet.contains(id)) {
+                             selected.add(id);
+                            if (selected.size() > maxSelection) {
+                                return null;
+                            }
+                        }
+                    }
+                    index += count;
+                }
+            } else {
+                //  we check if items in click set are still in mSourceMediaSet,
+                // if not, we do not add it to selected list.
+                ArrayList<Path> selectedPathTemple = new ArrayList<Path>();
+                selectedPathTemple.addAll(mClickedSet);
+                mDataManager.mapMediaItems(selectedPathTemple, new MediaSet.ItemConsumer() {
+                    public void consume(int index, MediaItem item) {
+                        if (selected.size() < maxSelection) {
+                            selected.add(item.getPath());
+                        }
+                    }
+
+                    @Override
+                    public boolean stopConsume() {
+                        return false;
+                    }
+                }, 0);
+            }
+        }
+        return selected;
+    }
+
+    private static boolean expandMediaSet(JobContext jc, ArrayList<Path> items, MediaSet set,
+            int maxSelection) {
+        if (jc.isCancelled()) {
+            Log.i(TAG, "<expandMediaSet> jc.isCancelled() - 1");
+            return false;
+        }
+        if (set == null) {
+            Log.i(TAG, "<expandMediaSet> set == null, return false");
+            return false;
+        }
+        int subCount = set.getSubMediaSetCount();
+        for (int i = 0; i < subCount; i++) {
+            if (jc.isCancelled()) {
+                Log.i(TAG, "<expandMediaSet> jc.isCancelled() - 2");
+                return false;
+            }
+            if (!expandMediaSet(items, set.getSubMediaSet(i), maxSelection)) {
+                return false;
+            }
+        }
+        int total = set.getMediaItemCount();
+        int batch = 50;
+        int index = 0;
+
+        while (index < total) {
+            if (jc.isCancelled()) {
+                Log.i(TAG, "<expandMediaSet> jc.isCancelled() - 3");
+                return false;
+            }
+            int count = index + batch < total
+                    ? batch
+                    : total - index;
+            ArrayList<MediaItem> list = set.getMediaItem(index, count);
+            if (list == null) {
+                Log.i(TAG, "<expandMediaSet> list == null, return false");
+                return false;
+            }
+            if (list.size() > (maxSelection - items.size())) {
+                return false;
+            }
+            for (MediaItem item : list) {
+                if (jc.isCancelled()) {
+                    Log.i(TAG, "<expandMediaSet> jc.isCancelled() - 4");
+                    return false;
+                }
+                items.add(item.getPath());
+            }
+            index += batch;
+        }
+        return true;
+    }
+
+    // do save and restore selection in thread pool to avoid ANR @{
+    public void saveSelection() {
+        if (mSaveSelectionTask != null) {
+            mSaveSelectionTask.cancel();
+        }
+        Log.i(TAG, "<saveSelection> submit task");
+        mSaveSelectionTask = mActivity.getThreadPool().submit(new Job<Void>() {
+            @Override
+            public Void run(final JobContext jc) {
+                synchronized (LOCK) {
+                    Log.i(TAG, "<saveSelection> task begin");
+                    if (jc.isCancelled()) {
+                        Log.i(TAG, "<saveSelection> task cancelled");
+                        return null;
+                    }
+                    if (mSelectionPath != null) {
+                        mSelectionPath.clear();
+                    }
+                    if (mSelectionGroupId != null) {
+                        mSelectionGroupId.clear();
+                    }
+                    try {
+                        mSelectionPath = getSelected(false);
+                        exitInverseSelectionAfterSave();
+                    } catch (Exception e) {
+                        // this probably means that the actual items are changing
+                        // while fetching selected items, so we do not save selection
+                        // under this situation
+                        /// TODO: find more suitable method to protect this part
+                        mSelectionPath = null;
+                        mSelectionGroupId = null;
+                    }
+                    Log.i(TAG, "<saveSelection> task end");
+                    return null;
+                }
+            }
+        });
+    }
+
+    private void exitInverseSelectionAfterSave() {
+        if (mInverseSelection && mSelectionPath != null) {
+            mClickedSet.clear();
+            int restoreSize = mSelectionPath.size();
+            for (int i = 0; i < restoreSize; i++) {
+                mClickedSet.add(mSelectionPath.get(i));
+            }
+            mInverseSelection = false;
+        }
+    }
+
+    private class RestoreSelectionJobListener implements FutureListener<Void> {
+        @Override
+        public void onFutureDone(Future<Void> future) {
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mListener.onSelectionRestoreDone();
+                }
+            });
+        }
+    }
+
+    private class RestoreSelectionJob implements Job<Void> {
+        @Override
+        public Void run(final JobContext jc) {
+            synchronized (LOCK) {
+                Log.i(TAG, "<restoreSelection> task begin");
+                if (jc.isCancelled()) {
+                    Log.i(TAG, "<restoreSelection> task cancelledin job run 1");
+                    return null;
+                }
+                if (mSourceMediaSet == null || mSelectionPath == null) {
+                    return null;
+                }
+                mTotal = mIsAlbumSet ? mSourceMediaSet.getSubMediaSetCount() : mSourceMediaSet
+                        .getMediaItemCount();
+                Path path = null;
+                Set<Path> availablePaths = new HashSet<Path>();
+                // remove dirty entry
+                if (mIsAlbumSet) {
+                    MediaSet set = null;
+                    for (int i = 0; i < mTotal; ++i) {
+                        set = mSourceMediaSet.getSubMediaSet(i);
+                        if (jc.isCancelled()) {
+                            Log.i(TAG, "<restoreSelection> task cancelled, in job run 2");
+                            return null;
+                        }
+                        if (set != null) {
+                            path = set.getPath();
+                            if (mSelectionPath.contains(path)) {
+                                availablePaths.add(path);
+                            }
+                        }
+                    }
+                } else {
+                    ArrayList<MediaItem> items = mSourceMediaSet.getMediaItem(0, mTotal);
+                    if (items != null && items.size() > 0) {
+                        for (MediaItem item : items) {
+                            if (jc.isCancelled()) {
+                                Log.i(TAG, "<restoreSelection> task cancelledin job run 3");
+                                return null;
+                            }
+                            path = item.getPath();
+                            if (mSelectionPath.contains(path)) {
+                                availablePaths.add(path);
+                            }
+                        }
+                    }
+                }
+                // leave select all mode and set clicked set
+                mInverseSelection = false;
+                mClickedSet.clear();
+                mClickedSet = availablePaths;
+                // clear saved selection when done
+                mSelectionPath.clear();
+                mSelectionPath = null;
+                if (mSelectionGroupId != null) {
+                    mSelectionGroupId.clear();
+                    mSelectionGroupId = null;
+                }
+                Log.i(TAG, "<restoreSelection> task end");
+                return null;
+            }
+        }
+    }
+
+    public void restoreSelection() {
+        if (mRestoreSelectionTask != null) {
+            mRestoreSelectionTask.cancel();
+        }
+        Log.i(TAG, "<restoreSelection> submit task");
+        mRestoreSelectionTask = mActivity.getThreadPool().submit(new RestoreSelectionJob(),
+                new RestoreSelectionJobListener());
     }
 
     //*/ Added by droi Linguanrong for Gallery new style, 2014-1-24

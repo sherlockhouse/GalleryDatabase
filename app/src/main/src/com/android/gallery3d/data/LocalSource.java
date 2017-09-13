@@ -127,7 +127,7 @@ class LocalSource extends MediaSource {
                         LocalAlbumSet.PATH_VIDEO.getChild(bucketId));
                 Comparator<MediaItem> comp = DataManager.sDateTakenComparator;
                 return new LocalMergeAlbum(
-                        path, comp, new MediaSet[]{imageSet,videoSet}, bucketId);
+                        path, comp, new MediaSet[] {imageSet, videoSet}, bucketId);
             }
             case LOCAL_ALL_ALBUM_CAMERA:{
                 String  var = mMatcher.getVar(0);

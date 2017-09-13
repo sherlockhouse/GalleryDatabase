@@ -32,14 +32,14 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
-
-import com.freeme.gallery.BuildConfig;
-import com.freeme.gallery.R;
-import com.android.gallery3d.gadget.WidgetDatabaseHelper;
+import com.android.gallery3d.R;
+import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.gadget.WidgetDatabaseHelper.Entry;
 import com.android.gallery3d.onetimeinitializer.GalleryWidgetMigrator;
 import com.mediatek.gallery3d.util.Log;
-import com.android.gallery3d.common.ApiHelper;
+
+import com.android.gallery3d.gadget.WidgetDatabaseHelper;
+
 public class PhotoAppWidgetProvider extends AppWidgetProvider {
 
     private static final String TAG = "Gallery2/PhotoAppWidgetProvider";
@@ -111,10 +111,7 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
 
         views.setEmptyView(R.id.appwidget_stack_view, R.id.appwidget_empty_view);
 
-        Intent clickIntent = new Intent(Intent.ACTION_VIEW);
-        clickIntent.setPackage(context.getPackageName());
-        clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK |
-                Intent.FLAG_ACTIVITY_TASK_ON_HOME);
+        Intent clickIntent = new Intent(context, WidgetClickHandler.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setPendingIntentTemplate(R.id.appwidget_stack_view, pendingIntent);
@@ -139,19 +136,27 @@ public class PhotoAppWidgetProvider extends AppWidgetProvider {
                 context.getPackageName(), R.layout.photo_frame);
         try {
             byte[] data = entry.imageData;
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            /// M: [BUG.ADD] make this bitmap mutable for editing@{
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inMutable = true;
+            /// @}
+            /// M: [BUG.MODIFY] @{
+            /*  Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);*/
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+            /// @}
             views.setImageViewBitmap(R.id.photo, bitmap);
         } catch (Throwable t) {
-            Log.w(TAG, "cannot load widget image: " + appWidgetId, t);
+            Log.w(TAG, "<buildFrameWidget> cannot load widget image: " + appWidgetId, t);
         }
 
         if (entry.imageUri != null) {
             try {
                 Uri uri = Uri.parse(entry.imageUri);
-                Intent clickIntent = new Intent(context, WidgetClickHandler.class);
-                clickIntent.setPackage(BuildConfig.APPLICATION_ID);
-                clickIntent.setDataAndType(uri, "image/*");
-                clickIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Intent clickIntent = new Intent(context, WidgetClickHandler.class)
+                        .setData(uri);
+                /// M: [BUG.ADD] fix bug that permission dialog pop up twice when click deny. @{
+                clickIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                Log.d(TAG, "<buildFrameWidget> set FLAG_ACTIVITY_CLEAR_TASK..");
                 /// @}
                 /// M: [BUG.MODIFY] @{
                 // After add many frame widgets for one same image,

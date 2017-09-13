@@ -31,7 +31,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.Media;
+
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.ContentListener;
@@ -42,7 +44,6 @@ import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.GalleryUtils;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.galleryframework.base.MediaFilterSetting;
-import com.freeme.provider.GalleryStore.Images.Media;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class LocalPhotoSource implements WidgetSource {
     private static final int MAX_PHOTO_COUNT = 128;
 
     /* Static fields used to query for the correct set of images */
-    private static final Uri      CONTENT_URI      = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri CONTENT_URI = Media.EXTERNAL_CONTENT_URI;
     private static final String DATE_TAKEN = Media.DATE_TAKEN;
     private static final String[] PROJECTION = {Media._ID};
     private static final String[] COUNT_PROJECTION = {"count(*)"};

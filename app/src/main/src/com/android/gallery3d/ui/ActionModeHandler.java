@@ -644,7 +644,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         if (mSelectionManager.inSelectionMode()) updateSupportedOperation();
         mMenuExecutor.resume();
     }
-    private void updateSelectionMenu() {
+    public void updateSelectionMenu() {
         if (mActionMode == null) return;
         // update title
         int count = mSelectionManager.getSelectedCount();

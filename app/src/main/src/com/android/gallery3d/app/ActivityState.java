@@ -229,7 +229,7 @@ abstract public class ActivityState {
 
     protected void onPause() {
         if (0 != (mFlags & FLAG_SCREEN_ON_WHEN_PLUGGED)) {
-            mActivity.unregisterReceiver(mPowerIntentReceiver);
+            ((Activity) mActivity).unregisterReceiver(mPowerIntentReceiver);
         }
         if (mNextTransition != StateTransitionAnimation.Transition.None) {
             mActivity.getTransitionStore().put(KEY_TRANSITION_IN, mNextTransition);
@@ -242,19 +242,28 @@ abstract public class ActivityState {
             mNextTransition = StateTransitionAnimation.Transition.None;
         }
     }
-	
-	   // should only be called by StateManager
+
+    // should only be called by StateManager
     void resume() {
         AbstractGalleryActivity activity = mActivity;
         ActionBar actionBar = activity.getActionBar();
         if (actionBar != null) {
-            if ((mFlags & FLAG_HIDE_ACTION_BAR) != 0) {
-                actionBar.hide();
-            } else {
-                actionBar.show();
+            /// M: [BUG.ADD] @{
+            // Avoid to set ActionBar visibility in some cases
+            if (mNotSetActionBarVisibiltyWhenResume == false) {
+            /// @}
+                if ((mFlags & FLAG_HIDE_ACTION_BAR) != 0) {
+                    actionBar.hide();
+                } else {
+                    actionBar.show();
+                }
+            /// M: [BUG.ADD] @{
             }
+            /// @}
             int stateCount = mActivity.getStateManager().getStateCount();
             mActivity.getGalleryActionBar().setDisplayOptions(stateCount > 1, true);
+            // Default behavior, this can be overridden in ActivityState's onResume.
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         }
 
         /*/ Modified by Linguanrong for story album, 2015-7-2
@@ -315,7 +324,7 @@ abstract public class ActivityState {
         mDestroyed = true;
     }
 
-    boolean isDestroyed() {
+    public boolean isDestroyed() {
         return mDestroyed;
     }
 
@@ -345,4 +354,55 @@ abstract public class ActivityState {
     }
 
     //*/
+	
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    /// M: [BUG.ADD] dataManager object key.@{
+    protected static final String KEY_DATA_OBJECT = "data-manager-object";
+    protected static final String KEY_PROCESS_ID = "process-id";
+    ///@}
+    // Avoid to set ActionBar visibility in some cases
+    protected boolean mNotSetActionBarVisibiltyWhenResume = false;
+
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return true;
+    }
+
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    /**
+     * Dispatch the onRequestPermissionsResult call back from Activity to
+     * ActivityState.
+     *
+     * @param requestCode
+     *            The request code passed in requestPermissions(Activity,
+     *            String[], int)
+     * @param permissions
+     *            The request permissions. Never null.
+     * @param grantResults
+     *            The grant results for the corresponding permissions which is
+     *            either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
+     */
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+    }
+    /// @}
+
+    /// M: [PERF.ADD] add for delete many files performance improve @{
+    /**
+     * Set if ActivityState is sensitive to change of data.
+     *
+     * @param isProviderSensive
+     *            If ActivityState is sensitive to change of data
+     */
+    public void setProviderSensive(boolean isProviderSensive) {
+    }
+
+    /**
+     * Notify that the content is dirty and trigger some operations that only
+     * occur when content really changed.
+     */
+    public void fakeProviderChange() {
+    }
+    /// @}
 }

@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +25,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,15 +36,19 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
+//import android.os.SystemProperties;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -46,7 +56,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.print.PrintHelper;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,25 +70,44 @@ import android.widget.FrameLayout;
 import android.widget.PopupMenu;
 import android.widget.ShareActionProvider;
 import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.android.gallery3d.app.PhotoPage;
+import com.android.gallery3d.data.LocalAlbum;
 import com.android.gallery3d.filtershow.EditorPlaceHolder;
 import com.android.gallery3d.filtershow.cache.ImageLoader;
+import com.android.gallery3d.filtershow.category.Action;
 import com.android.gallery3d.filtershow.category.CategoryAdapter;
 import com.android.gallery3d.filtershow.category.CategorySelected;
+import com.android.gallery3d.filtershow.category.CategoryView;
+import com.android.gallery3d.filtershow.category.MainPanel;
 import com.android.gallery3d.filtershow.category.SwipableView;
 import com.android.gallery3d.filtershow.data.UserPresetsManager;
+import com.android.gallery3d.filtershow.editors.BasicEditor;
+import com.android.gallery3d.filtershow.editors.Editor;
+import com.android.gallery3d.filtershow.editors.EditorChanSat;
 import com.android.gallery3d.filtershow.editors.EditorColorBorder;
+import com.android.gallery3d.filtershow.editors.EditorCrop;
+import com.android.gallery3d.filtershow.editors.EditorDraw;
 import com.android.gallery3d.filtershow.editors.EditorGrad;
+import com.android.gallery3d.filtershow.editors.EditorManager;
 import com.android.gallery3d.filtershow.editors.EditorMirror;
 import com.android.gallery3d.filtershow.editors.EditorPanel;
 import com.android.gallery3d.filtershow.editors.EditorRedEye;
+import com.android.gallery3d.filtershow.editors.EditorRotate;
 import com.android.gallery3d.filtershow.editors.EditorStraighten;
+import com.android.gallery3d.filtershow.editors.EditorTinyPlanet;
 import com.android.gallery3d.filtershow.editors.ImageOnlyEditor;
 import com.android.gallery3d.filtershow.filters.FilterDrawRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterMirrorRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterRotateRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterStraightenRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterUserPresetRepresentation;
+import com.android.gallery3d.filtershow.filters.FiltersManager;
+import com.android.gallery3d.filtershow.filters.FilterMirrorRepresentation.Mirror;
+import com.android.gallery3d.filtershow.filters.FilterRotateRepresentation.Rotation;
 import com.android.gallery3d.filtershow.filters.ImageFilter;
 import com.android.gallery3d.filtershow.history.HistoryItem;
 import com.android.gallery3d.filtershow.history.HistoryManager;
@@ -89,12 +117,15 @@ import com.android.gallery3d.filtershow.imageshow.Spline;
 import com.android.gallery3d.filtershow.info.InfoPanel;
 import com.android.gallery3d.filtershow.pipeline.CachingPipeline;
 import com.android.gallery3d.filtershow.pipeline.ImagePreset;
-import com.freeme.gallery.filtershow.pipeline.ProcessingService;
+//import com.android.gallery3d.filtershow.pipeline.ProcessingService;
 import com.android.gallery3d.filtershow.presets.PresetManagementDialog;
+import com.freeme.gallery.filtershow.pipeline.ProcessingService;
 import com.freeme.gallery.filtershow.provider.SharedImageProvider;
 import com.android.gallery3d.filtershow.state.StateAdapter;
 import com.android.gallery3d.filtershow.tools.SaveImage;
 import com.android.gallery3d.filtershow.tools.XmpPresets;
+import com.android.gallery3d.filtershow.tools.XmpPresets.XMresults;
+import com.android.gallery3d.filtershow.ui.ErrMsgConfirmer;
 import com.android.gallery3d.filtershow.ui.ExportDialog;
 import com.android.gallery3d.filtershow.ui.FramedTextButton;
 import com.freeme.gallery.BuildConfig;
@@ -119,64 +150,94 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.android.photos.data.GalleryBitmapPool;
 import com.freeme.provider.GalleryStore;
 import com.freeme.utils.LogUtil;
+import com.mediatek.gallery3d.util.Log;
+import com.mediatek.gallery3d.util.PermissionHelper;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Vector;
 
 public class FilterShowActivity extends FragmentActivity implements OnItemClickListener,
         OnShareTargetSelectedListener, DialogInterface.OnShowListener,
-        DialogInterface.OnDismissListener, PopupMenu.OnDismissListener {
+        DialogInterface.OnDismissListener, PopupMenu.OnDismissListener{
 
-    public static final String    TINY_PLANET_ACTION = "com.android.camera.action.TINY_PLANET";
-    public static final String    LAUNCH_FULLSCREEN  = "launch-fullscreen";
-    public static final boolean   RESET_TO_LOADED    = false;
-    private static final long LIMIT_SUPPORTS_HIGHRES = 134217728; // 128Mb
-    private static final int    SELECT_PICTURE = 1;
-    private static final String LOGTAG         = "FilterShowActivity";
-    private final Vector<ImageShow> mImageViews = new Vector<ImageShow>();
+    private String mAction = "";
+    private static final String TAG = "Gallery2/FilterShowActivity";
     public Point mHintTouchPoint = new Point();
     MasterImage mMasterImage = null;
-    private String mAction = "";
-    private             ImageShow mImageShow         = null;
+
+    private static final long LIMIT_SUPPORTS_HIGHRES = 134217728; // 128Mb
+
+    public static final String TINY_PLANET_ACTION = "com.android.camera.action.TINY_PLANET";
+    public static final String LAUNCH_FULLSCREEN = "launch-fullscreen";
+    public static final boolean RESET_TO_LOADED = false;
+    private ImageShow mImageShow = null;
+
     private View mSaveButton = null;
+
     private EditorPlaceHolder mEditorPlaceHolder = new EditorPlaceHolder(this);
-    private Editor            mCurrentEditor     = null;
-    private boolean mShowingTinyPlanet      = false;
+    private Editor mCurrentEditor = null;
+
+    private static final int SELECT_PICTURE = 1;
+    private static final String LOGTAG = "FilterShowActivity";
+
+    private boolean mShowingTinyPlanet = false;
     private boolean mShowingImageStatePanel = false;
-    private boolean mShowingVersionsPanel   = false;
+    private boolean mShowingVersionsPanel = false;
+
+    private final Vector<ImageShow> mImageViews = new Vector<ImageShow>();
+
     private ShareActionProvider mShareActionProvider;
     private File mSharedOutputFile = null;
+
     private boolean mSharingImage = false;
+
     private WeakReference<ProgressDialog> mSavingProgressDialog;
+
     private LoadBitmapTask mLoadBitmapTask;
-    private Uri         mOriginalImageUri = null;
-    private ImagePreset mOriginalPreset   = null;
+
+    private Uri mOriginalImageUri = null;
+    private ImagePreset mOriginalPreset = null;
+
     private Uri mSelectedImageUri = null;
-    private ArrayList<Action>                      mActions                 = new ArrayList<Action>();
-    private UserPresetsManager mUserPresetsManager      = null;
-    private UserPresetsAdapter                     mUserPresetsAdapter      = null;
-    private CategoryAdapter mCategoryLooksAdapter    = null;
-    private CategoryAdapter                        mCategoryBordersAdapter  = null;
-    private CategoryAdapter                        mCategoryGeometryAdapter = null;
-    private CategoryAdapter                        mCategoryFiltersAdapter  = null;
-    private CategoryAdapter                        mCategoryVersionsAdapter = null;
-    private int                                    mCurrentPanel            = MainPanel.LOOKS;
-    private Vector<FilterUserPresetRepresentation> mVersions                =
+
+    private ArrayList<Action> mActions = new ArrayList<Action>();
+    private UserPresetsManager mUserPresetsManager = null;
+    private UserPresetsAdapter mUserPresetsAdapter = null;
+    private CategoryAdapter mCategoryLooksAdapter = null;
+    private CategoryAdapter mCategoryBordersAdapter = null;
+    private CategoryAdapter mCategoryGeometryAdapter = null;
+    private CategoryAdapter mCategoryFiltersAdapter = null;
+    private CategoryAdapter mCategoryVersionsAdapter = null;
+    private int mCurrentPanel = MainPanel.LOOKS;
+    private Vector<FilterUserPresetRepresentation> mVersions =
             new Vector<FilterUserPresetRepresentation>();
-    private int                                    mVersionsCounter         = 0;
-    private boolean mHandlingSwipeButton       = false;
-    private View    mHandledSwipeView          = null;
-    private float   mHandledSwipeViewLastDelta = 0;
-    private float   mSwipeStartX               = 0;
-    private float   mSwipeStartY               = 0;
+    private int mVersionsCounter = 0;
+
+    private boolean mHandlingSwipeButton = false;
+    private View mHandledSwipeView = null;
+    private float mHandledSwipeViewLastDelta = 0;
+    private float mSwipeStartX = 0;
+    private float mSwipeStartY = 0;
+
     private ProcessingService mBoundService;
     private boolean mIsBound = false;
     private Menu mMenu;
-    private DialogInterface mCurrentDialog  = null;
-    private PopupMenu       mCurrentMenu    = null;
-    private boolean         mLoadingVisible = true;
+    private DialogInterface mCurrentDialog = null;
+    private PopupMenu mCurrentMenu = null;
+    private boolean mLoadingVisible = true;
+
+    public ProcessingService getProcessingService() {
+        return mBoundService;
+    }
+
+    public boolean isSimpleEditAction() {
+        return !PhotoPage.ACTION_NEXTGEN_EDIT.equalsIgnoreCase(mAction);
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -187,7 +248,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
              * service that we know is running in our own process, we can
              * cast its IBinder to a concrete class and directly access it.
              */
-            mBoundService = ((ProcessingService.LocalBinder) service).getService();
+            mBoundService = ((ProcessingService.LocalBinder)service).getService();
             mBoundService.setFiltershowActivity(FilterShowActivity.this);
             mBoundService.onStart();
         }
@@ -204,12 +265,24 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         }
     };
 
-    public ProcessingService getProcessingService() {
-        return mBoundService;
+    void doBindService() {
+        /*
+         * Establish a connection with the service.  We use an explicit
+         * class name because we want a specific service implementation that
+         * we know will be running in our own process (and thus won't be
+         * supporting component replacement by other applications).
+         */
+        bindService(new Intent(FilterShowActivity.this, ProcessingService.class),
+                mConnection, Context.BIND_AUTO_CREATE);
+        mIsBound = true;
     }
 
-    public boolean isSimpleEditAction() {
-        return !PhotoPage.ACTION_NEXTGEN_EDIT.equalsIgnoreCase(mAction);
+    void doUnbindService() {
+        if (mIsBound) {
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+        }
     }
 
     public void updateUIAfterServiceStarted() {
@@ -231,22 +304,47 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         processIntent();
     }
 
-    public void setupMasterImage() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-        HistoryManager historyManager = new HistoryManager();
-        StateAdapter imageStateAdapter = new StateAdapter(this, 0);
-        MasterImage.reset();
-        mMasterImage = MasterImage.getImage();
-        mMasterImage.setHistoryManager(historyManager);
-        mMasterImage.setStateAdapter(imageStateAdapter);
-        mMasterImage.setActivity(this);
-
-        if (Runtime.getRuntime().maxMemory() > LIMIT_SUPPORTS_HIGHRES) {
-            mMasterImage.setSupportsHighRes(true);
-        } else {
-            mMasterImage.setSupportsHighRes(false);
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        if (PermissionHelper.checkForFilterShow(this) == false) {
+            return;
         }
+        /// @}
+
+        /// M: [BUG.ADD] @{
+        // exit if file to edit has been deleted @{
+        // it mainly aims to handle language switch or LCA case here
+        boolean needExit = finishIfInvalidUri();
+        mNeedCheckInvalid = false;
+        if (needExit) {
+            return;
+        }
+        /// @}
+
+        boolean onlyUsePortrait = getResources().getBoolean(R.bool.only_use_portrait);
+        if (onlyUsePortrait) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        /// M: [BUG.ADD] @{
+        // Lock screen orientation after enter filtershow screen @{
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+        }
+        /// @}
+
+
+        clearGalleryBitmapPool();
+        doBindService();
+        /// M: [BUG.MODIFY] aviod flash when launch filter show @{
+        /* getWindow().setBackgroundDrawable(new ColorDrawable(Color.GRAY));
+         */
+        getWindow().setBackgroundDrawable(new ColorDrawable(0));
+        /// @}
+        setContentView(R.layout.filtershow_splashscreen);
     }
+
 
     private void setupMenu() {
         if (mMenu == null || mMasterImage == null) {
@@ -322,15 +420,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
 
         setupStatePanel();
     }
-
-    public void fillCategories() {
-        fillLooks();
-        loadUserPresets();
-        fillBorders();
-        fillTools();
-        fillEffects();
-        fillVersions();
-    }
+ 
 
     public void loadMainPanel() {
         if (findViewById(R.id.main_panel_container) == null) {
@@ -342,71 +432,8 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         transaction.commitAllowingStateLoss();
     }
 
-    private void extractXMPData() {
-        XmpPresets.XMresults res = XmpPresets.extractXMPData(
-                getBaseContext(), mMasterImage, getIntent().getData());
-        if (res == null)
-            return;
 
-        mOriginalImageUri = res.originalimage;
-        mOriginalPreset = res.preset;
-    }
 
-    private void processIntent() {
-        Intent intent = getIntent();
-        if (intent.getBooleanExtra(LAUNCH_FULLSCREEN, false)) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-
-        mAction = intent.getAction();
-        mSelectedImageUri = intent.getData();
-        mSelectedImageUri = Uri.parse(mSelectedImageUri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
-        Uri loadUri = mSelectedImageUri;
-        if (mOriginalImageUri != null) {
-            loadUri = mOriginalImageUri;
-        }
-        if (loadUri != null) {
-            startLoadBitmap(loadUri);
-        } else {
-            pickImage();
-        }
-    }
-
-    public float getPixelsFromDip(float value) {
-        Resources r = getResources();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value,
-                r.getDisplayMetrics());
-    }
-
-    public void saveImage() {
-        if (mImageShow.hasModifications()) {
-            // Get the name of the album, to which the image will be saved
-            File saveDir = SaveImage.getFinalSaveDirectory(this, mSelectedImageUri);
-            LogUtil.i("saveDir = " + saveDir);
-            int bucketId = GalleryUtils.getBucketId(saveDir.getPath());
-            LogUtil.i("bucketId = " + bucketId);
-            String albumName = LocalAlbum.getLocalizedName(getResources(), bucketId, null);
-            showSavingProgress(albumName);
-            //*/ freeme.gulincheng,20170619,save image as a copy
-            File dest = SaveImage.getNewFile(this, getSelectedImageUri());
-            SaveImage.saveImageCopy(MasterImage.getImage().getPreset(),this, dest);
-            return;
-            //*/
-//            mImageShow.saveImage(this, null);
-        } else {
-            done();
-        }
-    }
-
-    private void setupEditors() {
-        mEditorPlaceHolder.setContainer((FrameLayout) findViewById(R.id.editorContainer));
-        EditorManager.addEditors(mEditorPlaceHolder);
-        mEditorPlaceHolder.setOldViews(mImageViews);
-    }
-
-    public void setupStatePanel() {
-        MasterImage.getImage().setHistoryManager(mMasterImage.getHistory());
-    }
 
     private void fillLooks() {
         FiltersManager filtersManager = FiltersManager.getManager();
@@ -813,6 +840,14 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         }
     }
 
+    public void fillCategories() {
+        fillLooks();
+        loadUserPresets();
+        fillBorders();
+        fillTools();
+        fillEffects();
+        fillVersions();
+    }
     public Editor getEditor(int editorID) {
         return mEditorPlaceHolder.getEditor(editorID);
     }
@@ -866,6 +901,31 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         return mLoadingVisible;
     }
 
+    // //////////////////////////////////////////////////////////////////////////////
+    // Some utility functions
+    // TODO: finish the cleanup.
+
+    @Override
+    protected void onDestroy() {
+        /// M: [BUG.ADD] @{
+        // cancel ProgressDialog while this is destroyed.
+        hideSavingProgress();
+        /// @}
+        if (mLoadBitmapTask != null) {
+            mLoadBitmapTask.cancel(false);
+        }
+        /// M: [BUG.MODIFY] @{
+        /*        mUserPresetsManager.close();*/
+        // null pointer check
+        if (mUserPresetsManager != null) {
+            mUserPresetsManager.close();
+        }
+        /// @}
+
+        doUnbindService();
+        super.onDestroy();
+    }
+
     // TODO: find a more robust way of handling image size selection
     // for high screen densities.
     private int getScreenImageSize() {
@@ -905,6 +965,18 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         return true;
     }
 
+    private Intent getDefaultShareIntent() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType(SharedImageProvider.MIME_TYPE);
+        mSharedOutputFile = SaveImage.getNewFile(this, MasterImage.getImage().getUri());
+        Uri uri = Uri.withAppendedPath(SharedImageProvider.CONTENT_URI,
+                Uri.encode(mSharedOutputFile.getAbsolutePath()));
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        return intent;
+    }
+
     public void addNewPreset() {
         DialogFragment dialog = new PresetManagementDialog();
         dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
@@ -926,6 +998,9 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         loadUserPresets();
     }
 
+    public void saveCurrentImagePreset(String name) {
+        mUserPresetsManager.save(MasterImage.getImage().getPreset(), name);
+    }
     private void deletePreset(int id) {
         mUserPresetsManager.delete(id);
     }
@@ -934,9 +1009,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         mUserPresetsManager.update(representation);
     }
 
-    public void saveCurrentImagePreset(String name) {
-        mUserPresetsManager.save(MasterImage.getImage().getPreset(), name);
-    }
+
 
     public void enableSave(boolean enable) {
         if (mSaveButton != null) {
@@ -1043,20 +1116,49 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         stopLoadingIndicator();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void setupMasterImage() {
 
-        boolean onlyUsePortrait = getResources().getBoolean(R.bool.only_use_portrait);
-        if (onlyUsePortrait) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        HistoryManager historyManager = new HistoryManager();
+        StateAdapter imageStateAdapter = new StateAdapter(this, 0);
+        MasterImage.reset();
+        mMasterImage = MasterImage.getImage();
+        mMasterImage.setHistoryManager(historyManager);
+        mMasterImage.setStateAdapter(imageStateAdapter);
+        mMasterImage.setActivity(this);
+
+        if (Runtime.getRuntime().maxMemory() > LIMIT_SUPPORTS_HIGHRES) {
+            mMasterImage.setSupportsHighRes(true);
+        } else {
+            mMasterImage.setSupportsHighRes(false);
+        }
+    }
+
+    private void processIntent() {
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra(LAUNCH_FULLSCREEN, false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
-        clearGalleryBitmapPool();
-        doBindService();
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.GRAY));
-        setContentView(R.layout.filtershow_splashscreen);
+        mAction = intent.getAction();
+        mSelectedImageUri = intent.getData();
+        mSelectedImageUri = Uri.parse(mSelectedImageUri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
+        Uri loadUri = mSelectedImageUri;
+        if (mOriginalImageUri != null) {
+            loadUri = mOriginalImageUri;
+        }
+        if (loadUri != null) {
+            startLoadBitmap(loadUri);
+        } else {
+            pickImage();
+        }
     }
+
+    public float getPixelsFromDip(float value) {
+        Resources r = getResources();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value,
+                r.getDisplayMetrics());
+    }
+
 
     private void clearGalleryBitmapPool() {
         (new AsyncTask<Void, Void, Void>() {
@@ -1069,38 +1171,35 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         }).execute();
     }
 
-    void doBindService() {
-        /*
-         * Establish a connection with the service.  We use an explicit
-         * class name because we want a specific service implementation that
-         * we know will be running in our own process (and thus won't be
-         * supporting component replacement by other applications).
-         */
-        bindService(new Intent(FilterShowActivity.this, ProcessingService.class),
-                mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
+
+    public void saveImage() {
+        if (mImageShow.hasModifications()) {
+            // Get the name of the album, to which the image will be saved
+            File saveDir = SaveImage.getFinalSaveDirectory(this, mSelectedImageUri);
+            LogUtil.i("saveDir = " + saveDir);
+            int bucketId = GalleryUtils.getBucketId(saveDir.getPath());
+            LogUtil.i("bucketId = " + bucketId);
+            String albumName = LocalAlbum.getLocalizedName(getResources(), bucketId, null);
+            showSavingProgress(albumName);
+            //*/ freeme.gulincheng,20170619,save image as a copy
+            File dest = SaveImage.getNewFile(this, getSelectedImageUri());
+            SaveImage.saveImageCopy(MasterImage.getImage().getPreset(),this, dest);
+            return;
+            //*/
+//            mImageShow.saveImage(this, null);
+        } else {
+            done();
+        }
     }
 
-    // //////////////////////////////////////////////////////////////////////////////
-    // Some utility functions
-    // TODO: finish the cleanup.
-
-    @Override
-    protected void onDestroy() {
-        if (mLoadBitmapTask != null) {
-            mLoadBitmapTask.cancel(false);
-        }
-        mUserPresetsManager.close();
-        doUnbindService();
-        super.onDestroy();
+    private void setupEditors() {
+        mEditorPlaceHolder.setContainer((FrameLayout) findViewById(R.id.editorContainer));
+        EditorManager.addEditors(mEditorPlaceHolder);
+        mEditorPlaceHolder.setOldViews(mImageViews);
     }
 
-    void doUnbindService() {
-        if (mIsBound) {
-            // Detach our existing connection.
-            unbindService(mConnection);
-            mIsBound = false;
-        }
+    public void setupStatePanel() {
+        MasterImage.getImage().setHistoryManager(mMasterImage.getHistory());
     }
 
     // //////////////////////////////////////////////////////////////////////////////
@@ -1120,6 +1219,15 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         if (mShareActionProvider != null) {
             mShareActionProvider.setOnShareTargetSelectedListener(this);
         }
+    }
+    private void extractXMPData() {
+        XMresults res = XmpPresets.extractXMPData(
+                getBaseContext(), mMasterImage, getIntent().getData());
+        if (res == null)
+            return;
+
+        mOriginalImageUri = res.originalimage;
+        mOriginalPreset = res.preset;
     }
 
     public void stopLoadingIndicator() {
@@ -1199,17 +1307,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         return true;
     }
 
-    private Intent getDefaultShareIntent() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setType(SharedImageProvider.MIME_TYPE);
-        mSharedOutputFile = SaveImage.getNewFile(this, MasterImage.getImage().getUri());
-        Uri uri = Uri.withAppendedPath(SharedImageProvider.CONTENT_URI,
-                Uri.encode(mSharedOutputFile.getAbsolutePath()));
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        return intent;
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1505,4 +1603,145 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         }
 
     }
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    /// whether no filter applied to the edited image
+    private boolean mIsNoneFilter = true;
+
+    /// fix bug: version button does not response when click
+    private MainPanel mPreviousPanel;
+
+    // exit if file to edit has been deleted
+    private boolean mNeedCheckInvalid = true;
+    private boolean finishIfInvalidUri() {
+        if (!mNeedCheckInvalid) {
+            return false;
+        }
+        Uri uri = null;
+        Intent intent = getIntent();
+        if (intent != null) {
+            uri = intent.getData();
+        }
+        if (uri != null) {
+            if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
+                return false;
+            }
+            // fix cursor leak
+            final String[] projection = new String[] {
+                    android.provider.MediaStore.Images.ImageColumns._ID,
+                    android.provider.MediaStore.Images.ImageColumns.DATA };
+            android.database.Cursor cur = null;
+            boolean result = false;
+            try {
+                cur = getContentResolver().query(uri,
+                        projection, null, null, null);
+                if ((cur == null) || (cur.getCount() == 0)) {
+                    ErrMsgConfirmer.comfirmMessage(this,
+                        R.string.file_deleted, new Runnable() {
+                                public void run() {
+                                    done();
+                                }
+                            });
+                    result = true;
+                } else {
+                    // exit activity if file not exists
+                    cur.moveToFirst();
+                    mSourcePath = cur.getString(1);
+                    Log.d(LOGTAG, "mSourcePath " + mSourcePath);
+                }
+            } finally {
+                if (cur != null) {
+                    cur.close();
+                }
+            }
+            return result;
+        }
+        return false;
+    }
+
+    // add for ANR isue. Click back key ,while apply filter in sub thread.
+    public void addLabel() {
+        int size = mCategoryVersionsAdapter.getCount();
+        for (int i = 0; i < size; i++) {
+            Action ation = mCategoryVersionsAdapter.getItem(i);
+            if (ation.getType() == Action.FULL_VIEW) {
+                ation.mHasFinishAppliedFilterOperation = false;
+                ation.mIsAddVersionOperation = true;
+            }
+        }
+    }
+
+    public boolean hasFinishApplyVersionOperation() {
+        boolean isFinshed = true;
+        if (mVersions.size() <= 0) {
+            isFinshed = true;
+        } else {
+            int size = mCategoryVersionsAdapter.getCount();
+            int i ;
+            for (i = 0; i < size; i++) {
+                Action ation = mCategoryVersionsAdapter.getItem(i);
+                FilterRepresentation presentation = ation.getRepresentation();
+                if (ation.getType() == Action.FULL_VIEW
+                        && ation.mHasFinishAppliedFilterOperation == false
+                        && ation.mIsAddVersionOperation == true) {
+                    Log.d(TAG, "has not finish Apply VersionOperation i====" + i);
+                    isFinshed = false;
+                    break;
+                }
+            }
+            if (i == size) {
+                Log.d(TAG, "has Finish ApplyVersionOperation i == size  " + size);
+                isFinshed = true;
+            }
+        }
+        return isFinshed;
+    }
+
+    /// M: [BUG.ADD] fix display abnormal when back from crop @{
+    private void undoWhenBackToMain() {
+        Log.i(TAG, "<undoWhenBackToMain>");
+        if (mMasterImage == null) {
+            return;
+        }
+        HistoryManager adapter = mMasterImage.getHistory();
+        if (adapter == null) {
+            return;
+        }
+        int position = adapter.undo();
+        mMasterImage.onHistoryItemClick(position);
+        adapter.removeLast();
+    }
+    /// @}
+
+    /// M: [BUG.ADD] disable backpress when saving image @{
+    private String mAlbumNameForSaving;
+    private String loadAlbumNameForSaving() {
+        if (mSelectedImageUri == null) {
+            Log.i(TAG, "<loadAlbumNameForSaving> mSelectedImageUri is null");
+            return null;
+        }
+        File saveDir = SaveImage.getFinalSaveDirectory(this, mSelectedImageUri);
+        int bucketId = GalleryUtils.getBucketId(saveDir.getPath());
+        String albumName = LocalAlbum.getLocalizedName(getResources(),
+                bucketId, null);
+        return albumName;
+    }
+    /// @}
+
+    /// M: [BUG.ADD] exit activity if file not exists. @{
+    private String mSourcePath;
+
+    private boolean finishAndReturnIfNotExists() {
+        if (!new File(mSourcePath).exists()) {
+            Log.d(LOGTAG, "<finishAndReturnIfNotExists> " + mSourcePath
+                    + " not exist, finish activity!!");
+            Toast.makeText(this, R.string.no_such_item, Toast.LENGTH_SHORT).show();
+            finish();
+            return true;
+        }
+        return false;
+    }
+    /// @}
 }

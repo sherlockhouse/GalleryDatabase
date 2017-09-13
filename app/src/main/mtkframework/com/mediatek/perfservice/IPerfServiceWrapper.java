@@ -1,1 +1,1 @@
-/droi/freemeos/57N1/frameworks/base/core/java/com/mediatek/perfservice/IPerfServiceWrapper.java
+/droi/freemeos/1.53_6757/frameworks/base/core/java/com/mediatek/perfservice/IPerfServiceWrapper.java

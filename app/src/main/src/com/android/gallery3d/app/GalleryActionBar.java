@@ -32,6 +32,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -45,8 +46,12 @@ import com.freeme.gallery.R;
 import com.android.gallery3d.anim.StateTransitionAnimation;
 import com.android.gallery3d.common.ApiHelper;
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.freeme.gallery.app.Gallery;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.page.AlbumStoryPage;
+import com.freeme.support.design.widget.FreemeTabLayout;
+import com.freeme.support.design.widget.FreemeTabLayout.OnTabSelectedListener;
+import com.freeme.support.design.widget.FreemeTabLayout.Tab;
 import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
@@ -54,6 +59,8 @@ import java.util.ArrayList;
 public class GalleryActionBar {
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/GalleryActionBar";
+    public static final boolean SHOWTITLE = false;
+    private  FreemeTabLayout actionbarLayout;
 
     private ClusterRunner mClusterRunner;
     private CharSequence[] mTitles;
@@ -65,13 +72,14 @@ public class GalleryActionBar {
     private int mCurrentIndex;
     private ClusterAdapter mAdapter = new ClusterAdapter();
 
-
     private AlbumModeAdapter mAlbumModeAdapter;
     private OnAlbumModeSelectedListener mAlbumModeListener;
     private int mLastAlbumModeSelected;
     private CharSequence [] mAlbumModes;
     public static final int ALBUM_FILMSTRIP_MODE_SELECTED = 0;
     public static final int ALBUM_GRID_MODE_SELECTED = 1;
+    private float ACTIONBAR_ELEVATION = 3f;
+
     public interface ClusterRunner {
         public void doCluster(int id);
     }
@@ -211,7 +219,60 @@ public class GalleryActionBar {
         mActivity = activity;
         mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
+        mActionBar.setElevation(ACTIONBAR_ELEVATION);
+        initActionBar();
 
+    }
+
+    private void initActionBar() {
+        if (mActionBar != null) {
+            actionbarLayout = (FreemeTabLayout) LayoutInflater.from(mContext).inflate(
+                    R.layout.actionbar_layout, null);
+            Tab mTab1 = actionbarLayout.newTab();
+
+            mTab1.setText(R.string.tab_by_camera);
+            actionbarLayout.addTab(mTab1);
+            Tab mTab2 = actionbarLayout.newTab();
+            mTab2.setText(R.string.tab_by_story);
+            actionbarLayout.addTab(mTab2);
+            Tab mTab3 = actionbarLayout.newTab();
+            mTab3.setText(R.string.tab_albums);
+            actionbarLayout.addTab(mTab3);
+            ActionBar.LayoutParams lp = new ActionBar.LayoutParams(
+                    ActionBar.LayoutParams.WRAP_CONTENT,
+                    ActionBar.LayoutParams.MATCH_PARENT,
+                    Gravity.CENTER);
+            actionbarLayout.addOnTabSelectedListener(new OnTabSelectedListener(){
+
+                public void onTabSelected(Tab tab){
+                    switch (tab.getPosition()) {
+                        case 0 :
+                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
+                            break;
+                        case 1:
+                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
+                            break;
+                        case 2:
+                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                public void onTabUnselected(Tab tab){
+
+                }
+
+
+                public void onTabReselected(Tab tab){
+
+                }
+            });
+            mActionBar.setCustomView(actionbarLayout, lp);
+            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
+            mActionBar.setDisplayShowCustomEnabled(true);
+        }
     }
 
     private void createDialogData() {
@@ -342,7 +403,6 @@ public class GalleryActionBar {
         mActionBar.setHomeButtonEnabled(displayHomeAsUp);
 
         //*/Added by droi Linguanrong for Gallery new style, 2013-12-11
-        mActionBar.setDisplayShowHomeEnabled(false);
         mActionBar.setDisplayUseLogoEnabled(false);
         //mActionBar.setLogo(com.android.internal.R.drawable.ic_app_gallery);
         //*/
@@ -352,6 +412,8 @@ public class GalleryActionBar {
             setActionBarBackground(showTransparent());
         }
         //*/
+        mActionBar.setDisplayShowCustomEnabled(!showTitle);
+
     }
 
     //*/ Added by Linguanrong for story album, 2015-08-05
@@ -368,9 +430,11 @@ public class GalleryActionBar {
     private void setActionBarBackground(boolean translucent) {
 
         if (translucent) {
+            mActionBar.setElevation(0);
             mActionBar.setBackgroundDrawable(mActivity.getResources()
                     .getDrawable(R.color.transparent, null));
         } else {
+            mActionBar.setElevation(ACTIONBAR_ELEVATION);
             mActionBar.setBackgroundDrawable(mActivity.getResources()
                     .getDrawable(GalleryActivity.colorPrimary, null));
         }
@@ -538,4 +602,59 @@ public class GalleryActionBar {
 
 
     //*/
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    /**
+     * Remove album mode listener.
+     */
+    //need to remove AlbumModeListener if doCluster in AlbumSetPage.
+    public void removeAlbumModeListener() {
+        if (mActionBar != null) {
+            mAlbumModeListener = null;
+            Log.i(TAG, "<removeAlbumModeListener> removeAlbumModeListener to doCluster");
+        }
+    }
+
+    /**
+     * Set action bar logo resource.
+     * @param resId resource id
+     */
+    public void setLogo(int resId) {
+        if (mActionBar != null) {
+            mActionBar.setLogo(resId);
+        }
+    }
+
+    /**
+     * Set action bar logo resource.
+     * @param logo resource
+     */
+    public void setLogo(Drawable logo) {
+        if (mActionBar != null) {
+            mActionBar.setLogo(logo);
+        }
+    }
+
+    /**
+     * Set action bar useLog enabled.
+     * @param useLogo enable status
+     */
+    public void setDisplayUseLogoEnabled(boolean useLogo) {
+        if (mActionBar != null) {
+            mActionBar.setDisplayUseLogoEnabled(useLogo);
+        }
+    }
+
+    /**
+     * Notify data change.
+     */
+    public final void notifyDataSetChanged() {
+        if (mAlbumModeAdapter != null) {
+            mAlbumModeAdapter.notifyDataSetChanged();
+        }
+    }
+
+//    ActivityChooserModel.OnChooseActivityListener mOnChooseActivityListener;
 }

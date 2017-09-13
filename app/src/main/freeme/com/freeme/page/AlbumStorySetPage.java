@@ -1038,7 +1038,7 @@ public class AlbumStorySetPage extends ActivityState implements
             inflater.inflate(R.menu.pickup, menu);
             mActionBar.setTitle(R.string.select_album);
         } else {
-            mActionBar.setDisplayOptions(false, true);
+            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
             mActionBar.enableClusterMenu(mSelectedAction, this);
             mActionBar.createActionBarMenu(R.menu.album_story_set, menu);
             MenuItem selectItem = menu.findItem(R.id.action_select);

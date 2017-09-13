@@ -30,6 +30,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -61,10 +62,11 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.PanoramaViewHelper;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.util.ThreadPool;
-import com.freeme.gallery.app.BatchService;
 import com.freeme.gesturesensor.GestureSensorManger;
 import com.android.photos.data.GalleryBitmapPool;
+import com.freeme.provider.GalleryDBManager;
 import com.freeme.utils.SystemPropertiesProxy;
+import com.mediatek.gallery3d.util.PermissionHelper;
 
 import java.io.FileNotFoundException;
 
@@ -128,10 +130,25 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     };
 
 
+    public static int colorPrimary;
+    public static int colorPrimaryDarkValue;
+    protected boolean mGranted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mGranted = PermissionHelper.checkAndRequestForGallery(this);
+        if (mGranted) {
+            //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
+            GalleryDBManager.getInstance().initDB(this, "gallery.db");
+            //*/
+        }
+        TypedArray array = getTheme().obtainStyledAttributes(new int[] {
+                android.R.attr.colorPrimary, android.R.attr.colorPrimaryDark
+        });
+        colorPrimary = array.getResourceId(0, 0);
+        colorPrimaryDarkValue = getResources().getColor(array.getResourceId(1, 0));
+        array.recycle();
         //*/Added by Tyd Linguanrong for Gallery secret photos, 2014-2-20
         String action = getIntent().getAction();
         if (action != null && "com.freeme.gallery3d.visitor".equals(action)) {

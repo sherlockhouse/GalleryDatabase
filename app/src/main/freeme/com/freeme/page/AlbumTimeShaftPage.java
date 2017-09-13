@@ -207,34 +207,6 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     }
 
     @Override
-    protected void onStateResult(int request, int result, Intent data) {
-        switch (request) {
-            case REQUEST_SLIDESHOW: {
-                // data could be null, if there is no images in the album
-                if (data == null) return;
-                mFocusIndex = data.getIntExtra(SlideshowPage.KEY_PHOTO_INDEX, 0);
-                mSlotView.setCenterIndex(mFocusIndex);
-                break;
-            }
-            case REQUEST_PHOTO: {
-                if (data == null) return;
-                mFocusIndex = data.getIntExtra(PhotoPage.KEY_RETURN_INDEX_HINT, 0);
-                mSlotView.makeSlotVisible(mFocusIndex);
-                break;
-            }
-            case REQUEST_DO_ANIMATION: {
-                mSlotView.startRisingAnimation();
-                break;
-            }
-        }
-    }
-
-    @Override
-    protected int getBackgroundColorId() {
-        return R.color.album_background;
-    }
-
-    @Override
     protected void onCreate(Bundle data, Bundle restoreState) {
         super.onCreate(data, restoreState);
         mUserDistance = GalleryUtils.meterToPixel(USER_DISTANCE_METER);
@@ -275,6 +247,46 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
             }
         };
     }
+    private void initializeData(Bundle data) {
+        mMediaSetPath = Path.fromString(data.getString(KEY_MEDIA_PATH));
+        mMediaSet = mActivity.getDataManager().getMediaSet(mMediaSetPath);
+        if (mMediaSet == null) {
+            Utils.fail("MediaSet is null. Path = %s", mMediaSetPath);
+        }
+        mSlotView.setData(mActivity, mMediaSet);
+        mSelectionManager.setSourceMediaSet(mMediaSet);
+        mAlbumDataAdapter = new AlbumDataLoader(mActivity, mMediaSet);
+        mAlbumDataAdapter.setLoadingListener(new MyLoadingListener());
+        mAlbumView.setModel(mAlbumDataAdapter);
+    }
+    @Override
+    protected void onStateResult(int request, int result, Intent data) {
+        switch (request) {
+            case REQUEST_SLIDESHOW: {
+                // data could be null, if there is no images in the album
+                if (data == null) return;
+                mFocusIndex = data.getIntExtra(SlideshowPage.KEY_PHOTO_INDEX, 0);
+                mSlotView.setCenterIndex(mFocusIndex);
+                break;
+            }
+            case REQUEST_PHOTO: {
+                if (data == null) return;
+                mFocusIndex = data.getIntExtra(PhotoPage.KEY_RETURN_INDEX_HINT, 0);
+                mSlotView.makeSlotVisible(mFocusIndex);
+                break;
+            }
+            case REQUEST_DO_ANIMATION: {
+                mSlotView.startRisingAnimation();
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected int getBackgroundColorId() {
+        return R.color.album_background;
+    }
+
 
     @Override
     protected void onPause() {
@@ -344,7 +356,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(false, true);
+        mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
 
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);
@@ -751,18 +763,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         //*/
     }
 
-    private void initializeData(Bundle data) {
-        mMediaSetPath = Path.fromString(data.getString(KEY_MEDIA_PATH));
-        mMediaSet = mActivity.getDataManager().getMediaSet(mMediaSetPath);
-        if (mMediaSet == null) {
-            Utils.fail("MediaSet is null. Path = %s", mMediaSetPath);
-        }
-        mSlotView.setData(mActivity, mMediaSet);
-        mSelectionManager.setSourceMediaSet(mMediaSet);
-        mAlbumDataAdapter = new AlbumDataLoader(mActivity, mMediaSet);
-        mAlbumDataAdapter.setLoadingListener(new MyLoadingListener());
-        mAlbumView.setModel(mAlbumDataAdapter);
-    }
+
 
     private void showDetails() {
         mShowDetails = true;
@@ -893,7 +894,11 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    if (isDestroyed()) {
+                        return;
+                    }
                     int itemCount = mMediaSet != null ? mMediaSet.getMediaItemCount() : 0;
+                    if (mMediaSet == null) return;
                     if(itemCount == 0) {
                         showCameraButton();
                     } else {

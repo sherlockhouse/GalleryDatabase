@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
     <FrameLayout
         android:id="@+id/footer"
@@ -23,41 +23,43 @@
         android:layout_alignParentRight="true"
         android:visibility="gone"/>
 
+
     <!--Added by droi Linguanrong for freeme gallery, 16-1-13-->
     <RadioGroup
         android:id="@+id/bottom_tab"
         android:layout_width="match_parent"
         android:layout_height="@dimen/tab_bar_default_height"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/bottom_tab_bg"
+        android:background="@color/transparent"
         android:gravity="center"
+        android:visibility="visible"
         android:orientation="horizontal">
 
-        <RadioButton
-            android:id="@+id/bottom_tab_camera"
-            style="@style/style_RadioButton"
-            android:checked="true"
-            android:drawableTop="@drawable/tab_camera"
-            android:text="@string/tab_by_camera"/>
+        <!--<RadioButton-->
+            <!--android:id="@+id/bottom_tab_camera"-->
+            <!--style="@style/style_RadioButton"-->
+            <!--android:checked="true"-->
+            <!--android:drawableTop="@drawable/tab_camera"-->
+            <!--android:text="@string/tab_by_camera"/>-->
 
-        <RadioButton
-            android:id="@+id/bottom_tab_story"
-            style="@style/style_RadioButton"
-            android:drawableTop="@drawable/tab_story"
-            android:text="@string/tab_by_story"/>
+        <!--<RadioButton-->
+            <!--android:id="@+id/bottom_tab_story"-->
+            <!--style="@style/style_RadioButton"-->
+            <!--android:drawableTop="@drawable/tab_story"-->
+            <!--android:text="@string/tab_by_story"/>-->
 
-        <RadioButton
-            android:id="@+id/bottom_tab_album"
-            style="@style/style_RadioButton"
-            android:drawableTop="@drawable/tab_all"
-            android:text="@string/tab_by_all"/>
+        <!--<RadioButton-->
+            <!--android:id="@+id/bottom_tab_album"-->
+            <!--style="@style/style_RadioButton"-->
+            <!--android:drawableTop="@drawable/tab_all"-->
+            <!--android:text="@string/tab_by_all"/>-->
 
-        <RadioButton
-            android:id="@+id/bottom_tab_community"
-            style="@style/style_RadioButton"
-            android:drawableTop="@drawable/tab_community"
-            android:visibility="gone"
-            android:text="@string/tab_by_community"/>
+        <!--<RadioButton-->
+            <!--android:id="@+id/bottom_tab_community"-->
+            <!--style="@style/style_RadioButton"-->
+            <!--android:drawableTop="@drawable/tab_community"-->
+            <!--android:visibility="gone"-->
+            <!--android:text="@string/tab_by_community"/>-->
     </RadioGroup>
     <!--Tyd-->
 </RelativeLayout>

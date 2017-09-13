@@ -57,9 +57,7 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
         super.onCreate();
         Stetho.initializeWithDefaults(this);
         new OkHttpClient().networkInterceptors().add(new StethoInterceptor());
-        //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
-        GalleryDBManager.getInstance().initDB(this, "gallery.db");
-        //*/
+
         initializeAsyncTask();
         GalleryUtils.initialize(this);
         WidgetUtils.initialize(this);

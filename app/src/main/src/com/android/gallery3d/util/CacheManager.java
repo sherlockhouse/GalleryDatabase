@@ -73,7 +73,7 @@ public class CacheManager {
             }
             return cache;
         }
-        }
+    }
 
     // Removes the old files if the data is wiped.
     private static void removeOldFilesIfNecessary(Context context) {

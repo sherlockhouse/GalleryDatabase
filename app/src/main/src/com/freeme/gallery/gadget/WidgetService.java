@@ -38,6 +38,7 @@ import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.data.ContentListener;
 import com.android.gallery3d.data.ImageCacheService;
+//import com.mediatek.gallery3d.adapter.PhotoPlayFacade;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.galleryframework.base.MediaFilter;
@@ -46,7 +47,6 @@ import com.android.gallery3d.gadget.LocalPhotoSource;
 import com.android.gallery3d.gadget.MediaSetSource;
 import com.android.gallery3d.gadget.WidgetDatabaseHelper;
 import com.android.gallery3d.gadget.WidgetSource;
-import com.freeme.provider.GalleryStore;
 
 @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
 public class WidgetService extends RemoteViewsService {
@@ -67,14 +67,7 @@ public class WidgetService extends RemoteViewsService {
         return new PhotoRVFactory((GalleryApp) getApplicationContext(),
                 id, type, albumPath);
     }
-    public static Uri convertGalleryUri(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
 
-        return Uri.parse(
-                uri.toString().replace( GalleryStore.CONTENT_AUTHORITY_SLASH,"content://media/"));
-    }
     /// M: [FEATURE.MODIFY] @{
     /*private static class PhotoRVFactory implements
               RemoteViewsService.RemoteViewsFactory, ContentListener {*/

@@ -360,7 +360,7 @@
         <!--<item name="android:timePickerDialogTheme">?android:alertDialogTheme</item>-->
 
         <!-- DatePicker style -->
-        <!--<item name="android:datePickerStyle">@style/Widget.Freeme.Light.DatePicker</item>-->
+        <item name="android:datePickerStyle">@style/MyDatePickerStyle</item>
 
         <!-- DatePicker dialog theme -->
         <item name="android:datePickerDialogTheme">?android:alertDialogTheme</item>
@@ -471,7 +471,6 @@
     <style name="ActionBarStyle" parent="android:Widget.Material.ActionBar.Solid">
         <!--<item name="android:displayOptions">showTitle</item>-->
         <!--<item name="android:background">@color/transparent</item>-->
-        <item name="android:elevation">0dp</item>
 
         <item name="android:translationZ">0dp</item>
     </style>
@@ -487,7 +486,16 @@
         <item name="android:windowMinWidthMajor">@android:dimen/dialog_min_width_major</item>
         <item name="android:windowMinWidthMinor">@android:dimen/dialog_min_width_minor</item>
     </style>
-
+    <style name="MyDatePickerStyle" parent="Base">
+        <item name="android:headerBackground">@color/theme_color</item>
+        <item name="android:colorAccent">@color/theme_color</item>
+        <item name="android:datePickerMode">calendar</item>
+        <!--<item name="android:legacyLayout">@layout/date_picker_legacy_holo</item>-->
+        <item name="android:calendarViewShown">true</item>
+        <!-- Attributes for new-style DatePicker. -->
+        <!--<item name="android:internalLayout">?android:layout/date_picker_material</item>-->
+        <!--<item name="android:headerTextColor">?android:color/primary_text_secondary_when_activated_material</item>-->
+    </style>
     <!-- Freeme light theme for alert dialog windows, which is used by the
          {@link android.app.AlertDialog} class.  This is basically a dialog
          but sets the background to empty so it can do two-tone backgrounds.
@@ -501,7 +509,7 @@
         <item name="android:windowMinWidthMajor">@dimen/dialog_min_width_major_freeme</item>
         <item name="android:windowMinWidthMinor">@dimen/dialog_min_width_minor_freeme</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:colorBackground">?android:attr/colorBackgroundFloating</item>
+        <item name="android:colorBackground">@color/theme_color</item>
 
         <item name="android:windowFrame">@null</item>
         <!--<item name="android:windowTitleStyle">@style/DialogWindowTitle.Freeme</item>-->
@@ -533,11 +541,21 @@
         <item name="android:windowExitAnimation">@anim/dialog_exit_freeme</item>
     </style>
     <style name="DialogWindowTitleBackground.Freeme" parent="Base">
-        <item name="android:background">@null</item>
+        <item name="android:background">@color/theme_color</item>
         <item name="android:paddingStart">?android:attr/dialogPreferredPadding</item>
         <item name="android:paddingEnd">?android:attr/dialogPreferredPadding</item>
         <item name="android:paddingTop">@dimen/dialog_padding_top_freeme</item>
     </style>
     <style name="Theme.Gallery.Dialog" parent="android:Theme.Material.Light.Dialog"/>
     <style name="Base"/>
+
+    <!--M: added for fixing the flash when switch dialog show. -->
+    <style name="GalleryNoDisplay">
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">true</item>
+    </style>
 </resources>

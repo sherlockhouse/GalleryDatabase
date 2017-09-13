@@ -21,7 +21,9 @@
 
 package com.android.gallery3d.app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -29,6 +31,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,13 +40,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
-import com.freeme.data.StoryAlbum;
-import com.freeme.data.StoryAlbumSet;
-import com.freeme.data.VisitorAlbum;
-import com.freeme.data.VisitorAlbumVideo;
-import com.freeme.extern.SecretMenuHandler;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.data.ClusterAlbum;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.LocalImage;
 import com.android.gallery3d.data.MediaDetails;
@@ -51,13 +50,15 @@ import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
-import com.freeme.gallery.filtershow.crop.CropActivity;
+//import com.android.gallery3d.filtershow.crop.CropActivity;
 import com.android.gallery3d.filtershow.crop.CropExtras;
 import com.android.gallery3d.glrenderer.FadeTexture;
 import com.android.gallery3d.glrenderer.GLCanvas;
 import com.android.gallery3d.ui.ActionModeHandler;
+import com.android.gallery3d.ui.ActionModeHandler.ActionModeListener;
 import com.android.gallery3d.ui.AlbumSlotRenderer;
 import com.android.gallery3d.ui.DetailsHelper;
+import com.android.gallery3d.ui.DetailsHelper.CloseListener;
 import com.android.gallery3d.ui.GLRoot;
 import com.android.gallery3d.ui.GLView;
 import com.android.gallery3d.ui.PhotoFallbackEffect;
@@ -65,19 +66,33 @@ import com.android.gallery3d.ui.RelativePosition;
 import com.android.gallery3d.ui.SelectionManager;
 import com.android.gallery3d.ui.SlotView;
 import com.android.gallery3d.ui.SynchronizedHandler;
-import com.android.gallery3d.util.GalleryUtils;
-import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.Future;
+import com.android.gallery3d.util.GalleryUtils;
+import com.android.gallery3d.util.MediaSetUtils;
+import com.droi.sdk.analytics.DroiAnalytics;
+import com.freeme.data.StoryAlbum;
+import com.freeme.data.StoryAlbumSet;
+import com.freeme.data.VisitorAlbum;
+import com.freeme.data.VisitorAlbumVideo;
+import com.freeme.extern.SecretMenuHandler;
 import com.freeme.gallery.app.GalleryActivity;
+import com.freeme.gallery.app.MovieActivity;
+import com.freeme.gallery.filtershow.crop.CropActivity;
 import com.freeme.jigsaw.app.JigsawEntry;
 import com.freeme.page.AlbumStoryPage;
-import com.freeme.provider.GalleryStore;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
-
+import com.mediatek.gallery3d.layout.FancyHelper;
+import com.mediatek.gallery3d.util.PermissionHelper;
+import com.mediatek.galleryfeature.config.FeatureConfig;
+//import com.mediatek.galleryfeature.platform.PlatformHelper;
+import com.mediatek.galleryframework.base.MediaData;
+/// M: [FEATURE.ADD] Gallery picker plugin @{
+//import com.mediatek.galleryframework.util.GalleryPluginUtils;
+/// @}
 import java.util.ArrayList;
 
-
+import com.freeme.provider.GalleryStore;
 public class AlbumPage extends ActivityState implements GalleryActionBar.ClusterRunner,
         SelectionManager.SelectionListener, MediaSet.SyncListener, GalleryActionBar.OnAlbumModeSelectedListener
         , SecretMenuHandler.MenuListener {
@@ -217,41 +232,33 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     };
     private PhotoFallbackEffect.PositionProvider mPositionProvider =
             new PhotoFallbackEffect.PositionProvider() {
-                @Override
-                public Rect getPosition(int index) {
-                    Rect rect = mSlotView.getSlotRect(index);
-                    Rect bounds = mSlotView.bounds();
-                    rect.offset(bounds.left - mSlotView.getScrollX(),
-                            bounds.top - mSlotView.getScrollY());
-                    return rect;
-                }
+        @Override
+        public Rect getPosition(int index) {
+            Rect rect = mSlotView.getSlotRect(index);
+            Rect bounds = mSlotView.bounds();
+            rect.offset(bounds.left - mSlotView.getScrollX(),
+                    bounds.top - mSlotView.getScrollY());
+            return rect;
+        }
 
-                @Override
-                public int getItemIndex(Path path) {
-                    int start = mSlotView.getVisibleStart();
-                    int end = mSlotView.getVisibleEnd();
-                    for (int i = start; i < end; ++i) {
-                        MediaItem item = mAlbumDataAdapter.get(i);
-                        if (item != null && item.getPath() == path) return i;
-                    }
-                    return -1;
-                }
-            };    @Override
+        @Override
+        public int getItemIndex(Path path) {
+            int start = mSlotView.getVisibleStart();
+            int end = mSlotView.getVisibleEnd();
+            for (int i = start; i < end; ++i) {
+                MediaItem item = mAlbumDataAdapter.get(i);
+                if (item != null && item.getPath() == path) return i;
+            }
+            return -1;
+        }
+    };
+
+    @Override
     protected int getBackgroundColorId() {
         return R.color.album_background;
     }
 
-    @Override
-    public void doCluster(int clusterType) {
-        String basePath = mMediaSet.getPath().toString();
-        String newPath = FilterUtils.newClusterPath(basePath, clusterType);
-        Bundle data = new Bundle(getData());
-        data.putString(AlbumSetPage.KEY_MEDIA_PATH, newPath);
 
-        // mAlbumView.savePositions(PositionRepository.getInstance(mActivity));
-        mActivity.getStateManager().startStateForResult(
-                AlbumSetPage.class, REQUEST_DO_ANIMATION, data);
-    }
 
     //*/ Added by Tyd Linguanrong for secret photos, 2014-2-17
     @Override
@@ -533,10 +540,6 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         mActionModeHandler.updateSupportedOperation(path, selected);
     }
 
-    @Override
-    public void onSelectionRestoreDone() {
-
-    }
 
     private void pickPhoto(int slotIndex, boolean startInFilmstrip) {
         if (!mIsActive) return;
@@ -654,7 +657,25 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         mSelectionManager.toggle(item.getPath());
         mSlotView.invalidate();
     }
+    @Override
+    public void doCluster(int clusterType) {
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        if (clusterType == FilterUtils.CLUSTER_BY_LOCATION
+                && !PermissionHelper.checkAndRequestForLocationCluster(mActivity)) {
+            Log.i(TAG, "<doCluster> permission not granted");
+            mNeedDoClusterType = clusterType;
+            return;
+        }
+        /// @}
+        String basePath = mMediaSet.getPath().toString();
+        String newPath = FilterUtils.newClusterPath(basePath, clusterType);
+        Bundle data = new Bundle(getData());
+        data.putString(AlbumSetPage.KEY_MEDIA_PATH, newPath);
 
+        // mAlbumView.savePositions(PositionRepository.getInstance(mActivity));
+        mActivity.getStateManager().startStateForResult(
+                AlbumSetPage.class, REQUEST_DO_ANIMATION, data);
+    }
     @Override
     public void onAlbumModeSelected(int mode) {
         if (mode == GalleryActionBar.ALBUM_FILMSTRIP_MODE_SELECTED) {
@@ -986,7 +1007,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
 
             FilterUtils.setupMenuItems(actionBar, mMediaSetPath, true);
 
-            menu.findItem(com.freeme.gallery.R.id.action_camera).setVisible( GalleryUtils.isCameraAvailable(mActivity));
+            menu.findItem(R.id.action_camera).setVisible( GalleryUtils.isCameraAvailable(mActivity));
 
         }
         actionBar.setSubtitle(null);
@@ -1095,4 +1116,83 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             }
         }
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // Flag to specify whether mSelectionManager.restoreSelection task has done
+    private boolean mRestoreSelectionDone;
+    // Save selection for onPause/onResume
+    private boolean mNeedUpdateSelection = false;
+    // If restore selection not done in selection mode,after click one slot, show 'wait' toast
+    private Toast mWaitToast = null;
+
+    public void onSelectionRestoreDone() {
+        if (!mIsActive) {
+            return;
+        }
+        mRestoreSelectionDone = true;
+        // Update selection menu after restore done @{
+        mActionModeHandler.updateSupportedOperation();
+        mActionModeHandler.updateSelectionMenu();
+    }
+
+    /// M: [BUG.ADD] leave selection mode when plug out sdcard @{
+//    @Override
+//    public void onEjectSdcard() {
+//        if (mSelectionManager.inSelectionMode()) {
+//            Log.i(TAG, "<onEjectSdcard> leaveSelectionMode");
+//            mSelectionManager.leaveSelectionMode();
+//        }
+//    }
+    /// @}
+
+    /// M:[FEATURE.ADD] play video directly. @{
+    public void playVideo(Activity activity, Uri uri, String title) {
+        Log.i(TAG, "<playVideo> enter playVideo");
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(uri, "video/*")
+                    .putExtra(Intent.EXTRA_TITLE, title)
+                    .putExtra(MovieActivity.KEY_TREAT_UP_AS_BACK, true);
+            activity.startActivityForResult(intent, PhotoPage.REQUEST_PLAY_VIDEO);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(activity, activity.getString(R.string.video_err),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean canBePlayed(MediaItem item) {
+        int supported = item.getSupportedOperations();
+        return ((supported & MediaItem.SUPPORT_PLAY) != 0
+                && MediaObject.MEDIA_TYPE_VIDEO == item.getMediaType());
+    }
+    /// @}
+
+    /// M: [PERF.ADD] add for delete many files performance improve @{
+    @Override
+    public void setProviderSensive(boolean isProviderSensive) {
+//        mAlbumDataAdapter.setSourceSensive(isProviderSensive);
+    }
+    @Override
+    public void fakeProviderChange() {
+//        mAlbumDataAdapter.fakeSourceChange();
+    }
+    /// @}
+
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    private int mNeedDoClusterType = 0;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
+            doCluster(mNeedDoClusterType);
+        } else {
+            PermissionHelper.showDeniedPromptIfNeeded(mActivity,
+                    Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+    /// @}
 }

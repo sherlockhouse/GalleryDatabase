@@ -361,47 +361,37 @@
         </activity>
 
 
-        <provider
-            android:name=".provider.GalleryProvider"
-            android:authorities="com.freeme.gallery.provider"
-            android:exported="true"
-            android:grantUriPermissions="true"
-            android:permission="com.freeme.gallery.permission.GALLERY_PROVIDER"
-            android:syncable="false"/>
+        <provider android:name=".provider.GalleryProvider"
+                android:syncable="false"
+                android:grantUriPermissions="true"
+                android:exported="true"
+		android:permission="com.freeme.gallery.permission.GALLERY_PROVIDER"
+            	android:authorities="com.freeme.gallery.provider"/>
         <provider
             android:name="com.freeme.photos.data.PhotoProvider"
             android:authorities="com.freeme.gallery.photoprovider"
-            android:exported="false"
-            android:syncable="false"/>
+                android:syncable="false"
+                android:exported="false"/>
+        <!-- added for fixing the flash when switch dialog show. -->
+        <activity android:name=".gadget.WidgetClickHandler" android:theme="@style/GalleryNoDisplay"/>
+        <activity android:name=".app.DialogPicker"
+                android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+                android:theme="@style/DialogPickerTheme"/>
+        <activity android:name=".app.AlbumPicker"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@style/DialogPickerTheme"/>
+        <activity android:name=".gadget.WidgetTypeChooser"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@style/Theme.Gallery.Dialog"/>
 
-        <activity android:name=".gadget.WidgetClickHandler">
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
-            </activity>
-        <activity
-            android:name=".app.DialogPicker"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/DialogPickerTheme"/>
-        <activity
-            android:name=".app.AlbumPicker"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/DialogPickerTheme"/>
-        <activity
-            android:name=".gadget.WidgetTypeChooser"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/Theme.Gallery.Dialog"/>
 
-        <receiver
-            android:name=".gadget.PhotoAppWidgetProvider"
-            android:label="@string/appwidget_title">
+        <receiver android:name=".gadget.PhotoAppWidgetProvider"
+                android:label="@string/appwidget_title">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info"/>
+            <meta-data android:name="android.appwidget.provider"
+                    android:resource="@xml/widget_info" />
         </receiver>
         <receiver android:name=".app.PackagesMonitor">
             <intent-filter>

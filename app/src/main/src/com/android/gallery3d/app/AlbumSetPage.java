@@ -21,31 +21,29 @@
 
 package com.android.gallery3d.app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
 import android.view.HapticFeedbackConstants;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.droi.sdk.analytics.DroiAnalytics;
-import com.freeme.data.StoryAlbumSet;
-import com.freeme.extern.HideModeHandler;
-import com.freeme.extern.IBucketAlbum;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.android.gallery3d.common.Utils;
+import com.android.gallery3d.data.ClusterAlbumSet;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaDetails;
 import com.android.gallery3d.data.MediaItem;
@@ -55,6 +53,7 @@ import com.android.gallery3d.data.Path;
 import com.android.gallery3d.glrenderer.FadeTexture;
 import com.android.gallery3d.glrenderer.GLCanvas;
 import com.android.gallery3d.picasasource.PicasaSource;
+//import com.android.gallery3d.settings.GallerySettings;
 import com.android.gallery3d.ui.ActionModeHandler;
 import com.android.gallery3d.ui.ActionModeHandler.ActionModeListener;
 import com.android.gallery3d.ui.AlbumSetSlotRenderer;
@@ -65,8 +64,25 @@ import com.android.gallery3d.ui.GLView;
 import com.android.gallery3d.ui.SelectionManager;
 import com.android.gallery3d.ui.SlotView;
 import com.android.gallery3d.ui.SynchronizedHandler;
+import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.HelpUtils;
+
+import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.mediatek.gallery3d.layout.FancyHelper;
+import com.mediatek.gallery3d.layout.Layout.DataChangeListener;
+import com.mediatek.gallery3d.util.PermissionHelper;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
+import android.widget.TextView;
+import android.view.LayoutInflater;
+import com.droi.sdk.analytics.DroiAnalytics;
+import com.freeme.data.StoryAlbumSet;
+import com.freeme.extern.HideModeHandler;
+import com.freeme.extern.IBucketAlbum;
+import android.graphics.drawable.Drawable;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.Future;
 import com.freeme.gallery.app.AlbumPicker;
@@ -79,9 +95,11 @@ import com.freeme.settings.GallerySettings;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+
 
 public class AlbumSetPage extends ActivityState implements
         SelectionManager.SelectionListener, GalleryActionBar.ClusterRunner,
@@ -136,6 +154,9 @@ public class AlbumSetPage extends ActivityState implements
     private int mLoadingBits = 0;
     private boolean mInitialSynced = false;
     private boolean mShowedEmptyToastForSelf = false;
+    /// M: [BUG.ADD]  if get the mTitle/mSubTitle,they will not change when switch language@{
+    private int mClusterType = -1;
+    /// @}
     //*/Added by droi Linguanrong for Gallery new style, 2013-12-19
     private int mSlotViewPadding = 0;
     private int mBottomPadding = 0;
@@ -235,45 +256,6 @@ public class AlbumSetPage extends ActivityState implements
     }
 
     @Override
-    public void doCluster(int clusterType) {
-        //*/Modified by droi Linguanrong for Gallery new style, 2013-12-16
-        if (mSelectionManager != null && mSelectionManager.inSelectionMode()) {
-            mSelectionManager.leaveSelectionMode();
-            //*/ Added by xueweili for set actionbar view, 2015-7-23
-            if (mIsHideAlbumSet) {
-                mActionBar.setCustomView(null);
-            }
-            //*/
-        }
-
-        String newPath;
-        Bundle data = new Bundle(getData());
-        //*/ Added by xueweili for set visible flag  , 2015-7-23
-        data.putBoolean(KEY_VISIBLE_ALL_SET, false);
-        //*/
-        if (clusterType == FreemeUtils.CLUSTER_BY_CAMERE) {
-            newPath = mActivity.getDataManager().makeCameraSetPath();
-            //*/ Added by droi Linguanrong for Gallery new style, 2013-12-30
-            boolean mTimeShaftPage = mActivity.mSharedPreferences.getBoolean("default_page", true);
-            if (mTimeShaftPage) {
-                data.putString(AlbumTimeShaftPage.KEY_MEDIA_PATH, newPath);
-                mActivity.getStateManager().switchState(this, AlbumTimeShaftPage.class, data);
-            } else {
-                data.putString(AlbumCameraPage.KEY_MEDIA_PATH, newPath);
-                mActivity.getStateManager().switchState(this, AlbumCameraPage.class, data);
-            }
-            //*/
-        } else if (clusterType == FreemeUtils.CLUSTER_BY_STORY) {
-            data.putBoolean(GalleryActivity.KEY_GET_CONTENT, false);
-            data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, StoryAlbumSet.PATH.toString());
-            data.putInt(AlbumStorySetPage.KEY_SELECTED_CLUSTER_TYPE, clusterType);
-            mActivity.getStateManager().switchState(this, AlbumStorySetPage.class, data);
-        } else if (clusterType == FreemeUtils.CLUSTER_BY_COMMUNITY) {
-            ((GalleryActivity) mActivity).startCommunity();
-        }
-    }
-
-    @Override
     public void onBackPressed() {
         if (mShowDetails) {
             hideDetails();
@@ -343,10 +325,6 @@ public class AlbumSetPage extends ActivityState implements
         //*/
     }
 
-    @Override
-    public void onSelectionRestoreDone() {
-
-    }
 
     public void onSingleTapUp(int slotIndex) {
         if (!mIsActive) return;
@@ -408,46 +386,7 @@ public class AlbumSetPage extends ActivityState implements
         });
     }
 
-    private class MyLoadingListener implements LoadingListener {
-        @Override
-        public void onLoadingStarted() {
-            setLoadingBit(BIT_LOADING_RELOAD);
-        }
 
-        @Override
-        public void onLoadingFinished(boolean loadingFailed) {
-            clearLoadingBit(BIT_LOADING_RELOAD);
-
-            //*/ Added by xueweili for set hidepage state select Mode, 2015-7-23
-            if (mIsHideAlbumSet) {
-                String selectBucketIds = mActivity.mSharedPreferences.getString("visible_key", "");
-                int count = mMediaSet.getSubMediaSetCount();
-                for (int i = 0; i < count; i++) {
-                    MediaSet set = mMediaSet.getSubMediaSet(i);
-                    IBucketAlbum album = (IBucketAlbum) set;
-                    if (selectBucketIds.contains(String.valueOf(album.getBucketId()))) {
-                        mSelectionManager.toggle(set.getPath());
-                    }
-                }
-                mHideModeHandler.setEnable(count > 0);
-            }
-            //*/
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    int setCount = mMediaSet != null ? mMediaSet.getSubMediaSetCount() : 0;
-                    if(setCount == 0) {
-                        if (!mGetAlbum && !mIsHideAlbumSet) {
-                            showCameraButton();
-                        }
-                    } else {
-                        hideCameraButton();
-                    }
-                }
-            }, 50);
-        }
-    }
 
     private void showEmptyAlbumToast(int toastLength) {
         Toast toast;
@@ -601,6 +540,52 @@ public class AlbumSetPage extends ActivityState implements
         mSlotView.invalidate();
     }
 
+    @Override
+    public void doCluster(int clusterType) {
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        if (clusterType == FilterUtils.CLUSTER_BY_LOCATION
+                && !PermissionHelper.checkAndRequestForLocationCluster(mActivity)) {
+            Log.i(TAG, "<doCluster> permission not granted");
+            mNeedDoClusterType = clusterType;
+            return;
+        }
+        /// @}
+        //*/Modified by droi Linguanrong for Gallery new style, 2013-12-16
+        if (mSelectionManager != null && mSelectionManager.inSelectionMode()) {
+            mSelectionManager.leaveSelectionMode();
+            //*/ Added by xueweili for set actionbar view, 2015-7-23
+            if (mIsHideAlbumSet) {
+                mActionBar.setCustomView(null);
+            }
+            //*/
+        }
+
+        String newPath;
+        Bundle data = new Bundle(getData());
+        //*/ Added by xueweili for set visible flag  , 2015-7-23
+        data.putBoolean(KEY_VISIBLE_ALL_SET, false);
+        //*/
+        if (clusterType == FreemeUtils.CLUSTER_BY_CAMERE) {
+            newPath = mActivity.getDataManager().makeCameraSetPath();
+            //*/ Added by droi Linguanrong for Gallery new style, 2013-12-30
+            boolean mTimeShaftPage = mActivity.mSharedPreferences.getBoolean("default_page", true);
+            if (mTimeShaftPage) {
+                data.putString(AlbumTimeShaftPage.KEY_MEDIA_PATH, newPath);
+                mActivity.getStateManager().switchState(this, AlbumTimeShaftPage.class, data);
+            } else {
+                data.putString(AlbumCameraPage.KEY_MEDIA_PATH, newPath);
+                mActivity.getStateManager().switchState(this, AlbumCameraPage.class, data);
+            }
+            //*/
+        } else if (clusterType == FreemeUtils.CLUSTER_BY_STORY) {
+            data.putBoolean(GalleryActivity.KEY_GET_CONTENT, false);
+            data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, StoryAlbumSet.PATH.toString());
+            data.putInt(AlbumStorySetPage.KEY_SELECTED_CLUSTER_TYPE, clusterType);
+            mActivity.getStateManager().switchState(this, AlbumStorySetPage.class, data);
+        } else if (clusterType == FreemeUtils.CLUSTER_BY_COMMUNITY) {
+            ((GalleryActivity) mActivity).startCommunity();
+        }
+    }
 
     @Override
     public void onCreate(Bundle data, Bundle restoreState) {
@@ -610,7 +595,12 @@ public class AlbumSetPage extends ActivityState implements
         mGetContent = data.getBoolean(GalleryActivity.KEY_GET_CONTENT, false);
         mGetAlbum = data.getBoolean(GalleryActivity.KEY_GET_ALBUM, false);
         mTitle = data.getString(AlbumSetPage.KEY_SET_TITLE);
-        mSubtitle = data.getString(AlbumSetPage.KEY_SET_SUBTITLE);
+        /// M: [BUG.MODIFY] @{
+        // Get clustertype here, if get the mTitle/mSubTitle,
+        // they will not change when switch language.
+        //mSubtitle = data.getString(AlbumSetPage.KEY_SET_SUBTITLE);
+        mClusterType = data.getInt(AlbumSetPage.KEY_SELECTED_CLUSTER_TYPE);
+        /// @}
         mEyePosition = new EyePosition(mActivity.getAndroidContext(), this);
         mDetailsSource = new MyDetailsSource();
         mActionBar = mActivity.getGalleryActionBar();
@@ -658,7 +648,7 @@ public class AlbumSetPage extends ActivityState implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+mDestroyed = true;
         /*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.unlockOrientation();
         //*/
@@ -706,7 +696,7 @@ public class AlbumSetPage extends ActivityState implements
     private void showCameraButton() {
         if (mEmptyView == null && !setupCameraButton()) return;
         mEmptyView.setVisibility(View.VISIBLE);
-        //*/ Added by Linguanrong for set menu item visible, 2015-4-24
+
         if (mActionBar == null || mActionBar.getMenu() == null) return;
         MenuItem select = mActionBar.getMenu().findItem(R.id.action_select);
         if (select != null) {
@@ -723,7 +713,7 @@ public class AlbumSetPage extends ActivityState implements
         }
         //*/
     }
-
+volatile boolean mDestroyed = false;
     private void hideCameraButton() {
         if (mEmptyView == null) return;
         mEmptyView.setVisibility(View.GONE);
@@ -874,6 +864,16 @@ public class AlbumSetPage extends ActivityState implements
             hideCameraButton();
         }
         //*/
+		
+        /// M: [FEATURE.ADD] [Runtime permission] @{
+        if (mClusterType == FilterUtils.CLUSTER_BY_LOCATION
+                && !PermissionHelper.checkLocationPermission(mActivity)) {
+            Log.i(TAG, "<onResume> CLUSTER_BY_LOCATION, permisison not granted, finish");
+            PermissionHelper.showDeniedPrompt(mActivity);
+            mActivity.getStateManager().finishState(AlbumSetPage.this);
+            return;
+        }
+        /// @}
     }
 
     private void initializeData(Bundle data) {
@@ -949,7 +949,7 @@ public class AlbumSetPage extends ActivityState implements
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(true, true);
+        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
         //*/ Added by Tyd Linguanrong for secret photos, 2014-2-22
         if (mVisitorMode || mStorySelectMode) {
             mActionBar.setDisplayOptions(true, true);
@@ -986,7 +986,7 @@ public class AlbumSetPage extends ActivityState implements
             //*/
         } else {
             //*/ Modified by droi Linguanrong for freeme gallery, 2016-1-14
-            mActionBar.setDisplayOptions(false, true);
+            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
             //mActionBar.enableClusterMenu(mSelectedAction, this);
             //inflater.inflate(R.menu.albumset, menu);
             mActionBar.createActionBarMenu(R.menu.albumset, menu);
@@ -1013,7 +1013,13 @@ public class AlbumSetPage extends ActivityState implements
             MenuItem helpItem = menu.findItem(R.id.action_general_help);
             helpItem.setVisible(helpIntent != null);
             if (helpIntent != null) helpItem.setIntent(helpIntent);
-
+            /// M: [BUG.ADD] if get the mTitle/mSubTitle,they will not change @{
+            // when switch language.
+            if (mTitle != null) {
+                mTitle = mMediaSet.getName();
+                mSubtitle = GalleryActionBar.getClusterByTypeString(mActivity, mClusterType);
+            }
+            /// @}
             //*/ Added by xueweili for finde hide menu, 2015-7-23
             MenuItem hideItem = menu.findItem(R.id.action_visible_all);
             if (mSelectedAction != FreemeUtils.CLUSTER_BY_ALBUM) {
@@ -1072,18 +1078,18 @@ public class AlbumSetPage extends ActivityState implements
                 GalleryUtils.startCameraActivity(activity);
                 return true;
             }
-            case R.id.action_manage_offline: {
-                Bundle data = new Bundle();
-                String mediaPath = mActivity.getDataManager().getTopSetPath(
-                        DataManager.INCLUDE_ALL);
-                data.putString(AlbumSetPage.KEY_MEDIA_PATH, mediaPath);
-                mActivity.getStateManager().startState(ManageCachePage.class, data);
-                return true;
-            }
-            case R.id.action_sync_picasa_albums: {
-                PicasaSource.requestSync(activity);
-                return true;
-            }
+//            case R.id.action_manage_offline: {
+//                Bundle data = new Bundle();
+//                String mediaPath = mActivity.getDataManager().getTopSetPath(
+//                        DataManager.INCLUDE_ALL);
+//                data.putString(AlbumSetPage.KEY_MEDIA_PATH, mediaPath);
+//                mActivity.getStateManager().startState(ManageCachePage.class, data);
+//                return true;
+//            }
+//            case R.id.action_sync_picasa_albums: {
+//                PicasaSource.requestSync(activity);
+//                return true;
+//            }
             case R.id.action_settings: {
                 activity.startActivity(new Intent(activity, GallerySettings.class));
                 return true;
@@ -1187,6 +1193,95 @@ public class AlbumSetPage extends ActivityState implements
         mActivity.getStateManager().switchState(this, AlbumSetPage.class, data);
     }
 
+    private class MyLoadingListener implements LoadingListener {
+        @Override
+        public void onLoadingStarted() {
+            setLoadingBit(BIT_LOADING_RELOAD);
+        }
+
+        @Override
+        public void onLoadingFinished(boolean loadingFailed) {
+            clearLoadingBit(BIT_LOADING_RELOAD);
+
+            //*/ Added by xueweili for set hidepage state select Mode, 2015-7-23
+            if (mIsHideAlbumSet) {
+                String selectBucketIds = mActivity.mSharedPreferences.getString("visible_key", "");
+                int count = mMediaSet.getSubMediaSetCount();
+                for (int i = 0; i < count; i++) {
+                    MediaSet set = mMediaSet.getSubMediaSet(i);
+                    IBucketAlbum album = (IBucketAlbum) set;
+                    if (selectBucketIds.contains(String.valueOf(album.getBucketId()))) {
+                        mSelectionManager.toggle(set.getPath());
+                    }
+                }
+                mHideModeHandler.setEnable(count > 0);
+            }
+            //*/
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (isDestroyed()) {
+                        return;
+                    }
+                    int setCount = mMediaSet != null ? mMediaSet.getSubMediaSetCount() : 0;
+                    if (mMediaSet == null) return;
+
+                    if(setCount == 0) {
+                        if (!mGetAlbum && !mIsHideAlbumSet) {
+                            showCameraButton();
+                        }
+                    } else {
+                        hideCameraButton();
+                    }
+                }
+            }, 50);
+            boolean inSelectionMode = (mSelectionManager != null && mSelectionManager
+                    .inSelectionMode());
+            int setCount = mMediaSet != null ? mMediaSet.getSubMediaSetCount() : 0;
+            Log.d(TAG, "<onLoadingFinished> set count=" + setCount);
+            Log.d(TAG, "<onLoadingFinished> inSelectionMode=" + inSelectionMode);
+            mSelectionManager.onSourceContentChanged();
+            boolean restore = false;
+            if (setCount > 0 && inSelectionMode) {
+                if (mNeedUpdateSelection) {
+                    mNeedUpdateSelection = false;
+                    restore = true;
+                    mSelectionManager.restoreSelection();
+                }
+                mActionModeHandler.updateSupportedOperation();
+                mActionModeHandler.updateSelectionMenu();
+            }
+            if (!restore) {
+                mRestoreSelectionDone = true;
+            }
+            /// @}
+            /// M: [BUG.ADD] @{
+            // ClusterAlbumSet name is designed to be localized, and the
+            // localized name is calculated in reload(). Therefore we may obtain
+            // a miss-localized name which is corresponding to the obsolete
+            // (previous) Locale from ClusterAlbumSet if it is not finished
+            // reloading. Here we re-get its name after it finished reloading,
+            // and set the title of action bar to be the obtained name.
+            if (mTitle != null && mActionBar != null && !inSelectionMode
+                    && (mMediaSet instanceof ClusterAlbumSet)) {
+                String title = mMediaSet.getName();
+                String subtitle =
+                        GalleryActionBar.getClusterByTypeString(mActivity, mClusterType);
+                if (!mTitle.equalsIgnoreCase(title)
+                        || (subtitle != null && !subtitle.equalsIgnoreCase(mSubtitle))) {
+                    mTitle = title;
+                    mSubtitle = subtitle;
+                    mActionBar.setTitle(mTitle);
+                    mActionBar.setSubtitle(mSubtitle);
+                    Log.d(TAG, "<onLoadingFinished> mTitle:" + mTitle + "mSubtitle = "
+                            + mSubtitle);
+                    mActionBar.notifyDataSetChanged();
+                }
+            }
+            /// @}
+        }
+    }
     private ArrayList<MediaObject> getSelectedMediaObjects() {
         ArrayList<Path> unexpandedPaths = mSelectionManager.getSelected(false);
         if (unexpandedPaths.isEmpty()) {
@@ -1211,4 +1306,125 @@ public class AlbumSetPage extends ActivityState implements
         return ssb;
     }
     //*/
+	    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // Flag to specify whether mSelectionManager.restoreSelection task has done
+    private boolean mRestoreSelectionDone;
+    // Save selection for onPause/onResume
+    private boolean mNeedUpdateSelection = false;
+    // If restore selection not done in selection mode,
+    // after click one slot, show 'wait' toast
+    private Toast mWaitToast = null;
+
+    /// M: [BUG.ADD] leave selection mode when plug out sdcard @{
+//    @Override
+//    public void onEjectSdcard() {
+//        if (mSelectionManager != null && mSelectionManager.inSelectionMode()) {
+//            Log.i(TAG, "<onEjectSdcard> leaveSelectionMode");
+//            mSelectionManager.leaveSelectionMode();
+//        }
+//    }
+    /// @}
+
+    public void onSelectionRestoreDone() {
+        if (!mIsActive) {
+            return;
+        }
+        mRestoreSelectionDone = true;
+        // Update selection menu after restore done @{
+        mActionModeHandler.updateSupportedOperation();
+        mActionModeHandler.updateSelectionMenu();
+    }
+
+    /// M: [FEATURE.ADD] fancy layout @{
+    private int mLayoutType = -1;
+    private DisplayMetrics getDisplayMetrics() {
+        WindowManager wm = (WindowManager) mActivity.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics reMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getRealMetrics(reMetrics);
+        Log.i(TAG, "<getDisplayMetrix> <Fancy> Display Metrics: " + reMetrics.widthPixels
+                + " x " + reMetrics.heightPixels);
+        return reMetrics;
+    }
+    /// @}
+
+    /// M: [BUG.ADD] Save dataManager object.
+    @Override
+    protected void onSaveState(Bundle outState) {
+        // keep record of current DataManager object.
+        String dataManager = mActivity.getDataManager().toString();
+        String processId = String.valueOf(android.os.Process.myPid());
+        outState.putString(KEY_DATA_OBJECT, dataManager);
+        outState.putString(KEY_PROCESS_ID, processId);
+        Log.d(TAG, "<onSaveState> dataManager = " + dataManager
+                + ", processId = " + processId);
+    }
+    /// @}
+
+    /// M: [PERF.ADD] add for delete many files performance improve @{
+    @Override
+    public void setProviderSensive(boolean isProviderSensive) {
+//        mAlbumSetDataAdapter.setSourceSensive(isProviderSensive);
+    }
+    @Override
+    public void fakeProviderChange() {
+//        mAlbumSetDataAdapter.fakeSourceChange();
+    }
+    /// @}
+
+    /// M: [FEATURE.ADD] [Runtime permission] @{
+    private int mNeedDoClusterType = 0;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
+            doCluster(mNeedDoClusterType);
+        } else {
+            PermissionHelper.showDeniedPromptIfNeeded(mActivity,
+                    Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+    }
+    /// @}
+
+    /// M: [FEATURE.ADD] Multi-window. @{
+    private boolean mIsInMultiWindowMode = false;
+//    private MultiWindowListener mMultiWindowListener = new MultiWindowListener();
+//
+//    /**
+//     * Use MultiWindowListener to monitor entering or leaving multi-window.
+//     */
+//    private class MultiWindowListener implements
+//            AbstractGalleryActivity.MultiWindowModeListener {
+//
+//        @Override
+//        public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+//            if (mIsInMultiWindowMode == isInMultiWindowMode) {
+//                return;
+//            }
+//            mRootPane.lockRendering();
+//            Log.d(TAG, "<onMultiWindowModeChanged> isInMultiWindowMode: "
+//                    + isInMultiWindowMode);
+//            mIsInMultiWindowMode = isInMultiWindowMode;
+//            if (mIsInMultiWindowMode) {
+//                Log.d(TAG, "<onMultiWindowModeChanged> switch to MULTI_WINDOW_LAYOUT");
+//                mLayoutType = FancyHelper.MULTI_WINDOW_LAYOUT;
+//                mAlbumSetView.onEyePositionChanged(mLayoutType);
+//                mSlotView.switchLayout(mLayoutType);
+//            } else {
+//                Log.d(TAG, "<onMultiWindowModeChanged> <Fancy> enter");
+//                DisplayMetrics reMetrics = getDisplayMetrics();
+//                FancyHelper.doFancyInitialization(reMetrics.widthPixels,
+//                        reMetrics.heightPixels);
+//                mLayoutType = mEyePosition.getLayoutType();
+//                Log.d(TAG, "<onMultiWindowModeChanged> <Fancy> begin to switchLayout");
+//                mAlbumSetView.onEyePositionChanged(mLayoutType);
+//                mSlotView.switchLayout(mLayoutType);
+//            }
+//            mRootPane.unlockRendering();
+//        }
+//    }
+    /// @}
 }
