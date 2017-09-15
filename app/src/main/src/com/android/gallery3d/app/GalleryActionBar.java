@@ -219,13 +219,14 @@ public class GalleryActionBar {
         mActivity = activity;
         mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
-        mActionBar.setElevation(ACTIONBAR_ELEVATION);
         initActionBar();
 
     }
 
-    private void initActionBar() {
+    public void initActionBar() {
         if (mActionBar != null) {
+            mActionBar.setElevation(ACTIONBAR_ELEVATION);
+
             actionbarLayout = (FreemeTabLayout) LayoutInflater.from(mContext).inflate(
                     R.layout.actionbar_layout, null);
             Tab mTab1 = actionbarLayout.newTab();
@@ -273,6 +274,10 @@ public class GalleryActionBar {
             mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
             mActionBar.setDisplayShowCustomEnabled(true);
         }
+    }
+
+    public void selectTap(int position) {
+        actionbarLayout.getTabAt(position).select();
     }
 
     private void createDialogData() {

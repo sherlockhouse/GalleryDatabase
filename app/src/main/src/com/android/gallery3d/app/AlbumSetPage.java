@@ -214,7 +214,7 @@ public class AlbumSetPage extends ActivityState implements
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             if (mJigsawPicker && mActivity instanceof JigsawEntry) {
                 JigsawEntry jigsaw = (JigsawEntry) mActivity;
-                slotViewTop = 0;//mActivity.mStatusBarHeight;
+                slotViewTop = mActionBar.getHeight();
                 slotViewBottom = slotViewBottom - jigsaw.getBottomCtrlHeight();
             }
             // Added by TYD Theobald_Wu on 2014/01 [end]
@@ -1188,6 +1188,8 @@ volatile boolean mDestroyed = false;
     //*/ Added by xueweili for  hide albumset , 2015-7-23
     private void hideAlbumStateFinish() {
         mActionBar.setCustomView(null);
+        mActionBar.initActionBar();
+        mActionBar.selectTap(2);
         Bundle data = new Bundle(getData());
         data.putBoolean(KEY_VISIBLE_ALL_SET, false);
         mActivity.getStateManager().switchState(this, AlbumSetPage.class, data);

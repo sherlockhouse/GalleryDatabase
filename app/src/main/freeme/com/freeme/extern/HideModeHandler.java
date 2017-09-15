@@ -96,7 +96,7 @@ public class HideModeHandler {
         });
         mTitleText.setBackground(null);
         mActionBar.setCustomView(customView);
-        mTitleText.setText(R.string.hide_album_tille);
+//        mTitleText.setText(R.string.hide_album_tille);
     }
 
     public void updateSelectionMenu() {

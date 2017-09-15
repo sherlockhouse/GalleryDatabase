@@ -520,7 +520,6 @@
         <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
         <activity
             android:name="com.freeme.jigsaw.app.JigsawEntry"
-            android:hardwareAccelerated="false"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="com.freeme.app.theme"

@@ -48,8 +48,12 @@ public class GalleryDBManager {
     }
 
     public  void unbindServer() {
-        if (mContext != null) {
-            mContext.unbindService(mediaStoreConnection);
+        if (mContext != null && mediaStoreConnection != null) {
+            try {
+                mContext.unbindService(mediaStoreConnection);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
         }
     }
 

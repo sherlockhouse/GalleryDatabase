@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
     <FrameLayout
         android:id="@+id/footer"
@@ -28,7 +28,7 @@
     <RadioGroup
         android:id="@+id/bottom_tab"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/tab_bar_default_height"
+        android:layout_height="1dp"
         android:layout_alignParentBottom="true"
         android:background="@color/transparent"
         android:gravity="center"

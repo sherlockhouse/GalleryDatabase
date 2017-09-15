@@ -16,14 +16,13 @@
 
 <resources>
 
-    <style name="GalleryTheme">
+    <style name="GalleryTheme" parent="@android:style/Theme.Material.Light">
         <!--<item name="@*android:panelMenuListTheme">@*android:style/Theme.Material.Light.CompactMenu</item>-->
         <item name="listPreferredItemHeightSmall">?android:attr/listPreferredItemHeightSmall</item>
         <item name="switchStyle">@android:style/Widget.CompoundButton</item>
         <item name="android:actionBarStyle">@style/GalleryActionBar</item>
         <item name="android:actionModeStyle">@style/GalleryActionMode</item>
         <!--<item name="android:windowLightStatusBar">true</item>-->
-        <!--<item name="android:actionModeStyle">@style/ActionBarStyle</item>-->
         <item name="android:colorForeground">@color/foreground_freeme_light</item>
         <item name="android:colorForegroundInverse">@color/foreground_freeme_dark</item>
         <item name="android:colorBackground">@color/background_freeme_light</item>
@@ -294,7 +293,7 @@
         <!--<item name="*android:preferenceListStyle">@style/PreferenceHeaderList.Freeme</item>-->
         <!--<item name="*android:preferenceFragmentListStyle">@style/PreferenceFragmentList.Freeme</item>-->
         <!--<item name="*android:preferenceFragmentPaddingSide">@dimen/preference_fragment_padding_side_freeme</item>-->
-        <!--<item name="android:detailsElementBackground">?android:attr/colorBackground</item>-->
+        <item name="android:detailsElementBackground">?android:attr/colorBackground</item>
 
         <!-- PreferenceFrameLayout attributes -->
         <!--<item name="*android:preferenceFrameLayoutStyle">@style/Widget.Freeme.PreferenceFrameLayout</item>-->
@@ -388,19 +387,15 @@
         <!--<item name="android:windowContentOverlay">@null</item>-->
     </style>
 
-    <style name="GalleryActionBar">
-        <item name="android:background">?android:attr/colorPrimary</item>
-        <item name="android:backgroundStacked">?android:attr/colorPrimary</item>
-        <item name="android:backgroundSplit">?android:attr/colorPrimary</item>
+    <style name="GalleryActionBar" parent="@android:style/Widget.Material.ActionBar">
     </style>
 
-    <style name="GalleryActionMode">
-        <!--<item name="android:background">?android:attr/actionModeBackground</item>-->
+    <style name="GalleryActionMode" parent="@android:style/Widget.Material.ActionMode">
         <item name="android:backgroundSplit">?android:attr/actionModeSplitBackground</item>
         <item name="android:height">?android:attr/actionBarSize</item>
         <item name="android:actionModeCloseDrawable">@drawable/ic_ab_back_material</item>
         <item name="android:actionMenuTextAppearance">@style/MenuTextStyle</item>
-        <item name="android:actionModeBackground">@color/transparent</item>
+        <item name="android:background">@color/transparent</item>
 
         <!--<item name="android:titleTextStyle">@style/TextAppearance.Freeme.Widget.ActionMode.Title</item>-->
         <!--<item name="android:subtitleTextStyle">@style/TextAppearance.Freeme.Widget.ActionMode.Subtitle</item>-->
@@ -558,4 +553,7 @@
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowNoDisplay">true</item>
     </style>
+
+
+
 </resources>

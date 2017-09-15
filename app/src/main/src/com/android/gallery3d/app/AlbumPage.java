@@ -206,7 +206,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             //*/ Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             if (mJigsawPicker && mActivity instanceof JigsawEntry) {
                 JigsawEntry jigsaw = (JigsawEntry) mActivity;
-                slotViewTop = 0;//mActivity.mStatusBarHeight;
+                slotViewTop = mActivity.getGalleryActionBar().getHeight();
                 slotViewBottom = slotViewBottom - jigsaw.getBottomCtrlHeight();
             }
             // Added by TYD Theobald_Wu on 2014/01 [end] */
