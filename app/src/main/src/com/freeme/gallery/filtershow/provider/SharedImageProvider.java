@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2012 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,24 +29,63 @@ import android.net.Uri;
 import android.os.ConditionVariable;
 import android.os.ParcelFileDescriptor;
 import android.provider.BaseColumns;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-
-import com.freeme.provider.GalleryStore;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
 public class SharedImageProvider extends ContentProvider {
 
+    private static final String LOGTAG = "Gallery2/SharedImageProvider";
     public static final String MIME_TYPE   = "image/jpeg";
     public static final String AUTHORITY   = "SharedImageProvider";
-    public static final Uri    CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/image");
-    public static final String PREPARE     = "prepare";
-    private static final String LOGTAG = "SharedImageProvider";
-    private static ConditionVariable mImageReadyCond = new ConditionVariable(false);
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/image");
+    public static final String PREPARE = "prepare";
+
     private final String[] mMimeStreamType = {
             MIME_TYPE
     };
+
+    /// M: [BUG.MODIFY] @{
+    /*    private static ConditionVariable mImageReadyCond = new ConditionVariable(false);
+     */
+    // because Bluetooth can call query() direct, so we init mImageReadyCond state to open default
+    private static ConditionVariable sImageReadyCond = new ConditionVariable(true);
+/// @}
+
+
+    @Override
+    public int delete(Uri arg0, String arg1, String[] arg2) {
+        return 0;
+    }
+
+    @Override
+    public String getType(Uri arg0) {
+        return MIME_TYPE;
+    }
+
+    @Override
+    public String[] getStreamTypes(Uri arg0, String mimeTypeFilter) {
+        return mMimeStreamType;
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        if (values.containsKey(PREPARE)) {
+            if (values.getAsBoolean(PREPARE)) {
+                sImageReadyCond.close();
+            } else {
+                sImageReadyCond.open();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
+        return 0;
+    }
 
     @Override
     public boolean onCreate() {
@@ -55,16 +99,16 @@ public class SharedImageProvider extends ContentProvider {
             return null;
         }
         if (projection == null) {
-            projection = new String[]{
+            projection = new String[] {
                     BaseColumns._ID,
-                    GalleryStore.MediaColumns.DATA,
+                    MediaStore.MediaColumns.DATA,
                     OpenableColumns.DISPLAY_NAME,
                     OpenableColumns.SIZE
             };
         }
         // If we receive a query on display name or size,
         // we should block until the image is ready
-        mImageReadyCond.block();
+        sImageReadyCond.block();
 
         File path = new File(uriPath);
 
@@ -73,7 +117,7 @@ public class SharedImageProvider extends ContentProvider {
         for (int i = 0; i < projection.length; i++) {
             if (projection[i].equalsIgnoreCase(BaseColumns._ID)) {
                 columns[i] = 0;
-            } else if (projection[i].equalsIgnoreCase(GalleryStore.MediaColumns.DATA)) {
+            } else if (projection[i].equalsIgnoreCase(MediaStore.MediaColumns.DATA)) {
                 columns[i] = uri;
             } else if (projection[i].equalsIgnoreCase(OpenableColumns.DISPLAY_NAME)) {
                 columns[i] = path.getName();
@@ -87,33 +131,6 @@ public class SharedImageProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri arg0) {
-        return MIME_TYPE;
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        if (values.containsKey(PREPARE)) {
-            if (values.getAsBoolean(PREPARE)) {
-                mImageReadyCond.close();
-            } else {
-                mImageReadyCond.open();
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public int delete(Uri arg0, String arg1, String[] arg2) {
-        return 0;
-    }
-
-    @Override
-    public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
-        return 0;
-    }
-
-    @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode)
             throws FileNotFoundException {
         String uriPath = uri.getLastPathSegment();
@@ -121,15 +138,10 @@ public class SharedImageProvider extends ContentProvider {
             return null;
         }
         // Here we need to block until the image is ready
-        mImageReadyCond.block();
+        sImageReadyCond.block();
         File path = new File(uriPath);
         int imode = 0;
         imode |= ParcelFileDescriptor.MODE_READ_ONLY;
         return ParcelFileDescriptor.open(path, imode);
-    }
-
-    @Override
-    public String[] getStreamTypes(Uri arg0, String mimeTypeFilter) {
-        return mMimeStreamType;
     }
 }

@@ -39,8 +39,8 @@ public class FilterSource extends MediaSource {
     //*/ Added by xueweili for add filter source, 2015-7-23
     private static final int    FILTER_BY_VISIBLE                = 6;
     private static final int    FILTER_BY_VISIBLE_WITHOUT_CAMERA = 7;
-	public static final  String FILTER_EMPTY_ITEM           = "/filter/empty_prompt";
-    public static final  String FILTER_CAMERA_SHORTCUT      = "/filter/camera_shortcut";
+    public static final String FILTER_EMPTY_ITEM = "/filter/empty_prompt";
+    public static final String FILTER_CAMERA_SHORTCUT = "/filter/camera_shortcut";
     private static final String FILTER_CAMERA_SHORTCUT_ITEM = "/filter/camera_shortcut_item";
 
     //*/ Added by xueweili for add filter source, 2015-7-23
@@ -48,10 +48,10 @@ public class FilterSource extends MediaSource {
     private static final String FILTER_VISIBLE_WITHOUT_CAMERA = "/filter/visible_without_camera/*";
     //*/
 
-    private GalleryApp  mApplication;
+    private GalleryApp mApplication;
     private PathMatcher mMatcher;
-    private MediaItem   mEmptyItem;
-    private MediaItem   mCameraShortcutItem;
+    private MediaItem mEmptyItem;
+    private MediaItem mCameraShortcutItem;
 
     public FilterSource(GalleryApp application) {
         super("filter");

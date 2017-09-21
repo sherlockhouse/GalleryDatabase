@@ -140,11 +140,26 @@ public class FilterCropRepresentation extends FilterRepresentation {
     }
 
     private static final RectF sNilRect = new RectF(0, 0, 1, 1);
+
     @Override
     public boolean isNil() {
-        return mCrop.equals(sNilRect);
+        /// M: [BUG.MODIFY] Calculation accuracy problem @{
+        /* return mCrop.equals(sNilRect); */
+        float distanceLeft = Math.abs(mCrop.left - sNilRect.left);
+        float distanceRight = Math.abs(mCrop.right - sNilRect.right);
+        float distanceTop = Math.abs(mCrop.top - sNilRect.top);
+        float distanceBottom = Math.abs(mCrop.bottom - sNilRect.bottom);
+        if (distanceLeft < THRESHOLD
+                && distanceRight < THRESHOLD
+                && distanceTop < THRESHOLD
+                && distanceBottom < THRESHOLD) {
+            return true;
+        } else {
+            Log.d(SERIALIZATION_NAME, "mCrop = " + mCrop.toShortString());
+            return false;
+        }
+        /// @}
     }
-
 
     public static RectF getNil() {
         return new RectF(sNilRect);
@@ -179,4 +194,9 @@ public class FilterCropRepresentation extends FilterRepresentation {
         }
         reader.endObject();
     }
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    /// Calculation accuracy problem
+    public final static float THRESHOLD = 0.001f;
 }

@@ -38,6 +38,7 @@ import com.android.gallery3d.filtershow.filters.FiltersManager;
 import com.android.gallery3d.filtershow.imageshow.GeometryMathUtils;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.mediatek.gallery3d.util.Log;
+import com.mediatek.galleryframework.util.BitmapUtils;
 
 import java.util.Vector;
 
@@ -275,7 +276,15 @@ public class CachingPipeline implements PipelineInterface {
                 return;
             }
             bitmap = mEnvironment.getBitmapCopy(bitmap, BitmapCache.FILTERS);
+            /// M: [BUG.ADD] @{
+            // mark rendering filters for cache, accessed in single thread only
+            MasterImage.sIsRenderFilters = true;
+            /// @}
             bitmap = preset.apply(bitmap, mEnvironment);
+            /// M: [BUG.ADD] @{
+            // unmark rendering filters for cache, accessed in single thread only
+            MasterImage.sIsRenderFilters = false;
+            /// @}
             if (!mEnvironment.needsStop()) {
                 request.setBitmap(bitmap);
             } else {
@@ -313,6 +322,10 @@ public class CachingPipeline implements PipelineInterface {
                         mEnvironment.getBimapCache(),
                         master.getUri(), request.getBounds(),
                         request.getDestination());
+                /// M: [BUG.ADD] @{
+                //remove alpha channel of png to avoid overlay display
+                bitmap = BitmapUtils.replaceBackgroundColor(bitmap, true);
+                /// @}
                 if (bitmap == null) {
                     Log.w(LOGTAG, "could not get bitmap for: " + getType(request));
                     return;
@@ -353,12 +366,23 @@ public class CachingPipeline implements PipelineInterface {
                 if (request.getType() == RenderingRequest.ICON_RENDERING) {
                     Rect iconBounds = request.getIconBounds();
                     Bitmap source = MasterImage.getImage().getThumbnailBitmap();
+                    /// M: [DEBUG.ADD] @{
+                    if (source == null) {
+                        return;
+                    }
+                    /// @}
                     if (iconBounds.width() > source.getWidth() * 2) {
                         source = MasterImage.getImage().getLargeThumbnailBitmap();
                     }
                     if (iconBounds != null) {
                         bitmap = mEnvironment.getBitmap(iconBounds.width(),
                                 iconBounds.height(), BitmapCache.ICON);
+                        /// M: [BUG.ADD] @{
+
+                        if (bitmap == null) {
+                            return;
+                        }
+                        /// @}
                         Canvas canvas = new Canvas(bitmap);
                         Matrix m = new Matrix();
                         float minSize = Math.min(source.getWidth(), source.getHeight());

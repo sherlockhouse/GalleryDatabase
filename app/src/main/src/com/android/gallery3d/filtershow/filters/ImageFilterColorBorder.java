@@ -62,10 +62,12 @@ public class ImageFilterColorBorder extends ImageFilter {
         mBounds.set(0, 0, w, h);
         mBorderPath.reset();
         mBorderPath.moveTo(0, 0);
-
-        float bs = size / 100.f * mBounds.width();
-        float r = radius / 100.f * mBounds.width();
-
+        /// M: [BUG.MODIFY] @{
+        //float bs = size / 100.f * mBounds.width();
+        //float r = radius / 100.f * mBounds.width();
+        float bs = size / 100.f *
+                Math.min(mBounds.width(), mBounds.height());
+        // @}
         mInsideBounds.set(mBounds.left + bs,
                 mBounds.top + bs, mBounds.right - bs,
                 mBounds.bottom - bs);
@@ -74,6 +76,10 @@ public class ImageFilterColorBorder extends ImageFilter {
         mBorderPath.lineTo(mBounds.right, mBounds.top);
         mBorderPath.lineTo(mBounds.right, mBounds.bottom);
         mBorderPath.lineTo(mBounds.left, mBounds.bottom);
+        /// M: [BUG.ADD] @{
+        float r = radius / (2 * 100.f) *
+                Math.min(mInsideBounds.width(), mInsideBounds.height());
+        //@}
         mBorderPath.addRoundRect(mInsideBounds,
                 r, r, Path.Direction.CCW);
 

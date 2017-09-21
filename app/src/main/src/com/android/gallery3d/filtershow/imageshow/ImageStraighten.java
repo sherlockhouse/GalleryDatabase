@@ -78,12 +78,30 @@ public class ImageStraighten extends ImageShow {
     private float mTouchCenterY;
     private RectF mCrop = new RectF();
     private final Paint mPaint = new Paint();
+    /// M: [BUG.ADD] @{
+    //refresh state string to current language.
+    private String mStraightenRepName;
+    private String mCropRepName;
+    /// @}
+
+
     public ImageStraighten(Context context) {
         super(context);
+        /// M: [BEHAVIOR.ADD] @{
+        //refresh state string to current language.
+        mStraightenRepName = context.getString(R.string.straighten);
+        mCropRepName = context.getString(R.string.crop);
+        /// @}
+
     }
 
     public ImageStraighten(Context context, AttributeSet attrs) {
         super(context, attrs);
+        /// M: [BEHAVIOR.ADD] @{
+        //refresh state string to current language.
+        mStraightenRepName = context.getString(R.string.straighten);
+        mCropRepName = context.getString(R.string.crop);
+        /// @}
     }
 
     @Override
@@ -106,17 +124,41 @@ public class ImageStraighten extends ImageShow {
         });
         mAnimator.start();
     }
+
     public void setFilterStraightenRepresentation(FilterStraightenRepresentation rep) {
         mLocalRep = (rep == null) ? new FilterStraightenRepresentation() : rep;
+        /// M: [BUG.ADD] @{
+        // refresh state string to current language.
+        mLocalRep.setName(mStraightenRepName);
+        /// @}
         mInitialAngle = mBaseAngle = mAngle = mLocalRep.getStraighten();
+        /// M: [BUG.ADD] @{
+        //conservative modification to avoid flash when enter straighten panel
+        mIsRepInit = true;
+        /// @}
     }
 
     public Collection<FilterRepresentation> getFinalRepresentation() {
         ArrayList<FilterRepresentation> reps = new ArrayList<FilterRepresentation>(2);
         reps.add(mLocalRep);
         if (mInitialAngle != mLocalRep.getStraighten()) {
-            reps.add(new FilterCropRepresentation(mCrop));
+            /// M: [BUG.MODIFY] @{
+            /*
+             * reps.add(new FilterCropRepresentation(mCrop));
+             */
+          //refresh state string to current language.
+            FilterRepresentation rep = new FilterCropRepresentation(mCrop);
+            rep.setName(mCropRepName);
+            reps.add(rep);
+            /// @}
         }
+        /// M: [BUG.ADD] @{
+        //conservative modification to avoid flash when enter straighten panel
+        // a more simple modification is to reset mAngle to be 0 here
+        // (without modifying other places)
+        // but I don't want bare the risk of possible side effect (although none in my opinion)
+        mIsRepInit = false;
+        /// @}
         return reps;
     }
 
@@ -244,6 +286,13 @@ public class ImageStraighten extends ImageShow {
 
     @Override
     public void onDraw(Canvas canvas) {
+        /// M: [BUG.ADD] @{
+        //conservative modification to avoid flash when enter straighten panel
+        // we just prevent drawing before the representation set
+        if (!mIsRepInit) {
+            return;
+        }
+        /// @}
         MasterImage master = MasterImage.getImage();
         Bitmap image = master.getFiltersOnlyImage();
         if (image == null) {
@@ -312,5 +361,12 @@ public class ImageStraighten extends ImageShow {
     }
 
 
-
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    // conservative modification to avoid flash when enter straighten panel
+    // we just prevent drawing before the representation set
+    // a more simple modification is to reset mAngle to be 0 when applyFinal
+    // but I don't want bare the risk of possible side effect (although none in my opinion)
+    volatile boolean mIsRepInit = false;
 }

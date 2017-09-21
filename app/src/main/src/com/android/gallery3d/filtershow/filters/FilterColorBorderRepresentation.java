@@ -73,6 +73,12 @@ public class FilterColorBorderRepresentation extends FilterRepresentation {
                 DEFAULT_MENU_COLOR3,
                 DEFAULT_MENU_COLOR4,
                 DEFAULT_MENU_COLOR5});
+        /// M: [BUG.ADD] @{
+        //prepare for effect reset
+        mInitColor = color;
+        mInitSize = size;
+        mInitRadius = radius;
+        /// @}
     }
 
     public String toString() {
@@ -84,7 +90,19 @@ public class FilterColorBorderRepresentation extends FilterRepresentation {
         FilterColorBorderRepresentation representation =
                 new FilterColorBorderRepresentation(0, 0, 0);
         copyAllParameters(representation);
+        /// M: [BUG.ADD] @{
+        //prepare for effect reset @{
+        representation.mInitColor = mInitColor;
+        representation.mInitSize = mInitSize;
+        representation.mInitRadius = mInitRadius;
+        /// @}
         return representation;
+    }
+
+    @Override
+    protected void copyAllParameters(FilterRepresentation representation) {
+        super.copyAllParameters(representation);
+        representation.useParametersFrom(this);
     }
 
     public void useParametersFrom(FilterRepresentation a) {
@@ -199,5 +217,24 @@ public class FilterColorBorderRepresentation extends FilterRepresentation {
         reader.endObject();
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    // reset effect to default values
+    public void clearToDefault() {
+        mParamSize.setValue(mInitSize);
+        mParamRadius.setValue(mInitRadius);
+        mParamColor.setValue(mInitColor);
+        mParamColor.setColorpalette(new int[]{
+                DEFAULT_MENU_COLOR1,
+                DEFAULT_MENU_COLOR2,
+                DEFAULT_MENU_COLOR3,
+                DEFAULT_MENU_COLOR4,
+                DEFAULT_MENU_COLOR5});
+    }
+
+    private int mInitSize;
+    private int mInitRadius;
+    private int mInitColor;
 
 }

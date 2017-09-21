@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 
 public class PresetManagementDialog extends DialogFragment implements View.OnClickListener {
@@ -42,7 +42,10 @@ public class PresetManagementDialog extends DialogFragment implements View.OnCli
         View view = inflater.inflate(R.layout.filtershow_presets_management_dialog, container);
 
         FilterShowActivity activity = (FilterShowActivity) getActivity();
-        mAdapter = activity.getUserPresetsAdapter();
+        /// M: [BUG.MARK] @{
+        /* some times, getUserPresetsAdapter return null, so move it to onClick
+           mAdapter = activity.getUserPresetsAdapter();*/
+        /// @}
         mEditText = (EditText) view.findViewById(R.id.editView);
         view.findViewById(R.id.cancel).setOnClickListener(this);
         view.findViewById(R.id.ok).setOnClickListener(this);
@@ -53,6 +56,9 @@ public class PresetManagementDialog extends DialogFragment implements View.OnCli
     @Override
     public void onClick(View v) {
         FilterShowActivity activity = (FilterShowActivity) getActivity();
+        /// M: [BUG.ADD] @{
+        mAdapter = activity.getUserPresetsAdapter();
+        /// @}
         switch (v.getId()) {
             case R.id.cancel:
                 mAdapter.clearChangedRepresentations();

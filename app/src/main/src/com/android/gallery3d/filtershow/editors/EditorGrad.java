@@ -266,8 +266,19 @@ public class EditorGrad extends ParametricEditor
     private void setUpPopupMenu(Button button) {
         mPopupMenu = new PopupMenu(mImageShow.getActivity(), button);
         mPopupMenu.getMenuInflater()
-                .inflate(com.freeme.gallery.R.menu.filtershow_menu_grad, mPopupMenu.getMenu());
-        FilterGradRepresentation rep = (FilterGradRepresentation) getLocalRepresentation();
+                .inflate(R.menu.filtershow_menu_grad, mPopupMenu.getMenu());
+        /// M: [BUG.MODIFY] @{
+        /*  FilterGradRepresentation rep = (FilterGradRepresentation) getLocalRepresentation();
+         */
+        // fix class cast JE
+        FilterRepresentation localRep = getLocalRepresentation();
+        if (!(localRep instanceof FilterGradRepresentation)) {
+            return;
+        }
+        // mask google default code
+        // FilterGradRepresentation rep = (FilterGradRepresentation) getLocalRepresentation();
+        FilterGradRepresentation rep = (FilterGradRepresentation) localRep;
+        /// @}
         if (rep == null) {
             return;
         }

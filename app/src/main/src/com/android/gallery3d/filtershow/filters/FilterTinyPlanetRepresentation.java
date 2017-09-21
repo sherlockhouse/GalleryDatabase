@@ -83,7 +83,10 @@ public class FilterTinyPlanetRepresentation extends FilterBasicRepresentation {
         if (!super.equals(representation)) {
             return false;
         }
-        return mAngle == ((FilterTinyPlanetRepresentation) representation).mAngle;
+        if (mAngle == ((FilterTinyPlanetRepresentation) representation).mAngle) {
+            return true;
+        }
+        return false;
     }
 
     @Override

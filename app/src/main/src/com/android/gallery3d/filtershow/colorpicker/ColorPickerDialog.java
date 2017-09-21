@@ -30,7 +30,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.photos.views.GalleryThumbnailView;
 

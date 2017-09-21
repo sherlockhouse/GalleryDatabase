@@ -37,7 +37,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.android.gallery3d.filtershow.pipeline.ImagePreset;
@@ -96,7 +96,15 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
+        /// M: [BUG.ADD] @{
+        Bitmap bitmap = MasterImage.getImage().getFilteredImage();
+        // Null view for this fragment if the bitmap is not loaded.
+        // this may happen on load with low memory.
+        if (bitmap == null) {
+            return null;
+        }
+        /// @}
         mHandler = new Handler(getActivity().getMainLooper());
 
         View view = inflater.inflate(R.layout.filtershow_export_dialog, container);
@@ -111,9 +119,26 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
         mEstimatedSize = (TextView) view.findViewById(R.id.estimadedSize);
 
         mOriginalBounds = MasterImage.getImage().getOriginalBounds();
+        /// M: [DEBUG.ADD] @{
+        //use old data, avoid null exception
+        if (mOriginalBounds == null) {
+            mOriginalBounds = mDefaultBounds;
+        }
+        /// @}
+
         ImagePreset preset = MasterImage.getImage().getPreset();
-        mOriginalBounds = preset.finalGeometryRect(mOriginalBounds.width(),
-                mOriginalBounds.height());
+        /// M: [BUG.MODIFY] @{
+        /*
+         * avoid null exception
+         * mOriginalBounds =
+         * preset.finalGeometryRect(mOriginalBounds.width(),mOriginalBounds.height());
+         */
+        if (preset != null) {
+            mOriginalBounds = preset.finalGeometryRect(mOriginalBounds.width(),
+                    mOriginalBounds.height());
+        }
+        /// @}
+
         mRatio = mOriginalBounds.width() / (float) mOriginalBounds.height();
         mWidthText.setText("" + mOriginalBounds.width());
         mHeightText.setText("" + mOriginalBounds.height());
@@ -212,6 +237,15 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
         if (text.getId() == R.id.editableWidth) {
             if (mWidthText.getText() != null) {
                 String value = String.valueOf(mWidthText.getText());
+
+                /// M: [BUG.ADD] Avoid user paste a large number @{
+                String maxWidthString = "" + mOriginalBounds.width();
+                if (value.length() > maxWidthString.length()) {
+                    value = maxWidthString;
+                    mWidthText.setText(value);
+                }
+                /// @}
+
                 if (value.length() > 0) {
                     width = Integer.parseInt(value);
                     if (width > mOriginalBounds.width()) {
@@ -229,6 +263,15 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
         } else if (text.getId() == R.id.editableHeight) {
             if (mHeightText.getText() != null) {
                 String value = String.valueOf(mHeightText.getText());
+
+                /// M: [BUG.ADD] Avoid user paste a large number @{
+                String maxHeightString = "" + mOriginalBounds.height();
+                if (value.length() > maxHeightString.length()) {
+                    value = maxHeightString;
+                    mHeightText.setText(value);
+                }
+                /// @}
+
                 if (value.length() > 0) {
                     height = Integer.parseInt(value);
                     if (height > mOriginalBounds.height()) {
@@ -249,7 +292,37 @@ public class ExportDialog extends DialogFragment implements View.OnClickListener
         updateSize();
         mEditing = false;
     }
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
 
+    // save old original bounds
+    public static final String KEY_INDEX_ORIGINALRECT = "original_rect";
+    Rect mDefaultBounds;
+    @Override
+    public void onSaveInstanceState(Bundle arg0) {
+        super.onSaveInstanceState(arg0);
+        int data[] = {mOriginalBounds.left, mOriginalBounds.top,
+                mOriginalBounds.right, mOriginalBounds.bottom};
+        arg0.putIntArray(KEY_INDEX_ORIGINALRECT, data);
+    }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            int data[] = savedInstanceState.getIntArray(KEY_INDEX_ORIGINALRECT);
+            mDefaultBounds = new Rect(data[0], data[1], data[2], data[3]);
+        }
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Dismiss this fragment if the bitmap is not loaded (see what we modified in
+        // onCreateView() to return null view in that case).
+        if (getView() == null) {
+            this.dismissAllowingStateLoss();
+        }
+    }
 }

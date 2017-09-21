@@ -216,5 +216,11 @@ public class FilterMirrorRepresentation extends FilterRepresentation {
         reader.endObject();
     }
 
-
+    /// M: [BUG.ADD] @{
+    // display abnormal when rotate and undo and rotate image again. @{
+    @Override
+    public void resetRepresentation() {
+        mMirror = Mirror.NONE;
+    }
+    /// @}
 }

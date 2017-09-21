@@ -49,7 +49,13 @@
                 android:id="@+id/editableWidth"
                 android:layout_gravity="right|center_vertical"
                 android:layout_width="80dp"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:backgroundTint="@color/theme_color"
+                android:foregroundTint="@color/theme_color"
+                android:foregroundTintMode="src_in"
+                android:backgroundTintMode="src_in"
+                android:drawableTint="@color/theme_color"
+                android:drawableTintMode="src_in"/>
 
         <TextView
                 android:text="@string/x"
@@ -61,7 +67,13 @@
                 android:id="@+id/editableHeight"
                 android:layout_gravity="left|center_vertical"
                 android:layout_width="80dp"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:backgroundTint="@color/theme_color"
+                android:foregroundTint="@color/theme_color"
+                android:foregroundTintMode="src_in"
+                android:backgroundTintMode="src_in"
+                android:drawableTint="@color/theme_color"
+                android:drawableTintMode="src_in"/>
 
         <TextView
                 android:id="@+id/estimadedSize"
@@ -89,6 +101,16 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_columnSpan="3"
+                android:thumbTint="@color/theme_color"
+                android:thumbTintMode="src_in"
+                android:progressTint="@color/theme_color"
+                android:tickMarkTint="@color/theme_color"
+                android:tickMarkTintMode="src_in"
+                android:progressTintMode="src_in"
+                android:progressBackgroundTint="@color/theme_color"
+                android:progressBackgroundTintMode="src_in"
+                android:backgroundTintMode="src_in"
+                android:backgroundTint="@color/theme_color"
                 android:minWidth="250dp" />
 
             <TextView

@@ -36,7 +36,12 @@ public class ImageFilterSharpen extends ImageFilterRS {
     }
 
     public FilterRepresentation getDefaultRepresentation() {
-        FilterRepresentation representation = new FilterBasicRepresentation("Sharpen", 0, 0, 100);
+        /// M: [BUG.MODIFY] @{
+        /* FilterRepresentation representation =
+         * new FilterBasicRepresentation("Sharpen", 0, 0, 100);*/
+        FilterRepresentation representation =
+                new FilterBasicRepresentation("Sharpen", -100, 0, 100);
+        /// @}
         representation.setSerializationName(SERIALIZATION_NAME);
         representation.setShowParameterValue(true);
         representation.setFilterClass(ImageFilterSharpen.class);
@@ -93,6 +98,11 @@ public class ImageFilterSharpen extends ImageFilterRS {
 
     @Override
     protected void bindScriptValues() {
+        /// M: [BUG.ADD] null pointer check. @{
+        if (mScript == null) {
+            return;
+        }
+        /// @}
         int w = getInPixelsAllocation().getType().getX();
         int h = getInPixelsAllocation().getType().getY();
         mScript.set_gWidth(w);
@@ -104,6 +114,12 @@ public class ImageFilterSharpen extends ImageFilterRS {
         if (mParameters == null) {
             return;
         }
+        /// M: [BUG.ADD] @{
+        //null pointer check. @{
+        if (mScript == null) {
+            return;
+        }
+        /// @}
         computeKernel();
         mScript.set_gIn(getInPixelsAllocation());
         mScript.bind_gPixels(getInPixelsAllocation());

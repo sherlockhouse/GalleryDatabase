@@ -33,7 +33,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.editors.Editor;
 import com.android.gallery3d.filtershow.editors.EditorCurves;
@@ -248,6 +248,12 @@ public class ImageCurves extends ImageShow {
 
     @Override
     public synchronized boolean onTouchEvent(MotionEvent e) {
+        /// M: [DEBUG.ADD]  @{
+        if (mFilterCurvesRepresentation == null) {
+            return true;
+        }
+        /// @}
+
         if (e.getPointerCount() != 1) {
             return true;
         }

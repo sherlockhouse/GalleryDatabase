@@ -401,7 +401,11 @@ public class ImagePreset {
                 }
             }
             if (!replaced && !isNoneFxFilter(representation)) {
-                mFilters.add(0, representation);
+                /// M: [BUG.MODIFY] @{
+                /*  fix exposure display abnormal
+                // mFilters.add(0, representation);*/
+                mFilters.add(representation);
+                /// @}
             }
         } else {
             mFilters.add(representation);
@@ -599,7 +603,23 @@ public class ImagePreset {
                 // do not show the user preset itself in the state panel
                 continue;
             }
-            State state = new State(filter.getName());
+            /// M: [BUG.MODIFY] adapt geometry filter state name to language context @{
+            // State state = new State(filter.getName());
+            State state;
+            if (filter instanceof FilterDrawRepresentation) {
+                state = new State(imageStateAdapter.getContext().getString(R.string.imageDraw));
+            } else if (filter instanceof FilterRotateRepresentation) {
+                state = new State(imageStateAdapter.getContext().getString(R.string.rotate));
+            } else if (filter instanceof FilterMirrorRepresentation) {
+                state = new State(imageStateAdapter.getContext().getString(R.string.mirror));
+            } else if (filter instanceof FilterCropRepresentation) {
+                state = new State(imageStateAdapter.getContext().getString(R.string.crop));
+            } else if (filter instanceof FilterStraightenRepresentation) {
+                state = new State(imageStateAdapter.getContext().getString(R.string.straighten));
+            } else {
+                state = new State(filter.getName());
+            }
+            /// @}
             state.setFilterRepresentation(filter);
             states.add(state);
         }
@@ -677,6 +697,12 @@ public class ImagePreset {
         if (DEBUG) {
             Log.v(LOGTAG, "reading preset: \"" + filterString + "\"");
         }
+        /// M: [BUG.ADD] fix JE @{
+        if (filterString == null) {
+            Log.v(LOGTAG, "<readJsonFromString> filterString is null!!");
+            return false;
+        }
+        /// @}
         StringReader sreader = new StringReader(filterString);
         try {
             JsonReader reader = new JsonReader(sreader);

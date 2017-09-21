@@ -72,6 +72,13 @@ public class ColorChooser implements Control {
             sd.setColor(palette[i]);
             sd.setStroke(3, (mSelectedButton == i) ? mSelected : mTransparent);
 
+            /// M: [BUG.ADD] @{
+            //when user select color from MenuItem, we need reset the color value
+            if ((mSelectedButton == i)) {
+                mParameter.setValue(Color.HSVToColor((int) (hsvo[OPACITY_OFFSET] * 255), hsvo));
+            }
+            /// @}
+
             final int buttonNo = i;
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -149,11 +156,24 @@ public class ColorChooser implements Control {
         int []palette = mParameter.getColorPalette();
         int c = Color.HSVToColor((int) (hsvo[3] * 255), hsvo);
         final Button button = mButton[mSelectedButton];
+        /// M: [BUG.ADD] @{
+        //if user not choose any color, should set origin color to color button
+        Object tag = button.getTag();
+        if (c == 0) {
+            c = palette[mSelectedButton];
+            button.setTag(tag);
+        } else {
+            button.setTag(hsvo);
+        }
+        /// @}
         GradientDrawable sd = ((GradientDrawable) button.getBackground());
         sd.setColor(c);
         palette[mSelectedButton] = c;
-        mParameter.setValue(Color.HSVToColor((int) (hsvo[OPACITY_OFFSET] * 255), hsvo));
-        button.setTag(hsvo);
+        /// M: [BUG.MODIFY] @{
+        /*        button.setTag(hsvo);*/
+        // c == Color.HSVToColor((int) (hsvo[OPACITY_OFFSET] * 255), hsvo), so we can replace it
+        mParameter.setValue(c);
+        /// @}
         mEditor.commitLocalRepresentation();
         button.invalidate();
     }

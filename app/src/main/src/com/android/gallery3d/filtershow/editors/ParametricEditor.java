@@ -137,6 +137,13 @@ public class ParametricEditor extends Editor {
         if (getLocalRepresentation() != null
                 && getLocalRepresentation() instanceof FilterBasicRepresentation) {
             FilterBasicRepresentation interval = (FilterBasicRepresentation) getLocalRepresentation();
+
+            /// M: [BUG.ADD] @{
+            if (mControl == null) {
+                Log.w(LOGTAG, "<reflectCurrentFilter> null pointer for mControl.");
+                return;
+            }
+            /// @}
             mControl.setPrameter(interval);
         }
     }

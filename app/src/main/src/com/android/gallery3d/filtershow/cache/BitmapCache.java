@@ -210,6 +210,10 @@ public class BitmapCache {
 
     public synchronized Bitmap getBitmapCopy(Bitmap source, int type) {
         Bitmap bitmap = getBitmap(source.getWidth(), source.getHeight(), type);
+        /// M: [BUG.ADD] @{
+        // clear to black background
+        bitmap.eraseColor(0);
+        /// @}
         Canvas canvas = new Canvas(bitmap);
         canvas.drawBitmap(source, 0, 0, null);
         return bitmap;

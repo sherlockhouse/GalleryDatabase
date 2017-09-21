@@ -71,6 +71,13 @@ public class InfoPanel extends DialogFragment {
 
         mImageThumbnail = (ImageView) mMainView.findViewById(R.id.imageThumbnail);
         Bitmap bitmap = MasterImage.getImage().getFilteredImage();
+        /// M: [BUG.ADD] @{
+        // Null view for this fragment if the bitmap is not loaded.
+        // this may happen on load with low memory.
+        if (bitmap == null) {
+            return null;
+        }
+        /// @}
         mImageThumbnail.setImageBitmap(bitmap);
 
         mImageName = (TextView) mMainView.findViewById(R.id.imageName);
@@ -83,14 +90,23 @@ public class InfoPanel extends DialogFragment {
 
         Uri uri = MasterImage.getImage().getUri();
         String path = ImageLoader.getLocalPathFromUri(getActivity(), uri);
-        Uri localUri = null;
+
+        /// M: [BUG.MODIFY] @{
+        // localUri.getLastPathSegment() is not reliable when it contains special characters
+        // (like "#", etc.) in localUri
+        /*Uri localUri = null;
         if (path != null) {
             localUri = Uri.parse(path);
         }
 
         if (localUri != null) {
             mImageName.setText(localUri.getLastPathSegment());
+        }*/
+        if (path != null) {
+            mImageName.setText(path.substring(path.lastIndexOf("/") + 1));
         }
+        /// @}
+
         Rect originalBounds = MasterImage.getImage().getOriginalBounds();
         mImageSize.setText("" + originalBounds.width() + " x " + originalBounds.height());
 
@@ -138,5 +154,15 @@ public class InfoPanel extends DialogFragment {
         return mMainView;
     }
 
-
+    /// M: [BUG.ADD] @{
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Dismiss this fragment if the bitmap is not loaded (see what we modified in
+        // onCreateView() to return null view in that case).
+        if (getView() == null) {
+            this.dismissAllowingStateLoss();
+        }
+    }
+    /// @}
 }

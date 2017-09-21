@@ -491,54 +491,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         }
     }
 
-    @Override
-    public void onSelectionModeChange(int mode) {
-        switch (mode) {
-            case SelectionManager.ENTER_SELECTION_MODE: {
-                mActionModeHandler.startActionMode();
-                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                break;
-            }
-            case SelectionManager.LEAVE_SELECTION_MODE: {
-                mActionModeHandler.finishActionMode();
-                mRootPane.invalidate();
-                //*/ Added by Tyd Linguanrong for secret photos, 2014-2-17
-                if (mVisitorMode || mStorySelectMode) {
-                    onUpPressed();
-                }
-                //*/
-                break;
-            }
 
-            case SelectionManager.DESELECT_ALL_MODE:
-            case SelectionManager.SELECT_ALL_MODE: {
-                //*/ Added by Linguanrong for story album, 2015-08-13
-                if (mConfirm != null) {
-                    mConfirm.setEnabled(mode == SelectionManager.SELECT_ALL_MODE);
-                }
-                //*/
-                mActionModeHandler.updateSupportedOperation();
-                mRootPane.invalidate();
-                break;
-            }
-        }
-    }    private void pickPhoto(int slotIndex) {
-        pickPhoto(slotIndex, false);
-    }
-
-    @Override
-    public void onSelectionChange(Path path, boolean selected) {
-        int count = mSelectionManager.getSelectedCount();
-        //*/ Added by Linguanrong for story album, 2015-08-13
-        if (mConfirm != null) {
-            mConfirm.setEnabled(count > 0);
-        }
-        //*/
-        String format = mActivity.getResources().getQuantityString(
-                R.plurals.number_of_items_selected, count);
-        mActionModeHandler.setTitle(String.format(format, count));
-        mActionModeHandler.updateSupportedOperation(path, selected);
-    }
 
 
     private void pickPhoto(int slotIndex, boolean startInFilmstrip) {
@@ -596,28 +549,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         }
     }
 
-    @Override
-    public void onSyncDone(final MediaSet mediaSet, final int resultCode) {
-        Log.d(TAG, "onSyncDone: " + Utils.maskDebugInfo(mediaSet.getName()) + " result="
-                + resultCode);
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                GLRoot root = mActivity.getGLRoot();
-                root.lockRenderThread();
-                mSyncResult = resultCode;
-                try {
-                    if (resultCode == MediaSet.SYNC_RESULT_SUCCESS) {
-                        mInitialSynced = true;
-                    }
-                    clearLoadingBit(BIT_LOADING_SYNC);
-                    showSyncErrorIfNecessary(mLoadingFailed);
-                } finally {
-                    root.unlockRenderThread();
-                }
-            }
-        });
-    }    private void onGetContent(final MediaItem item) {
+   private void onGetContent(final MediaItem item) {
         DataManager dm = mActivity.getDataManager();
         Activity activity = mActivity;
         if (mData.getString(GalleryActivity.EXTRA_CROP) != null) {
@@ -751,15 +683,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         //*/
     }
 
-    private void prepareAnimationBackToFilmstrip(int slotIndex) {
-        if (mAlbumDataAdapter == null || !mAlbumDataAdapter.isActive(slotIndex)) return;
-        MediaItem item = mAlbumDataAdapter.get(slotIndex);
-        if (item == null) return;
-        TransitionStore transitions = mActivity.getTransitionStore();
-        transitions.put(PhotoPage.KEY_INDEX_HINT, slotIndex);
-        transitions.put(PhotoPage.KEY_OPEN_ANIMATION_RECT,
-                mSlotView.getSlotRect(slotIndex, mRootPane));
-    }
+
 
     @Override
     protected void onResume() {
@@ -804,20 +728,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         //*/
     }
 
-    private class MyLoadingListener implements LoadingListener {
-        @Override
-        public void onLoadingStarted() {
-            setLoadingBit(BIT_LOADING_RELOAD);
-            mLoadingFailed = false;
-        }
 
-        @Override
-        public void onLoadingFinished(boolean loadingFailed) {
-            clearLoadingBit(BIT_LOADING_RELOAD);
-            mLoadingFailed = loadingFailed;
-            showSyncErrorIfNecessary(loadingFailed);
-        }
-    }
 
     @Override
     protected void onPause() {
@@ -853,33 +764,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         //*/
     }
 
-    private class MyDetailsSource implements DetailsHelper.DetailsSource {
-        private int mIndex;
-
-        @Override
-        public int size() {
-            return mAlbumDataAdapter.size();
-        }
-
-        @Override
-        public int setIndex() {
-            Path id = mSelectionManager.getSelected(false).get(0);
-            mIndex = mAlbumDataAdapter.findItem(id);
-            return mIndex;
-        }
-
-        @Override
-        public MediaDetails getDetails() {
-            // this relies on setIndex() being called beforehand
-            MediaObject item = mAlbumDataAdapter.get(mIndex);
-            if (item != null) {
-                mAlbumView.setHighlightItemPath(item.getPath());
-                return item.getDetails();
-            } else {
-                return null;
-            }
-        }
-    }    @Override
+   @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mAlbumDataAdapter != null) {
@@ -1014,6 +899,15 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         return true;
     }
 
+    private void prepareAnimationBackToFilmstrip(int slotIndex) {
+        if (mAlbumDataAdapter == null || !mAlbumDataAdapter.isActive(slotIndex)) return;
+        MediaItem item = mAlbumDataAdapter.get(slotIndex);
+        if (item == null) return;
+        TransitionStore transitions = mActivity.getTransitionStore();
+        transitions.put(PhotoPage.KEY_INDEX_HINT, slotIndex);
+        transitions.put(PhotoPage.KEY_OPEN_ANIMATION_RECT,
+                mSlotView.getSlotRect(slotIndex, mRootPane));
+    }
     @Override
     protected boolean onItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -1099,6 +993,76 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         }
     }
 
+    @Override
+    public void onSelectionModeChange(int mode) {
+        switch (mode) {
+            case SelectionManager.ENTER_SELECTION_MODE: {
+                mActionModeHandler.startActionMode();
+                performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+                break;
+            }
+            case SelectionManager.LEAVE_SELECTION_MODE: {
+                mActionModeHandler.finishActionMode();
+                mRootPane.invalidate();
+                //*/ Added by Tyd Linguanrong for secret photos, 2014-2-17
+                if (mVisitorMode || mStorySelectMode) {
+                    onUpPressed();
+                }
+                //*/
+                break;
+            }
+
+            case SelectionManager.DESELECT_ALL_MODE:
+            case SelectionManager.SELECT_ALL_MODE: {
+                //*/ Added by Linguanrong for story album, 2015-08-13
+                if (mConfirm != null) {
+                    mConfirm.setEnabled(mode == SelectionManager.SELECT_ALL_MODE);
+                }
+                //*/
+                mActionModeHandler.updateSupportedOperation();
+                mRootPane.invalidate();
+                break;
+            }
+        }
+    }    private void pickPhoto(int slotIndex) {
+        pickPhoto(slotIndex, false);
+    }
+
+    @Override
+    public void onSelectionChange(Path path, boolean selected) {
+        int count = mSelectionManager.getSelectedCount();
+        //*/ Added by Linguanrong for story album, 2015-08-13
+        if (mConfirm != null) {
+            mConfirm.setEnabled(count > 0);
+        }
+        //*/
+        String format = mActivity.getResources().getQuantityString(
+                R.plurals.number_of_items_selected, count);
+        mActionModeHandler.setTitle(String.format(format, count));
+        mActionModeHandler.updateSupportedOperation(path, selected);
+    }
+    @Override
+    public void onSyncDone(final MediaSet mediaSet, final int resultCode) {
+        Log.d(TAG, "onSyncDone: " + Utils.maskDebugInfo(mediaSet.getName()) + " result="
+                + resultCode);
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                GLRoot root = mActivity.getGLRoot();
+                root.lockRenderThread();
+                mSyncResult = resultCode;
+                try {
+                    if (resultCode == MediaSet.SYNC_RESULT_SUCCESS) {
+                        mInitialSynced = true;
+                    }
+                    clearLoadingBit(BIT_LOADING_SYNC);
+                    showSyncErrorIfNecessary(mLoadingFailed);
+                } finally {
+                    root.unlockRenderThread();
+                }
+            }
+        });
+    } 
     private void setLoadingBit(int loadTaskBit) {
         mLoadingBits |= loadTaskBit;
     }
@@ -1116,7 +1080,47 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             }
         }
     }
+    private class MyLoadingListener implements LoadingListener {
+        @Override
+        public void onLoadingStarted() {
+            setLoadingBit(BIT_LOADING_RELOAD);
+            mLoadingFailed = false;
+        }
 
+        @Override
+        public void onLoadingFinished(boolean loadingFailed) {
+            clearLoadingBit(BIT_LOADING_RELOAD);
+            mLoadingFailed = loadingFailed;
+            showSyncErrorIfNecessary(loadingFailed);
+        }
+    }
+    private class MyDetailsSource implements DetailsHelper.DetailsSource {
+        private int mIndex;
+
+        @Override
+        public int size() {
+            return mAlbumDataAdapter.size();
+        }
+
+        @Override
+        public int setIndex() {
+            Path id = mSelectionManager.getSelected(false).get(0);
+            mIndex = mAlbumDataAdapter.findItem(id);
+            return mIndex;
+        }
+
+        @Override
+        public MediaDetails getDetails() {
+            // this relies on setIndex() being called beforehand
+            MediaObject item = mAlbumDataAdapter.get(mIndex);
+            if (item != null) {
+                mAlbumView.setHighlightItemPath(item.getPath());
+                return item.getDetails();
+            } else {
+                return null;
+            }
+        }
+    } 
     //********************************************************************
     //*                              MTK                                 *
     //********************************************************************

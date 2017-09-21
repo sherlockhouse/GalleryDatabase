@@ -319,11 +319,26 @@ public final class GeometryMathUtils {
         RectF crop = getTrueCropRect(holder, width, height);
         Rect frame = new Rect();
         crop.roundOut(frame);
+        /// M: [BUG.ADD] @{
+        // while cropped Image width or height is 0, should reset the width or height as 1. @{
+        if (frame != null) {
+            if (frame.height() == 0) {
+                frame.inset(0, -1);
+            }
+            if (frame.width() == 0) {
+                frame.inset(-1, 0);
+            }
+        }
+        /// @}
         Matrix m = getCropSelectionToScreenMatrix(null, holder, width, height, frame.width(),
                 frame.height());
         BitmapCache bitmapCache = MasterImage.getImage().getBitmapCache();
         Bitmap temp = bitmapCache.getBitmap(frame.width(),
                 frame.height(), BitmapCache.UTIL_GEOMETRY);
+        /// M: [BUG.ADD] @{
+        // clear to black background
+        temp.eraseColor(0);
+        /// @}
         Canvas canvas = new Canvas(temp);
         Paint paint = new Paint();
         paint.setAntiAlias(true);

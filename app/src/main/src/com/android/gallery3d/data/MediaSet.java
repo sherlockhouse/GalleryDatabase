@@ -39,6 +39,10 @@ import java.util.WeakHashMap;
 public abstract class MediaSet extends MediaObject {
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/MediaSet";
+
+    /// M: [PERF.ADD] Add for open photo performance issue @{
+    public static final int MEDIAITEM_BATCH_FETCH_COUNT_FIRST = 128;
+    /// @}
     public static final int MEDIAITEM_BATCH_FETCH_COUNT = 500;
     public static final int INDEX_NOT_FOUND = -1;
 
@@ -123,15 +127,26 @@ public abstract class MediaSet extends MediaObject {
     public int getIndexOfItem(Path path, int hint) {
         // hint < 0 is handled below
         // first, try to find it around the hint
+        /// M: [PERF.MARK] @{
+        /*
         int start = Math.max(0,
                 hint - MEDIAITEM_BATCH_FETCH_COUNT / 2);
         ArrayList<MediaItem> list = getMediaItem(
                 start, MEDIAITEM_BATCH_FETCH_COUNT);
+        */
+        int start = Math.max(0,
+                hint - MEDIAITEM_BATCH_FETCH_COUNT_FIRST / 2);
+        ArrayList<MediaItem> list = getMediaItem(
+                start, MEDIAITEM_BATCH_FETCH_COUNT_FIRST);
+        /// @}
         int index = getIndexOf(path, list);
         if (index != INDEX_NOT_FOUND) return start + index;
 
         // try to find it globally
-        start = start == 0 ? MEDIAITEM_BATCH_FETCH_COUNT : 0;
+        /// M: [PERF.MODIFY] @{
+        /* start = start == 0 ? MEDIAITEM_BATCH_FETCH_COUNT : 0; */
+        start = start == 0 ? MEDIAITEM_BATCH_FETCH_COUNT_FIRST : 0;
+        /// @}
         list = getMediaItem(start, MEDIAITEM_BATCH_FETCH_COUNT);
         while (true) {
             index = getIndexOf(path, list);
@@ -142,12 +157,20 @@ public abstract class MediaSet extends MediaObject {
         }
     }
 
-
-    protected int getIndexOf(Path path, ArrayList<MediaItem> list) {
+    /// M: [BUG.MODIFY] @{
+    // modify protected as public: for PhotoDataAdapter will call it directly
+    /* protected int getIndexOf(Path path, ArrayList<MediaItem> list) { */
+    public int getIndexOf(Path path, ArrayList<MediaItem> list) {
+    /// @}
         for (int i = 0, n = list.size(); i < n; ++i) {
             // item could be null only in ClusterAlbum
             MediaObject item = list.get(i);
-            if (item != null && item.mPath == path) return i;
+            /// M: [BUG.MODIFY] may be path changed, to check string value @{
+            /* if (item != null && item.mPath == path) return i;*/
+            if (item != null && item.mPath.equalsIgnoreCase(path.toString())) {
+                return i;
+            }
+            /// @}
         }
         return INDEX_NOT_FOUND;
     }
@@ -161,18 +184,35 @@ public abstract class MediaSet extends MediaObject {
     // listener is automatically removed when there is no other reference to
     // the listener.
     public void addContentListener(ContentListener listener) {
-        mListeners.put(listener, null);
+        /// M: [BUG.MODIFY] avoid ConcurrentModificationException @{
+        /*mListeners.put(listener, null);*/
+        synchronized (mWeakHashMapLock) {
+            mListeners.put(listener, null);
+        }
+        /// @}
     }
 
     public void removeContentListener(ContentListener listener) {
-        mListeners.remove(listener);
+        /// M: [BUG.MODIFY] avoid ConcurrentModificationException @{
+        /*mListeners.remove(listener);*/
+        synchronized (mWeakHashMapLock) {
+            mListeners.remove(listener);
+        }
+        /// @}
     }
 
     // This should be called by subclasses when the content is changed.
     public void notifyContentChanged() {
-        for (ContentListener listener : mListeners.keySet()) {
-            listener.onContentDirty();
+        /// M: [BUG.MODIFY] avoid ConcurrentModificationException @{
+        /*for (ContentListener listener : mListeners.keySet()) {
+         listener.onContentDirty();
+         }*/
+        synchronized (mWeakHashMapLock) {
+            for (ContentListener listener : mListeners.keySet()) {
+                listener.onContentDirty();
+            }
         }
+        /// @}
     }
 
     // Reload the content. Return the current data version. reload() should be called
@@ -203,25 +243,39 @@ public abstract class MediaSet extends MediaObject {
         boolean stopConsume();
         /// @}
     }
+
     // The default implementation uses getMediaItem() for enumerateMediaItems().
     // Subclasses may override this and use more efficient implementations.
     // Returns the number of items enumerated.
     protected int enumerateMediaItems(ItemConsumer consumer, int startIndex) {
         int total = getMediaItemCount();
         int start = 0;
+        /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload  @{
+        boolean stopEnumerateItem = false;
+        /// @}
         while (start < total) {
             int count = Math.min(MEDIAITEM_BATCH_FETCH_COUNT, total - start);
             ArrayList<MediaItem> items = getMediaItem(start, count);
             for (int i = 0, n = items.size(); i < n; i++) {
                 MediaItem item = items.get(i);
                 consumer.consume(startIndex + start + i, item);
+                /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload @{
+                if (consumer.stopConsume()) {
+                    stopEnumerateItem = true;
+                    break;
+                }
+                /// @}
             }
+            /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload @{
+            if (stopEnumerateItem) {
+                Log.d(TAG, "<enumerateMediaItems> stopEnumerateItem = " + stopEnumerateItem);
+                break;
+            }
+            /// @}
             start += count;
         }
         return total;
     }
-
-
 
     // Recursively enumerate all media items under this set.
     // Returns the number of items enumerated.
@@ -230,10 +284,24 @@ public abstract class MediaSet extends MediaObject {
         int start = 0;
         start += enumerateMediaItems(consumer, startIndex);
         int m = getSubMediaSetCount();
+        /// M: [BUG.MODIFY] fix seldom JE when un-plug sdcard @{
+        /*
         for (int i = 0; i < m; i++) {
             start += getSubMediaSet(i).enumerateTotalMediaItems(
                     consumer, startIndex + start);
         }
+        */
+        MediaSet set = null;
+        for (int i = 0; i < m; i++) {
+            set = getSubMediaSet(i);
+            if (set == null) {
+                Log.i(TAG, "<enumerateTotalMediaItems> SubMediaSet " + i + " is null");
+                return start;
+            }
+            start += set.enumerateTotalMediaItems(
+                    consumer, startIndex + start);
+        }
+        /// @}
         return start;
     }
 
@@ -352,7 +420,31 @@ public abstract class MediaSet extends MediaObject {
                         + " #pending=" + mPendingCount);
             }
             if (listener != null) listener.onSyncDone(MediaSet.this, mResult);
-        } 
+        }
+    }
+
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+
+    /// M: [BUG.ADD] @{
+    // synchronous read/write WeakHashMap to avoid ConcurrentModificationException
+    private Object mWeakHashMapLock = new Object();
+    /// @}
+    // synchronous reload to avoid loading item before it's got from db
+    public long reloadForSlideShow() { return reload(); }
+    // while reload in ClusterAlbum ,should assign this object to ClusterAlbumSet.
+    public MediaSet mCurrentClusterAlbum;
+    // We think recursive calls in ClusterAlbum and ClusterAlbumSet as a Stack,
+    // and record offset to the Stack top.
+    public int offsetInStack = 0;
+    // refresh cluster name when switch system language.
+    public void reloadResources() {
+        return;
+    }
+    // Reload occupy too much time in retrieving DB in clusterAlbum or clusterAlbumset.
+    // So stop reload in time while on pause.
+    public void stopReload() {
 
     }
 }

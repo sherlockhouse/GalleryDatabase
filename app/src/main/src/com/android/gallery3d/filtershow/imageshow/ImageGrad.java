@@ -204,7 +204,10 @@ public class ImageGrad extends ImageShow {
 
     public void setEditor(EditorGrad editorGrad) {
         mEditorGrad = editorGrad;
-
+        /// M: [BUG.ADD] @{
+        //on't set old grad representation
+        mGradRep = null;
+        /// @}
     }
 
     @Override

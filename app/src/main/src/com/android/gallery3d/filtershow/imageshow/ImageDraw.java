@@ -139,6 +139,13 @@ public class ImageDraw extends ImageShow {
     float[] mTmpPoint = new float[2]; // so we do not malloc
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        /// M: [BUG.ADD] @{
+        //ignore touchEvent when mFRep is not ready.
+        if (mFRep == null) {
+            return true;
+        }
+        /// @}
+
         if (event.getPointerCount() > 1) {
             boolean ret = super.onTouchEvent(event);
             if (mFRep.getCurrentDrawing() != null) {
@@ -152,7 +159,9 @@ public class ImageDraw extends ImageShow {
                 return super.onTouchEvent(event);
             }
         }
-
+        /// M: [BUG.ADD] @{
+        mTouchActionState = event.getAction();
+        /// @}
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             calcScreenMapping();
             mTmpPoint[0] = event.getX();
@@ -289,4 +298,43 @@ public class ImageDraw extends ImageShow {
         }
     }
 
+    // ********************************************************************
+    // * MTK *
+    // ********************************************************************
+    public int mTouchActionState = 0;
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if (mFRep == null) {
+            return;
+        }
+
+        if (!hasWindowFocus) {
+            // / while press power key, should keep the points.
+            if (mTouchActionState == MotionEvent.ACTION_CANCEL
+                    && (mFRep.getCurrentDrawing() != null)) {
+                mFRep.endSection(mTmpPoint[0], mTmpPoint[1]);
+                mEditorDraw.commitLocalRepresentation();
+            }
+        }
+        Log.d(LOGTAG, "hasWindowFocus=" + hasWindowFocus + " mTouchState = " + mTouchActionState);
+    }
+
+    // HighResRenderingTask is a delayed task. It would only handle the latest
+    // message sent to it. In the cr case, when the user begins to draw quickly
+    // enough, a second message would then replace the key first message designed
+    // to clear the obsolete strokes. As a result, ImageFilterDraw compares the
+    // stroke information (mainly simple stroke number) between new and old, find
+    // it's not change, and hence mistakes that the stroke is not changed, using
+    // a cached out-dated strokes in the end.
+    // As a solution, we mark we should not use the cached out-dated strokes in
+    // ImageFilterDraw when enter ImageDraw, to make sure the strokes' re-caching.
+    // We'll recover stroke cache after the first HighResRendering pass is finished
+    // (See MasterImage.available()).
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        if (visibility == VISIBLE) {
+            ImageFilterDraw.disableCache(true);
+        }
+    }
 }

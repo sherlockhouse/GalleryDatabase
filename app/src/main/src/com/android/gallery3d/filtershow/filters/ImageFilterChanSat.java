@@ -109,6 +109,12 @@ public class ImageFilterChanSat extends ImageFilterRS {
 
     @Override
     protected void runFilter() {
+        /// M: [BUG.ADD] @{
+        //null pointer check. @{
+        if (mScript == null) {
+            return;
+        }
+        /// @}
         int []sat = new int[7];
         for(int i = 0;i<sat.length ;i ++){
           sat[i] =   mParameters.getValue(i);
@@ -142,8 +148,7 @@ public class ImageFilterChanSat extends ImageFilterRS {
                 endy = height;
             }
             options.setY(ty, endy);
-            //mScript.forEach_selectiveAdjust(in, out, options);
-            mScript.forEach_selectiveAdjust(in, out);
+            mScript.forEach_selectiveAdjust(in, out, options);
             if (checkStop()) {
                 return;
             }
@@ -153,9 +158,10 @@ public class ImageFilterChanSat extends ImageFilterRS {
     private boolean checkStop() {
         RenderScript rsCtx = getRenderScriptContext();
         rsCtx.finish();
-        return getEnvironment().needsStop();
+        if (getEnvironment().needsStop()) {
+            return true;
+        }
+        return false;
     }
-
-
 }
 

@@ -36,7 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.controller.BitmapCaller;
 import com.android.gallery3d.filtershow.controller.ColorChooser;
@@ -100,7 +100,17 @@ public class EditorColorBorder extends ParametricEditor  {
 
             }
             cbRep.setPramMode(FilterColorBorderRepresentation.PARAM_SIZE);
-            mParameterString = mContext.getString(R.string.color_border_size);
+            /// M: [BUG.MODIFY] @{
+            /*            mParameterString = mContext.getString(R.string.color_border_size);
+             */
+            if (ParametricEditor.useCompact(mContext)) {
+                mParameterString = mContext.getString(R.string.color_border_size);
+            } else {
+                // In land UI, all control co-exist on screen, Set button text to clear @{
+                mParameterString = mContext.getString(R.string.color_border_clear);
+            }
+            /// @}
+
             if (mEditControl != null) {
                 control(cbRep.getCurrentParam(), mEditControl);
             }
@@ -110,12 +120,33 @@ public class EditorColorBorder extends ParametricEditor  {
     @Override
     public void openUtilityPanel(final LinearLayout accessoryViewList) {
         Button view = (Button) accessoryViewList.findViewById(R.id.applyEffect);
-        view.setText(mContext.getString(R.string.color_border_size));
+        /// M: [BUG.MODIFY] @{
+        /*  view.setText(mContext.getString(R.string.color_border_size));
+         */
+        if (ParametricEditor.useCompact(mContext)) {
+            view.setText(mContext.getString(R.string.color_border_size));
+        } else {
+            // In land UI, all control co-exist on screen, Set button text to clear
+            view.setText(mContext.getString(R.string.color_border_clear));
+            view.setCompoundDrawablesRelative(null, null, null, null);
+        }
+        /// @}
+
         view.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                showPopupMenu(accessoryViewList);
+                /// M: [BUG.MODIFY] @{
+                /*  showPopupMenu(accessoryViewList);
+                 */
+                if (ParametricEditor.useCompact(mContext)) {
+                    showPopupMenu(accessoryViewList);
+                } else {
+                    // In land UI, all control co-exist on screen so no need to show popup menu
+                    // The button act as clear function @{
+                    clearFrame();
+                }
+                /// @}
             }
         });
     }
@@ -181,11 +212,27 @@ public class EditorColorBorder extends ParametricEditor  {
             c.setColorSet(mBasColors);
         }
         updateText();
-        mControl.updateUI();
+        /// M: [BUG.MODIFY] @{
+        /*        mControl.updateUI();
+         */
+        // In land UI, all control co-exist on screen, mControl is null
+        if (ParametricEditor.useCompact(mContext)) {
+            mControl.updateUI();
+        }
+        /// @}
+
         mView.invalidate();
     }
 
     public void clearFrame() {
+        /// M: [BUG.ADD] @{
+        // reset effect to default values
+        FilterColorBorderRepresentation rep = getColorBorderRep();
+        if (rep == null) {
+            return;
+        }
+        rep.clearToDefault();
+        /// @}
         commitLocalRepresentation();
     }
 

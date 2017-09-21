@@ -59,13 +59,22 @@ public class UpdatePreviewTask extends ProcessingTask {
         ImagePreset renderingPreset = preset.dequeuePreset();
         if (renderingPreset != null) {
             mPreviewPipeline.compute(buffer, renderingPreset, 0);
-            // set the preset we used in the buffer for later inspection UI-side
-            Buffer producer = buffer.getProducer();
-            if(producer != null) {
-                buffer.getProducer().setPreset(renderingPreset);
-                buffer.getProducer().sync();
-                buffer.swapProducer(); // push back the result
+            /// M: [BUG.ADD] @{
+            // We can inspect the fact that CachingPipeline.compute() is
+            // the only place to set producer for the SharedBuffer.
+            // When getRenderScriptContext() == null, it will never call
+            // buffer.setProducer() in mPreviewPipeline.compute(); as a
+            // result we may obtain null from buffer.getProducer().
+            // We can directly return null here, since such a scenario often
+            // implies that the activity is not well-prepared.
+            if (buffer.getProducer() == null) {
+                return null;
             }
+            /// @}
+            // set the preset we used in the buffer for later inspection UI-side
+            buffer.getProducer().setPreset(renderingPreset);
+            buffer.getProducer().sync();
+            buffer.swapProducer(); // push back the result
         }
         return null;
     }

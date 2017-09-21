@@ -62,6 +62,12 @@ public class Buffer {
     }
 
     public synchronized void useBitmap(Bitmap bitmap) {
+        /// M: [BUG.ADD] @{
+        //clear to black background
+        if (mBitmap != null) {
+            mBitmap.eraseColor(0);
+        }
+        /// @}
         Canvas canvas = new Canvas(mBitmap);
         canvas.drawBitmap(bitmap, 0, 0, null);
     }

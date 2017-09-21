@@ -268,6 +268,11 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     }
 
     @Override
+    public String getName() {
+        return getLocalizedName(mApplication.getResources(), mBucketId, mName);
+    }
+
+    @Override
     public long reload() {
         if (mNotifier.isDirty()) {
             mDataVersion = nextVersionNumber();
@@ -276,10 +281,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         return mDataVersion;
     }
 
-    @Override
-    public String getName() {
-        return getLocalizedName(mApplication.getResources(), mBucketId, mName);
-    }
+
     public int getSupportedOperations() {
         return SUPPORT_DELETE | SUPPORT_SHARE;
     }

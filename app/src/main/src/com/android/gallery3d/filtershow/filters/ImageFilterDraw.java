@@ -209,7 +209,14 @@ public class ImageFilterDraw extends ImageFilter {
             Bitmap brush;
             // done this way because of a bug in
             // Bitmap.createScaledBitmap(getBrush(),(int) size,(int) size,true);
-            brush = createScaledBitmap(getBrush(), (int) size, (int) size, true);
+            /// M: [BUG.MODIFY] @{
+            /*  brush = createScaledBitmap(getBrush(), (int) size, (int) size, true);
+             */
+            // ensure size >= 1
+            int iSize = (int) size;
+            iSize = (iSize == 0) ? 1 : iSize;
+            brush = createScaledBitmap(getBrush(), iSize, iSize, true);
+            /// @}
             float len = mPathMeasure.getLength();
             float s2 = size / 2;
             float step = s2 / 8;
@@ -253,7 +260,10 @@ public class ImageFilterDraw extends ImageFilter {
             return;
         }
 
-        if (mOverlayBitmap == null ||
+        /// M: [BUG.MODIFY] @{
+        /* if (mOverlayBitmap == null || */
+        if (sIsMirrorChanged  || sIsCacheDisabled || mOverlayBitmap == null ||
+        /// @}
                 mOverlayBitmap.getWidth() != canvas.getWidth() ||
                 mOverlayBitmap.getHeight() != canvas.getHeight() ||
                 mParameters.getDrawing().size() < mCachedStrokes) {
@@ -295,6 +305,13 @@ public class ImageFilterDraw extends ImageFilter {
 
     @Override
     public Bitmap apply(Bitmap bitmap, float scaleFactor, int quality) {
+        /// M: [BUG.ADD] @{
+        //render filters for cache, accessed in single thread only @{
+        if (MasterImage.sIsRenderFilters) {
+            return applyForFilterRender(bitmap, scaleFactor, quality);
+        }
+        /// @}
+
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
 
@@ -303,4 +320,55 @@ public class ImageFilterDraw extends ImageFilter {
         return bitmap;
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    //render filters for cache, accessed in single thread only
+    public Bitmap applyForFilterRender(Bitmap bitmap, float scaleFactor, int quality) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        Matrix m = getOriginalToScreenMatrixForFilterRender(w, h);
+        drawData(new Canvas(bitmap), m, quality);
+        return bitmap;
+    }
+
+    private Matrix getOriginalToScreenMatrixForFilterRender(int w, int h) {
+        return getImageToScreenMatrixForFilterRender(getEnvironment().getImagePreset()
+                .getGeometryFilters(), true, MasterImage.getImage().getOriginalBounds(), w, h);
+    }
+
+    private static Matrix getImageToScreenMatrixForFilterRender(
+            Collection<FilterRepresentation> geometry, boolean reflectRotation,
+            Rect bmapDimens, float viewWidth, float viewHeight) {
+        GeometryHolder h = GeometryMathUtils.unpackGeometry(geometry);
+        Rotation prevRot = h.rotation;
+        Mirror prevMirr = h.mirror;
+        h.rotation = Rotation.fromValue(0);
+        h.mirror = Mirror.NONE;
+        Matrix ret =  GeometryMathUtils.getOriginalToScreen(h, reflectRotation, bmapDimens.width(),
+                bmapDimens.height(), viewWidth, viewHeight);
+        h.rotation = prevRot;
+        h.mirror = prevMirr;
+        return ret;
+    }
+
+    /// M: [BUG.ADD] @{
+    private static boolean sIsCacheDisabled;
+
+    /**
+     * Mark whether we should use the cached bitmap and strokes when we call drawData().
+     * @param isCacheDisabled true if we should not use the cached data.
+     */
+    public static void disableCache(boolean isCacheDisabled) {
+        sIsCacheDisabled = isCacheDisabled;
+    }
+
+    //add a flag for mirror, when mirror changed,
+    //the line will be re-draw.
+    private static boolean sIsMirrorChanged = false;
+    public static void  mirrorChanged(boolean isMirrorChnaged) {
+       sIsMirrorChanged = isMirrorChnaged;
+    }
+    /// @}
 }

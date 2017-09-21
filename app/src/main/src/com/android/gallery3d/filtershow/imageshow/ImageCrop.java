@@ -66,19 +66,38 @@ public class ImageCrop extends ImageShow {
     private boolean mValidDraw = false;
     FilterCropRepresentation mLocalRep = new FilterCropRepresentation();
     EditorCrop mEditorCrop;
+    /// M: [BUG.ADD] @{
+    //refresh state string to current language.
+    private String mCropRepName;
+    /// @}
+
+
     public ImageCrop(Context context) {
         super(context);
         setup(context);
+        /// M: [BUG.ADD] @{
+        //refresh state string to current language.
+        mCropRepName = context.getString(R.string.crop);
+        /// @}
+
     }
 
     public ImageCrop(Context context, AttributeSet attrs) {
         super(context, attrs);
         setup(context);
+        /// M: [BUG.ADD] @{
+        //refresh state string to current language.
+        mCropRepName = context.getString(R.string.crop);
+        /// @}
     }
 
     public ImageCrop(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setup(context);
+        /// M: [BUG.ADD] @{
+        //refresh state string to current language.
+        mCropRepName = context.getString(R.string.crop);
+        /// @}
     }
 
     private void setup(Context context) {
@@ -88,8 +107,14 @@ public class ImageCrop extends ImageShow {
         mMinSideSize = (int) rsc.getDimension(R.dimen.crop_min_side);
         mTouchTolerance = (int) rsc.getDimension(R.dimen.crop_touch_tolerance);
     }
+
     public void setFilterCropRepresentation(FilterCropRepresentation crop) {
         mLocalRep = (crop == null) ? new FilterCropRepresentation() : crop;
+        /// M: [BUG.ADD] @{
+        //refresh state string to current language.
+        mLocalRep.setName(mCropRepName);
+        /// @}
+
         GeometryMathUtils.initializeHolder(mUpdateHolder, mLocalRep);
         mValidDraw = true;
     }
@@ -163,22 +188,35 @@ public class ImageCrop extends ImageShow {
     }
 
     public void applyFreeAspect() {
-        mCropObj.unsetAspectRatio();
+        /// M: [BUG.MODIFY] @{
+        if (mCropObj != null) {
+            mCropObj.unsetAspectRatio();
+            /// M: [BUG.ADD] @{
+            mCropObj.resetInnerRect();
+            /// @}
+        }
+        ///@}
         invalidate();
     }
 
     public void applyOriginalAspect() {
-        RectF outer = mCropObj.getOuterBounds();
+        /// M: [BUG.MODIFY] @{
+        /*RectF outer = mCropObj.getOuterBounds();
+        RectF inter = mCropObj.getOriginalInnerRect();
         float w = outer.width();
         float h = outer.height();
         if (w > 0 && h > 0) {
             applyAspect(w, h);
-            mCropObj.resetBoundsTo(outer, outer);
+            mCropObj.resetBoundsTo(inter, outer);
             internallyUpdateLocalRep(mCropObj.getInnerBounds(), mCropObj.getOuterBounds());
         } else {
             Log.w(TAG, "failed to set aspect ratio original");
         }
+        invalidate();*/
+        mCropObj.setAspectRatio();
+        mCropObj.resetInnerRect();
         invalidate();
+        /// @}
     }
 
     public void applyAspect(float x, float y) {
@@ -243,7 +281,10 @@ public class ImageCrop extends ImageShow {
             mLocalRep.setCrop(mUpdateHolder.crop);
             RectF scaledCrop = new RectF(mUpdateHolder.crop);
             FilterCropRepresentation.findScaledCrop(scaledCrop, width, height);
-
+            /// M: [BUG.ADD] add Straighten effect for crop bounds @{
+            ImageStraighten.getUntranslatedStraightenCropBounds(scaledCrop,
+                    mUpdateHolder.straighten);
+            /// @}
             mCropObj = new CropObject(mImageBounds, scaledCrop, (int) mUpdateHolder.straighten);
             mState = Mode.NONE;
             clearDisplay();
@@ -284,6 +325,10 @@ public class ImageCrop extends ImageShow {
                 mDisplayMatrixInverse = null;
                 return;
             }
+            /// M: [BUG.ADD] add for small picture @{
+            mMinSideSize = (int) Math.min(Math.min(mImageBounds.width(),
+                    mImageBounds.height()), mMinSideSize);
+            /// @}
             // Scale min side and tolerance by display matrix scale factor
             mCropObj.setMinInnerSideSize(mDisplayMatrixInverse.mapRadius(mMinSideSize));
             mCropObj.setTouchTolerance(mDisplayMatrixInverse.mapRadius(mTouchTolerance));
@@ -292,16 +337,28 @@ public class ImageCrop extends ImageShow {
                     CropObject.MOVE_BOTTOM,
                     CropObject.MOVE_LEFT,
                     CropObject.MOVE_RIGHT};
-            int delta = Math.min(canvas.getWidth(), canvas.getHeight()) / 4;
+            /// M: [BUG.MODIFY] @{
+            /*
+             * int delta = Math.min(canvas.getWidth(), canvas.getHeight()) / 4;
             int[] dy = {delta, -delta, 0, 0};
-            int[] dx = {0, 0, delta, -delta};
-
+            int[] dx = {0, 0, delta, -delta};*/
+            RectF temp = mCropObj.getInnerBounds();
+            float delta = Math.min(canvas.getWidth(), canvas.getHeight()) / 4;
+            delta = Math.min(Math.min(temp.width(), temp.height()) -
+                    mCropObj.getMinSideSize(), delta) ;
+            float[] dy = {delta, -delta, 0, 0};
+            float[] dx = {0, 0, delta, -delta};
+            /// @}
             for (int i = 0; i < sides.length; i++) {
                 mCropObj.selectEdge(sides[i]);
 
                 mCropObj.moveCurrentSelection(dx[i], dy[i]);
                 mCropObj.moveCurrentSelection(-dx[i], -dy[i]);
             }
+            /// M: [BUG.ADD] @{
+            // save original Inner rect.
+            mCropObj.setOriginalInnerRect(mCropObj.getInnerBounds());
+            /// @}
             mCropObj.selectEdge(CropObject.MOVE_NONE);
         }
         // Draw actual bitmap

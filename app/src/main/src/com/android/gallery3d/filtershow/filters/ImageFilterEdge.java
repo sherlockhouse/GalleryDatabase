@@ -22,7 +22,6 @@ import com.android.gallery3d.R;
 
 public class ImageFilterEdge extends SimpleImageFilter {
     private static final String SERIALIZATION_NAME = "EDGE";
-
     public ImageFilterEdge() {
         mName = "Edge";
     }
@@ -32,7 +31,7 @@ public class ImageFilterEdge extends SimpleImageFilter {
         representation.setName("Edge");
         representation.setSerializationName(SERIALIZATION_NAME);
         representation.setFilterClass(ImageFilterEdge.class);
-        representation.setTextId(com.freeme.gallery.R.string.edge);
+        representation.setTextId(R.string.edge);
         representation.setOverlayId(R.drawable.edit_img_heibaiby);//边缘亮化
         representation.setSupportsPartialRendering(true);
         return representation;

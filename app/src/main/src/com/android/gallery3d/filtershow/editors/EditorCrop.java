@@ -31,12 +31,12 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.filters.FilterCropRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.imageshow.ImageCrop;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
-import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.mediatek.gallery3d.util.Log;
 
 public class EditorCrop extends Editor implements EditorInfo {
@@ -182,6 +182,17 @@ public class EditorCrop extends Editor implements EditorInfo {
 
     private void setAspectString(String s) {
         mAspectString = s;
+    }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    @Override
+    public void finalCancelCalled() {
+        ///while Cancel called should new new ImageCrop
+        mImageCrop  = null;
+
     }
 
 }

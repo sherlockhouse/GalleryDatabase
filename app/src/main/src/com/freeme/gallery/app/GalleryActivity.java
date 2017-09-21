@@ -493,8 +493,10 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             DataManager manager = getDataManager();
             Path path = manager.findPathByUri(FreemeUtils.convertGalleryUri(intent.getData()),
                     intent.getType());
-            if (path == null || manager.getMediaObject(path) instanceof MediaItem) {
-                path = Path.fromString(manager.getTopSetPath(DataManager.INCLUDE_IMAGE));
+            if (path == null || manager.getMediaObject(path)
+                    instanceof MediaItem) {
+                path = Path.fromString(
+                        manager.getTopSetPath(DataManager.INCLUDE_IMAGE));
             }
             Bundle data = new Bundle();
             data.putString(SlideshowPage.KEY_SET_PATH, path.toString());
@@ -510,7 +512,8 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             Uri uri = FreemeUtils.convertGalleryUri(intent.getData());
             String contentType = getContentType(intent);
             if (contentType == null) {
-                Toast.makeText(this, R.string.no_such_item, Toast.LENGTH_LONG).show();
+                Toast.makeText(this,
+                        R.string.no_such_item, Toast.LENGTH_LONG).show();
                 finish();
                 return;
             }
@@ -550,21 +553,29 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 uri = FreemeUtils.tryContentMediaUri(this, uri, contentType);
 
                 Path itemPath = dm.findPathByUri(uri, contentType);
-                MediaItem mediaItem = (MediaItem) getDataManager().getMediaObject(itemPath);
 
-                if (itemPath == null || mediaItem == null) {
-                    Toast.makeText(this, R.string.no_such_item, Toast.LENGTH_LONG).show();
+                /// M: [BUG.ADD] modify for item not exit,show toast and finish.@{
+                if (itemPath == null) {
+                    Toast.makeText(this, R.string.no_such_item,
+                            Toast.LENGTH_LONG).show();
                     finish();
                     return;
                 }
+                /// @}
 
+                /// M: [BUG.MODIFY] @{
+                /*Path albumPath = dm.getDefaultSetOf(itemPath);*/
+                Path albumPath = null;
+                //clear old mediaObject, query database again
                 itemPath.clearObject();
-
-                Path albumPath = dm.getDefaultSetOf(itemPath);
+                albumPath = dm.getDefaultSetOf(itemPath);
+                /// @}
 
                 data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
                 data.putBoolean(PhotoPage.KEY_READONLY, true);
 
+                // TODO: Make the parameter "SingleItemOnly" public so other
+                //       activities can reference it.
                 boolean singleItemOnly = (albumPath == null)
                         || intent.getBooleanExtra("SingleItemOnly", false);
                 if (!singleItemOnly) {

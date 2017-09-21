@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,67 +44,46 @@ import com.android.gallery3d.filtershow.pipeline.RenderingRequest;
 import com.android.gallery3d.filtershow.pipeline.RenderingRequestCaller;
 import com.android.gallery3d.filtershow.pipeline.RenderingRequestTask;
 import com.android.gallery3d.filtershow.pipeline.UpdatePreviewTask;
-import com.freeme.gallery.R;
+import android.util.DisplayMetrics;
+import android.view.WindowManager;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.filters.FiltersManager;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.android.gallery3d.filtershow.tools.SaveImage;
+import com.mediatek.gallery3d.util.Log;
 
 import java.io.File;
 
 public class ProcessingService extends Service {
-    private static final String  LOGTAG     = "ProcessingService";
+    private static final String LOGTAG = "ProcessingService";
     private static final boolean SHOW_IMAGE = true;
-    private static final String PRESET           = "preset";
-    private static final String QUALITY          = "quality";
-    private static final String SOURCE_URI       = "sourceUri";
-    private static final String SELECTED_URI     = "selectedUri";
-    private static final String DESTINATION_FILE = "destinationFile";
-    private static final String SAVING           = "saving";
-    private static final String FLATTEN          = "flatten";
-    private static final String SIZE_FACTOR      = "sizeFactor";
-    private static final String EXIT             = "exit";
-
-    static {
-        System.loadLibrary("jni_filtershow_filters");
-    }
-
-    private final IBinder mBinder = new LocalBinder();
     private int mNotificationId;
-    private NotificationManager  mNotifyMgr = null;
-    private Notification.Builder mBuilder   = null;
+    private NotificationManager mNotifyMgr = null;
+    private Notification.Builder mBuilder = null;
+
+    private static final String PRESET = "preset";
+    private static final String QUALITY = "quality";
+    private static final String SOURCE_URI = "sourceUri";
+    private static final String SELECTED_URI = "selectedUri";
+    private static final String DESTINATION_FILE = "destinationFile";
+    private static final String SAVING = "saving";
+    private static final String FLATTEN = "flatten";
+    private static final String SIZE_FACTOR = "sizeFactor";
+    private static final String EXIT = "exit";
+
     private ProcessingTaskController mProcessingTaskController;
     private ImageSavingTask mImageSavingTask;
     private UpdatePreviewTask mUpdatePreviewTask;
     private HighresRenderingRequestTask mHighresRenderingRequestTask;
     private FullresRenderingRequestTask mFullresRenderingRequestTask;
     private RenderingRequestTask mRenderingRequestTask;
-    private FilterShowActivity mFiltershowActivity;
-    private boolean mSaving     = false;
-    private boolean mNeedsAlive = false;
 
-    public static Intent getSaveIntent(Context context, ImagePreset preset, File destination,
-                                       Uri selectedImageUri, Uri sourceImageUri, boolean doFlatten, int quality,
-                                       float sizeFactor, boolean needsExit) {
-        Intent processIntent = new Intent(context, ProcessingService.class);
-        processIntent.putExtra(ProcessingService.SOURCE_URI,
-                sourceImageUri.toString());
-        processIntent.putExtra(ProcessingService.SELECTED_URI,
-                selectedImageUri.toString());
-        processIntent.putExtra(ProcessingService.QUALITY, quality);
-        processIntent.putExtra(ProcessingService.SIZE_FACTOR, sizeFactor);
-        if (destination != null) {
-            processIntent.putExtra(ProcessingService.DESTINATION_FILE, destination.toString());
-        }
-        processIntent.putExtra(ProcessingService.PRESET,
-                preset.getJsonString(ImagePreset.JASON_SAVED));
-        processIntent.putExtra(ProcessingService.SAVING, true);
-        processIntent.putExtra(ProcessingService.EXIT, needsExit);
-        if (doFlatten) {
-            processIntent.putExtra(ProcessingService.FLATTEN, true);
-        }
-        return processIntent;
-    }
+    private final IBinder mBinder = new LocalBinder();
+    private FilterShowActivity mFiltershowActivity;
+
+    private boolean mSaving = false;
+    private boolean mNeedsAlive = false;
 
     public void setFiltershowActivity(FilterShowActivity filtershowActivity) {
         mFiltershowActivity = filtershowActivity;
@@ -168,6 +152,40 @@ public class ProcessingService extends Service {
         mHighresRenderingRequestTask.setOriginalBitmapHighres(originalHires);
     }
 
+    public class LocalBinder extends Binder {
+        public ProcessingService getService() {
+            return ProcessingService.this;
+        }
+    }
+
+    public static Intent getSaveIntent(Context context, ImagePreset preset, File destination,
+            Uri selectedImageUri, Uri sourceImageUri, boolean doFlatten, int quality,
+            float sizeFactor, boolean needsExit) {
+        Intent processIntent = new Intent(context, ProcessingService.class);
+        processIntent.putExtra(ProcessingService.SOURCE_URI,
+                sourceImageUri.toString());
+        processIntent.putExtra(ProcessingService.SELECTED_URI,
+                selectedImageUri.toString());
+        processIntent.putExtra(ProcessingService.QUALITY, quality);
+        processIntent.putExtra(ProcessingService.SIZE_FACTOR, sizeFactor);
+        if (destination != null) {
+            processIntent.putExtra(ProcessingService.DESTINATION_FILE, destination.toString());
+        }
+        /// M: [BUG.MODIFY] processIntent Bundle may beyond the Bundle memory limitation@{
+        /*  processIntent.putExtra(ProcessingService.PRESET,
+                preset.getJsonString(ImagePreset.JASON_SAVED));  */
+        sUsePresent = preset.getJsonString(ImagePreset.JASON_SAVED);
+        Log.d(LOGTAG, "<getSaveIntent> sUsePresent = " + sUsePresent);
+        /// @}
+        processIntent.putExtra(ProcessingService.SAVING, true);
+        processIntent.putExtra(ProcessingService.EXIT, needsExit);
+        if (doFlatten) {
+            processIntent.putExtra(ProcessingService.FLATTEN, true);
+        }
+        return processIntent;
+    }
+
+
     @Override
     public void onCreate() {
         mProcessingTaskController = new ProcessingTaskController(this);
@@ -185,12 +203,24 @@ public class ProcessingService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        tearDownPipeline();
+        mProcessingTaskController.quit();
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mNeedsAlive = true;
         if (intent != null && intent.getBooleanExtra(SAVING, false)) {
             // we save using an intent to keep the service around after the
             // activity has been destroyed.
             String presetJson = intent.getStringExtra(PRESET);
+            /// M: [BUG.ADD] @{
+            if (presetJson == null) {
+                presetJson = sUsePresent;
+                Log.d(LOGTAG, "<onStartCommand> presetJson = " + presetJson);
+            }
+            /// @}
             String source = intent.getStringExtra(SOURCE_URI);
             String selected = intent.getStringExtra(SELECTED_URI);
             String destination = intent.getStringExtra(DESTINATION_FILE);
@@ -208,7 +238,13 @@ public class ProcessingService extends Service {
                 destinationFile = new File(destination);
             }
             ImagePreset preset = new ImagePreset();
-            preset.readJsonFromString(presetJson);
+            /// M: [BUG.MODIFY] @{
+            /*  preset.readJsonFromString(presetJson);
+             */
+            if (presetJson != null) {
+                preset.readJsonFromString(presetJson);
+            }
+            /// @}
             mNeedsAlive = false;
             mSaving = true;
             handleSaveRequest(sourceUri, selectedUri, destinationFile, preset,
@@ -219,28 +255,20 @@ public class ProcessingService extends Service {
     }
 
     @Override
-    public void onDestroy() {
-        tearDownPipeline();
-        mProcessingTaskController.quit();
-    }
-
-    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
 
-    private void tearDownPipeline() {
-        ImageFilter.resetStatics();
-        FiltersManager.getPreviewManager().freeRSFilterScripts();
-        FiltersManager.getManager().freeRSFilterScripts();
-        FiltersManager.getHighresManager().freeRSFilterScripts();
-        FiltersManager.reset();
-        CachingPipeline.destroyRenderScriptContext();
+    public void onStart() {
+        mNeedsAlive = true;
+        if (!mSaving && mFiltershowActivity != null) {
+            mFiltershowActivity.updateUIAfterServiceStarted();
+        }
     }
 
     public void handleSaveRequest(Uri sourceUri, Uri selectedUri,
-                                  File destinationFile, ImagePreset preset, Bitmap previewImage,
-                                  boolean flatten, int quality, float sizeFactor, boolean exit) {
+            File destinationFile, ImagePreset preset, Bitmap previewImage,
+            boolean flatten, int quality, float sizeFactor, boolean exit) {
         mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.cancelAll();
 
@@ -260,38 +288,13 @@ public class ProcessingService extends Service {
                 preset, previewImage, flatten, quality, sizeFactor, exit);
     }
 
-    public void updateProgress(int max, int current) {
-        mBuilder.setProgress(max, current, false);
+    public void updateNotificationWithBitmap(Bitmap bitmap) {
+        mBuilder.setLargeIcon(bitmap);
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
-    private void setupPipeline() {
-        Resources res = getResources();
-        FiltersManager.setResources(res);
-        CachingPipeline.createRenderscriptContext(this);
-
-        FiltersManager filtersManager = FiltersManager.getManager();
-        filtersManager.addLooks(this);
-        filtersManager.addBorders(this);
-        filtersManager.addTools(this);
-        filtersManager.addEffects();
-
-        FiltersManager highresFiltersManager = FiltersManager.getHighresManager();
-        highresFiltersManager.addLooks(this);
-        highresFiltersManager.addBorders(this);
-        highresFiltersManager.addTools(this);
-        highresFiltersManager.addEffects();
-    }
-
-    public void onStart() {
-        mNeedsAlive = true;
-        if (!mSaving && mFiltershowActivity != null) {
-            mFiltershowActivity.updateUIAfterServiceStarted();
-        }
-    }
-
-    public void updateNotificationWithBitmap(Bitmap bitmap) {
-        mBuilder.setLargeIcon(bitmap);
+    public void updateProgress(int max, int current) {
+        mBuilder.setProgress(max, current, false);
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
@@ -308,10 +311,19 @@ public class ProcessingService extends Service {
             viewImage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(viewImage);
         }
+        ///M: complete save image
+        mSaving = false;
+
         mNotifyMgr.cancel(mNotificationId);
         if (!exit) {
             stopForeground(true);
             stopSelf();
+            /// M: [BUG.ADD] @{
+            if (mNeedsAlive) {
+                // If the app has been restarted while we were saving...
+                mFiltershowActivity.updateUIAfterServiceStarted();
+            }
+            /// @}
             return;
         }
         stopForeground(true);
@@ -325,9 +337,65 @@ public class ProcessingService extends Service {
         }
     }
 
-    public class LocalBinder extends Binder {
-        public ProcessingService getService() {
-            return ProcessingService.this;
+    private void setupPipeline() {
+        Resources res = getResources();
+        /// M: [BUG.ADD] @{
+        //fix OOM issue caused by borders.
+        FiltersManager.setBorderSampleSize(parseBorderSampleSize());
+        /// @}
+
+        FiltersManager.setResources(res);
+        CachingPipeline.createRenderscriptContext(this);
+
+        FiltersManager filtersManager = FiltersManager.getManager();
+        filtersManager.addLooks(this);
+        filtersManager.addBorders(this);
+        filtersManager.addTools(this);
+        filtersManager.addEffects();
+
+        FiltersManager highresFiltersManager = FiltersManager.getHighresManager();
+        highresFiltersManager.addLooks(this);
+        highresFiltersManager.addBorders(this);
+        highresFiltersManager.addTools(this);
+        highresFiltersManager.addEffects();
+    }
+
+    private void tearDownPipeline() {
+        ImageFilter.resetStatics();
+        FiltersManager.getPreviewManager().freeRSFilterScripts();
+        FiltersManager.getManager().freeRSFilterScripts();
+        FiltersManager.getHighresManager().freeRSFilterScripts();
+        FiltersManager.reset();
+        CachingPipeline.destroyRenderScriptContext();
+    }
+
+    static {
+        System.loadLibrary("jni_filtershow_filters");
+    }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    //display abnormal when touch screen if do a lot of rotate and mirror action.
+    public boolean isRenderingTaskBusy() {
+        return mRenderingRequestTask.isProcessingTaskBusy();
+    }
+    // fix OOM issue caused by borders.
+    // get borders drawable bitmap sample size according to screen resolution
+    // 2k -> sample size 4, 1080p -> sample size 3, 720p -> sample size 2
+    private int parseBorderSampleSize() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getMetrics(metrics);
+        int resolution = Math.min(metrics.heightPixels, metrics.widthPixels);
+        if (resolution >= 1152) {
+            return 4;
+        } else if (resolution >= 1080) {
+            return 3;
+        } else {
+            return 2;
         }
     }
+    // sUsePresent keep all filers.
+    private static String sUsePresent;
 }

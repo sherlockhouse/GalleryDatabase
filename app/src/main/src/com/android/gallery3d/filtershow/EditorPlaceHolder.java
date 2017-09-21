@@ -33,7 +33,10 @@ public class EditorPlaceHolder {
     }
 
     public boolean contains(int type) {
-        return mEditors.get(type) != null;
+        if (mEditors.get(type) != null) {
+            return true;
+        }
+        return false;
     }
 
     public Editor showEditor(int type) {
@@ -64,7 +67,14 @@ public class EditorPlaceHolder {
     }
 
     public void hide() {
-        mContainer.setVisibility(View.GONE);
+        /// M: [BUG.MODIFY] @{
+        /*        mContainer.setVisibility(View.GONE);*/
+        if (mContainer != null) {
+            mContainer.setVisibility(View.GONE);
+        }
+        /// @}
+
+
     }
 
     public void hideOldViews() {

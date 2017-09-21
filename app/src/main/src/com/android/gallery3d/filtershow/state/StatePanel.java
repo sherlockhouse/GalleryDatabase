@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.filtershow.category.MainPanel;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
 import com.android.gallery3d.util.FilterShowHelper;

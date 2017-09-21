@@ -60,12 +60,20 @@ public class ColorSVRectView extends View implements ColorListener {
     public final static float DOT_SIZE = 20;
     public final static float BORDER_SIZE = 20;
     Bitmap mBitmap;
+    /// M: [BUG.ADD] @{
+    private int mViewHeight;
+    private int mDefaultViewHeight;
+    /// @}
 
     public ColorSVRectView(Context ctx, AttributeSet attrs) {
         super(ctx, attrs);
 
         DisplayMetrics metrics = ctx.getResources().getDisplayMetrics();
         mDpToPix = metrics.density;
+        mViewHeight = (int) (metrics.heightPixels - (230 * metrics.density + 0.5));
+        mDefaultViewHeight = (int) (256 * metrics.density + 0.5);
+        Log.d(TAG, "<ColorSVRectView> mViewHeight = " + mViewHeight +
+                " mDefaultHeight = " + mDefaultViewHeight);
         mDotRadus = DOT_SIZE * mDpToPix;
         mBorder = BORDER_SIZE * mDpToPix;
 
@@ -91,6 +99,11 @@ public class ColorSVRectView extends View implements ColorListener {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, widthMeasureSpec);
+        /// M: [BUG.ADD] reset the height of bitmap for LOW RESOLUTION SCREEN @{
+        if (mViewHeight < mDefaultViewHeight) {
+            setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), mViewHeight);
+        }
+        /// @}
     }
 
     void fillBitmap() {

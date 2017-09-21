@@ -16,7 +16,7 @@ allprojects {
     }
     repositories {
         maven {
-            url "http://192.168.3.12:8081/nexus/content/repositories/com.freeme.multimedia/"
+            url "http://192.168.48.2:8081/nexus/content/repositories/com.freeme.multimedia/"
         }
     }
 }

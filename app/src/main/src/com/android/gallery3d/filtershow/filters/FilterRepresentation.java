@@ -282,4 +282,9 @@ public class FilterRepresentation {
         }
         return false;
     }
+
+    /// M: [BUG.ADD] @{
+    // display abnormal when rotate and undo and rotate image again.
+    public void resetRepresentation() {}
+    /// @}
 }

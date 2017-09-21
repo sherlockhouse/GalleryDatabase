@@ -142,8 +142,20 @@ public class CategoryPanel extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.addButton:
+                /// M: [BUG.MODIFY] @{
+                /* FilterShowActivity activity = (FilterShowActivity) getActivity();
+                activity.addCurrentVersion();*/
+                v.setEnabled(false);
                 FilterShowActivity activity = (FilterShowActivity) getActivity();
-                activity.addCurrentVersion();
+                ///M: Each click menu should start sub thread decode icon image, which occupy
+                // much time and maybe cause ANR while click BACK key in the same time.
+                if (activity.hasFinishApplyVersionOperation()) {
+                    activity.addCurrentVersion();
+                    activity.addLabel();
+                }
+                v.setEnabled(true);
+
+                /// @}
                 break;
         }
     }

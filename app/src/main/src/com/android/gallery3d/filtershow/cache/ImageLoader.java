@@ -44,6 +44,7 @@ import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
 import com.freeme.provider.GalleryStore;
+import com.mediatek.galleryframework.util.BitmapUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -76,6 +77,20 @@ public final class ImageLoader {
      */
     public static String getMimeType(Uri src) {
         String postfix = MimeTypeMap.getFileExtensionFromUrl(src.toString());
+
+        /// M: [BUG.ADD] @{
+        // MimeTypeMap.getFileExtensionFromUrl(uil) is not reliable when it contains
+        // special characters in url
+        if (postfix.equals("")) {
+            String srcString = src.toString();
+            int lastIndexOfDot = srcString.lastIndexOf(".");
+            if ((lastIndexOfDot != -1)
+                    && (lastIndexOfDot != srcString.length() - 1)) {
+                postfix = srcString.substring(lastIndexOfDot + 1);
+            }
+        }
+        /// @}
+
         String ret = null;
         if (postfix != null) {
             ret = MimeTypeMap.getSingleton().getMimeTypeFromExtension(postfix);
@@ -318,9 +333,12 @@ public final class ImageLoader {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inMutable = true;
         options.inSampleSize = sampleSize;
-        return loadBitmap(context, uri, options);
+        /// M: [DEBUG.MODIFY] @{
+        /*  return loadBitmap(context, uri, options);*/
+        // remove alpha channel of png to avoid overlay display
+        return BitmapUtils.replaceBackgroundColor(loadBitmap(context, uri, options), true);
+        /// @}
     }
-
 
     /**
      * Returns the bitmap from the given uri loaded using the given options.
@@ -387,7 +405,7 @@ public final class ImageLoader {
 
         // Make sure sample size is reasonable
         if (sampleSize <= 0 ||
-                0 >= Math.min(w, h) / sampleSize) {
+                0 >= (int) (Math.min(w, h) / sampleSize)) {
             return null;
         }
         return loadDownsampledBitmap(context, uri, sampleSize);

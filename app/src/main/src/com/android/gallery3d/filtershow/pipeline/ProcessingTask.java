@@ -31,7 +31,11 @@ public abstract class ProcessingTask {
     private Handler mProcessingHandler;
     private Handler mResultHandler;
     private int mType;
-    private static final int DELAY = 300;
+    /// M: [BUG.MODIFY] fix draw abnormal when back many times @{
+    // private static final int DELAY = 300;
+    private static final int DELAY = 150;
+    /// @}
+
     static interface Request {}
     static interface Update {}
     static interface Result {}
@@ -80,12 +84,22 @@ public abstract class ProcessingTask {
     public int getType() {
         return mType;
     }
+
     public Context getContext() {
         return mTaskController.getContext();
     }
 
-
-
+    /// M: [BUG.ADD] @{
+    //display abnormal when touch screen if do a lot of rotate and mirror action.
+    public boolean isProcessingTaskBusy() {
+        if (mProcessingHandler.hasMessages(RenderingRequest.FILTERS_RENDERING)
+                || mProcessingHandler.hasMessages(RenderingRequest.GEOMETRY_RENDERING)
+                || mProcessingHandler.hasMessages(RenderingRequest.PARTIAL_RENDERING)) {
+            return true;
+        }
+        return false;
+    }
+    /// @}
 
     public abstract Result doInBackground(Request message);
     public abstract void onResult(Result message);

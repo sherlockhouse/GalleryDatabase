@@ -199,6 +199,9 @@ public class ImageShow extends View implements OnGestureListener,
 
     public void detach() {
         MasterImage.getImage().removeObserver(this);
+        /// M: [BUG.ADD] Remove this for avoid memory leak. @{
+        MasterImage.getImage().removeListener(this);
+        /// @}
         mMaskPaint.reset();
     }
 
@@ -230,12 +233,27 @@ public class ImageShow extends View implements OnGestureListener,
         if (master.getOriginalBounds() == null) {
             return new Matrix();
         }
+        /// M: [BUG.MODIFY] fix draw tool bug. @{
+        /*
         Matrix m = GeometryMathUtils.getImageToScreenMatrix(master.getPreset().getGeometryFilters(),
                 reflectRotation, master.getOriginalBounds(), getWidth(), getHeight());
         Point translate = master.getTranslation();
         float scaleFactor = master.getScaleFactor();
         m.postTranslate(translate.x, translate.y);
         m.postScale(scaleFactor, scaleFactor, getWidth() / 2.0f, getHeight() / 2.0f);
+        */
+        int viewWidthWithoutMargin = getWidth() - 2 * mShadowMargin;
+        int viewHeightWithoutMargin = getHeight() - 2 * mShadowMargin;
+        Matrix m = GeometryMathUtils.getImageToScreenMatrix(
+                master.getPreset().getGeometryFilters(), reflectRotation,
+                master.getOriginalBounds(), viewWidthWithoutMargin, viewHeightWithoutMargin);
+        Point translate = master.getTranslation();
+        float scaleFactor = master.getScaleFactor();
+        m.postTranslate(mShadowMargin, mShadowMargin);
+        m.postTranslate(translate.x, translate.y);
+        m.postScale(scaleFactor, scaleFactor, viewWidthWithoutMargin / 2.0f,
+                viewHeightWithoutMargin / 2.0f);
+        /// @}
         return m;
     }
 
@@ -261,6 +279,13 @@ public class ImageShow extends View implements OnGestureListener,
         mPaint.reset();
         mPaint.setAntiAlias(true);
         mPaint.setFilterBitmap(true);
+        /// M: [BUG.ADD] @{
+        // skip when bitmap not ready
+        if (MasterImage.getImage().getOriginalBounds() == null) {
+            Log.v(LOGTAG, "bitmap not ready, skip this onDraw pass");
+            return;
+        }
+        /// @}
         MasterImage.getImage().setImageShowSize(
                 getWidth() - 2*mShadowMargin,
                 getHeight() - 2*mShadowMargin);
@@ -293,9 +318,12 @@ public class ImageShow extends View implements OnGestureListener,
             drawImageAndAnimate(canvas, highresPreview);
         }
 
-        drawHighresImage(canvas, fullHighres);
+        /// M: [BUG.ADD] @{
+        //never display fullHighres
+        // fullHighres may be incorrect sometimes, and often highResImage is enough for preview
+        // drawHighresImage(canvas, fullHighres);
         drawCompareImage(canvas, getGeometryOnlyImage());
-
+        /// @}
         canvas.restore();
 
         if (!mEdgeEffect.isFinished()) {
@@ -420,12 +448,18 @@ public class ImageShow extends View implements OnGestureListener,
                     float scaleImageY = mImageBounds.height() / (float) image.getHeight();
                     mShaderMatrix.preScale(scaleImageX, scaleImageY);
                     mMaskPaint.reset();
-                    Shader maskShader = createShader(image);
+                    /// M: [DEBUG.MODIFY] @{
+                    /*
+                     * Shader maskShader = createShader(image);
                     maskShader.setLocalMatrix(mShaderMatrix);
-                    mMaskPaint.setShader(maskShader);
-
-                    drawShadow(canvas, mImageBounds); // as needed
-                    canvas.drawBitmap(previousImage, m, mPaint);
+                    mMaskPaint.setShader(maskShader);*/
+                    mMaskPaint.setShader(createShader(image));
+                    mMaskPaint.getShader().setLocalMatrix(mShaderMatrix);
+                    /// @}
+                    /// M: [BUG.MODIFY] fix version representation animation abnormal @{
+                    // canvas.drawBitmap(previousImage, m, mPaint);
+                    canvas.drawBitmap(previousImage, mp, mPaint);
+                    /// @}
                     canvas.clipRect(mImageBounds);
                     canvas.translate(x, y);
                     canvas.scale(maskScale, maskScale);
@@ -678,7 +712,13 @@ public class ImageShow extends View implements OnGestureListener,
                 MasterImage.getImage().resetTranslation();
             }
         }
-
+        /// M: [BUG.ADD] @{
+        //display abnormal when touch screen if do a lot of rotate and mirror action.
+        if (mActivity.getProcessingService().isRenderingTaskBusy()) {
+            Log.i(LOGTAG, "onTouchEvent, renderingTask is busy, so disable TouchShowOriginal");
+            mTouchShowOriginal = false;
+        }
+        /// @}
         float scaleFactor = MasterImage.getImage().getScaleFactor();
         Point translation = MasterImage.getImage().getTranslation();
         constrainTranslation(translation, scaleFactor);
@@ -811,7 +851,8 @@ public class ImageShow extends View implements OnGestureListener,
         }
         return true;
     }
-   private void constrainTranslation(Point translation, float scale) {
+
+    private void constrainTranslation(Point translation, float scale) {
         int currentEdgeEffect = 0;
         if (scale <= 1) {
             mCurrentEdgeEffect = 0;
@@ -819,7 +860,19 @@ public class ImageShow extends View implements OnGestureListener,
             return;
         }
 
-        Matrix originalToScreen = MasterImage.getImage().originalImageToScreen();
+        /// M: [BUG.MODIFY] fix bug: draw effect doesn't work for certain panorama photo @{
+        // Matrix originalToScreen = MasterImage.getImage().originalImageToScreen();
+        Matrix originalToScreen = MasterImage.getImage().originalImageToScreenWithRotation();
+        /// @}
+        /// M: [BUG.ADD] @{
+        //fix nullPointerJE when continuously double tapping
+        if (originalToScreen == null) {
+            mCurrentEdgeEffect = 0;
+            mEdgeEffect.finish();
+            return;
+        }
+        /// @}
+
         Rect originalBounds = MasterImage.getImage().getOriginalBounds();
         RectF screenPos = new RectF(originalBounds);
         originalToScreen.mapRect(screenPos);

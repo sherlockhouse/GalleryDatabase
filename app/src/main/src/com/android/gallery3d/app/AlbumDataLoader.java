@@ -126,7 +126,15 @@ public class AlbumDataLoader {
 
     public MediaItem get(int index) {
         if (!isActive(index)) {
-            return mSource.getMediaItem(index, 1).get(0);
+            /// M: [BUG.MODIFY] fix indexOutOfBoundsException @{
+            // return mSource.getMediaItem(index, 1).get(0);
+            ArrayList<MediaItem> list = mSource.getMediaItem(index, 1);
+            if (list != null && list.size() != 0) {
+                return list.get(0);
+            } else {
+                return null;
+            }
+            /// @}
         }
         return mData[index % mData.length];
     }
@@ -213,10 +221,14 @@ public class AlbumDataLoader {
     private class MySourceListener implements ContentListener {
         @Override
         public void onContentDirty() {
-            if (mReloadTask != null) mReloadTask.notifyDirty();
+            /// M: [PERF.MODIFY] add for delete many files performance improve @{
+            /*mReloadTask.notifyDirty();*/
+            if (mIsSourceSensive && mReloadTask != null) {
+                mReloadTask.notifyDirty();
+            }
+            /// @}
         }
     }
-
 
     public void setDataListener(DataListener listener) {
         mDataListener = listener;
@@ -297,7 +309,11 @@ public class AlbumDataLoader {
             mSourceVersion = info.version;
             if (mSize != info.size) {
                 mSize = info.size;
-                if (mDataListener != null) mDataListener.onSizeChanged(mSize);
+                /// M: [BUG.MODIFY] when user exits from current page,
+                // UpdateContent() may still be executed in main handler, it may cause JE. @{
+                // if (mDataListener != null) mDataListener.onSizeChanged(mSize);
+                if (mDataListener != null && mSize >= 0) mDataListener.onSizeChanged(mSize);
+                /// @}
                 if (mContentEnd > mSize) mContentEnd = mSize;
                 if (mActiveEnd > mSize) mActiveEnd = mSize;
             }
@@ -323,7 +339,13 @@ public class AlbumDataLoader {
                 if (mItemVersion[index] != itemVersion) {
                     mItemVersion[index] = itemVersion;
                     mData[index] = updateItem;
-                    if (mDataListener != null && i >= mActiveStart && i < mActiveEnd) {
+                    /// M: [BUG.MODIFY] @{
+                    // mReloadTask == null implies AlbumDataLoader is paused, when we'll avoid
+                    // invoking mDataListener.onContentChanged() to avoid seleom JE.
+                    if (mReloadTask != null && mDataListener != null && i >= mActiveStart
+                            && i < mActiveEnd) {
+                    // if (mDataListener != null && i >= mActiveStart && i < mActiveEnd) {
+                    /// @}
                         mDataListener.onContentChanged(i);
                     }
                 }
@@ -404,7 +426,39 @@ public class AlbumDataLoader {
         public synchronized void terminate() {
             mActive = false;
             notifyAll();
+            /// M: [BUG.ADD]Stop ClusterAlbum and ClusterAlbumset reload @{
+            if (null != mSource) {
+                mSource.stopReload();
+            }
+            /// @}
         }
     }
-    //*/
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    public int getActiveEnd() {
+        return mActiveEnd;
+    }
+
+    /// M: [PERF.ADD] add for delete many files performance improve @{
+    private volatile boolean mIsSourceSensive = true;
+
+    /**
+     * Set if data loader is sensitive to change of data.
+     *
+     * @param isProviderSensive
+     *            If data loader is sensitive to change of data
+     */
+    public void setSourceSensive(boolean isSourceSensive) {
+        mIsSourceSensive = isSourceSensive;
+    }
+
+    /**
+     * Notify MySourceListener that the content is dirty and trigger some
+     * operations that only occur when content really changed.
+     */
+    public void fakeSourceChange() {
+        mSourceListener.onContentDirty();
+    }
+    /// @}
 }

@@ -37,11 +37,18 @@
 
         <EditText
             android:id="@+id/editView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:focusable="true"
             android:gravity="center"
+            android:maxLength="9"
+            android:backgroundTint="@color/theme_color"
+            android:foregroundTint="@color/theme_color"
+            android:foregroundTintMode="src_in"
+            android:backgroundTintMode="src_in"
+            android:drawableTint="@color/theme_color"
+            android:drawableTintMode="src_in"
             android:imeOptions="actionDone"
             android:singleLine="true"
             android:textSize="18sp"/>
@@ -50,24 +57,21 @@
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            style="?android:attr/buttonBarStyle">
+            android:layout_height="48dp">
 
         <Button
                 android:id="@+id/cancel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/cancel"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:text="@string/cancel" />
 
         <Button
                 android:id="@+id/ok"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/ok"
-                style="?android:attr/buttonBarButtonStyle"/>
+                android:text="@string/ok"/>
 
     </LinearLayout>
 

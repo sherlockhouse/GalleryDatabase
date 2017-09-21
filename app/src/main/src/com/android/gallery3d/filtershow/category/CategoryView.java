@@ -33,8 +33,15 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.freeme.gallery.filtershow.FilterShowActivity;
+import com.android.gallery3d.filtershow.filters.FilterRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterMirrorRepresentation;
+import com.android.gallery3d.filtershow.filters.FilterRotateRepresentation;
+import com.android.gallery3d.filtershow.filters.ImageFilterDraw;
+import com.android.gallery3d.filtershow.imageshow.MasterImage;
+import com.android.gallery3d.filtershow.pipeline.ImagePreset;
 import com.android.gallery3d.filtershow.ui.SelectionRenderer;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.mediatek.gallery3d.util.Log;
 
 public class CategoryView extends IconView
         implements View.OnClickListener, SwipableView{
@@ -76,6 +83,7 @@ public class CategoryView extends IconView
         //*/
         mBorderStroke = mSelectionStroke / 3;
     }
+
     @Override
     public boolean isHalfImage() {
         if (mAction == null) {
@@ -84,7 +92,10 @@ public class CategoryView extends IconView
         if (mAction.getType() == Action.CROP_VIEW) {
             return true;
         }
-        return mAction.getType() == Action.ADD_ACTION;
+        if (mAction.getType() == Action.ADD_ACTION) {
+            return true;
+        }
+        return false;
     }
 
     private boolean canBeRemoved() {
@@ -166,7 +177,36 @@ public class CategoryView extends IconView
                 }
                 mDoubleActionLast = System.currentTimeMillis();
             } else {
-                activity.showRepresentation(mAction.getRepresentation());
+                /// M: [DEBUG.MODIFY] @{
+                /* activity.showRepresentation(mAction.getRepresentation());
+                 */
+                //display abnormal when rotate and undo and rotate image again. @{
+                // activity.showRepresentation(mAction.getRepresentation());
+                FilterRepresentation actionRep = mAction.getRepresentation();
+                if (actionRep instanceof FilterRotateRepresentation
+                      || actionRep instanceof FilterMirrorRepresentation) {
+
+                    /// M: [BUG.ADD] @{
+                    if (actionRep instanceof FilterMirrorRepresentation) {
+                        ImageFilterDraw.mirrorChanged(true);
+                    } else {
+                        ImageFilterDraw.mirrorChanged(false);
+                    }
+                    /// @}
+
+                    ImagePreset copy = new ImagePreset(MasterImage.getImage().getPreset());
+                    FilterRepresentation rep = copy.getRepresentation(actionRep);
+                    if (rep != null) {
+                        activity.showRepresentation(rep);
+                    } else {
+                        actionRep.resetRepresentation();
+                        activity.showRepresentation(actionRep);
+                    }
+                    Log.i(LOGTAG, "onClick, use representation in current imagePreset");
+                } else {
+                    activity.showRepresentation(actionRep);
+                }
+                /// @}
             }
             mAdapter.setSelected(this);
         }

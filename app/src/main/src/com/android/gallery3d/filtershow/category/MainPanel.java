@@ -135,7 +135,10 @@ public class MainPanel extends Fragment {
     }
 
     private boolean isRightAnimation(int newPos) {
-        return newPos >= mCurrentSelected;
+        if (newPos < mCurrentSelected) {
+            return false;
+        }
+        return true;
     }
 
     private void setCategoryFragment(CategoryPanel category, boolean fromRight) {
@@ -179,6 +182,12 @@ public class MainPanel extends Fragment {
         if (mCurrentSelected == GEOMETRY) {
             return;
         }
+        /// M: [BUG.ADD] @{
+        //add to resolve NullPointerException @{
+        if (MasterImage.getImage().getPreset() == null) {
+            return;
+        }
+        /// @}
         if (MasterImage.getImage().hasTinyPlanet()) {
             return;
         }
@@ -295,6 +304,24 @@ public class MainPanel extends Fragment {
         }
         mCurrentSelected = -1;
         showPanel(currentPanel);
-        transaction.commit();
+        /// M: [BUG.MODIFY] @{
+        /* transaction.commit();*/
+        // update UI allowing state loss (cause no related state needs saving) @{
+        // SDK tells us this invocation (inside Fragment.onCreate()) may happened
+        // before Activity finishes creating or after it is paused.
+        // A more complete solution is to mark whether the Activity is still alive
+        transaction.commitAllowingStateLoss();
+        /// @}
+
     }
+
+    /// M: [BUG.ADD] fix bug: version button does not response when click @{
+    public void setPreviousToggleVersion(int version) {
+        mPreviousToggleVersions = version;
+    }
+
+    public int getPreviousToggleVersion() {
+        return mPreviousToggleVersions;
+    }
+    /// @}
 }

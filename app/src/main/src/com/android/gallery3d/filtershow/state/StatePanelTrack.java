@@ -138,7 +138,12 @@ public class StatePanelTrack extends LinearLayout implements PanelTrack {
     }
 
     public void setAdapter(StateAdapter adapter) {
-
+        /// M: [BUG.ADD] @{
+        //for resuming on LCA, adapter could be null
+        if (adapter == null) {
+            return;
+        }
+        /// @}
         mAdapter = adapter;
         mAdapter.registerDataSetObserver(mObserver);
         mAdapter.setOrientation(getOrientation());

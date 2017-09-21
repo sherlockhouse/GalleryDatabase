@@ -118,12 +118,24 @@ public class ImageFilterGrad extends ImageFilterRS {
     protected void bindScriptValues() {
         int width = getInPixelsAllocation().getType().getX();
         int height = getInPixelsAllocation().getType().getY();
+        /// M: [BUG.ADD] @{
+        //null pointer check. @{
+        if (mScript == null) {
+            return;
+        }
+        /// @}
         mScript.set_inputWidth(width);
         mScript.set_inputHeight(height);
     }
 
     @Override
     protected void runFilter() {
+        /// M: [BUG.ADD] @{
+        //null pointer check. @{
+        if (mScript == null) {
+            return;
+        }
+        /// @}
         int[] x1 = mParameters.getXPos1();
         int[] y1 = mParameters.getYPos1();
         int[] x2 = mParameters.getXPos2();
@@ -176,8 +188,13 @@ public class ImageFilterGrad extends ImageFilterRS {
                 endy = height;
             }
             options.setY(ty, endy);
-            //mScript.forEach_selectiveAdjust(in, out, options);
-            mScript.forEach_selectiveAdjust(in, out);
+            /// M: [BUG.ADD] @{
+            // null pointer check.
+            if (mScript == null) {
+                return;
+            }
+            /// @}
+            mScript.forEach_selectiveAdjust(in, out, options);
             if (checkStop()) {
                 return;
             }
@@ -187,8 +204,10 @@ public class ImageFilterGrad extends ImageFilterRS {
     private boolean checkStop() {
         RenderScript rsCtx = getRenderScriptContext();
         rsCtx.finish();
-        return getEnvironment().needsStop();
+        if (getEnvironment().needsStop()) {
+            return true;
+        }
+        return false;
     }
-
 }
 

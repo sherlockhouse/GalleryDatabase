@@ -100,6 +100,18 @@ public class ImageSavingTask extends ProcessingTask {
         // We create a small bitmap showing the result that we can
         // give to the notification
         UpdateBitmap updateBitmap = new UpdateBitmap();
+        /// M: [BUG.ADD] @{
+        // while OriginalBounds == null, should exit the task.
+        if (MasterImage.getImage().getOriginalBounds() == null) {
+            URIResult result = new URIResult();
+            result.uri = null;
+            result.exit = false;
+            return result;
+        } else {
+            // back up the bounds.
+            MasterImage.getImage().backupBounds();
+        }
+        /// @}
         updateBitmap.bitmap = createNotificationBitmap(previewImage, sourceUri, preset);
         postUpdate(updateBitmap);
         SaveImage saveImage = new SaveImage(mProcessingService, sourceUri,

@@ -123,23 +123,38 @@ public class MasterImage implements RenderingRequestCaller {
     private List<ExifTag> mEXIF;
     private BitmapCache mBitmapCache = new BitmapCache();
 
-
+    /// M: [BUG.ADD] @{
+    //copy Rect
+    public static Rect sBoundsBackup = new Rect();
+    /// @}
     private MasterImage() {
     }
 
     // TODO: remove singleton
     public static void setMaster(MasterImage master) {
-        sMasterImage = master;
+        /// M: [BUG.MODIFY] fix single instance issue. @{
+        // sMasterImage = master;
+        synchronized (sLock) {
+            sMasterImage = master;
+        }
+        /// @}
     }
 
     public static MasterImage getImage() {
-        
-       
+        /// M: [BUG.MODIFY] fix single instance issue. @{
+        /*
         if (sMasterImage == null) {
             sMasterImage = new MasterImage();
         }
         return sMasterImage;
-       
+        */
+        synchronized (sLock) {
+            if (sMasterImage == null) {
+                sMasterImage = new MasterImage();
+            }
+            return sMasterImage;
+        }
+        /// @}
     }
 
     public Bitmap getOriginalBitmapSmall() {
@@ -221,6 +236,12 @@ public class MasterImage implements RenderingRequestCaller {
         int sw = SMALL_BITMAP_DIM;
         int sh = (int) (sw * (float) mOriginalBitmapLarge.getHeight() / mOriginalBitmapLarge
                 .getWidth());
+        /// M: [BUG.ADD] @{
+        //avoid sh being 0
+        if (sh == 0) {
+            sh = 1;
+        }
+        /// @}
         mOriginalBitmapSmall = Bitmap.createScaledBitmap(mOriginalBitmapLarge, sw, sh, true);
         mZoomOrientation = mOrientation;
         warnListeners();
@@ -281,6 +302,11 @@ public class MasterImage implements RenderingRequestCaller {
 
     public void onHistoryItemClick(int position) {
         HistoryItem historyItem = mHistory.getItem(position);
+        /// M: [BUG.ADD] ignore when historyItem is null @{
+        if (historyItem == null) {
+            return;
+        }
+        /// @}
         // We need a copy from the history
         ImagePreset newPreset = new ImagePreset(historyItem.getImagePreset());
         // don't need to add it to the history
@@ -426,7 +452,15 @@ public class MasterImage implements RenderingRequestCaller {
         if (mAnimator != null) {
             mAnimator.cancel();
             if (mCurrentLookAnimation == ROTATE_ANIMATION) {
-                mCurrentAnimRotationStartValue += 90;
+                /// M: [BUG.MODIFY] @{
+                /*
+                 * mCurrentAnimRotationStartValue += 90;*/
+                // if newRepresentation not of rotating purpose, do not add curRotVal
+                // otherwise, e.x. scaling factor for mirror option would be around 90
+                if (newRepresentation instanceof FilterRotateRepresentation) {
+                    mCurrentAnimRotationStartValue += 90;
+                }
+                /// @}
             }
         } else {
             resetAnimBitmap();
@@ -594,6 +628,12 @@ public class MasterImage implements RenderingRequestCaller {
         float translateY = 0;
 
         if (applyGeometry) {
+            /// M: [BUG.ADD] @{
+            // avoid null pointer exception
+            if (mPreset == null) {
+                return null;
+            }
+            /// @}
             GeometryMathUtils.GeometryHolder holder = GeometryMathUtils.unpackGeometry(
                     mPreset.getGeometryFilters());
             m = GeometryMathUtils.getCropSelectionToScreenMatrix(null, holder,
@@ -651,8 +691,13 @@ public class MasterImage implements RenderingRequestCaller {
         m.invert(invert);
         return invert;
     }
+
     public void needsUpdateHighResPreview() {
         if (!mSupportsHighRes) {
+            /// M: [BUG.ADD] @{
+            //while mSupportsHighRes is false ,should update mSaveButton.
+            mActivity.enableSave(hasModifications());
+            /// @}
             return;
         }
         if (mActivity.getProcessingService() == null) {
@@ -720,6 +765,11 @@ public class MasterImage implements RenderingRequestCaller {
             needsCheckModification = true;
         }
         if (request.getType() == RenderingRequest.HIGHRES_RENDERING) {
+            /// M: [BUG.ADD] @{
+            // Recover stroke cache of ImageFilterDraw (see ImageDraw.onVisibilityChanged()).
+            ImageFilterDraw.disableCache(false);
+            /// @}
+
             mBitmapCache.cache(mHighresBitmap);
             mHighresBitmap = request.getBitmap();
             notifyObservers();
@@ -843,4 +893,35 @@ public class MasterImage implements RenderingRequestCaller {
     public boolean hasTinyPlanet() {
         return mPreset.contains(FilterRepresentation.TYPE_TINYPLANET);
     }
+
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+    /// Listener keep much memory(ImageDrawable), so should remove it.
+    public void removeListener(ImageShow imageShow) {
+        mLoadListeners.remove(imageShow);
+    }
+
+    // render filters for cache, accessed in single thread only
+    public static volatile boolean sIsRenderFilters = false;
+
+    public void backupBounds() {
+        sBoundsBackup = mOriginalBounds;
+    }
+
+    /// M: [BUG.ADD] fix bug: draw effect doesn't work for certain panorama photo @{
+    public Matrix originalImageToScreenWithRotation() {
+        if (mOrientation == ExifInterface.Orientation.RIGHT_TOP) {
+            return computeImageToScreen(null, 90, true);
+        } else if (mOrientation == ExifInterface.Orientation.RIGHT_BOTTOM) {
+            return computeImageToScreen(null, 270, true);
+        } else {
+            return computeImageToScreen(null, 0, true);
+        }
+    }
+    /// @}
+
+    /// M: [BUG.ADD] fix single instance issue. @{
+    public final static Object sLock = new Object();
+    /// @}
 }

@@ -333,4 +333,10 @@ public class Editor implements OnSeekBarChangeListener, SwapButton.SwapButtonLis
         }
     }
     // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
+
+    public void  finalCancelCalled() {
+
+    }
 }

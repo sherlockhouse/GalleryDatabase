@@ -114,6 +114,18 @@ public class ImageFilterVignette extends ImageFilterRS {
             m.mapVectors(c);
             rx = c[0];
             ry = c[1];
+            /// M: [BUG.ADD] @{
+            // fix bug: bitmap with same width and height turns black when applying Vignette effect.
+            if (c[0] == 0f) {
+                rx = mParameters.getRadiusX() * c[1];
+                ry = mParameters.getRadiusY() * c[1];
+            }
+            if (c[1] == 0f) {
+                rx = mParameters.getRadiusX() * c[0];
+                ry = mParameters.getRadiusY() * c[0];
+            }
+            /// @}
+
         }
 
         mScript.set_inputWidth(w);

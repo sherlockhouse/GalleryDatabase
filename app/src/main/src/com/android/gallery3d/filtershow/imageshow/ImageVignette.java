@@ -111,15 +111,32 @@ public class ImageVignette extends ImageShow {
             mTmp[0] = mOval.getRadiusX() * mImgWidth;
             mTmp[1] = mOval.getRadiusY() * mImgHeight;
             mToScr.mapVectors(mTmp);
+            /// M: [BUG.ADD] @{
+            //fix bug: bitmap with same width and height turns black when applying Vignette effect.
+            if (mTmp[0] == 0) {
+                return Math.abs(mOval.getRadiusX() * mTmp[1]);
+            }
+            if (mTmp[1] == 0) {
+                return Math.abs(mOval.getRadiusX() * mTmp[0]);
+            }
+            /// @}
             return Math.abs(mTmp[0]);
         }
-
 
         @Override
         public float getRadiusY() {
             mTmp[0] = mOval.getRadiusX() * mImgWidth;
             mTmp[1] = mOval.getRadiusY() * mImgHeight;
             mToScr.mapVectors(mTmp);
+            /// M: [BUG.ADD] @{
+            // fix bug: bitmap with same width and height turns black when applying Vignette effect.
+            if (mTmp[0] == 0) {
+                return Math.abs(mOval.getRadiusY() * mTmp[1]);
+            }
+            if (mTmp[1] == 0) {
+                return Math.abs(mOval.getRadiusY() * mTmp[0]);
+            }
+            /// @}
             return Math.abs(mTmp[1]);
         }
 
@@ -171,7 +188,9 @@ public class ImageVignette extends ImageShow {
 
         mElipse.setScrImageInfo(new Matrix(),
                 MasterImage.getImage().getOriginalBounds());
-
+        /// M: modify for move operation @{
+        mElipse.setMatrix(getScreenToImageMatrix(true));
+        /// @}
         boolean didComputeEllipses = false;
         switch (mask) {
             case (MotionEvent.ACTION_DOWN):
@@ -217,6 +236,9 @@ public class ImageVignette extends ImageShow {
 
     public void setEditor(EditorVignette editorVignette) {
         mEditorVignette = editorVignette;
+        /// M: [BUG.ADD] @{
+        mVignetteRep = null;
+        /// @}
     }
 
     @Override

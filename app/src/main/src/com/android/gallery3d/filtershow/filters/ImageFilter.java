@@ -94,8 +94,17 @@ public abstract class ImageFilter implements Cloneable {
     }
 
     protected Matrix getOriginalToScreenMatrix(int w, int h) {
+        /// M: [BUG.MODIFY] @{
+        /*        return GeometryMathUtils.getImageToScreenMatrix(getEnvironment().getImagePreset()
+                .getGeometryFilters(), true, MasterImage.getImage().getOriginalBounds(), w, h);*/
+        Rect bmapDimens = MasterImage.getImage().getOriginalBounds();
+        /// use backup bounds.
+        if (bmapDimens == null) {
+            bmapDimens = MasterImage.sBoundsBackup;
+        }
         return GeometryMathUtils.getImageToScreenMatrix(getEnvironment().getImagePreset()
-                .getGeometryFilters(), true, MasterImage.getImage().getOriginalBounds(), w, h);
+                .getGeometryFilters(), true, bmapDimens, w, h);
+        /// @}
     }
 
     public void setEnvironment(FilterEnvironment environment) {

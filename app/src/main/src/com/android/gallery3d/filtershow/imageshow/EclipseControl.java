@@ -110,7 +110,12 @@ public class EclipseControl {
     }
 
     private boolean centerIsOutside(float x1, float y1) {
-
+        /// M:add for move operation @{
+        float[] point = new float[]{x1, y1};
+        mMatrixForMove.mapPoints(point);
+        x1 = point[0];
+        y1 = point[1];
+        /// @}
         return (!mImageBounds.contains((int) x1, (int) y1));
     }
 
@@ -125,6 +130,7 @@ public class EclipseControl {
         mDownRadiusX = oval.getRadiusX();
         mDownRadiusY = oval.getRadiusY();
     }
+
 
     public void actionMove(int handle, float x, float y, Oval oval) {
         float[] point = new float[]{
@@ -144,7 +150,12 @@ public class EclipseControl {
             case HAN_CENTER:
                 float ctrdx = mDownX - mDownCenterX;
                 float ctrdy = mDownY - mDownCenterY;
-                if (centerIsOutside(x - ctrdx, y - ctrdy)) {
+                /// M: [BUG.MODIFY] @{
+                /*
+                 * if (centerIsOutside(x - ctrdx, y - ctrdy)) {*/
+                /// M: modify for move opreation
+                if (centerIsOutside(x, y)) {
+                /// @}
                     break;
                 }
                 oval.setCenter((x - ctrdx), (y - ctrdy));
@@ -316,4 +327,13 @@ public class EclipseControl {
     public void setShowReshapeHandles(boolean showReshapeHandles) {
         this.mShowReshapeHandles = showReshapeHandles;
     }
+
+    /// M: [BUG.ADD] @{
+    //add for move operation
+    public Matrix mMatrixForMove = new Matrix();
+    public void setMatrix(Matrix scrToImg) {
+        mMatrixForMove = scrToImg;
+    }
+    /// @}
+
 }

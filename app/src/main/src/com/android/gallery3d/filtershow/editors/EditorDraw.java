@@ -37,7 +37,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
+import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.colorpicker.ColorHueView;
 import com.android.gallery3d.filtershow.colorpicker.ColorListener;
 import com.android.gallery3d.filtershow.colorpicker.ColorOpacityView;
@@ -50,7 +51,6 @@ import com.android.gallery3d.filtershow.filters.FilterDrawRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.filters.ImageFilterDraw;
 import com.android.gallery3d.filtershow.imageshow.ImageDraw;
-import com.freeme.gallery.filtershow.FilterShowActivity;
 
 public class EditorDraw extends ParametricEditor implements FilterView {
     private static final String LOGTAG = "EditorDraw";

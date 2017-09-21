@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2013 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.history.HistoryManager;
 import com.android.gallery3d.filtershow.category.MainPanel;
@@ -84,6 +89,9 @@ public class EditorPanel extends Fragment {
             @Override
             public void onClick(View v) {
                 cancelCurrentFilter();
+                /// M: [BUG.ADD] @{
+                mEditor.finalCancelCalled();
+                /// @}
                 FilterShowActivity activity = (FilterShowActivity) getActivity();
                 activity.backToMain();
             }
@@ -153,8 +161,13 @@ public class EditorPanel extends Fragment {
                 transaction.remove(statePanel);
             }
         }
-        transaction.commit();
+        /// M: [BUG.MODIFY] @{
+        /*transaction.commit();*/
+        // Use commitAllowingStateLoss() to avoid JE due to the possibility that
+        // an editor panel is switched after the activity pauses.
+        // A human user may not meet such JE in his daily use. This is only seldomly
+        // reported by machine monkey test.
+        transaction.commitAllowingStateLoss();
+        /// @}
     }
-
-
 }

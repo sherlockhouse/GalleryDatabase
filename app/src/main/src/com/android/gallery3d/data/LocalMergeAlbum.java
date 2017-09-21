@@ -32,6 +32,7 @@ import com.freeme.provider.GalleryStore;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -281,14 +282,22 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
     public boolean isLeafAlbum() {
         return true;
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    private static final int PAGE_SIZE_ADJUST_PARAM = 10;
+    private static final int MAX_PAGE_SIZE = 1024;
+    private static final int MIN_PAGE_SIZE = 64;
+
     private int adjustPageSize() {
-        int pageSize = getMediaItemCount() / 10;
+        int pageSize = getMediaItemCount() / PAGE_SIZE_ADJUST_PARAM;
         pageSize = pageSize <= 0 ? 1 : pageSize;
         pageSize = Utils.nextPowerOf2(pageSize);
-        if (pageSize > 1024) {
-            pageSize = 1024;
-        } else if (pageSize < 64) {
-            pageSize = 64;
+        if (pageSize > MAX_PAGE_SIZE) {
+            pageSize = MAX_PAGE_SIZE;
+        } else if (pageSize < MIN_PAGE_SIZE) {
+            pageSize = MIN_PAGE_SIZE;
         }
         return pageSize;
     }

@@ -44,9 +44,11 @@ import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
+import com.mediatek.gallery3d.adapter.MediaDataParser;
 import com.freeme.provider.GalleryStore.Images;
 import com.freeme.provider.GalleryStore.Images.ImageColumns;
 import com.freeme.provider.GalleryStore.MediaColumns;
+import com.mediatek.galleryframework.base.MediaData;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,23 +58,52 @@ import java.io.IOException;
 public class LocalImage extends LocalMediaItem {
     static final Path ITEM_PATH = Path.fromString("/local/image/item");
     private static final String TAG = "LocalImage";
-    // Must preserve order between these indices and the order of the terms in
-    // the following PROJECTION array.
-    private static final int INDEX_ID            = 0;
-    private static final int INDEX_CAPTION       = 1;
-    private static final int INDEX_MIME_TYPE     = 2;
-    private static final int INDEX_LATITUDE      = 3;
-    private static final int INDEX_LONGITUDE     = 4;
-    private static final int INDEX_DATE_TAKEN    = 5;
-    private static final int INDEX_DATE_ADDED    = 6;
-    private static final int INDEX_DATE_MODIFIED = 7;
-    private static final int INDEX_DATA          = 8;
-    private static final int INDEX_ORIENTATION   = 9;
-    private static final int INDEX_BUCKET_ID     = 10;
-    private static final int INDEX_SIZE          = 11;
-    private static final int INDEX_WIDTH         = 12;
-    private static final int INDEX_HEIGHT        = 13;
-    public static final String[] PROJECTION = {
+    /// M: [FEATURE.MODIFY] @{
+    /*// Must preserve order between these indices and the order of the terms in
+     // the following PROJECTION array.
+     private static final int INDEX_ID = 0;
+     private static final int INDEX_CAPTION = 1;
+     private static final int INDEX_MIME_TYPE = 2;
+     private static final int INDEX_LATITUDE = 3;
+     private static final int INDEX_LONGITUDE = 4;
+     private static final int INDEX_DATE_TAKEN = 5;
+     private static final int INDEX_DATE_ADDED = 6;
+     private static final int INDEX_DATE_MODIFIED = 7;
+     private static final int INDEX_DATA = 8;
+     private static final int INDEX_ORIENTATION = 9;
+     private static final int INDEX_BUCKET_ID = 10;
+     private static final int INDEX_SIZE = 11;
+     private static final int INDEX_WIDTH = 12;
+     private static final int INDEX_HEIGHT = 13;*/
+    public static final int INDEX_ID = 0;
+    public static final int INDEX_CAPTION = 1;
+    public static final int INDEX_MIME_TYPE = 2;
+    public static final int INDEX_LATITUDE = 3;
+    public static final int INDEX_LONGITUDE = 4;
+    public static final int INDEX_DATE_TAKEN = 5;
+    public static final int INDEX_DATE_ADDED = 6;
+    public static final int INDEX_DATE_MODIFIED = 7;
+    public static final int INDEX_DATA = 8;
+    public static final int INDEX_ORIENTATION = 9;
+    public static final int INDEX_BUCKET_ID = 10;
+    public static final int INDEX_SIZE = 11;
+    public static final int INDEX_WIDTH = 12;
+    public static final int INDEX_HEIGHT = 13;
+    /// @}
+
+    /// M: [FEATURE.ADD] @{
+    public static final int INDEX_IS_DRM = 14;
+    public static final int INDEX_DRM_METHOD = 15;
+    public static final int INDEX_IS_BEST_SHOT = 16;
+    public static final int INDEX_CAMERA_REFOCUS = 17;
+    /// @}
+
+    /// M: [FEATURE.MODIFY] @{
+    // When add/modify column in PROJECTION,
+    // please modify IMAGE_PROJECTION in MediaData at the same time
+    /*static final String[] PROJECTION =  {*/
+    public static final String[] PROJECTION =  {
+    /// @}
             ImageColumns._ID,           // 0
             ImageColumns.TITLE,         // 1
             ImageColumns.MIME_TYPE,     // 2
@@ -115,6 +146,9 @@ public class LocalImage extends LocalMediaItem {
         super(path, nextVersionNumber());
         mApplication = application;
         loadFromCursor(cursor);
+        /// M: [FEATURE.ADD] @{
+        updateMediaData(cursor);
+        /// @}
     }
 
     public LocalImage(Path path, GalleryApp application, int id) {
@@ -132,6 +166,9 @@ public class LocalImage extends LocalMediaItem {
             } else {
                 throw new RuntimeException("cannot find data for: " + path);
             }
+            /// M: [FEATURE.ADD] @{
+            updateMediaData(cursor);
+            /// @}
         } finally {
             cursor.close();
         }
@@ -174,7 +211,10 @@ public class LocalImage extends LocalMediaItem {
         fileSize = uh.update(fileSize, cursor.getLong(INDEX_SIZE));
         width = uh.update(width, cursor.getInt(INDEX_WIDTH));
         height = uh.update(height, cursor.getInt(INDEX_HEIGHT));
-        return uh.isUpdated();
+        /// M: [FEATURE.MODIFY] @{
+        /*return uh.isUpdated();*/
+        return updateMediaData(cursor) || uh.isUpdated();
+        /// @}
     }
 
     @Override
@@ -351,5 +391,34 @@ public class LocalImage extends LocalMediaItem {
     @Override
     public String getFilePath() {
         return filePath;
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    /**
+     * Create new MediaData from Cursor and replace old one.
+     * @param cursor
+     * @return if current MediaData.mediaType has changed or not
+     */
+    private boolean updateMediaData(Cursor cursor) {
+//        MediaData oldMediaData = mMediaData;
+//        if (cursor == null) {
+//            Log.i(TAG, "<updateMediaData> other, cursor is null, return", new Throwable());
+//            return false;
+//        }
+//        synchronized (mMediaDataLock) {
+//            mMediaData = MediaDataParser.parseLocalImageMediaData(cursor);
+////            mExtItem = PhotoPlayFacade.getMediaCenter().getItem(mMediaData);
+//        }
+//        // if mediaType has changed, return true, and delete its cache image data
+//        if (oldMediaData != null
+//                && oldMediaData.mediaType != mMediaData.mediaType) {
+//            mApplication.getImageCacheService().clearImageData(mPath,
+//                    dateModifiedInSec, MediaItem.TYPE_MICROTHUMBNAIL);
+//            return true;
+//        }
+        return false;
     }
 }
