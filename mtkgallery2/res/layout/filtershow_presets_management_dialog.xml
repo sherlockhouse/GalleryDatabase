@@ -43,12 +43,7 @@
             android:focusable="true"
             android:gravity="center"
             android:maxLength="9"
-            android:backgroundTint="@color/theme_color"
-            android:foregroundTint="@color/theme_color"
-            android:foregroundTintMode="src_in"
-            android:backgroundTintMode="src_in"
-            android:drawableTint="@color/theme_color"
-            android:drawableTintMode="src_in"
+            style="@style/EditTextSytle"
             android:imeOptions="actionDone"
             android:singleLine="true"
             android:textSize="18sp"/>

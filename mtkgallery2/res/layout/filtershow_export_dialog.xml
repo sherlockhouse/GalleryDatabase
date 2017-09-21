@@ -50,12 +50,7 @@
                 android:layout_gravity="right|center_vertical"
                 android:layout_width="80dp"
                 android:inputType="number"
-                android:backgroundTint="@color/theme_color"
-                android:foregroundTint="@color/theme_color"
-                android:foregroundTintMode="src_in"
-                android:backgroundTintMode="src_in"
-                android:drawableTint="@color/theme_color"
-                android:drawableTintMode="src_in"/>
+                style="@style/EditTextSytle"/>
 
         <TextView
                 android:text="@string/x"
@@ -68,12 +63,7 @@
                 android:layout_gravity="left|center_vertical"
                 android:layout_width="80dp"
                 android:inputType="number"
-                android:backgroundTint="@color/theme_color"
-                android:foregroundTint="@color/theme_color"
-                android:foregroundTintMode="src_in"
-                android:backgroundTintMode="src_in"
-                android:drawableTint="@color/theme_color"
-                android:drawableTintMode="src_in"/>
+                style="@style/EditTextSytle"/>
 
         <TextView
                 android:id="@+id/estimadedSize"
@@ -101,16 +91,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_columnSpan="3"
-                android:thumbTint="@color/theme_color"
-                android:thumbTintMode="src_in"
-                android:progressTint="@color/theme_color"
-                android:tickMarkTint="@color/theme_color"
-                android:tickMarkTintMode="src_in"
-                android:progressTintMode="src_in"
-                android:progressBackgroundTint="@color/theme_color"
-                android:progressBackgroundTintMode="src_in"
-                android:backgroundTintMode="src_in"
-                android:backgroundTint="@color/theme_color"
+                style="@style/SeekbarStyle"
                 android:minWidth="250dp" />
 
             <TextView
@@ -128,24 +109,21 @@
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            style="?android:attr/buttonBarStyle">
+            android:layout_height="48dp">
 
         <Button
                 android:id="@+id/cancel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/cancel"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:text="@string/cancel"/>
 
         <Button
                 android:id="@+id/done"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/done"
-                style="?android:attr/buttonBarButtonStyle"/>
+                android:text="@string/done"/>
 
     </LinearLayout>
 

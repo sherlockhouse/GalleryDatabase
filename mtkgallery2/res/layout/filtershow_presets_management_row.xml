@@ -37,7 +37,8 @@
         android:gravity="center"
         android:imeOptions="actionDone"
         android:singleLine="true"
-        android:textSize="18sp"/>
+        android:textSize="18sp"
+        style="@style/EditTextSytle"/>
 
     <ImageButton
         android:id="@+id/deleteUserPreset"

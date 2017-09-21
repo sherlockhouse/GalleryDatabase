@@ -184,4 +184,6 @@
 
     <string name="share_freeme_extra_title">"拍一張比自己更美的照片"</string>
     <string name="share_freeme_extra_summary">"用Freeme OS相機拍照，朋友圈的好友都來點贊啦！秘密就在這裡！"</string>
+
+    <string name="gesture_to_last">已是最後一個項目</string>
 </resources>

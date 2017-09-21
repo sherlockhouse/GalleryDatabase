@@ -554,6 +554,31 @@
         <item name="android:windowNoDisplay">true</item>
     </style>
 
-
-
+    <style name="EditTextSytle" parent="Base">
+        <item name="android:colorAccent">@color/theme_color</item>
+        <item name="android:textSelectHandleLeft">@drawable/text_select_handle_left_freeme</item>
+        <item name="android:textSelectHandleRight">@drawable/text_select_handle_right_freeme</item>
+        <item name="android:textSelectHandle">@drawable/text_select_handle_middle_freeme</item>
+        <!--<item name="android:textSelectHandleWindowStyle">@*android:Widget.TextSelectHandle</item>-->
+        <item name="android:textCursorDrawable">@drawable/text_cursor_freeme</item>
+        <item name="android:backgroundTint">@color/theme_color</item>
+        <item name="android:backgroundTintMode">src_in</item>
+        <item name="android:foregroundTint">@color/theme_color</item>
+        <item name="android:foregroundTintMode">src_in</item>
+        <item name="android:drawableTint">@color/theme_color</item>
+        <item name="android:drawableTintMode">src_in</item>
+    </style>
+    
+    <style name="SeekbarStyle" parent="Base">
+        <item name="android:thumbTint">@color/theme_color</item>
+        <item name="android:thumbTintMode">src_in</item>
+        <item name="android:progressTint">@color/theme_color</item>
+        <item name="android:progressTintMode">src_in</item>
+        <item name="android:tickMarkTint">@color/theme_color</item>
+        <item name="android:tickMarkTintMode">src_in</item>
+        <item name="android:progressBackgroundTint">@color/theme_color</item>
+        <item name="android:progressBackgroundTintMode">src_in</item>
+        <item name="android:backgroundTint">@color/theme_color</item>
+        <item name="android:backgroundTintMode">src_in</item>
+    </style>
 </resources>

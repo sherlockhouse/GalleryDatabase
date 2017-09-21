@@ -31,6 +31,7 @@ import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View.MeasureSpec;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.Toast;
 
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
@@ -1511,7 +1512,10 @@ public class PhotoView extends GLView {
                     case GestureSensorManger.GESTURE_UP:
                     case GestureSensorManger.GESTURE_RIGHT:
                         strAction = "--> RIGHT or UP";
-                        slideToNextPicture();
+                        if (!slideToNextPicture()) {
+                            Toast.makeText(mActivity, R.string.gesture_to_last,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                         break;
 
                     default:

@@ -24,16 +24,6 @@
 
     <SeekBar
         android:id="@+id/primarySeekBar"
-        android:thumbTint="@color/theme_color"
-        android:thumbTintMode="src_in"
-        android:progressTint="@color/theme_color"
-        android:tickMarkTint="@color/theme_color"
-        android:tickMarkTintMode="src_in"
-        android:progressTintMode="src_in"
-        android:progressBackgroundTint="@color/theme_color"
-        android:progressBackgroundTintMode="src_in"
-        android:backgroundTintMode="src_in"
-        android:backgroundTint="@color/theme_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/FilterShowSlider"

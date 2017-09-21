@@ -328,7 +328,7 @@ public class SlideshowPage extends ActivityState {
     }
 
     private void initializeMusic() {
-        boolean isHasMusic = mSharedPrefs.getBoolean(GallerySettings.BACK_MUSIC_ON_KEY, true);
+        boolean isHasMusic = mSharedPrefs.getBoolean(GallerySettings.BACK_MUSIC_ON_KEY, false);
         if (!isHasMusic) {
             return;
         }

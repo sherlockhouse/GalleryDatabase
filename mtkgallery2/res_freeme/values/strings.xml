@@ -189,4 +189,6 @@
 
     <string name="cannot_delete_tip">cannot delete dafault album</string>
 
+    <string name="gesture_to_last">Already is the last item</string>
+
 </resources>
