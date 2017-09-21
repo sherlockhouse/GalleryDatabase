@@ -270,6 +270,7 @@ public abstract class PhotoPage extends ActivityState implements
             };
     //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
     private MyDetailsSource mMyDetailsSource;
+    private Path itemPath;
 
     private static Intent createShareIntent(MediaObject mediaObject) {
         int type = mediaObject.getMediaType();
@@ -856,7 +857,7 @@ public abstract class PhotoPage extends ActivityState implements
         mOriginalSetPathString = mSetPathString;
         setupNfcBeamPush();
         String itemPathString = data.getString(KEY_MEDIA_ITEM_PATH);
-        Path itemPath = itemPathString != null ?
+        itemPath = itemPathString != null ?
                 Path.fromString(data.getString(KEY_MEDIA_ITEM_PATH)) :
                 null;
         mTreatBackAsUp = data.getBoolean(KEY_TREAT_BACK_AS_UP, false);
@@ -1045,23 +1046,8 @@ public abstract class PhotoPage extends ActivityState implements
                     }
                 }
             });
-        } else {
-            // Get default media set by the URI
-            MediaItem mediaItem = (MediaItem)
-                    mActivity.getDataManager().getMediaObject(itemPath);
-            if (mediaItem == null) {
-                Toast.makeText(mActivity, R.string.no_such_item, Toast.LENGTH_SHORT).show();
-                mPhotoView.pause();
-                mActivity.getStateManager().finishState(this);
-                return;
-            }
-            mModel = new SinglePhotoDataAdapter(mActivity, mPhotoView, mediaItem);
-            mPhotoView.setModel(mModel);
-            updateCurrentPhoto(mediaItem);
-            mShowSpinner = false;
         }
 
-        mPhotoView.setFilmMode(mStartInFilmstrip && mMediaSet.getMediaItemCount() > 1);
         RelativeLayout galleryRoot = (RelativeLayout) mActivity.findViewById(R.id.gallery_root);
         if (galleryRoot != null) {
             if (mSecureAlbum == null) {
@@ -1128,6 +1114,33 @@ public abstract class PhotoPage extends ActivityState implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        //*/ freeme.gulincheng. 20170920. #0018664 move from onCreate to onResume
+        if (mSetPathString == null) {
+            // Get default media set by the URI
+            MediaItem mediaItem = (MediaItem)
+                    mActivity.getDataManager().getMediaObject(itemPath);
+            /// M: [BUG.ADD] fix JE when mediaItem is deleted@{
+            if (mediaItem == null) {
+                Toast.makeText(((Activity) mActivity), R.string.no_such_item,
+                        Toast.LENGTH_LONG).show();
+                mPhotoView.pause();
+                mActivity.getStateManager().finishState(this);
+                return;
+            }
+            /// @}
+            /// M: [BUG.ADD] @{
+            // no PhotoDataAdapter style loading in SinglePhotoDataAdapter
+            //mLoadingFinished = true;
+            /// @}
+            mModel = new SinglePhotoDataAdapter(mActivity, mPhotoView, mediaItem);
+            mPhotoView.setModel(mModel);
+            updateCurrentPhoto(mediaItem);
+            mShowSpinner = false;
+        }
+
+        mPhotoView.setFilmMode(mStartInFilmstrip && mMediaSet.getMediaItemCount() > 1);
+        //*/
 
         if (mModel == null) {
             mActivity.getStateManager().finishState(this);
