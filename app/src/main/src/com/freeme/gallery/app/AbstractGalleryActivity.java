@@ -504,7 +504,11 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     }
 
     private void registerGestureSensorListener() {
-        mSlideByGestureEnable = GestureSensorManger.isGestureSensorEnable(this,GestureSensorManger.FREEME_GESTURE_GALLERY_SLIDE);
+        try {
+            mSlideByGestureEnable = GestureSensorManger.isGestureSensorEnable(this, GestureSensorManger.FREEME_GESTURE_GALLERY_SLIDE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(BuildConfig.SUPPORT_LAGACY_FREEMEOS_PLATFORM){
             mSlideByGestureEnable = SystemPropertiesProxy.getBooleanbit(getContentResolver(),
                     "tyd_gesture_sets",

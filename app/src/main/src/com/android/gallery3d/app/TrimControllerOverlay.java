@@ -21,15 +21,17 @@
 
 package com.android.gallery3d.app;
 
+import android.app.Activity;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.android.gallery3d.common.ApiHelper;
-
+import com.mediatek.gallery3d.util.Log;
 /**
  * The controller for the Trimming Video.
  */
@@ -37,12 +39,18 @@ public class TrimControllerOverlay extends CommonControllerOverlay  {
 
     public TrimControllerOverlay(Context context) {
         super(context);
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        int padding = (int) (metrics.density * 10);
+        mTimeBar.setPadding(padding, 0, padding, 0);
     }
 
     @Override
     protected void createTimeBar(Context context) {
         mTimeBar = new TrimTimeBar(context, this);
     }
+
+
+
     private void hidePlayButtonIfPlaying() {
         if (mState == State.PLAYING) {
             mPlayPauseReplayView.setVisibility(View.INVISIBLE);

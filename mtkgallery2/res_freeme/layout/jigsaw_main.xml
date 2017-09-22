@@ -49,7 +49,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="7dp"
-                android:background="@drawable/ic_picker_cancel"/>
+                android:background="@drawable/ic_picker_cancel_32dp"/>
 
             <TextView
                 android:id="@+id/picker_count"
@@ -67,7 +67,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="7dip"
-                android:background="@drawable/ic_picker_ok"/>
+                android:background="@drawable/ic_picker_ok_32dp"/>
         </RelativeLayout>
 
         <HorizontalScrollView
@@ -80,6 +80,7 @@
             <LinearLayout
                 android:id="@+id/picker_listFilters"
                 android:layout_width="wrap_content"
+
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
             </LinearLayout>

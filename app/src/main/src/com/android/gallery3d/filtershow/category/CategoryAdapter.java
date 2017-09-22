@@ -22,7 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.filters.FilterRepresentation;
 import com.android.gallery3d.filtershow.filters.FilterTinyPlanetRepresentation;

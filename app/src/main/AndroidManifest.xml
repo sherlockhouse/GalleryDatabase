@@ -293,6 +293,9 @@
                 <data android:scheme="file" />
                 <data android:mimeType="video/*" />
             </intent-filter>
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
         </activity>
 
         <permission

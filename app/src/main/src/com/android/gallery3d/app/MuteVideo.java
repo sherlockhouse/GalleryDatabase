@@ -112,6 +112,7 @@ public class MuteVideo {
                                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
                                 intent.setDataAndType(mNewVideoUri, "video/*");
                                 intent.putExtra(GalleryStore.EXTRA_FINISH_ON_COMPLETION, false);
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 mActivity.startActivity(intent);
                             }
                         }
@@ -141,4 +142,5 @@ public class MuteVideo {
         mMuteProgress.setCanceledOnTouchOutside(false);
         mMuteProgress.show();
     }
+
 }

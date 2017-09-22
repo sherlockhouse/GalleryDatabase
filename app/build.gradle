@@ -245,12 +245,9 @@ android {
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 if (variant.buildType.name.equals('release')) {
                     fileName = "FreemeGallery.apk"
-                } else if (variant.buildType.name.equals('debug')) {
-                    fileName = "FreemeGalleryDEBUG${defaultConfig.versionName}.${getTime()}.apk"
+                    output.outputFile = new File(outputFile.parent, fileName)
                 }
-                output.outputFile = new File(outputFile.parent, fileName)
             }
-
         }
     }
 

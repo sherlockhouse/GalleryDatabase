@@ -43,6 +43,7 @@ import com.android.gallery3d.app.TrimControllerOverlay;
 import com.android.gallery3d.app.VideoUtils;
 import com.freeme.gallery.R;
 import com.android.gallery3d.util.SaveVideoFileInfo;
+import com.mediatek.gallery3d.util.Log;
 import com.android.gallery3d.util.SaveVideoFileUtils;
 import com.freeme.provider.GalleryStore;
 
@@ -53,38 +54,39 @@ public class TrimVideo extends Activity implements
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener,
         ControllerOverlay.Listener {
-
-    public static final String  TRIM_ACTION = "com.android.camera.action.TRIM";
+    private static final String TAG = "Gallery2/VideoPlayer/TrimVideo";
+     private static final String            TIME_STAMP_NAME = "'TRIM'_yyyyMMdd_HHmmss";
     public static final String  KEY_TRIM_START     = "trim_start";
     public static final String  KEY_TRIM_END       = "trim_end";
     public static final String  KEY_VIDEO_POSITION = "video_pos";
-    private static final String            TIME_STAMP_NAME = "'TRIM'_yyyyMMdd_HHmmss";
-    private final       Handler mHandler    = new Handler();
+  
+    
     public ProgressDialog mProgress;
     private VideoView             mVideoView;
-    private TextView              mSaveVideoTextView;
+
+    private TextView mSaveVideoTextView;
     private TrimControllerOverlay mController;
-    private Context               mContext;
-    private Uri                   mUri;
-    private             int     mTrimStartTime     = 0;
-    private             int     mTrimEndTime       = 0;
-    private             int     mVideoPosition     = 0;
-    private final Runnable mProgressChecker = new Runnable() {
-        @Override
-        public void run() {
-            int pos = setProgress();
-            mHandler.postDelayed(mProgressChecker, 200 - (pos % 200));
-        }
-    };
+    private Context mContext;
+    private Uri mUri;
+    private final Handler mHandler = new Handler();
+    public static final String TRIM_ACTION = "com.android.camera.action.TRIM";
+    private int mTrimStartTime = 0;
+    private int mTrimEndTime = 0;
+    private int mVideoPosition = 0;
+    // If the time bar is being dragged.
+    private boolean mDragging;
+
     private             boolean mHasPaused         = false;
     private              String            mSrcVideoPath   = null;
+    // / M: True if mProgressChecker is called
+    private boolean mIsInProgressCheck = false;
     private              SaveVideoFileInfo mDstFileInfo    = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         mContext = getApplicationContext();
         super.onCreate(savedInstanceState);
-
+        Log.v(TAG, "onCreate()");
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 
@@ -125,14 +127,6 @@ public class TrimVideo extends Activity implements
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mTrimStartTime = savedInstanceState.getInt(KEY_TRIM_START, 0);
-        mTrimEndTime = savedInstanceState.getInt(KEY_TRIM_END, 0);
-        mVideoPosition = savedInstanceState.getInt(KEY_VIDEO_POSITION, 0);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (mHasPaused) {
@@ -143,13 +137,7 @@ public class TrimVideo extends Activity implements
         mHandler.post(mProgressChecker);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putInt(KEY_TRIM_START, mTrimStartTime);
-        savedInstanceState.putInt(KEY_TRIM_END, mTrimEndTime);
-        savedInstanceState.putInt(KEY_VIDEO_POSITION, mVideoPosition);
-        super.onSaveInstanceState(savedInstanceState);
-    }
+
 
     @Override
     public void onPause() {
@@ -175,6 +163,88 @@ public class TrimVideo extends Activity implements
         super.onDestroy();
     }
 
+    private final Runnable mProgressChecker = new Runnable() {
+        @Override
+        public void run() {
+            int pos = setProgress();
+            mIsInProgressCheck = true;
+            mHandler.postDelayed(mProgressChecker, 200 - (pos % 200));
+        }
+    };
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(KEY_TRIM_START, mTrimStartTime);
+        savedInstanceState.putInt(KEY_TRIM_END, mTrimEndTime);
+        savedInstanceState.putInt(KEY_VIDEO_POSITION, mVideoPosition);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mTrimStartTime = savedInstanceState.getInt(KEY_TRIM_START, 0);
+        mTrimEndTime = savedInstanceState.getInt(KEY_TRIM_END, 0);
+        mVideoPosition = savedInstanceState.getInt(KEY_VIDEO_POSITION, 0);
+    }
+    // This updates the time bar display (if necessary). It is called by
+    // mProgressChecker and also from places where the time bar needs
+    // to be updated immediately.
+    private int setProgress() {
+        Log.v(TAG, "setProgress()");
+        mVideoPosition = mVideoView.getCurrentPosition();
+        // / M: [BUG.ADD] Do not run setProgress when dragging.@{
+        if (mDragging) {
+            return 0;
+        }
+        // / @}
+        // If the video position is smaller than the starting point of trimming,
+        // correct it.
+        // / M:Under the circumstances that mProgressChecker is called,do not
+        // correct the position.
+        if (!mIsInProgressCheck && mVideoPosition < mTrimStartTime) {
+            Log.v(TAG, "setProgress() mVideoPosition < mTrimStartTime");
+            mVideoView.seekTo(mTrimStartTime);
+            mVideoPosition = mTrimStartTime;
+        }
+        // If the position is bigger than the end point of trimming, show the
+        // replay button and pause.
+        if (mVideoPosition >= mTrimEndTime && mTrimEndTime > 0) {
+            if (mVideoPosition > mTrimEndTime) {
+                mVideoView.seekTo(mTrimEndTime);
+                mVideoPosition = mTrimEndTime;
+            }
+            mController.showEnded();
+            mVideoView.pause();
+        }
+
+        int duration = mVideoView.getDuration();
+        if (duration > 0 && mTrimEndTime == 0) {
+            mTrimEndTime = duration;
+        }
+        mController.setTimes(mVideoPosition, duration, mTrimStartTime,
+                mTrimEndTime);
+        // Enable save if there's modifications
+        mSaveVideoTextView.setEnabled(isModified());
+        return mVideoPosition;
+    }
+
+    private void playVideo() {
+        mVideoView.start();
+        mController.showPlaying();
+        setProgress();
+    }
+    private void pauseVideo() {
+        mVideoView.pause();
+        mController.showPaused();
+    }
+    private boolean isModified() {
+        int delta = mTrimEndTime - mTrimStartTime;
+
+        // Considering that we only trim at sync frame, we don't want to trim
+        // when the time interval is too short or too close to the origin.
+        return !(delta < 100 || Math.abs(mVideoView.getDuration() - delta) < 100);
+    }
     private void trimVideo() {
 
         final File mSrcFile = new File(mSrcVideoPath);
@@ -219,11 +289,7 @@ public class TrimVideo extends Activity implements
         }).start();
     }
 
-    private void playVideo() {
-        mVideoView.start();
-        mController.showPlaying();
-        setProgress();
-    }
+
 
     private void showProgressDialog() {
         // create a background thread to trim the video.
@@ -237,48 +303,13 @@ public class TrimVideo extends Activity implements
         mProgress.show();
     }
 
-    // This updates the time bar display (if necessary). It is called by
-    // mProgressChecker and also from places where the time bar needs
-    // to be updated immediately.
-    private int setProgress() {
-        mVideoPosition = mVideoView.getCurrentPosition();
-        // If the video position is smaller than the starting point of trimming,
-        // correct it.
-        if (mVideoPosition < mTrimStartTime) {
-            mVideoView.seekTo(mTrimStartTime);
-            mVideoPosition = mTrimStartTime;
-        }
-        // If the position is bigger than the end point of trimming, show the
-        // replay button and pause.
-        if (mVideoPosition >= mTrimEndTime && mTrimEndTime > 0) {
-            if (mVideoPosition > mTrimEndTime) {
-                mVideoView.seekTo(mTrimEndTime);
-                mVideoPosition = mTrimEndTime;
-            }
-            mController.showEnded();
-            mVideoView.pause();
-        }
 
-        int duration = mVideoView.getDuration();
-        if (duration > 0 && mTrimEndTime == 0) {
-            mTrimEndTime = duration;
-        }
-        mController.setTimes(mVideoPosition, duration, mTrimStartTime, mTrimEndTime);
-        // Enable save if there's modifications
-        mSaveVideoTextView.setEnabled(isModified());
-        return mVideoPosition;
-    }
-
-    private boolean isModified() {
-        int delta = mTrimEndTime - mTrimStartTime;
-
-        // Considering that we only trim at sync frame, we don't want to trim
-        // when the time interval is too short or too close to the origin.
-        return !(delta < 100 || Math.abs(mVideoView.getDuration() - delta) < 100);
-    }
 
     @Override
     public void onPlayPause() {
+        if (mHasPaused) {
+            return;
+        }
         if (mVideoView.isPlaying()) {
             pauseVideo();
         } else {
@@ -286,26 +317,33 @@ public class TrimVideo extends Activity implements
         }
     }
 
-    private void pauseVideo() {
-        mVideoView.pause();
-        mController.showPaused();
-    }
+
 
     @Override
     public void onSeekStart() {
+        Log.v(TAG, "onSeekStart() mDragging is " + mDragging);
+        mDragging = true;
         pauseVideo();
     }
 
     @Override
     public void onSeekMove(int time) {
+        Log.v(TAG, "onSeekMove() seekto time is (" + time + ") mDragging is "
+                + mDragging);
+        if (!mDragging ) {
         mVideoView.seekTo(time);
+        }
     }
 
     @Override
     public void onSeekEnd(int time, int start, int end) {
+        Log.v(TAG, "onSeekEnd() seekto time is " + time + ", start is " + start
+                + ", end is " + end + " mDragging is " + mDragging);
+        mDragging = false;
         mVideoView.seekTo(time);
         mTrimStartTime = start;
         mTrimEndTime = end;
+        mIsInProgressCheck = false;
         setProgress();
     }
 
@@ -319,6 +357,7 @@ public class TrimVideo extends Activity implements
 
     @Override
     public void onReplay() {
+        Log.v(TAG, "onReplay()");
         mVideoView.seekTo(mTrimStartTime);
         playVideo();
     }

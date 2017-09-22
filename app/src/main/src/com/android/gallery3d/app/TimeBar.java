@@ -272,7 +272,7 @@ public class TimeBar extends View {
     }
 
     private boolean isSlowMotionBarScrubbing() {
-        return true; // mSlowMotionBarStatus == SlowMotionBar.SCRUBBERING_START;
+        return false; // mSlowMotionBarStatus == SlowMotionBar.SCRUBBERING_START;
     }
 
     @Override

@@ -109,7 +109,7 @@
     <dimen name="jigsaw_ctrl_title_height">56dp</dimen>
 
     <dimen name="jigsaw_picker_ctrl_height">162dp</dimen>
-    <dimen name="jigsaw_picker_ctrl_text_size">15sp</dimen>
+    <dimen name="jigsaw_picker_ctrl_text_size">15dp</dimen>
     <dimen name="picker_selected_thumb_panel_w">92dp</dimen>
     <dimen name="picker_selected_thumb_panel_h">92dp</dimen>
     <dimen name="picker_selected_thumb_w">80dp</dimen>

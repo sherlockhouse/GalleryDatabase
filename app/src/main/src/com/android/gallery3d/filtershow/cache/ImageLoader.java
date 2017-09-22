@@ -25,25 +25,30 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.util.Log;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
 import android.webkit.MimeTypeMap;
 
 import com.adobe.xmp.XMPException;
 import com.adobe.xmp.XMPMeta;
-import com.android.gallery3d.filtershow.imageshow.MasterImage;
-import com.android.gallery3d.util.XmpUtilHelper;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
-import com.freeme.provider.GalleryStore;
+import com.android.gallery3d.filtershow.imageshow.MasterImage;
+import com.android.gallery3d.filtershow.pipeline.FilterEnvironment;
+import com.android.gallery3d.filtershow.tools.XmpPresets;
+import com.android.gallery3d.util.XmpUtilHelper;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
+import com.mediatek.gallery3d.util.Log;
 import com.mediatek.galleryframework.util.BitmapUtils;
 
 import java.io.FileNotFoundException;
@@ -97,20 +102,38 @@ public final class ImageLoader {
         }
         return ret;
     }
+
     public static String getLocalPathFromUri(Context context, Uri uri) {
-        Cursor cursor = context.getContentResolver().query(uri,
-                new String[]{GalleryStore.Images.Media.DATA}, null, null, null);
+        /// M: [BUG.MODIFY] @{
+        /*        Cursor cursor = context.getContentResolver().query(uri,
+                new String[]{MediaStore.Images.Media.DATA}, null, null, null);
         if (cursor == null) {
             return null;
         }
-        int index = cursor.getColumnIndexOrThrow(GalleryStore.Images.Media.DATA);
+        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
+        return cursor.getString(index);*/
+        // fix cursor leak.
+        Cursor cursor = null;
         String path = null;
         try {
+            cursor = context.getContentResolver().query(uri,
+                    new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+            if (cursor == null) {
+                return null;
+            }
+            int index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
             path = cursor.getString(index);
-        }catch (CursorIndexOutOfBoundsException e){
+        } catch (IllegalArgumentException e) {
+            Log.e(LOGTAG, "Exception at getLocalPathFromUri()", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            return path;
         }
-        return path;
+        /// @}
     }
 
     /**
@@ -126,7 +149,7 @@ public final class ImageLoader {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(uri,
-                    new String[]{GalleryStore.Images.ImageColumns.ORIENTATION},
+                    new String[] { MediaStore.Images.ImageColumns.ORIENTATION },
                     null, null, null);
             if (cursor != null && cursor.moveToNext()) {
                 int ori = cursor.getInt(0);
@@ -153,6 +176,12 @@ public final class ImageLoader {
         ExifInterface exif = new ExifInterface();
         InputStream is = null;
         // Fall back to checking EXIF tags in file or input stream.
+        /// M: [BUG.MODIFY]
+        // [Steps] 1. Take raw photo in camera; 2. Set DNG file as contact's portrait.
+        // [Cause] For the "JPEG" file from contact's uri, but it's DNG file really,
+        //         we can't read exif correctly. Get orientation from InputStream using
+        //         ExifInterface in android framework. @{
+        /*
         try {
             if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
                 String mimeType = getMimeType(uri);
@@ -168,6 +197,21 @@ public final class ImageLoader {
             return parseExif(exif);
         } catch (IOException e) {
             Log.w(LOGTAG, "Failed to read EXIF orientation", e);
+        */
+        try {
+            if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
+                String mimeType = getMimeType(uri);
+                if (!JPEG_MIME_TYPE.equals(mimeType)) {
+                    return ORI_NORMAL;
+                }
+                return getOrientationFromExif(uri.getPath(), null);
+            } else {
+                is = context.getContentResolver().openInputStream(uri);
+                return getOrientationFromExif(null, is);
+            }
+        } catch (FileNotFoundException e) {
+            Log.w(LOGTAG, "Failed to read EXIF orientation", e);
+        /// @}
         } finally {
             try {
                 if (is != null) {
@@ -348,10 +392,23 @@ public final class ImageLoader {
         if (uri == null || context == null) {
             throw new IllegalArgumentException("bad argument to loadBitmap");
         }
+        Log.i(LOGTAG, "uri = " + uri);
         InputStream is = null;
+        Bitmap result = null;
+        String filePath = null;
+        String mimeType = "";
         try {
             is = context.getContentResolver().openInputStream(uri);
-            return BitmapFactory.decodeStream(is, null, o);
+            result = BitmapFactory.decodeStream(is, null, o);
+            /// M: wbmp bitmap format is index8 ,
+            // and the format do not support BitmapFactory resize;
+            // So We should resize the bitmap for avoid out of memory.
+            if (result != null && null == result.getConfig()
+                    && WBMP_MIME.equalsIgnoreCase(mimeType)) {
+                Log.i(LOGTAG, "<loadBitmap> resizeBitmapByScale");
+                result = resizeBitmapByScale(result, 1.0f / o.inSampleSize, true);
+            }
+            return result;
         } catch (FileNotFoundException e) {
             Log.e(LOGTAG, "FileNotFoundException for " + uri, e);
         } finally {
@@ -532,7 +589,8 @@ public final class ImageLoader {
         return bmap;
     }
 
-    public static XMPMeta getXmpObject(Context context) {
+/// M: [BUG.MARK] @{
+/*    public static XMPMeta getXmpObject(Context context) {
         try {
             InputStream is = context.getContentResolver().openInputStream(
                     MasterImage.getImage().getUri());
@@ -540,7 +598,25 @@ public final class ImageLoader {
         } catch (FileNotFoundException e) {
             return null;
         }
+    }*/
+/// @}
+
+    public static XMPMeta getXmpObject(Context context) {
+        /// M: close input stream when operation done
+        InputStream is = null;
+        XMPMeta result = null;
+        try {
+             is = context.getContentResolver().openInputStream(
+                    MasterImage.getImage().getUri());
+            result = XmpUtilHelper.extractXMPMeta(is);
+        } catch (FileNotFoundException e) {
+            Log.e(LOGTAG, "<getXmpObject> file not found");
+        } finally {
+            Utils.closeSilently(is);
+            return result;
+        }
     }
+
 
     /**
      * Determine if this is a light cycle 360 image
@@ -550,6 +626,12 @@ public final class ImageLoader {
     public static boolean queryLightCycle360(Context context) {
         InputStream is = null;
         try {
+            /// M: [BUG.ADD] @{
+            if (MasterImage.getImage().getUri() == null) {
+                Log.d(LOGTAG, "<queryLightCycle360> uri is null, return false!!");
+                return false;
+            }
+            /// @}
             is = context.getContentResolver().openInputStream(MasterImage.getImage().getUri());
             XMPMeta meta = XmpUtilHelper.extractXMPMeta(is);
             if (meta == null) {
@@ -605,5 +687,67 @@ public final class ImageLoader {
         return null;
     }
 
+    // ********************************************************************
+    // *                             MTK                                   *
+    // ********************************************************************
 
+    // add for resize bitmap
+    public static Bitmap resizeBitmapByScale(
+            Bitmap bitmap, float scale, boolean recycle) {
+        int width = Math.round(bitmap.getWidth() * scale);
+        int height = Math.round(bitmap.getHeight() * scale);
+        // fix certain wbmp no thumbnail issue.@{
+        if (width < 1 || height < 1) {
+            Log.i(LOGTAG, "scaled width or height < 1, no need to resize");
+            return bitmap;
+        }
+        if (width == bitmap.getWidth() && height == bitmap.getHeight()) {
+            return bitmap;
+        }
+        Bitmap target = Bitmap.createBitmap(width, height, getConfig(bitmap));
+        Canvas canvas = new Canvas(target);
+        canvas.scale(scale, scale);
+        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        if (recycle) {
+            bitmap.recycle();
+        }
+        return target;
+    }
+
+
+    // add for resize bitmap
+    private static Bitmap.Config getConfig(Bitmap bitmap) {
+        Bitmap.Config config = bitmap.getConfig();
+        if (config == null) {
+            config = Bitmap.Config.ARGB_8888;
+        }
+        return config;
+    }
+
+    /// M: [BUG.ADD] only resize wbmp when loading bitmap @{
+    private final static String WBMP_MIME = "image/vnd.wap.wbmp";
+    /// @}
+
+    /// M: [BUG.MODIFY]
+    // [Steps] 1. Take raw photo in camera; 2. Set DNG file as contact's portrait.
+    // [Cause] For the "JPEG" file from contact's uri, but it's DNG file really,
+    //         we can't read exif correctly. Get orientation from InputStream using
+    //         ExifInterface in android framework. @{
+    private static int getOrientationFromExif(String filePath, InputStream is) {
+        int ori = FeatureHelper.getOrientationFromExif(filePath, is);
+        Log.d(LOGTAG, "<getOrientationFromExif> filePath & is & ori: " +
+                filePath + " - " + is + " - " + ori);
+        switch (ori) {
+            case 90:
+                return ORI_ROTATE_90;
+            case 270:
+                return ORI_ROTATE_270;
+            case 180:
+                return ORI_ROTATE_180;
+            default:
+                return ORI_NORMAL;
+        }
+    }
+    /// @}
 }

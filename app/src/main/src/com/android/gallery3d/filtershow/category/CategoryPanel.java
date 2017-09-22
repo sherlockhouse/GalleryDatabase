@@ -32,7 +32,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 
 public class CategoryPanel extends Fragment implements View.OnClickListener {

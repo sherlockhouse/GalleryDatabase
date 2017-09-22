@@ -482,6 +482,8 @@ public class FeatureHelper {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             if (perfService != null) {
                 perfService.boostEnableTimeoutMs(IPerfServiceWrapper.SCN_GALLERY_BOOST,
