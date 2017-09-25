@@ -272,6 +272,7 @@ public abstract class PhotoPage extends ActivityState implements
     //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
     private MyDetailsSource mMyDetailsSource;
     private Path itemPath;
+    private boolean mIsSingle;
 
     private static Intent createShareIntent(MediaObject mediaObject) {
         int type = mediaObject.getMediaType();
@@ -710,6 +711,7 @@ public abstract class PhotoPage extends ActivityState implements
     @Override
     public void onCreate(Bundle data, Bundle restoreState) {
         super.onCreate(data, restoreState);
+        mIsSingle = data.getBoolean(SinglePhotoPage.mIsSingle);
         mActionBar = mActivity.getGalleryActionBar();
         mSelectionManager = new SelectionManager(mActivity, false);
         mMenuExecutor = new MenuExecutor(mActivity, mSelectionManager);
@@ -1155,7 +1157,17 @@ public abstract class PhotoPage extends ActivityState implements
 
         mActivity.getGLRoot().freeze();
         mIsActive = true;
-        setContentPane(mRootPane);
+
+        if (mPhotoView.getFilmMode()) {
+            setContentPane(mRootPane); //filmmode use black background immediately
+        } else {
+            if (mIsSingle) {
+                setContentPanePhotoPage(mRootPane, 1000); //open from other app need more time
+            } else {
+                setContentPanePhotoPage(mRootPane, 600); // in app need less time
+
+            }
+        }
 
         mModel.resume();
         mPhotoView.resume();

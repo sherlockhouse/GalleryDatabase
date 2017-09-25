@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -91,6 +92,24 @@ abstract public class ActivityState {
             mIntroAnimation = null;
         }
         mContentPane.setBackgroundColor(getBackgroundColor());
+        mActivity.getGLRoot().setContentPane(mContentPane);
+    }
+
+    protected void setContentPanePhotoPage(GLView content, int time) {
+        mContentPane = content;
+        if (mIntroAnimation != null) {
+            mContentPane.setIntroAnimation(mIntroAnimation);
+            mIntroAnimation = null;
+        }
+        mContentPane.setBackgroundColor(GalleryUtils.intColorToFloatARGBArray(
+                mActivity.getResources().getColor(R.color.default_background)));
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mContentPane.setBackgroundColor(getBackgroundColor());
+            }
+        }, time);
         mActivity.getGLRoot().setContentPane(mContentPane);
     }
 

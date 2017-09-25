@@ -588,7 +588,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                         data.putBoolean(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
                     }
                 }
-
+                data.putBoolean(SinglePhotoPage.mIsSingle, true);
                 getStateManager().startState(SinglePhotoPage.class, data);
             }
         }
