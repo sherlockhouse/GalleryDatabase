@@ -52,6 +52,7 @@ import com.freeme.jigsaw.ui.JigsawDrawPanel;
 import com.freeme.jigsaw.util.Helper;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
 
 import java.io.File;
@@ -175,7 +176,8 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
                         intent.setType("image/jpeg");
                         intent.putExtra(Intent.EXTRA_STREAM, /*uri*/mRecentSaveUri);
                         //mActivity.startActivity(intent);
-                        mActivity.startActivity(Intent.createChooser(intent, mActivity.getString(R.string.share)));
+                        mActivity.startActivity(FreemeCustomUtils.createCustomChooser(mActivity, intent,
+                                mActivity.getResources().getString(R.string.share)));
 
                         //*/ Added by tyd Linguanrong for statistic, 15-12-18
                         StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);

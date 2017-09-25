@@ -90,6 +90,7 @@ import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.common.ApiHelper;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
 
 public abstract class PhotoPage extends ActivityState implements
@@ -419,7 +420,7 @@ public abstract class PhotoPage extends ActivityState implements
 
     private void actionShare() {
         Intent shareIntent = createShareIntent(mCurrentPhoto);
-        mActivity.startActivity(Intent.createChooser(shareIntent,
+        mActivity.startActivity(FreemeCustomUtils.createCustomChooser(mActivity, shareIntent,
                 mActivity.getResources().getString(R.string.share)));
     }
 

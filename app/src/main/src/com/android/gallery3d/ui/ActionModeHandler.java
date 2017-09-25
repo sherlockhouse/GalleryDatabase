@@ -59,6 +59,7 @@ import com.freeme.page.AlbumStoryPage;
 import com.freeme.page.AlbumStorySetPage;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.utils.FreemeCustomUtils;
 
 import java.util.ArrayList;
 
@@ -395,8 +396,8 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                 @Override
                 public boolean onMenuItemClick(MenuItem arg0) {
                     mSelectionManager.leaveSelectionMode();
-                    mActivity.startActivity(Intent.createChooser(mShareIntent,
-                            mActivity.getApplicationContext().getResources().getString(R.string.share)));
+                    mActivity.startActivity(FreemeCustomUtils.createCustomChooser(mActivity, mShareIntent,
+                            mActivity.getResources().getString(R.string.share)));
                     //*/ Added by tyd Linguanrong for statistic, 15-12-18
                     StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                     //*/
