@@ -107,8 +107,10 @@ public class SelectionManager {
         /// @}
         mInverseSelection = false;
         mClickedSet.clear();
-        for (Path p : mSubPaths) {
-            mClickedSet.add(p);
+        if (mSubPaths != null ) {
+            for (Path p : mSubPaths) {
+                mClickedSet.add(p);
+            }
         }
         /// M: [BEHAVIOR.ADD] @{
         // when click deselect all in menu, not leave selection mode
