@@ -107,6 +107,9 @@ public class SelectionManager {
         /// @}
         mInverseSelection = false;
         mClickedSet.clear();
+        for (Path p : mSubPaths) {
+            mClickedSet.add(p);
+        }
         /// M: [BEHAVIOR.ADD] @{
         // when click deselect all in menu, not leave selection mode
         if (mListener != null) {
@@ -700,4 +703,8 @@ public class SelectionManager {
 
 
     //*/
+    ArrayList<Path> mSubPaths;
+    public void setSelectedPaths(ArrayList<Path> paths) {
+        mSubPaths = paths;
+    }
 }

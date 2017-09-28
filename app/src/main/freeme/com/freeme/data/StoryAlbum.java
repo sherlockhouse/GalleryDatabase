@@ -129,6 +129,33 @@ public class StoryAlbum extends MediaSet {
         }
     }
 
+    public static boolean isPathAdded(ContentResolver resolver, Path path,
+                                      int storyIndex, boolean isImage) {
+        if (resolver != null) {
+
+            Uri uri = getContentUri(storyIndex, isImage);
+            Cursor s = getItemCursor(resolver, uri, null, getId(path), storyIndex);
+            if (s != null) {
+                if (s.getCount() == 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static int getId(Path path) {
+        Path localPath = path;
+        if (localPath != null
+                && (localPath.toString().startsWith("/local/image/")
+                || localPath.toString().startsWith("/local/video/"))) {
+            return  Integer.valueOf(localPath.getSuffix());
+        }
+        return -1;
+    }
+
     private static StringBuffer getIds(ArrayList<Path> path) {
         StringBuffer sb;
         Path localPath;
@@ -226,6 +253,13 @@ public class StoryAlbum extends MediaSet {
             String[] projection, int id) {
         Cursor cursor = resolver.query(uri, projection, "_id=?",
                 new String[]{String.valueOf(id)}, null);
+        return cursor;
+    }
+
+    public static Cursor getItemCursor(ContentResolver resolver, Uri uri,
+                                       String[] projection, int id, int id2) {
+        Cursor cursor = resolver.query(uri, projection, "_id=? AND story_bucket_id=?",
+                new String[]{String.valueOf(id), String.valueOf(id2)}, null);
         return cursor;
     }
 
@@ -455,6 +489,18 @@ public class StoryAlbum extends MediaSet {
         } else {
             return GalleryStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(STORY_BUCKET_ID, String.valueOf(mStoryId))
+                    .build();
+        }
+    }
+
+    public static Uri getContentUri(int storyIndex, boolean isImage) {
+        if (isImage) {
+            return GalleryStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+                    .appendQueryParameter(STORY_BUCKET_ID, String.valueOf(storyIndex))
+                    .build();
+        } else {
+            return GalleryStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
+                    .appendQueryParameter(STORY_BUCKET_ID, String.valueOf(storyIndex))
                     .build();
         }
     }

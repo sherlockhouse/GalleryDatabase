@@ -406,7 +406,9 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         }
 
         mSelectionManager.leaveSelectionMode();
-    }    private void onDown(int index) {
+    }
+
+    private void onDown(int index) {
         mAlbumView.setPressedIndex(index);
     }
 
@@ -474,13 +476,35 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         }
 
         //mSelectionManager.setPrepared(conshot);
-    }    private void onSingleTapUp(int slotIndex) {
+    }
+
+    ArrayList<Path> mSubPaths;
+
+    public void getSubMediaPath(MediaSet mediaset) {
+        mSubPaths = new ArrayList<Path>();
+        int total = mediaset.getMediaItemCount();
+
+        ArrayList<MediaItem> list = mediaset.getMediaItem(0, total);
+        for (MediaItem item : list) {
+            Path id = item.getPath();
+            if (StoryAlbum.isPathAdded(mActivity.getAndroidContext().getContentResolver(), id,
+                    mStoryBucketId, true)) {
+                mSelectionManager.toggle(id);
+                mSubPaths.add(id);
+            }
+        }
+        mSelectionManager.setSelectedPaths(mSubPaths);
+    }
+
+    private void onSingleTapUp(int slotIndex) {
         if (!mIsActive) return;
 
         if (mSelectionManager.inSelectionMode()) {
             MediaItem item = mAlbumDataAdapter.get(slotIndex);
             if (item == null) return; // Item not ready yet, ignore the click
-            mSelectionManager.toggle(item.getPath());
+            if (!mSubPaths.contains(item.getPath())) {
+                mSelectionManager.toggle(item.getPath());
+            }
             mSlotView.invalidate();
         } else {
             // Render transition in pressed state
@@ -726,6 +750,8 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             mSecretMenu.refreshMenu();
         }
         //*/
+        getSubMediaPath(mMediaSet);
+
     }
 
 
