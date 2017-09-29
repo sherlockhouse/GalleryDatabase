@@ -134,12 +134,19 @@ public class StoryAlbum extends MediaSet {
         if (resolver != null) {
 
             Uri uri = getContentUri(storyIndex, isImage);
+
             Cursor s = getItemCursor(resolver, uri, null, getId(path), storyIndex);
-            if (s != null) {
-                if (s.getCount() == 0) {
-                    return false;
-                } else {
-                    return true;
+            try {
+                if (s != null) {
+                    if (s.getCount() == 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }finally {
+                if (s != null) {
+                    s.close();
                 }
             }
         }
