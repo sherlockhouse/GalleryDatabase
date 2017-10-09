@@ -180,11 +180,11 @@ public class JigsawPage extends ActivityState implements JigsawDrawPanel.onNotif
                                 mActivity.getResources().getString(R.string.share)));
 
                         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                        StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                        StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                         //*/
 
                         // for baas analytics
-                        DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                        DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                         break;
 
                     default:

@@ -360,11 +360,11 @@ public abstract class PhotoPage extends ActivityState implements
                 mShared = true;
                 actionShare();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                 return;
 
             case R.id.photopage_bottom_control_delete:
@@ -1283,10 +1283,10 @@ public abstract class PhotoPage extends ActivityState implements
             }
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH, mMediaSet.getPath().toString());
@@ -1325,10 +1325,10 @@ public abstract class PhotoPage extends ActivityState implements
             case R.id.action_edit: {
                 launchPhotoEditor();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_EDIT);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_EDIT);
 
                 return true;
             }
@@ -1395,11 +1395,11 @@ public abstract class PhotoPage extends ActivityState implements
             case R.id.action_share:
                 actionShare();
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                 return true;
             //*/
             default:

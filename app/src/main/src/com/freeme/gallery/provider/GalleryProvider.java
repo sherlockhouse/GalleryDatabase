@@ -1,4 +1,9 @@
 /*
+* Copyright (C) 2014 MediaTek Inc.
+* Modification based on code covered by the mentioned copyright
+* and/or permission notice(s).
+*/
+/*
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,26 +30,33 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
+import android.provider.MediaStore.Images.ImageColumns;
 
 import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.common.AsyncTaskUtil;
+import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
-import com.android.gallery3d.common.AsyncTaskUtil;
-import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore.Images.ImageColumns;
+import com.mediatek.gallery3d.util.Log;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class GalleryProvider extends ContentProvider {
-    public static final String AUTHORITY = "com.freeme.gallery.provider";
-    public static final Uri    BASE_URI  = Uri.parse("content://" + AUTHORITY);
-    private static final String TAG = "GalleryProvider";
+    private static final String TAG = "Gallery2/GalleryProvider";
+
+    public static final String AUTHORITY = "com.android.gallery3d.provider";
+    public static final Uri BASE_URI = Uri.parse("content://" + AUTHORITY);
+
+    public static interface PicasaColumns {
+        public static final String USER_ACCOUNT = "user_account";
+        public static final String PICASA_ID = "picasa_id";
+    }
+
     private static final String[] SUPPORTED_PICASA_COLUMNS = {
             PicasaColumns.USER_ACCOUNT,
             PicasaColumns.PICASA_ID,
@@ -55,8 +67,9 @@ public class GalleryProvider extends ContentProvider {
             ImageColumns.LATITUDE,
             ImageColumns.LONGITUDE,
             ImageColumns.ORIENTATION};
-    private static Uri         sBaseUri;
-    private        DataManager mDataManager;
+
+    private DataManager mDataManager;
+    private static Uri sBaseUri;
 
     public static String getAuthority(Context context) {
         return context.getPackageName() + ".provider";
@@ -71,58 +84,9 @@ public class GalleryProvider extends ContentProvider {
                 .build();
     }
 
-    // Modified from ContentProvider.openPipeHelper. We are target at API LEVEL 10.
-    // But openPipeHelper is available in API LEVEL 11.
-    private static <T> ParcelFileDescriptor openPipeHelper(
-            final T args, final PipeDataWriter<T> func) throws FileNotFoundException {
-        try {
-            final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-            AsyncTask<Object, Object, Object> task = new AsyncTask<Object, Object, Object>() {
-                @Override
-                protected Object doInBackground(Object... params) {
-                    try {
-                        func.writeDataToPipe(pipe[1], args);
-                        return null;
-                    } finally {
-                        Utils.closeSilently(pipe[1]);
-                    }
-                }
-            };
-            AsyncTaskUtil.executeInParallel(task, (Object[]) null);
-            return pipe[0];
-        } catch (IOException e) {
-            throw new FileNotFoundException("failure making pipe");
-        }
-    }
-
     @Override
-    public boolean onCreate() {
-        GalleryApp app = (GalleryApp) getContext().getApplicationContext();
-        mDataManager = app.getDataManager();
-        return true;
-    }
-
-    // TODO: consider concurrent access
-    @Override
-    public Cursor query(Uri uri, String[] projection,
-                        String selection, String[] selectionArgs, String sortOrder) {
-        long token = Binder.clearCallingIdentity();
-        try {
-            Path path = Path.fromString(uri.getPath());
-            MediaObject object = mDataManager.getMediaObject(path);
-            if (object == null) {
-                Log.w(TAG, "cannot find: " + uri);
-                return null;
-            }
-            if (PicasaSource.isPicasaImage(object)) {
-                return queryPicasaItem(object,
-                        projection, selection, selectionArgs, sortOrder);
-            } else {
-                return null;
-            }
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        throw new UnsupportedOperationException();
     }
 
     // TODO: consider concurrent access
@@ -144,13 +108,70 @@ public class GalleryProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException();
+    public boolean onCreate() {
+        GalleryApp app = (GalleryApp) getContext().getApplicationContext();
+        mDataManager = app.getDataManager();
+        return true;
     }
 
+    // TODO: consider concurrent access
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        throw new UnsupportedOperationException();
+    public Cursor query(Uri uri, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder) {
+        long token = Binder.clearCallingIdentity();
+        try {
+            Path path = Path.fromString(uri.getPath());
+            MediaObject object = mDataManager.getMediaObject(path);
+            if (object == null) {
+                Log.w(TAG, "cannot find: " + uri);
+                return null;
+            }
+            if (PicasaSource.isPicasaImage(object)) {
+                return queryPicasaItem(object,
+                        projection, selection, selectionArgs, sortOrder);
+            } else {
+                    return null;
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    private Cursor queryPicasaItem(MediaObject image, String[] projection,
+            String selection, String[] selectionArgs, String sortOrder) {
+        if (projection == null) projection = SUPPORTED_PICASA_COLUMNS;
+        Object[] columnValues = new Object[projection.length];
+        double latitude = PicasaSource.getLatitude(image);
+        double longitude = PicasaSource.getLongitude(image);
+        boolean isValidLatlong = GalleryUtils.isValidLocation(latitude, longitude);
+
+        for (int i = 0, n = projection.length; i < n; ++i) {
+            String column = projection[i];
+            if (PicasaColumns.USER_ACCOUNT.equals(column)) {
+                columnValues[i] = PicasaSource.getUserAccount(getContext(), image);
+            } else if (PicasaColumns.PICASA_ID.equals(column)) {
+                columnValues[i] = PicasaSource.getPicasaId(image);
+            } else if (ImageColumns.DISPLAY_NAME.equals(column)) {
+                columnValues[i] = PicasaSource.getImageTitle(image);
+            } else if (ImageColumns.SIZE.equals(column)){
+                columnValues[i] = PicasaSource.getImageSize(image);
+            } else if (ImageColumns.MIME_TYPE.equals(column)) {
+                columnValues[i] = PicasaSource.getContentType(image);
+            } else if (ImageColumns.DATE_TAKEN.equals(column)) {
+                columnValues[i] = PicasaSource.getDateTaken(image);
+            } else if (ImageColumns.LATITUDE.equals(column)) {
+                columnValues[i] = isValidLatlong ? latitude : null;
+            } else if (ImageColumns.LONGITUDE.equals(column)) {
+                columnValues[i] = isValidLatlong ? longitude : null;
+            } else if (ImageColumns.ORIENTATION.equals(column)) {
+                columnValues[i] = PicasaSource.getRotation(image);
+            } else {
+                Log.w(TAG, "unsupported column: " + column);
+            }
+        }
+        MatrixCursor cursor = new MatrixCursor(projection);
+        cursor.addRow(columnValues);
+        return cursor;
     }
 
     @Override
@@ -176,50 +197,37 @@ public class GalleryProvider extends ContentProvider {
         }
     }
 
-    private Cursor queryPicasaItem(MediaObject image, String[] projection,
-                                   String selection, String[] selectionArgs, String sortOrder) {
-        if (projection == null) projection = SUPPORTED_PICASA_COLUMNS;
-        Object[] columnValues = new Object[projection.length];
-        double latitude = PicasaSource.getLatitude(image);
-        double longitude = PicasaSource.getLongitude(image);
-        boolean isValidLatlong = GalleryUtils.isValidLocation(latitude, longitude);
-
-        for (int i = 0, n = projection.length; i < n; ++i) {
-            String column = projection[i];
-            if (PicasaColumns.USER_ACCOUNT.equals(column)) {
-                columnValues[i] = PicasaSource.getUserAccount(getContext(), image);
-            } else if (PicasaColumns.PICASA_ID.equals(column)) {
-                columnValues[i] = PicasaSource.getPicasaId(image);
-            } else if (ImageColumns.DISPLAY_NAME.equals(column)) {
-                columnValues[i] = PicasaSource.getImageTitle(image);
-            } else if (ImageColumns.SIZE.equals(column)) {
-                columnValues[i] = PicasaSource.getImageSize(image);
-            } else if (ImageColumns.MIME_TYPE.equals(column)) {
-                columnValues[i] = PicasaSource.getContentType(image);
-            } else if (ImageColumns.DATE_TAKEN.equals(column)) {
-                columnValues[i] = PicasaSource.getDateTaken(image);
-            } else if (ImageColumns.LATITUDE.equals(column)) {
-                columnValues[i] = isValidLatlong ? latitude : null;
-            } else if (ImageColumns.LONGITUDE.equals(column)) {
-                columnValues[i] = isValidLatlong ? longitude : null;
-            } else if (ImageColumns.ORIENTATION.equals(column)) {
-                columnValues[i] = PicasaSource.getRotation(image);
-            } else {
-                Log.w(TAG, "unsupported column: " + column);
-            }
-        }
-        MatrixCursor cursor = new MatrixCursor(projection);
-        cursor.addRow(columnValues);
-        return cursor;
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        throw new UnsupportedOperationException();
     }
 
-    public interface PicasaColumns {
-        String USER_ACCOUNT = "user_account";
-        String PICASA_ID    = "picasa_id";
-    }
-
-    private interface PipeDataWriter<T> {
+    private static interface PipeDataWriter<T> {
         void writeDataToPipe(ParcelFileDescriptor output, T args);
+    }
+
+    // Modified from ContentProvider.openPipeHelper. We are target at API LEVEL 10.
+    // But openPipeHelper is available in API LEVEL 11.
+    private static <T> ParcelFileDescriptor openPipeHelper(
+            final T args, final PipeDataWriter<T> func) throws FileNotFoundException {
+        try {
+            final ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+            AsyncTask<Object, Object, Object> task = new AsyncTask<Object, Object, Object>() {
+                @Override
+                protected Object doInBackground(Object... params) {
+                    try {
+                        func.writeDataToPipe(pipe[1], args);
+                        return null;
+                    } finally {
+                        Utils.closeSilently(pipe[1]);
+                    }
+                }
+            };
+            AsyncTaskUtil.executeInParallel(task, (Object[]) null);
+            return pipe[0];
+        } catch (IOException e) {
+            throw new FileNotFoundException("failure making pipe");
+        }
     }
 
 }

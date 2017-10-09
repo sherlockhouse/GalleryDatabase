@@ -39,6 +39,7 @@ import com.freeme.provider.GalleryStore;
 import com.freeme.provider.GalleryStore.Images;
 import com.freeme.provider.GalleryStore.Video;
 import com.freeme.utils.FreemeUtils;
+import com.mediatek.gallery3d.util.TraceHelper;
 import com.mediatek.galleryframework.base.MediaFilterSetting;
 
 import java.io.File;
@@ -243,8 +244,17 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
 
     public static Cursor getItemCursor(ContentResolver resolver, Uri uri,
             String[] projection, int id) {
+        /// M: [DEBUG.MODIFY] @{
+        /*
         return resolver.query(uri, projection, "_id=?",
+                 new String[]{String.valueOf(id)}, null);
+        */
+        TraceHelper.traceBegin(">>>>LocalAlbum-getItemCursor-query");
+        Cursor cursor = resolver.query(uri, projection, "_id=?",
                 new String[]{String.valueOf(id)}, null);
+        TraceHelper.traceEnd();
+        return cursor;
+        /// @}
     }
 
     @Override

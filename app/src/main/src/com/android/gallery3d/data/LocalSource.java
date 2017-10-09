@@ -25,6 +25,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentUris;
 import android.content.UriMatcher;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
@@ -93,16 +94,15 @@ class LocalSource extends MediaSource {
         mMatcher.add(VisitorAlbum.PATH.toString(), LOCAL_VISITOR_ALBUM);
         mMatcher.add(VisitorAlbumVideo.PATH.toString(), LOCAL_VISITOR_VIDEO);
         //*/
-
-        mUriMatcher.addURI(GalleryStore.AUTHORITY,
+        mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/images/media/#", LOCAL_IMAGE_ITEM);
-        mUriMatcher.addURI(GalleryStore.AUTHORITY,
+        mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/video/media/#", LOCAL_VIDEO_ITEM);
-        mUriMatcher.addURI(GalleryStore.AUTHORITY,
+        mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/images/media", LOCAL_IMAGE_ALBUM);
-        mUriMatcher.addURI(GalleryStore.AUTHORITY,
+        mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/video/media", LOCAL_VIDEO_ALBUM);
-        mUriMatcher.addURI(GalleryStore.AUTHORITY,
+        mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/file", LOCAL_ALL_ALBUM);
     }
 
@@ -350,7 +350,7 @@ class LocalSource extends MediaSource {
     @Override
     public void resume() {
         mClient = mApplication.getContentResolver()
-                .acquireContentProviderClient(GalleryStore.AUTHORITY);
+                .acquireContentProviderClient(MediaStore.AUTHORITY);
     }
 
     @Override

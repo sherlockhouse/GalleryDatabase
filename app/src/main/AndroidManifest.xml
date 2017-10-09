@@ -11,10 +11,10 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!--<uses-permission android:name="android.permission.INTERNET" />-->
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
@@ -29,8 +29,8 @@
 
 
     <!-- For Community -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!--<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>-->
+    <!--<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <!-- For Community -->
 
@@ -43,11 +43,11 @@
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
     <!-- Added by tyd Linguanrong for droi push, 16-3-7 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <!--<uses-permission android:name="android.permission.READ_PHONE_STATE"/>-->
     <!-- Tyd -->
 
     <!--For updateself-->
-    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
+    <!--<uses-permission android:name="android.permission.INSTALL_PACKAGES"/>-->
     <!--tyd-->
 
     <supports-screens
@@ -407,16 +407,15 @@
         </receiver>
 
         <service android:name=".app.PackagesMonitor$AsyncService"/>
-        <service
-            android:name=".gadget.WidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"/>
-
-        <activity
-            android:name=".gadget.WidgetConfigure"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@style/android:Theme.Translucent.NoTitleBar">
+         <!--MTK_MODIFY android:process=":WidgetService" for MediaFilterSetting-->
+        <service android:name=".gadget.WidgetService"
+                android:permission="android.permission.BIND_REMOTEVIEWS"
+                android:process=":widgetservice"/>
+        <activity android:name=".gadget.WidgetConfigure"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@style/android:Theme.Translucent.NoTitleBar">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
@@ -433,59 +432,59 @@
 
 
         <!-- For Community -->
-        <activity
-            android:name="com.freeme.community.activity.CommunityActivity"
-            android:label="@string/community"
-            android:screenOrientation="portrait"
-            android:theme="@style/CommunityTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <!-- category android:name="android.intent.category.LAUNCHER" / -->
-            </intent-filter>
-            <intent-filter>
-                <action android:name="action.intent.freeme.Community"/>
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.CommunityActivity"-->
+            <!--android:label="@string/community"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/CommunityTheme">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN"/>-->
+                <!--&lt;!&ndash; category android:name="android.intent.category.LAUNCHER" / &ndash;&gt;-->
+            <!--</intent-filter>-->
+            <!--<intent-filter>-->
+                <!--<action android:name="action.intent.freeme.Community"/>-->
 
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.freeme.community.activity.ImageDetailActivity"
-            android:label="@string/title_activity_image_detail"
-            android:screenOrientation="portrait"
-            android:theme="@style/CommunityActivityTheme"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name="com.freeme.community.activity.ReportActivity"
-            android:label="@string/title_activity_report"
-            android:screenOrientation="portrait"
-            android:theme="@style/CommunityActivityTheme"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name="com.freeme.community.activity.CropImageActivity"
-            android:label="@string/crop_image"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            android:theme="@style/CommunityActivityTheme"/>
-        <activity
-            android:name="com.freeme.community.push.DroiPushActivity"
-            android:label="@string/title_activity_droi_push"
-            android:theme="@style/CommunityActivityTheme">
-        </activity>
+                <!--<category android:name="android.intent.category.DEFAULT"/>-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.ImageDetailActivity"-->
+            <!--android:label="@string/title_activity_image_detail"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/CommunityActivityTheme"-->
+            <!--android:windowSoftInputMode="adjustResize"/>-->
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.ReportActivity"-->
+            <!--android:label="@string/title_activity_report"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/CommunityActivityTheme"-->
+            <!--android:windowSoftInputMode="adjustResize"/>-->
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.CropImageActivity"-->
+            <!--android:label="@string/crop_image"-->
+            <!--android:launchMode="singleTop"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/CommunityActivityTheme"/>-->
+        <!--<activity-->
+            <!--android:name="com.freeme.community.push.DroiPushActivity"-->
+            <!--android:label="@string/title_activity_droi_push"-->
+            <!--android:theme="@style/CommunityActivityTheme">-->
+        <!--</activity>-->
 
-        <receiver
-            android:name="com.freeme.community.receiver.AccountReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="droi.account.intent.action.ACCOUNT_LOGIN"/>
-                <action android:name="droi.account.intent.action.ACCOUNT_UPDATED"/>
-                <action android:name="droi.account.intent.action.ACCOUNT_DELETED"/>
-            </intent-filter>
-        </receiver>
+        <!--<receiver-->
+            <!--android:name="com.freeme.community.receiver.AccountReceiver"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="droi.account.intent.action.ACCOUNT_LOGIN"/>-->
+                <!--<action android:name="droi.account.intent.action.ACCOUNT_UPDATED"/>-->
+                <!--<action android:name="droi.account.intent.action.ACCOUNT_DELETED"/>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
-        <activity
-            android:name="com.freeme.community.activity.ShareActivity"
-            android:label="@string/community"
-            android:theme="@style/activityStyle">
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.ShareActivity"-->
+            <!--android:label="@string/community"-->
+            <!--android:theme="@style/activityStyle">-->
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.SEND"/>-->
 
@@ -493,11 +492,11 @@
 
                 <!--<data android:mimeType="image/*"/>-->
             <!--</intent-filter>-->
-        </activity>
-        <activity
-            android:name="com.freeme.community.activity.CommunitySettings"
-            android:label="@string/community_settings">
-        </activity>
+        <!--</activity>-->
+        <!--<activity-->
+            <!--android:name="com.freeme.community.activity.CommunitySettings"-->
+            <!--android:label="@string/community_settings">-->
+        <!--</activity>-->
         <!-- For Community -->
 
         <provider
@@ -571,24 +570,24 @@
 
 
         <!-- Added by tyd Linguanrong for droi push, 16-3-7 -->
-        <meta-data
-            android:name="DROI_APPKEY"
-            android:value="${DROI_APPKEY_VALUE}"/>
-        <meta-data
-            android:name="PUSH_MESSAGE_SECRET"
-            android:value="${PUSH_MESSAGE_SECRET_VALUE}"/>
-        <meta-data
-            android:name="DROI_CHANNEL"
-            android:value="${DROI_CHANNEL_VALUE}"/>
+        <!--<meta-data-->
+            <!--android:name="DROI_APPKEY"-->
+            <!--android:value="${DROI_APPKEY_VALUE}"/>-->
+        <!--<meta-data-->
+            <!--android:name="PUSH_MESSAGE_SECRET"-->
+            <!--android:value="${PUSH_MESSAGE_SECRET_VALUE}"/>-->
+        <!--<meta-data-->
+            <!--android:name="DROI_CHANNEL"-->
+            <!--android:value="${DROI_CHANNEL_VALUE}"/>-->
 
         <!-- for baas analytics -->
-        <meta-data
-            android:name="${DROI_ANALYTICS_APPKEY}"
-            android:value="${DROI_ANALYTICS_APPKEY_VALUE}"/>
+        <!--<meta-data-->
+            <!--android:name="${DROI_ANALYTICS_APPKEY}"-->
+            <!--android:value="${DROI_ANALYTICS_APPKEY_VALUE}"/>-->
 
-        <meta-data
-            android:name="${DROI_ANALYTICS_CHANNEL}"
-            android:value="${DROI_ANALYTICS_CHANNEL_VALUE}"/>
+        <!--<meta-data-->
+            <!--android:name="${DROI_ANALYTICS_CHANNEL}"-->
+            <!--android:value="${DROI_ANALYTICS_CHANNEL_VALUE}"/>-->
         <!-- Tyd -->
 
         <!--<service-->
@@ -635,29 +634,29 @@
         <!-- Tyd -->
 
         <!-- Added by tyd Linguanrong for statistic, 15-12-18 -->
-        <provider
-            android:name="com.freeme.statistic.StatisticContentProvider"
-            android:authorities="com.freeme.gallery.statistic"
-            android:exported="true"
-            android:multiprocess="false"/>
+        <!--<provider-->
+            <!--android:name="com.freeme.statistic.StatisticContentProvider"-->
+            <!--android:authorities="com.freeme.gallery.statistic"-->
+            <!--android:exported="true"-->
+            <!--android:multiprocess="false"/>-->
         <!-- Tyd -->
 
-        <service
-            android:name="com.freeme.updateself.app.UpdateSelfService"
-            android:exported="true" >
-            <meta-data
-                android:name="UPDATESELF_APKNAME"
-                android:value="gallery"
-                tools:replace="android:value"/>
-            <meta-data
-                android:name="UPDATESELF_DOWNLOADPATH"
-                android:value="/.UpdateSelf/.Gallery"
-                tools:replace="android:value"/>
-            <meta-data
-                android:name="UPDATESELF_UPDATEURL"
-                android:value="${UPDATESELF_UPDATEURL_VALUE}"
-                tools:replace="android:value"/>
-        </service>
+        <!--<service-->
+            <!--android:name="com.freeme.updateself.app.UpdateSelfService"-->
+            <!--android:exported="true" >-->
+            <!--<meta-data-->
+                <!--android:name="UPDATESELF_APKNAME"-->
+                <!--android:value="gallery"-->
+                <!--tools:replace="android:value"/>-->
+            <!--<meta-data-->
+                <!--android:name="UPDATESELF_DOWNLOADPATH"-->
+                <!--android:value="/.UpdateSelf/.Gallery"-->
+                <!--tools:replace="android:value"/>-->
+            <!--<meta-data-->
+                <!--android:name="UPDATESELF_UPDATEURL"-->
+                <!--android:value="${UPDATESELF_UPDATEURL_VALUE}"-->
+                <!--tools:replace="android:value"/>-->
+        <!--</service>-->
 
 
     </application>

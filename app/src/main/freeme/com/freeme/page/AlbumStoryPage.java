@@ -435,10 +435,10 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH,

@@ -413,10 +413,10 @@ public class AlbumCameraPage extends ActivityState implements GalleryActionBar.C
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
                 Bundle data = new Bundle();
                 data.putString(SlideshowPage.KEY_SET_PATH, mMediaSetPath.toString());
                 data.putBoolean(SlideshowPage.KEY_REPEAT, true);
@@ -457,11 +457,11 @@ public class AlbumCameraPage extends ActivityState implements GalleryActionBar.C
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
 
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

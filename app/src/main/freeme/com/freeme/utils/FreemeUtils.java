@@ -107,6 +107,9 @@ public final class FreemeUtils {
     }
 
     public static Uri convertUri(Uri uri) {
+        if (uri == null) {
+            return null;
+        }
         return Uri.parse(uri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
     }
 
@@ -167,9 +170,10 @@ public final class FreemeUtils {
         if (uri == null) {
             return null;
         }
+        return uri;
 
-        return Uri.parse(
-                uri.toString().replace("content://media/", GalleryStore.CONTENT_AUTHORITY_SLASH));
+//        return Uri.parse(
+//                uri.toString().replace("content://media/", GalleryStore.CONTENT_AUTHORITY_SLASH));
     }
 
     public static void setScreenBrightness(Window window) {

@@ -47,6 +47,7 @@ import com.android.gallery3d.filtershow.pipeline.UpdatePreviewTask;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import com.android.gallery3d.R;
+import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.filtershow.FilterShowActivity;
 import com.android.gallery3d.filtershow.filters.FiltersManager;
 import com.android.gallery3d.filtershow.imageshow.MasterImage;
@@ -307,9 +308,6 @@ public class ProcessingService extends Service {
     public void completeSaveImage(Uri result, boolean exit) {
         if (SHOW_IMAGE) {
             // TODO: we should update the existing image in Gallery instead
-            Intent viewImage = new Intent(Intent.ACTION_VIEW, result);
-            viewImage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(viewImage);
         }
         ///M: complete save image
         mSaving = false;

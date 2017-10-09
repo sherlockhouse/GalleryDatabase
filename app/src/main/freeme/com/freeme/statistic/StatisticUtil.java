@@ -291,7 +291,7 @@ public class StatisticUtil {
     }
 
     public static void generateStatisticInfo(Context context, String optionId) {
-        StatisticData.insertStatistic(context, getStatisticInfo(context, optionId));
+//        StatisticData.insertStatistic(context, getStatisticInfo(context, optionId));
     }
 
     public static void generateExitStatisticInfo(Context context, String optionId) {

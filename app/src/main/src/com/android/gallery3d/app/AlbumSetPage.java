@@ -1105,11 +1105,11 @@ volatile boolean mDestroyed = false;
                 //*/
 
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_HIDE);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_ALBUM_HIDE);
                 //*/
 
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_HIDE);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_ALBUM_HIDE);
 
                 Bundle data = new Bundle(getData());
                 data.putBoolean(KEY_VISIBLE_ALL_SET, true);
@@ -1139,10 +1139,10 @@ volatile boolean mDestroyed = false;
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_JIGSAW);
 
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

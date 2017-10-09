@@ -402,10 +402,10 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
 
             case R.id.action_slideshow: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SLIDESHOW);
                 //*/
                 // for baas analytics
-                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
+//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SLIDESHOW);
 
                 mActivity.closeOptionsMenu();
                 final Bundle data = new Bundle();
@@ -456,7 +456,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
             // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
             case R.id.action_jigsaw: {
                 //*/ Added by tyd Linguanrong for statistic, 15-12-18
-                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
+//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_JIGSAW);
                 //*/
                 Intent intent = new Intent(mActivity, JigsawEntry.class);
                 mActivity.startActivity(intent);

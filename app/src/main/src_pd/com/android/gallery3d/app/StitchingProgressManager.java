@@ -18,9 +18,6 @@ package com.android.gallery3d.app;
 
 import android.net.Uri;
 
-import com.android.gallery3d.app.GalleryApp;
-import com.android.gallery3d.app.StitchingChangeListener;
-
 public class StitchingProgressManager {
     public StitchingProgressManager(GalleryApp app) {
     }

@@ -578,7 +578,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
 
         mAction = intent.getAction();
         mSelectedImageUri = intent.getData();
-        mSelectedImageUri = Uri.parse(mSelectedImageUri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
+//        mSelectedImageUri = Uri.parse(mSelectedImageUri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
         Uri loadUri = mSelectedImageUri;
         if (mOriginalImageUri != null) {
             loadUri = mOriginalImageUri;

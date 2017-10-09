@@ -74,6 +74,7 @@ import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
 
 import com.freeme.provider.GalleryDBManager;
+import com.freeme.provider.GalleryStore;
 import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.gallery3d.util.TraceHelper;
@@ -239,7 +240,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
 
         // for baas analytic
-        DroiAnalytics.onPause(this);
+//        DroiAnalytics.onPause(this);
     }
 
     @Override
@@ -268,13 +269,13 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         mSettingsObserver.unregister();
 
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-        if (!mStartOutside) {
-            StatisticUtil.generateExitStatisticInfo(mContext, StatisticData.OPTION_EXIT);
-            StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
-
-            // for baas analytics
-            DroiAnalytics.onEvent(mContext, StatisticData.OPTION_EXIT);
-        }
+//        if (!mStartOutside) {
+//            StatisticUtil.generateExitStatisticInfo(mContext, StatisticData.OPTION_EXIT);
+//            StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
+//
+//            // for baas analytics
+//            DroiAnalytics.onEvent(mContext, StatisticData.OPTION_EXIT);
+//        }
         //*/
 
         if (BuildConfig.DEBUG) {
@@ -455,16 +456,16 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
 
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-        mStartOutside = false;
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
-                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
-                // for baas analytics
-                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
-            }
-        });
+//        mStartOutside = false;
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                StatisticUtil.saveStatisticInfoToFileFromDB(mContext);
+//                StatisticUtil.generateStatisticInfo(mContext, StatisticData.OPTION_ENTER);
+//                // for baas analytics
+//                DroiAnalytics.onEvent(mContext, StatisticData.OPTION_ENTER);
+//            }
+//        });
         //*/
     }
     private void updateStoryGuide(boolean showStoryGuide) {
@@ -509,7 +510,8 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         } else {
             Bundle data = new Bundle();
             DataManager dm = getDataManager();
-            Uri uri = FreemeUtils.convertGalleryUri(intent.getData());
+            Uri uri = intent.getData();
+
             String contentType = getContentType(intent);
             if (contentType == null) {
                 Toast.makeText(this,
@@ -569,6 +571,16 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 //clear old mediaObject, query database again
                 itemPath.clearObject();
                 albumPath = dm.getDefaultSetOf(itemPath);
+                int count  = 0;
+                while (albumPath == null && count < 8) {
+                    try {
+                        Thread.sleep(400);
+                        count ++;
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    albumPath = dm.getDefaultSetOf(itemPath);
+                }
                 /// @}
 
                 data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
@@ -634,7 +646,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         //*/
 
         // for baas analytic
-        DroiAnalytics.onResume(this);
+//        DroiAnalytics.onResume(this);
     }
 
 
