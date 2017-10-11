@@ -33,7 +33,6 @@ import com.android.gallery3d.app.StitchingChangeListener;
 import com.android.gallery3d.util.MediaSetUtils;
 import com.mediatek.galleryframework.base.MediaFilterSetting;
 
-
 import java.util.ArrayList;
 
 // This class lists all media items added by the client.

@@ -45,6 +45,11 @@ public abstract class MediaSource {
 
     public abstract MediaObject createMediaObject(Path path);
 
+    public MediaObject createMediaObjectFromWidget(Path path){
+        return null;
+
+    }
+
     public void pause() {
     }
 

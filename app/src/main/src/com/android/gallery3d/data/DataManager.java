@@ -204,6 +204,33 @@ public class DataManager implements StitchingChangeListener {
         }
     }
 
+    public MediaObject getMediaObjectFromWidget(Path path) {
+        synchronized (LOCK) {
+            MediaObject obj = path.getObject();
+            if (obj != null) return obj;
+
+            MediaSource source = mSourceMap.get(path.getPrefix());
+            if (source == null) {
+                Log.w(TAG, "cannot find media source for path: " + path);
+                return null;
+            }
+
+            try {
+                MediaObject object = source.createMediaObjectFromWidget(path);
+                if (object == null) {
+                    Log.w(TAG, "cannot create media object: " + path);
+                }
+                return object;
+            } catch (Throwable t) {
+                Log.w(TAG, "exception in creating media object: " + path, t);
+                /// M: [BUG.ADD] @{
+                path.clearObject();
+                /// @}
+                return null;
+            }
+        }
+    }
+
     public MediaObject getMediaObject(String s) {
         return getMediaObject(Path.fromString(s));
     }

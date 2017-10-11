@@ -29,7 +29,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.ImageColumns;
@@ -40,8 +39,8 @@ import com.android.gallery3d.R;
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.data.DataManager;
-import com.android.gallery3d.data.LocalAlbum;
 import com.android.gallery3d.data.MediaSet;
+import com.android.gallery3d.data.WidgetLocalAlbum;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.filtershow.crop.CropExtras;
 import com.android.gallery3d.gadget.WidgetDatabaseHelper;
@@ -50,7 +49,6 @@ import com.freeme.gallery.app.AlbumPicker;
 import com.freeme.gallery.app.DialogPicker;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.gallery.filtershow.crop.CropActivity;
-import com.mediatek.gallery3d.adapter.FeatureHelper;
 //import com.mediatek.gallery3d.adapter.PhotoPlayFacade;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.gallery3d.util.PermissionHelper;
@@ -254,8 +252,8 @@ public class WidgetConfigure extends Activity {
             GalleryApp galleryApp = (GalleryApp) getApplicationContext();
             DataManager manager = galleryApp.getDataManager();
             Path path = Path.fromString(albumPath);
-            MediaSet mediaSet = (MediaSet) manager.getMediaObject(path);
-            if (mediaSet instanceof LocalAlbum) {
+            MediaSet mediaSet = (MediaSet) manager.getMediaObjectFromWidget(path);
+            if (mediaSet instanceof WidgetLocalAlbum) {
                 /// M: [BUG.MARK] @{
                 /*int bucketId = Integer.parseInt(path.getSuffix());*/
                 /// @}
@@ -263,7 +261,7 @@ public class WidgetConfigure extends Activity {
                 // Otherwise, leave the relative path field empty
                 /// M: [BUG.MODIFY] @{
                 /*relativePath = LocalAlbum.getRelativePath(bucketId);*/
-                relativePath = ((LocalAlbum) mediaSet).getRelativePath();
+                relativePath = ((WidgetLocalAlbum) mediaSet).getRelativePath();
                 /// @}
                 Log.i(TAG, "<setChoosenAlbum> Setting widget, album path: " + albumPath
                         + ", relative path: " + relativePath);

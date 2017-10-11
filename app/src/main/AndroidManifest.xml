@@ -376,13 +376,25 @@
                 android:syncable="false"
                 android:exported="false"/>
         <!-- added for fixing the flash when switch dialog show. -->
-        <activity android:name=".gadget.WidgetClickHandler" android:theme="@style/GalleryNoDisplay"/>
-        <activity android:name=".app.DialogPicker"
-                android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
-                android:theme="@style/DialogPickerTheme"/>
-        <activity android:name=".app.AlbumPicker"
-                android:configChanges="keyboardHidden|orientation|screenSize"
-                android:theme="@style/DialogPickerTheme"/>
+        <activity
+            android:name=".gadget.WidgetClickHandler"
+            android:theme="@style/GalleryNoDisplay"/>
+        <activity
+            android:name=".app.DialogPicker"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize"
+            android:theme="@style/DialogPickerTheme">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
+        </activity>
+        <activity
+            android:name=".app.AlbumPicker"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/DialogPickerTheme">
+            <meta-data
+                android:name="com.freeme.app.theme"
+                android:value="freeme:style/Theme.Freeme.Light"/>
+        </activity>
         <activity android:name=".gadget.WidgetTypeChooser"
                 android:configChanges="keyboardHidden|orientation|screenSize"
                 android:theme="@style/Theme.Gallery.Dialog"/>

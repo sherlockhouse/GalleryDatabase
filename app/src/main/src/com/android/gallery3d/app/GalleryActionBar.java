@@ -223,6 +223,14 @@ public class GalleryActionBar {
 
     }
 
+    public GalleryActionBar(AbstractGalleryActivity activity, boolean notap) {
+        mActionBar = activity.getActionBar();
+        mContext = activity.getAndroidContext();
+        mActivity = activity;
+        mInflater = ((Activity) mActivity).getLayoutInflater();
+        mCurrentIndex = 0;
+    }
+
     public void initActionBar() {
         if (mActionBar != null) {
             mActionBar.setElevation(ACTIONBAR_ELEVATION);
@@ -270,6 +278,7 @@ public class GalleryActionBar {
 
                 }
             });
+
             mActionBar.setCustomView(actionbarLayout, lp);
             mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
             mActionBar.setDisplayShowCustomEnabled(true);

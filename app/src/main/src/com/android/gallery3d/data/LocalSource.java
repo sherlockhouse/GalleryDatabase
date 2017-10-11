@@ -35,7 +35,6 @@ import com.freeme.data.VisitorAlbumVideo;
 import com.freeme.gallery.app.GalleryActivity;
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.data.MediaSet.ItemConsumer;
-import com.freeme.provider.GalleryStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +103,40 @@ class LocalSource extends MediaSource {
                 "external/video/media", LOCAL_VIDEO_ALBUM);
         mUriMatcher.addURI(MediaStore.AUTHORITY,
                 "external/file", LOCAL_ALL_ALBUM);
+    }
+
+    @Override
+    public MediaObject createMediaObjectFromWidget(Path path) {
+        GalleryApp app = mApplication;
+        switch (mMatcher.match(path)) {
+            case LOCAL_ALL_ALBUMSET:
+            case LOCAL_IMAGE_ALBUMSET:
+            case LOCAL_VIDEO_ALBUMSET:
+                return new LocalAlbumSet(path, mApplication);
+            case LOCAL_IMAGE_ALBUM:
+                return new WidgetLocalAlbum(path, app, mMatcher.getIntVar(0), true);
+            case LOCAL_IMAGE_ITEM:
+                return new WidgetLocalImage(path, mApplication, mMatcher.getIntVar(0));
+            case LOCAL_VIDEO_ITEM:
+                return new LocalVideo(path, mApplication, mMatcher.getIntVar(0));
+            case LOCAL_VIDEO_ALBUM:
+                return new WidgetLocalAlbum(path, app, mMatcher.getIntVar(0), false);
+            case LOCAL_ALL_ALBUM: {
+                int bucketId = mMatcher.getIntVar(0);
+                DataManager dataManager = app.getDataManager();
+                MediaSet imageSet = (MediaSet) dataManager.getMediaObject(
+                        LocalAlbumSet.PATH_IMAGE.getChild(bucketId));
+                MediaSet videoSet = (MediaSet) dataManager.getMediaObject(
+                        LocalAlbumSet.PATH_VIDEO.getChild(bucketId));
+                Comparator<MediaItem> comp = DataManager.sDateTakenComparator;
+                return new LocalMergeAlbum(
+                        path, comp, new MediaSet[] {imageSet, videoSet}, bucketId);
+            }
+
+
+            default:
+                throw new RuntimeException("bad path: " + path);
+        }
     }
 
     @Override

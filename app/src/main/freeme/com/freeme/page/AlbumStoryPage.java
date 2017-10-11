@@ -309,8 +309,11 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         super.onPause();
         mIsActive = false;
 
-        mActivity.mIsSelectionMode = mSelectionManager != null && mSelectionManager.inSelectionMode();
 
+        mActivity.mIsSelectionMode = mSelectionManager != null && mSelectionManager.inSelectionMode();
+        if (mActivity.mIsSelectionMode) {
+            mSelectionManager.leaveSelectionMode();
+        }
         mAlbumView.setSlotFilter(null);
 
         mAlbumDataAdapter.pause();

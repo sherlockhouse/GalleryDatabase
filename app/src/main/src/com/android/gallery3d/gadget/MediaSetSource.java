@@ -49,7 +49,7 @@ public class MediaSetSource implements WidgetSource, ContentListener {
     private ContentListener mListener;
 
     public MediaSetSource(DataManager manager, String albumPath) {
-        MediaSet mediaSet = (MediaSet) manager.getMediaObject(albumPath);
+        MediaSet mediaSet = (MediaSet) manager.getMediaObjectFromWidget(Path.fromString(albumPath));
         if (mediaSet != null) {
             mSource = new CheckedMediaSetSource(mediaSet);
             return;
@@ -103,13 +103,13 @@ public class MediaSetSource implements WidgetSource, ContentListener {
 
     private void monitorRootPath() {
         String rootPath = mDataManager.getTopSetPath(DataManager.INCLUDE_ALL);
-        mRootSet = (MediaSet) mDataManager.getMediaObject(rootPath);
+        mRootSet = (MediaSet) mDataManager.getMediaObjectFromWidget(Path.fromString(rootPath));
         mRootSet.addContentListener(this);
     }
 
     private synchronized void resolveAlbumPath() {
         if (mDataManager == null) return;
-        MediaSet mediaSet = (MediaSet) mDataManager.getMediaObject(mAlbumPath);
+        MediaSet mediaSet = (MediaSet) mDataManager.getMediaObjectFromWidget(mAlbumPath);
         if (mediaSet != null) {
             // Clear the reference instead of removing the listener
             // to get around a concurrent modification exception.

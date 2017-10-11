@@ -297,6 +297,9 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         mActivity.mIsSelectionMode = mSelectionManager != null ?
                 mSelectionManager.inSelectionMode() : false;
         //*/
+        if (mActivity.mIsSelectionMode) {
+            mSelectionManager.leaveSelectionMode();
+        }
 
         mAlbumView.setSlotFilter(null);
 

@@ -10,6 +10,7 @@ import android.os.IBinder;
 import com.freeme.utils.LogUtil;
 
 public class GalleryDBManager {
+    private static String TAG = "GalleryDBManager";
     private Context        mContext;
     protected ServiceConnection mediaStoreConnection = new ServiceConnection() {
 
@@ -58,7 +59,12 @@ public class GalleryDBManager {
     }
 
     public SQLiteDatabase getDataBase() {
-        return daoMaster.getDatabase();
+        if (daoMaster != null) {
+
+            return daoMaster.getDatabase();
+        }
+        LogUtil.d(TAG, "daoMaster == null");
+        return  null;
     }
 
     public GalleryFilesDao getGalleryFilesDao() {

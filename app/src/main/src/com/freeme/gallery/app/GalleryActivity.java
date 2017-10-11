@@ -219,7 +219,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         /// M: [DEBUG.ADD] @{
         TraceHelper.traceEnd();
         /// @}
-
         //*/ Added by Tyd Linguanrong for secret photos, 2014-3-10
         IntentFilter visitorModeChangedFilter = new IntentFilter();
         visitorModeChangedFilter.addAction(VISITOR_MODE_ON);
@@ -232,16 +231,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
 
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.dismiss();
-        }
 
-        // for baas analytic
-//        DroiAnalytics.onPause(this);
-    }
 
     @Override
     protected void onStop() {
@@ -487,6 +477,22 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         getStateManager().startState(AlbumSetPage.class, data);
     }
 
+    private String getContentType(Intent intent) {
+        String type = intent.getType();
+        if (type != null) {
+            return GalleryUtils.MIME_TYPE_PANORAMA360.equals(type)
+                ? MediaItem.MIME_TYPE_JPEG : type;
+        }
+
+        Uri uri = intent.getData();
+        try {
+            return getContentResolver().getType(uri);
+        } catch (Throwable t) {
+            Log.w(TAG, "get type fail", t);
+            return null;
+        }
+    }
+
     private void startViewAction(Intent intent) {
         Boolean slideshow = intent.getBooleanExtra(EXTRA_SLIDESHOW, false);
         if (slideshow) {
@@ -511,7 +517,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
             Bundle data = new Bundle();
             DataManager dm = getDataManager();
             Uri uri = intent.getData();
-
             String contentType = getContentType(intent);
             if (contentType == null) {
                 Toast.makeText(this,
@@ -649,22 +654,17 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 //        DroiAnalytics.onResume(this);
     }
 
-
-    private String getContentType(Intent intent) {
-        String type = intent.getType();
-        if (type != null) {
-            return GalleryUtils.MIME_TYPE_PANORAMA360.equals(type)
-                    ? MediaItem.MIME_TYPE_JPEG : type;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mVersionCheckDialog != null) {
+            mVersionCheckDialog.dismiss();
         }
 
-        Uri uri = intent.getData();
-        try {
-            return getContentResolver().getType(uri);
-        } catch (Throwable t) {
-            Log.w(TAG, "get type fail", t);
-            return null;
-        }
+        // for baas analytic
+//        DroiAnalytics.onPause(this);
     }
+
 
     @Override
     public void onCancel(DialogInterface dialog) {

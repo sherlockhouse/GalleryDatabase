@@ -13,11 +13,13 @@ import android.provider.MediaStore.Images.Media;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.data.MediaDetails;
+import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.glrenderer.GLCanvas;
 import com.android.gallery3d.glrenderer.ResourceTexture;
 import com.android.gallery3d.glrenderer.Texture;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.gallery3d.util.TraceHelper;
+import com.mediatek.galleryframework.base.ThumbType;
 import com.mediatek.perfservice.IPerfServiceWrapper;
 
 
@@ -89,22 +91,22 @@ public class FeatureHelper {
 //        return originSp;
 //    }
 //
-//    public static ThumbType convertToThumbType(int type) {
-//        switch (type) {
-//        case MediaItem.TYPE_THUMBNAIL:
-//            return ThumbType.MIDDLE;
-//        case MediaItem.TYPE_MICROTHUMBNAIL:
-//            return ThumbType.MICRO;
+    public static ThumbType convertToThumbType(int type) {
+        switch (type) {
+        case MediaItem.TYPE_THUMBNAIL:
+            return ThumbType.MIDDLE;
+        case MediaItem.TYPE_MICROTHUMBNAIL:
+            return ThumbType.MICRO;
 //        case MediaItem.TYPE_FANCYTHUMBNAIL:
 //            return ThumbType.FANCY;
 //        case MediaItem.TYPE_HIGHQUALITYTHUMBNAIL:
 //            return ThumbType.HIGHQUALITY;
-//        default:
-//            Log.e(TAG, "<covertToThumbType> not support type");
-//            assert (false);
-//            return null;
-//        }
-//    }
+        default:
+            Log.e(TAG, "<covertToThumbType> not support type");
+            assert (false);
+            return null;
+        }
+    }
 //
 //    public static void drawMicroThumbOverLay(Context context, GLCanvas canvas,
 //            int width, int height, MediaItem item) {

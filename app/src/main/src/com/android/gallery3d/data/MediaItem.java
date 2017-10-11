@@ -50,7 +50,10 @@ public abstract class MediaItem extends MediaObject {
     private static final BytesBufferPool sMicroThumbBufferPool     =
             new BytesBufferPool(BYTESBUFFE_POOL_SIZE, BYTESBUFFER_SIZE);
     private static       int             sMicrothumbnailTargetSize = 200;
-    private static int sThumbnailTargetSize = 640;
+    /// M: [BUG.MODIFY]
+    // private static int sThumbnailTargetSize = 640;
+    public static int sThumbnailTargetSize = 640;
+    /// @}
 
     public MediaItem(Path path, long version) {
         super(path, version);
@@ -157,4 +160,8 @@ public abstract class MediaItem extends MediaObject {
             return mMediaData;
         }
     }
+    /// M: [BEHAVIOR.ADD] @{
+    // use high-quality screennail instead of region decoder for extremely large image
+    protected static final int REGION_DECODER_PICTURE_SIZE_LIMIT = 12 * 1024 * 1024;
+    /// @}
 }

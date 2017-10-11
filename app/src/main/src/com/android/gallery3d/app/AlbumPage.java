@@ -725,7 +725,12 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
 
         boolean enableHomeButton = (mActivity.getStateManager().getStateCount() > 1) |
                 mParentMediaSetString != null;
-        GalleryActionBar actionBar = mActivity.getGalleryActionBar();
+        GalleryActionBar actionBar = null;
+        if (mGetContent) {
+            actionBar = mActivity.getGalleryActionBarWithoutTap();
+        } else {
+            actionBar = mActivity.getGalleryActionBar();
+        }
         actionBar.setDisplayOptions(enableHomeButton, false);
         if (!mGetContent) {
             actionBar.enableAlbumModeMenu(GalleryActionBar.ALBUM_GRID_MODE_SELECTED, this);
@@ -773,8 +778,14 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         mAlbumDataAdapter.pause();
         mAlbumView.pause();
         DetailsHelper.pause();
+        GalleryActionBar actionBar = null;
+        if (mGetContent) {
+            actionBar = mActivity.getGalleryActionBarWithoutTap();
+        } else {
+            actionBar = mActivity.getGalleryActionBar();
+        }
         if (!mGetContent) {
-            mActivity.getGalleryActionBar().disableAlbumModeMenu(true);
+            actionBar.disableAlbumModeMenu(true);
         }
 
         if (mSyncTask != null) {
@@ -883,7 +894,12 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        GalleryActionBar actionBar = mActivity.getGalleryActionBar();
+        GalleryActionBar actionBar = null;
+        if (mGetContent) {
+            actionBar = mActivity.getGalleryActionBarWithoutTap();
+        } else {
+            actionBar = mActivity.getGalleryActionBar();
+        }
         MenuInflater inflator = getSupportMenuInflater();
 
         //*/ Added by Tyd Linguanrong for secret photos, 2014-2-21

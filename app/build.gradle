@@ -286,7 +286,7 @@ dependencies {
     compile files('libs/gestureSensor.jar')
     compile project(':freemeabout')
     freemeos_6_0_nativeCompile project(':freemeEC')
-    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
+//    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
     compile project(':baas_analytics')
     compile project(':mtkgallery2')
     compile project(':mtkreflectlib-release')

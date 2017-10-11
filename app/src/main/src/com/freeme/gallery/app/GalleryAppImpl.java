@@ -35,7 +35,7 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.util.ThreadPool;
 import com.freeme.provider.GalleryDBManager;
-import com.freeme.updateself.update.UpdateMonitor;
+//import com.freeme.updateself.update.UpdateMonitor;
 import com.freeme.utils.CustomJsonParser;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -72,16 +72,16 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
 //        // for baas analytics
 //        DroiAnalytics.initialize(this);
 
-        UpdateMonitor.Builder
-                 //*/ init UpdateMonitor
-                .getInstance(this)
-                 //*/ register you Application to obsever
-                .registerApplication(this)
-                 //*/ register you Application is Service or hasEnrtyActivity
-                .setApplicationIsServices(true)
-                 //*/ default notify small icon, ifnot set use updateself_ic_notify_small
-                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
-                .complete();
+//        UpdateMonitor.Builder
+//                 //*/ init UpdateMonitor
+//                .getInstance(this)
+//                 //*/ register you Application to obsever
+//                .registerApplication(this)
+//                 //*/ register you Application is Service or hasEnrtyActivity
+//                .setApplicationIsServices(true)
+//                 //*/ default notify small icon, ifnot set use updateself_ic_notify_small
+//                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
+//                .complete();
     }
 
     private void initializeAsyncTask() {

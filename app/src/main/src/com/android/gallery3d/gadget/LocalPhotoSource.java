@@ -38,8 +38,8 @@ import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.ContentListener;
 import com.android.gallery3d.data.DataManager;
-import com.android.gallery3d.data.LocalImage;
 import com.android.gallery3d.data.MediaItem;
+import com.android.gallery3d.data.WidgetLocalImage;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.GalleryUtils;
 import com.mediatek.gallery3d.util.Log;
@@ -63,8 +63,11 @@ public class LocalPhotoSource implements WidgetSource {
     private static final String[] PROJECTION = {Media._ID};
     private static final String[] COUNT_PROJECTION = {"count(*)"};
     /* We don't want to include the download directory */
-    private static final String   SELECTION        =
-            String.format("%s != %s", Media.BUCKET_ID, getDownloadBucketId());
+    /// M: [FEATURE.MODIFY] <DRM> @{
+    /* private static final String SELECTION =
+            String.format("%s != %s", Media.BUCKET_ID, getDownloadBucketId());*/
+    private static String SELECTION;
+    /// @}
     private static final String ORDER = String.format("%s DESC", DATE_TAKEN);
 
     private Context mContext;
@@ -78,7 +81,12 @@ public class LocalPhotoSource implements WidgetSource {
     /// M: [BUG.ADD] @{
     private static final int MILLI_SECOND_WHEN_WAIT_LOOPER = 5;
     /// @}
+
     public LocalPhotoSource(Context context) {
+        /// M: [FEATURE.ADD] <DRM> @{
+        SELECTION = MediaFilterSetting.getExtWhereClause(String.format(
+                "%s != %s", Media.BUCKET_ID, getDownloadBucketId()));
+        /// @}
         mContext = context;
         mDataManager = ((GalleryApp) context.getApplicationContext()).getDataManager();
         /// M: [BUG.ADD] @{
@@ -148,12 +156,34 @@ public class LocalPhotoSource implements WidgetSource {
         }
         long id = mPhotos.get(index);
         MediaItem image = (MediaItem)
-                mDataManager.getMediaObject(LOCAL_IMAGE_ROOT.getChild(id));
+                mDataManager.getMediaObjectFromWidget(LOCAL_IMAGE_ROOT.getChild(id));
         /// M: [DEBUG.ADD] @{
         Log.d(TAG, "getImage: id=" + id
                 + ", mediaitem=" + (image == null ? "null" : image.getName()));
         /// @}
         if (image == null) return null;
+
+        /// M: [BUG.ADD] @{
+        // In some cases, the information of image is not latest.
+        // In order to get correct bitmap, update image here
+        if (image instanceof WidgetLocalImage) {
+            try {
+                Cursor cursor = mContext.getContentResolver().query(
+                        Images.Media.EXTERNAL_CONTENT_URI,
+                        WidgetLocalImage.PROJECTION, "_id = ?",
+                        new String[] { String.valueOf(((WidgetLocalImage) image).id) }, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    ((WidgetLocalImage) image).updateContent(cursor);
+                }
+                if (cursor != null) {
+                    cursor.close();
+                }
+            } catch (SecurityException e) {
+                Log.i(TAG, "<getImage> SecurityException", e);
+                return null;
+            }
+        }
+        /// @}
 
         return WidgetUtils.createWidgetBitmap(image);
     }

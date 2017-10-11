@@ -603,7 +603,11 @@ public class AlbumSetPage extends ActivityState implements
         /// @}
         mEyePosition = new EyePosition(mActivity.getAndroidContext(), this);
         mDetailsSource = new MyDetailsSource();
-        mActionBar = mActivity.getGalleryActionBar();
+        if (mGetContent) {
+            mActionBar = mActivity.getGalleryActionBarWithoutTap();
+        } else {
+            mActionBar = mActivity.getGalleryActionBar();
+        }
         mSelectedAction = data.getInt(AlbumSetPage.KEY_SELECTED_CLUSTER_TYPE, FreemeUtils.CLUSTER_BY_ALBUM);
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
         resumeFromCommunity = data.getBoolean(FreemeUtils.KEY_FROM_COMMUNITY);

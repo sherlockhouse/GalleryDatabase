@@ -25,14 +25,14 @@ public class MediaDataParser {
         data.orientation = cursor.getInt(LocalImage.INDEX_ORIENTATION);
         data.caption = cursor.getString(LocalImage.INDEX_CAPTION);
         data.mimeType = cursor.getString(LocalImage.INDEX_MIME_TYPE);
-        data.isDRM = cursor.getInt(LocalImage.INDEX_IS_DRM);
-        data.drmMethod = cursor.getInt(LocalImage.INDEX_DRM_METHOD);
-        data.bestShotMark = cursor.getInt(LocalImage.INDEX_IS_BEST_SHOT);
+//        data.isDRM = cursor.getInt(LocalImage.INDEX_IS_DRM);
+//        data.drmMethod = cursor.getInt(LocalImage.INDEX_DRM_METHOD);
+//        data.bestShotMark = cursor.getInt(LocalImage.INDEX_IS_BEST_SHOT);
         data.filePath = cursor.getString(LocalImage.INDEX_DATA);
         data.bucketId = cursor.getInt(LocalImage.INDEX_BUCKET_ID);
         data.id = cursor.getLong(LocalImage.INDEX_ID);
         data.fileSize = cursor.getLong(LocalImage.INDEX_SIZE);
-        data.depth_image = cursor.getInt(LocalImage.INDEX_CAMERA_REFOCUS);
+//        data.depth_image = cursor.getInt(LocalImage.INDEX_CAMERA_REFOCUS);
         data.dateModifiedInSec = cursor.getLong(LocalImage.INDEX_DATE_MODIFIED);
         data.uri = Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
                 .appendPath(String.valueOf(data.id)).build();

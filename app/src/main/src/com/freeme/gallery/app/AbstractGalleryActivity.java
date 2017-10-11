@@ -51,6 +51,7 @@ import com.android.gallery3d.app.Log;
 import com.android.gallery3d.app.OrientationManager;
 import com.android.gallery3d.app.StateManager;
 import com.android.gallery3d.app.TransitionStore;
+import com.android.gallery3d.util.MediaSetUtils;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.android.gallery3d.data.DataManager;
@@ -218,6 +219,20 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     }
 
     @Override
+    protected void onStop() {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<onStop>");
+        /// @}
+        super.onStop();
+        if (mAlertDialog != null) {
+            unregisterReceiver(mMountReceiver);
+            mAlertDialog.dismiss();
+            mAlertDialog = null;
+        }
+        mPanoramaViewHelper.onStop();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -234,6 +249,11 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         //*/
 
         mGLRootView.lockRenderThread();
+        /// M: [BUG.ADD] @{
+        // when default storage has been changed, we should refresh bucked id,
+        // or else the icon showing on the album set slot can not update
+//        MediaSetUtils.refreshBucketId();
+        /// @}
         try {
             getStateManager().resume();
             getDataManager().resume();
@@ -264,6 +284,9 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
 
     @Override
     protected void onPause() {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<onPause>");
+        /// @}
         super.onPause();
         mOrientationManager.pause();
         mGLRootView.onPause();
@@ -278,19 +301,13 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         MediaItem.getBytesBufferPool().clear();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mAlertDialog != null) {
-            unregisterReceiver(mMountReceiver);
-            mAlertDialog.dismiss();
-            mAlertDialog = null;
-        }
-        mPanoramaViewHelper.onStop();
-    }
+
 
     @Override
     protected void onDestroy() {
+        /// M: [DEBUG.ADD] @{
+        Log.d(TAG, "<onDestroy>");
+        /// @}
         super.onDestroy();
         mGLRootView.lockRenderThread();
         try {
@@ -370,6 +387,12 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     public GalleryActionBar getGalleryActionBar() {
         if (mActionBar == null) {
             mActionBar = new GalleryActionBar(this);
+        }
+        return mActionBar;
+    }
+    public GalleryActionBar getGalleryActionBarWithoutTap() {
+        if (mActionBar == null) {
+            mActionBar = new GalleryActionBar(this, true);
         }
         return mActionBar;
     }

@@ -145,6 +145,10 @@ public class WidgetService extends RemoteViewsService {
                 Log.d(TAG, "<PhotoRVFactory.getCount> mSource is null, return 0");
                 return 0;
             }
+            if (!PermissionHelper
+                    .checkStoragePermission(WidgetService.this)) {
+                return 0;
+            }
             /// @}
             /// M: [DEBUG.ADD] @{
             Log.d(TAG, "<PhotoRVFactory.getCount> count=" + mSource.size());
@@ -183,6 +187,10 @@ public class WidgetService extends RemoteViewsService {
 
         @Override
         public RemoteViews getViewAt(int position) {
+            if (!PermissionHelper
+                    .checkStoragePermission(WidgetService.this)) {
+                return null;
+            }
             /// M: [BUG.ADD] if any exception happens here, it most probably means
             // that onDestroy has been called and mSource is not available anymore.@{
             Log.d(TAG, "<PhotoRVFactory.getViewAt> " + position);
