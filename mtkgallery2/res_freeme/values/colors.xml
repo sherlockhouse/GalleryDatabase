@@ -25,7 +25,7 @@
     <!--Linguanrong-->
     <!-- tyd.biantao 20130110. Wallpaper -->
     <color name="drag_text_highlight">@color/darker_transparent</color>
-    <color name="drag_text_normal">#66ffffff</color>
+    <color name="drag_text_normal">@color/theme_color_disable</color>
     <!-- tyd.mjzhang 2014-08-11. no file -->
     <color name="no_file_edit">#000000</color>
 

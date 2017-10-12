@@ -299,17 +299,33 @@ public class SaveWallpaper {
     public boolean setAsLockOrMainWallpaper(Bitmap cropped, byte[] croppedBytes,
                                             CompressFormat cf, int quality) {
         boolean result = true;
+        boolean newerThanM = true;
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
+            newerThanM = false;
+        }
         switch (SaveTypeGener.getMajorType(mSaveType)) {
             case SaveTypeGener.SAVE_TYPE_LOCKSCREEN: {
-                result = setAsLockScreen(croppedBytes);
+                if (newerThanM) {
+                    result = setAsLockScreenSinceN(croppedBytes);
+                } else {
+                    result = setAsLockScreen(croppedBytes);
+                }
                 break;
             }
             case SaveTypeGener.SAVE_TYPE_WALLPAPER: {
-                result = setAsWallpaper(croppedBytes);
+                if (newerThanM) {
+                    result = setAsWallpaperSinceN(croppedBytes);
+                } else {
+                    result = setAsWallpaper(croppedBytes);
+                }
                 break;
             }
             case SaveTypeGener.SAVE_TYPE_ALL: {
-                result = setAsAllPaper(cropped, croppedBytes, cf, quality);
+                if (newerThanM) {
+                    result = setAsAllPaperSinceN(croppedBytes);
+                } else {
+                    result = setAsAllPaper(cropped, croppedBytes, cf, quality);
+                }
                 break;
             }
         }
@@ -377,6 +393,49 @@ public class SaveWallpaper {
         }
         return false;
     }
+
+    private boolean setAsLockScreenSinceN(byte[] croppedBytes) {
+        WallpaperManager wm = WallpaperManager.getInstance(mActivity);
+        try {
+            wm.setStream(new ByteArrayInputStream(croppedBytes),
+                    null, true, WallpaperManager.FLAG_LOCK);
+            return true;
+        } catch (Exception e) {
+            LogUtil.i(TAG, "fail to set lockscreen wall paper, inner :" + e);
+            return false;
+        }
+    }
+
+    private boolean setAsWallpaperSinceN(byte[] croppedBytes) {
+        WallpaperManager ws = WallpaperManager.getInstance(mActivity);
+
+        boolean isSpan = true;
+        // +++
+        isSpan = !SaveTypeGener.isPortraitMode(mSaveType);
+        // ---
+        setWallpaperDimensions(ws, isSpan);
+        try {
+            ws.setStream(new ByteArrayInputStream(croppedBytes),
+                    null, true, WallpaperManager.FLAG_SYSTEM);
+            return true;
+        } catch (Exception e) {
+            LogUtil.i(TAG, "fail to set wall paper, inner :" + e);
+            return false;
+        }
+    }
+
+    private boolean setAsAllPaperSinceN(byte[] croppedBytes) {
+        WallpaperManager ws = WallpaperManager.getInstance(mActivity);
+
+        try {
+            ws.setStream(new ByteArrayInputStream(croppedBytes));
+            return true;
+        } catch (Exception e) {
+            LogUtil.i(TAG, "fail to set wall paper, inner :" + e);
+            return false;
+        }
+    }
+
 
     private final void setWallpaperDimensions(WallpaperManager wm, boolean span) {
         int width = span ? mFullWallWidth : mDisplayWidth;
