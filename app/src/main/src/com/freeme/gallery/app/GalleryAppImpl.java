@@ -62,26 +62,26 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
         GalleryUtils.initialize(this);
         WidgetUtils.initialize(this);
         PicasaSource.initialize(this);
-        UsageStatistics.initialize(this);
-        AccountUtil.getInstance(this);
+        /*UsageStatistics.initialize(this);
+        AccountUtil.getInstance(this);*/
         //*/ Added by droi Linguanrong for droi push, 16-3-7
-//        DroiPushManager.getInstance(this).init();
+        //DroiPushManager.getInstance(this).init();
         //*/
         CustomJsonParser.getInstance();
-//
-//        // for baas analytics
-//        DroiAnalytics.initialize(this);
 
-//        UpdateMonitor.Builder
-//                 //*/ init UpdateMonitor
-//                .getInstance(this)
-//                 //*/ register you Application to obsever
-//                .registerApplication(this)
-//                 //*/ register you Application is Service or hasEnrtyActivity
-//                .setApplicationIsServices(true)
-//                 //*/ default notify small icon, ifnot set use updateself_ic_notify_small
-//                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
-//                .complete();
+        // for baas analytics
+       /* DroiAnalytics.initialize(this);
+
+        UpdateMonitor.Builder
+                 /*//*//* init UpdateMonitor
+                .getInstance(this)
+                 /*//*//* register you Application to obsever
+                .registerApplication(this)
+                 /*//*//* register you Application is Service or hasEnrtyActivity
+                .setApplicationIsServices(true)
+                 /*//*//* default notify small icon, ifnot set use updateself_ic_notify_small
+                .setDefaultNotifyIcon(R.drawable.updateself_ic_notify_small)
+                .complete();*/
     }
 
     private void initializeAsyncTask() {

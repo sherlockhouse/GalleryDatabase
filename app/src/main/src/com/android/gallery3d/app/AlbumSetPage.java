@@ -1372,11 +1372,11 @@ volatile boolean mDestroyed = false;
     /// M: [PERF.ADD] add for delete many files performance improve @{
     @Override
     public void setProviderSensive(boolean isProviderSensive) {
-//        mAlbumSetDataAdapter.setSourceSensive(isProviderSensive);
+        mAlbumSetDataAdapter.setSourceSensive(isProviderSensive);
     }
     @Override
     public void fakeProviderChange() {
-//        mAlbumSetDataAdapter.fakeSourceChange();
+        mAlbumSetDataAdapter.fakeSourceChange();
     }
     /// @}
 

@@ -41,6 +41,7 @@ public class GalleryDBManager {
 
         bindServer();
         MediaStoreImporter.getInstance().doImport(context);
+        MediaStoreImporter.getInstance().deleteFiles();
     }
 
     private void bindServer() {

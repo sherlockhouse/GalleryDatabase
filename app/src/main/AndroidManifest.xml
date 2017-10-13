@@ -339,7 +339,8 @@
         </activity>
         <activity
             android:name=".filtershow.crop.CropActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
             android:label="@string/crop"
             android:theme="@style/Theme.Crop">
            <intent-filter android:label="@string/crop_label">

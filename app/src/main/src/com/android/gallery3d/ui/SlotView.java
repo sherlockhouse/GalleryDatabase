@@ -128,6 +128,9 @@ public class SlotView extends GLView {
 
     public void makeSlotVisible(int index) {
         Rect rect = mLayout.getSlotRect(index, mTempRect);
+        if (rect == null) {
+            return;
+        }
         int visibleBegin = WIDE ? mScrollX : mScrollY;
         int visibleLength = WIDE ? getWidth() : getHeight();
         int visibleEnd = visibleBegin + visibleLength;
@@ -761,6 +764,9 @@ public class SlotView extends GLView {
         }
 
         public Rect getSlotRect(int index, Rect rect) {
+            if (mUnitCount <= 0) {
+                return null;
+            }
             int col, row;
             if (WIDE) {
                 col = index / mUnitCount;

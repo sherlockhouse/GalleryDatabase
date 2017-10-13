@@ -303,6 +303,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
                 : MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         mResolver.delete(uri, mWhereClause,
                 new String[]{String.valueOf(mBucketId)});
+        mApplication.getDataManager().broadcastUpdatePicture();
     }
 
     @Override

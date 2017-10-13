@@ -316,6 +316,7 @@ public class LocalImage extends LocalMediaItem {
         SaveImage.deleteAuxFiles(contentResolver, getContentUri());
         contentResolver.delete(baseUri, "_id=?",
                 new String[]{String.valueOf(id)});
+        mApplication.getDataManager().broadcastUpdatePicture();
     }
 
     @Override

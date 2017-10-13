@@ -227,6 +227,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
         mSettingsObserver = new SettingsObserver();
         //*/
+        getDataManager().forceRefreshAll();
     }
 
 

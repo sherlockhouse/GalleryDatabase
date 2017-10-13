@@ -35,6 +35,7 @@ import android.support.v4.print.PrintHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.android.gallery3d.app.ActivityState;
 import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
@@ -493,10 +494,25 @@ public class MenuExecutor {
             int index = 0;
             DataManager manager = mActivity.getDataManager();
             int result = EXECUTION_RESULT_SUCCESS;
+            /// M: [BUG.ADD] @{
+            boolean isDelete = (mOperation == R.id.action_delete);
+            /// @}
+            /// M: [PERF.ADD] add for delete many files performance improve @{
+            ActivityState topState = null;
+            if (mActivity.getStateManager().getStateCount() >= 1) {
+                topState = mActivity.getStateManager().getTopState();
+                topState.setProviderSensive(false);
+            }
+            /// @}
             try {
                 onProgressStart(mListener);
                 for (Path id : mItems) {
                     if (jc.isCancelled() || mHasCancelMultiOperation) {
+                        result = EXECUTION_RESULT_CANCEL;
+                        break;
+                    }
+
+                    if (jc.isCancelled()) {
                         result = EXECUTION_RESULT_CANCEL;
                         break;
                     }
@@ -509,8 +525,16 @@ public class MenuExecutor {
                 Log.e(TAG, "failed to execute operation " + mOperation
                         + " : " + th);
             } finally {
+                if (isDelete) {
+                    Log.w(TAG, "deleting cluster complete, force reload all!");
+                    manager.forceRefreshAll();
+                }
                 mHasCancelMultiOperation = false;
                 onProgressComplete(result, mListener);
+                if (topState != null) {
+                    topState.setProviderSensive(true);
+                    topState.fakeProviderChange();
+                }
             }
             return null;
         }

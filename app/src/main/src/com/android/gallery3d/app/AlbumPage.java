@@ -1219,11 +1219,11 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     /// M: [PERF.ADD] add for delete many files performance improve @{
     @Override
     public void setProviderSensive(boolean isProviderSensive) {
-//        mAlbumDataAdapter.setSourceSensive(isProviderSensive);
+        mAlbumDataAdapter.setSourceSensive(isProviderSensive);
     }
     @Override
     public void fakeProviderChange() {
-//        mAlbumDataAdapter.fakeSourceChange();
+        mAlbumDataAdapter.fakeSourceChange();
     }
     /// @}
 

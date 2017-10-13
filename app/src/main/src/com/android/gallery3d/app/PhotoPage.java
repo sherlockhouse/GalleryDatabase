@@ -666,6 +666,7 @@ public abstract class PhotoPage extends ActivityState implements
         mRecenterCameraOnResume = false;
         switch (requestCode) {
             case REQUEST_EDIT:
+                mActivity.getDataManager().broadcastUpdatePicture();
                 setCurrentPhotoByIntent(data);
                 break;
 
@@ -1598,6 +1599,7 @@ public abstract class PhotoPage extends ActivityState implements
                 return;
             }
             mModel.setCurrentPhoto(path, mCurrentIndex);
+            mActivity.getDataManager().broadcastUpdatePicture();
         }
     }
 
@@ -1609,6 +1611,7 @@ public abstract class PhotoPage extends ActivityState implements
             String string = photoEditPath.toString();
             if (string != null) {
                 mModel.setCurrentPhoto(Path.fromString(string), mCurrentIndex);
+                mActivity.getDataManager().broadcastUpdatePicture();
             }
         }
     }

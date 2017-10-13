@@ -406,6 +406,27 @@ public class AlbumSetDataLoader {
         }
     }
     //*/
+    /// M: [PERF.ADD] add for delete many files performance improve @{
+    private volatile boolean mIsSourceSensive = true;
+
+    /**
+     * Set if data loader is sensitive to change of data.
+     *
+     * @param isProviderSensive
+     *            If data loader is sensitive to change of data
+     */
+    public void setSourceSensive(boolean isSourceSensive) {
+        mIsSourceSensive = isSourceSensive;
+    }
+
+    /**
+     * Notify MySourceListener that the content is dirty and trigger some
+     * operations that only occur when content really changed.
+     */
+    public void fakeSourceChange() {
+        mSourceListener.onContentDirty();
+    }
+    /// @}
 }
 
 
