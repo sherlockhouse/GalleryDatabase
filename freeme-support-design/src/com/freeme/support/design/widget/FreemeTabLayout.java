@@ -1171,7 +1171,7 @@ public class FreemeTabLayout extends HorizontalScrollView {
         }
     }
 
-    class TabView extends LinearLayout implements OnLongClickListener {
+    class TabView extends LinearLayout implements OnLongClickListener, OnClickListener {
         private Tab mTab;
         private TextView mTextView;
 
@@ -1183,7 +1183,7 @@ public class FreemeTabLayout extends HorizontalScrollView {
         public TabView(Context context) {
             super(context);
             if (mTabBackgroundResId != 0) {
-                setBackgroundDrawable(context.getDrawable(mTabBackgroundResId));
+                setBackgroundResource(mTabBackgroundResId);
             }
             ViewCompat.setPaddingRelative(this, mTabPaddingStart, mTabPaddingTop,
                     mTabPaddingEnd, mTabPaddingBottom);
@@ -1364,6 +1364,9 @@ public class FreemeTabLayout extends HorizontalScrollView {
                 setOnLongClickListener(null);
                 setLongClickable(false);
             }
+
+            // Enable click sound effect
+            setOnClickListener(this);
         }
 
         @Override
@@ -1395,6 +1398,11 @@ public class FreemeTabLayout extends HorizontalScrollView {
             }
             cheatSheet.show();
             return true;
+        }
+
+        @Override
+        public void onClick(View v) {
+            // Ignore. Just for click sound effect.
         }
 
         public Tab getTab() {

@@ -8,7 +8,8 @@
         <item name="tab_indicatorHeight">6dp</item>
         <item name="tab_paddingStart">8dp</item>
         <item name="tab_paddingEnd">8dp</item>
-        <item name="tab_background">?android:selectableItemBackground</item>
+        <!--<item name="tab_background">?android:selectableItemBackground</item>-->
+        <item name="tab_background">@null</item>
         <item name="tab_textAppearance">@style/TextAppearance.Freeme.Design.Tab</item>
         <item name="tab_selectedTextColor">?android:colorControlActivated</item>
     </style>
