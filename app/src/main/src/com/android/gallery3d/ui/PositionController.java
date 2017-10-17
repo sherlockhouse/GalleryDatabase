@@ -840,7 +840,9 @@ public class PositionController {
             changed |= mBoxes.get(i).advanceAnimation();
         }
         for (int i = -BOX_MAX; i < BOX_MAX; i++) {
-            changed |= mGaps.get(i).advanceAnimation();
+            if (mGaps.get(i) != null) {
+                changed |= mGaps.get(i).advanceAnimation();
+            }
         }
         changed |= mFilmRatio.advanceAnimation();
         if (changed) redraw();

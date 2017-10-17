@@ -642,9 +642,11 @@ public class TileImageView extends GLView {
     static boolean drawTile(
             Tile tile, GLCanvas canvas, RectF source, RectF target) {
         while (true) {
-            if (tile.isContentValid()) {
-                canvas.drawTexture(tile, source, target);
-                return true;
+            if (tile.mTileState == STATE_DECODED) {
+                if (tile.isContentValid()) {
+                    canvas.drawTexture(tile, source, target);
+                    return true;
+                }
             }
 
             // Parent can be divided to four quads and tile is one of the four.
