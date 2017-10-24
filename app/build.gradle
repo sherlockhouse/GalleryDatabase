@@ -56,6 +56,7 @@ android {
         versionCode cfg.versionCode
         versionName cfg.versionName
         multiDexEnabled true
+        renderscriptTargetApi 18
 
         // Support inner video
         buildConfigField BOOLEAN, SUPPORT_INNER_VIDEO, FALSE
@@ -93,7 +94,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            shrinkResources true
+//            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             signingConfig signingConfigs.release
@@ -101,7 +102,7 @@ android {
 
         debug {
             minifyEnabled false
-            shrinkResources true
+//            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             signingConfig signingConfigs.release
@@ -234,7 +235,7 @@ android {
     }
 
     dexOptions {
-        incremental true
+//        incremental true
     }
 
     //打包后应用名称
@@ -293,4 +294,5 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile project(':freeme-support-design')
+    compile 'com.android.support:multidex:1.0.1'
 }
