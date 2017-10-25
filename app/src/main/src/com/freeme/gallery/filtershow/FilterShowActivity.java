@@ -1087,7 +1087,8 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
             values.put(SharedImageProvider.PREPARE, false);
             getContentResolver().insert(uri, values);
         }
-        setResult(RESULT_OK, new Intent().setData(saveUri));
+        setResult(RESULT_OK, new Intent().setData(saveUri)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
         hideSavingProgress();
         finish();
     }
