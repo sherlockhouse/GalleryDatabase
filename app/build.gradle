@@ -12,6 +12,7 @@ def FALSE = "false"
 def COMMUNITY_REQUEST_URL = "COMMUNITY_REQUEST_URL"
 
 def SUPPORT_PRINT = "SUPPORT_PRINT"
+def CUSTOM_SHARE = "CUSTOM_SHARE"
 def SUPPORT_OS_TAG = "SUPPORT_OS_TAG"
 def SUPPORT_INNER_VIDEO = "SUPPORT_INNER_VIDEO"
 def SUPPORT_STABLE_BRIGHTNESS = "SUPPORT_STABLE_BRIGHTNESS"
@@ -152,6 +153,8 @@ android {
 
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, FALSE
+
+            buildConfigField BOOLEAN, CUSTOM_SHARE, TRUE
 
             manifestPlaceholders = META_OFFICIAL
         }
