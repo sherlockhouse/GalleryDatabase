@@ -74,6 +74,8 @@ android {
 
         // 是否海外版
         buildConfigField BOOLEAN, VERSION_FOREIGN, FALSE
+
+        flavorDimensions "versionCode"
     }
 
     signingConfigs {
@@ -148,6 +150,7 @@ android {
 
     productFlavors {
         devOfficial {
+
             // Community official url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_OFFICIAL
 
@@ -241,17 +244,9 @@ android {
 //        incremental true
     }
 
-    //打包后应用名称
-    applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            def outputFile = output.outputFile
-            def fileName
-            if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                if (variant.buildType.name.equals('release')) {
-                    fileName = "FreemeGallery.apk"
-                    output.outputFile = new File(outputFile.parent, fileName)
-                }
-            }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "FreemeGallery.apk"
         }
     }
 
@@ -272,6 +267,7 @@ android {
             }
         }
     }
+    buildToolsVersion '26.0.2'
 }
 
 

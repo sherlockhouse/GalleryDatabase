@@ -148,9 +148,9 @@ public class GallerySettings extends PreferenceActivity {
 
                     //*/ Added by Tyd Linguanrong for Gallery new style, 2014-4-24
                     if (title == null) {
-                        String where = "_data = '" + path + "'";
+                        String where = "_data = ?";
                         Cursor cursor_re = getContentResolver().query(Media.EXTERNAL_CONTENT_URI,
-                                new String[]{Media.TITLE}, where, null, null);
+                                new String[]{Media.TITLE}, where, new String[]{path}, null);
                         try {
                             if (cursor_re != null && cursor_re.moveToFirst()) {
                                 titleIndex = cursor_re.getColumnIndex(Media.TITLE);
