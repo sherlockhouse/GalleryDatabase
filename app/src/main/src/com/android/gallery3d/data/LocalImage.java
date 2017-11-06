@@ -44,10 +44,17 @@ import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.adapter.MediaDataParser;
+import com.mediatek.gallery3d.layout.FancyHelper;
+import com.mediatek.gallery3d.util.DecodeSpecLimitor;
 import com.freeme.provider.GalleryStore.Images;
 import com.freeme.provider.GalleryStore.Images.ImageColumns;
 import com.freeme.provider.GalleryStore.MediaColumns;
+import com.mediatek.gallery3d.util.TraceHelper;
+import com.mediatek.galleryfeature.config.FeatureConfig;
+import com.mediatek.galleryframework.base.ExtItem;
+import com.mediatek.galleryframework.base.ExtItem.Thumbnail;
 import com.mediatek.galleryframework.base.MediaData;
 
 import java.io.File;
@@ -219,27 +226,83 @@ public class LocalImage extends LocalMediaItem {
 
     @Override
     public Job<Bitmap> requestImage(int type) {
+        /// M: [FEATURE.MODIFY] @{
+        /*return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
+         type, filePath);*/
         return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
-                type, filePath);
+                type, filePath, mimeType, mExtItem, mMediaData);
+        /// @}
     }
+
     public static class LocalImageRequest extends ImageCacheRequest {
         private String mLocalFilePath;
 
         LocalImageRequest(GalleryApp application, Path path, long timeModified,
-                          int type, String localFilePath) {
+                int type, String localFilePath) {
             super(application, path, timeModified, type,
-                    getTargetSize(type));
+                    MediaItem.getTargetSize(type));
             mLocalFilePath = localFilePath;
         }
 
+        /// M: [FEATURE.ADD] @{
+        private ExtItem mData;
+        private MediaData mMediaData;
+        private boolean mIsCameraRollCover;
+        private boolean mIsScreenShotCover;
+
+        LocalImageRequest(GalleryApp application, Path path, long timeModified,
+                int type, String localFilePath, String mimeType, ExtItem data,
+                MediaData mediaData) {
+            super(application, path, timeModified, type, mimeType, MediaItem
+                    .getTargetSize(type));
+            mLocalFilePath = localFilePath;
+            mData = data;
+            mMediaData = mediaData;
+            mIsCameraRollCover = isCameraRollCover(application, mMediaData, path);
+            mIsScreenShotCover = isScreenShotCover(application, mMediaData, path);
+        }
+        /// @}
+
         @Override
         public Bitmap onDecodeOriginal(JobContext jc, final int type) {
+            /// M: [FEATURE.ADD] @{
+            if (mData != null) {
+                Thumbnail thumb = mData.getThumbnail(FeatureHelper
+                        .convertToThumbType(type));
+                if (thumb != null && thumb.mBitmap != null) {
+                    return thumb.mBitmap;
+                }
+                if (thumb != null && thumb.mBitmap == null
+                        && thumb.mStillNeedDecode == false) {
+                    return null;
+                }
+            } else {
+                Log.i(TAG,
+                        "<onDecodeOriginal> error status, ExtItem is null, localFilePath = "
+                                + mLocalFilePath);
+            }
+            /// @}
+            /// M: [BUG.ADD] check decode spec
+            if (mMediaData != null && DecodeSpecLimitor.isOutOfSpecLimit(mMediaData.fileSize,
+                    mMediaData.width, mMediaData.height, mMimeType)) {
+                Log.i(TAG, "<LocalImageRequest.onDecodeOriginal> path "
+                        + mLocalFilePath
+                        + ", out of spec limit, abort decoding!");
+                return null;
+            }
+            /// @}
+            /// M: [DEBUG.ADD] @{
+            Log.d(TAG, "<LocalImageRequest.onDecodeOriginal> onDecodeOriginal,type:" + type);
+            TraceHelper.traceBegin(">>>>LocalImage-onDecodeOriginal");
+            /// @}
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            int targetSize = getTargetSize(type);
+            int targetSize = MediaItem.getTargetSize(type);
 
+            /// M: [BUG.MARK] decode thread may be blocking if exif data is broken. @{
+            /*
             // try to decode from JPEG EXIF
-            if (type == TYPE_MICROTHUMBNAIL) {
+            if (type == MediaItem.TYPE_MICROTHUMBNAIL) {
                 ExifInterface exif = new ExifInterface();
                 byte[] thumbData = null;
                 try {
@@ -256,8 +319,45 @@ public class LocalImage extends LocalMediaItem {
                     if (bitmap != null) return bitmap;
                 }
             }
+            */
+            /// @}
 
-            return DecodeUtils.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
+            /// M: [DEBUG.ADD] @{
+            TraceHelper.traceBegin(
+                    ">>>>LocalImage-onDecodeOriginal-decodeThumbnail");
+            Bitmap res = null;
+            /// @}
+            /// M: [FEATURE.MODIFY] fancy layout @{
+            // return DecodeUtils.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
+            if (type == MediaItem.TYPE_FANCYTHUMBNAIL) {
+                if (mIsCameraRollCover || mIsScreenShotCover) {
+                    targetSize = FancyHelper.getScreenWidthAtFancyMode();
+                    Log.d(TAG, "<onDecodeOri> "
+                            + "mIsCameraRollCover or mIsScreenShotCover, targetSize " + targetSize);
+                }
+                res = FancyHelper.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
+            } else {
+                // High quality thumbnail do not read/write cache,
+                // so we add PQ effect when decode original
+                if (type == MediaItem.TYPE_HIGHQUALITYTHUMBNAIL) {
+                    initOption(jc, options, mData);
+                }
+                res = DecodeUtils.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
+            }
+            /// @}
+            /// M: [BUG.ADD] @{
+            // Some png bitmaps have transparent areas, so clear alpha value
+            if (mMediaData != null) {
+                res = com.mediatek.galleryframework.util.BitmapUtils.clearAlphaValueIfPng(
+                        res, mMediaData.mimeType, true);
+            }
+            /// @}
+            /// M: [DEBUG.ADD] @{
+            TraceHelper.traceEnd();
+            TraceHelper.traceEnd();
+            Log.d(TAG, "<LocalImageRequest.onDecodeOriginal> finish, return bitmap: " + res);
+            return res;
+            /// @}
         }
     }
 

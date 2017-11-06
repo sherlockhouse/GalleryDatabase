@@ -55,6 +55,7 @@ import com.android.gallery3d.util.IntentHelper;
 import com.android.gallery3d.util.ThreadPool.CancelListener;
 import com.android.gallery3d.util.ThreadPool.JobContext;
 import com.mediatek.gallery3d.util.Log;
+import com.mediatek.galleryfeature.config.FeatureConfig;
 
 import java.io.File;
 import java.util.Arrays;
@@ -95,6 +96,24 @@ public class GalleryUtils {
         TiledScreenNail.setPlaceholderColor(r.getColor(
                 R.color.bitmap_screennail_placeholder));
         initializeThumbnailSizes(metrics, r);
+        /// M: [PERF.ADD] @{
+        // Get real resolution size @{
+        DisplayMetrics reMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getRealMetrics(reMetrics);
+        sRealResolutionMaxSize = Math.max(reMetrics.widthPixels,
+                reMetrics.heightPixels);
+        Log.i(TAG, "<initialize> device width " + reMetrics.widthPixels + " height "
+                + reMetrics.heightPixels);
+        // @}
+        /// M: [BEHAVIOR.ADD] @{
+        MediaItem.sHighQualityThumbnailSize = sRealResolutionMaxSize;
+        /// @}
+        // 6592 FHD add
+        initializeTiledTxtureSize(metrics);
+        FeatureConfig.sIsLowRamDevice = ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE))
+                .isLowRamDevice();
+        Log.i(TAG, "<initialize> FeatureConfig.sIsLowRamDevice " + FeatureConfig.sIsLowRamDevice);
+        /// @}
     }
 
     private static void initializeThumbnailSizes(DisplayMetrics metrics, Resources r) {
@@ -256,7 +275,11 @@ public class GalleryUtils {
     public static void startCameraActivity(Context context) {
         Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        /// M: [BUG.MODIFY] @{
+                        /*| Intent.FLAG_ACTIVITY_NEW_TASK);*/
+                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        /// @}
         try {
             context.startActivity(intent);
             ((Activity) context).overridePendingTransition(0, 0);
@@ -310,11 +333,24 @@ public class GalleryUtils {
             Log.e(TAG, "GMM activity not found!", e);
             String url = formatLatitudeLongitude("geo:%f,%f", latitude, longitude);
             Intent mapsIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+
+            /// M: [BUG.ADD] Prompt a toast if there's no map app installed on device. @{
+            if ((context.getPackageManager().queryIntentActivities(mapsIntent, 0).isEmpty())
+                    && (context instanceof GalleryActivity)) {
+                final GalleryActivity activity = (GalleryActivity) context;
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(activity, R.string.m_no_map_tip, Toast.LENGTH_LONG).show();
+                    }
+                });
+                return;
+            }
+            /// @}
+
             context.startActivity(mapsIntent);
         }
     }
-
-
 
     public static void setViewPointMatrix(
             float matrix[], float x, float y, float z) {
@@ -331,7 +367,11 @@ public class GalleryUtils {
     }
 
     public static int getBucketId(String path) {
-        return path.toLowerCase().hashCode();
+        /// M: [BUG.MODIFY] @{
+        /*return path.toLowerCase().hashCode();*/
+        // Generate bucket id in Locale.ENGLISH, in line with media provider.
+        return path.toLowerCase(Locale.ENGLISH).hashCode();
+        /// @}
     }
 
     // Return the local path that matches the given bucketId. If no match is
@@ -425,4 +465,29 @@ public class GalleryUtils {
         int h = item.getHeight();
         return (h > 0 && w / h >= 2);
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    // Because re-decode from origin image to improve image quality in full image display,
+    // so we need set display real resolution max size as the thumbnail size
+    public static int sRealResolutionMaxSize;
+    // re-define high resolution size
+    private static final int HIGH_RESOLUTION_SIZE = 1600;
+    // TILE_SIZE for HIGH_RESOLUTION case
+    private static final int TILE_SIZE_HIGH_RESOLUTION = 512;
+    // CONTENT_SIZE for HIGH_RESOLUTION case
+    private static final int CONTENT_SIZE_HIGH_RESOLUTION = 510;
+
+    // 6592 FHD add @{
+    private static void initializeTiledTxtureSize(DisplayMetrics metrics) {
+        int maxPixels = Math.max(metrics.heightPixels, metrics.widthPixels);
+        if (maxPixels > HIGH_RESOLUTION_SIZE) {
+            TiledTexture.TILE_SIZE = TILE_SIZE_HIGH_RESOLUTION;
+            TiledTexture.CONTENT_SIZE = CONTENT_SIZE_HIGH_RESOLUTION;
+        }
+    }
+    // @}
+
 }

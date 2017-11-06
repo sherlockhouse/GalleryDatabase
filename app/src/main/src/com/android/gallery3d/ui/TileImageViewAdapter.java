@@ -33,6 +33,11 @@ import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.MediaItem;
 import com.android.photos.data.GalleryBitmapPool;
+import com.mediatek.galleryfeature.config.FeatureConfig;
+import com.mediatek.galleryframework.base.ExtItem;
+import com.mediatek.galleryframework.util.BitmapUtils;
+import com.mediatek.galleryframework.util.DebugUtils;
+
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -71,6 +76,21 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         mRegionDecoder = Utils.checkNotNull(decoder);
         mImageWidth = decoder.getWidth();
         mImageHeight = decoder.getHeight();
+        mLevelCount = calculateLevelCount();
+    }
+
+    /**
+     * M: [PERF.ADD]
+     * Set region decoder to tile provider,
+     * The width and height is come from cache.
+     * @param decoder
+     * @param width
+     * @param height
+     */
+    public synchronized void setRegionDecoder(BitmapRegionDecoder decoder, int width, int height) {
+        mRegionDecoder = Utils.checkNotNull(decoder);
+        mImageWidth = width;
+        mImageHeight = height;
         mLevelCount = calculateLevelCount();
     }
 
@@ -128,11 +148,32 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         options.inBitmap = bitmap;
 
         try {
-            // In CropImage, we may call the decodeRegion() concurrently.
-            synchronized (regionDecoder) {
-                bitmap = regionDecoder.decodeRegion(wantRegion, options);
+            /// M: [PERF.MARK] @{
+            //  Do region decode in multi-thread, so delete synchronized
+            /*
+             // In CropImage, we may call the decodeRegion() concurrently.
+             synchronized (regionDecoder) {
+            */
+            /// M: [BUG.ADD] Ensure that decodeRegion function is sync with recycle@{
+            mRegionDecoderLock.readLock().lock();
+            /// @}
+            bitmap = regionDecoder.decodeRegion(wantRegion, options);
+            if (DebugUtils.TILE) {
+                if (bitmap == null) {
+                    Log.i(TAG, "<getTile1> decodeRegion l" + level + "-x" + x + "-y" + y + "-size"
+                            + tileSize + ", return null");
+                } else {
+                    DebugUtils.dumpBitmap(bitmap, "Tile-l" + level + "-x" + x + "-y" + y + "-size"
+                            + tileSize + "-" + sTileDumpNum);
+                    sTileDumpNum++;
+                }
             }
+            /// M: [PERF.MARK] @{
+            /* } */
         } finally {
+            /// M: [BUG.ADD] Ensure that decodeRegion function is sync with recycle@{
+            mRegionDecoderLock.readLock().unlock();
+            /// @}
             if (options.inBitmap != bitmap && options.inBitmap != null) {
                 GalleryBitmapPool.getInstance().put(options.inBitmap);
                 options.inBitmap = null;
@@ -142,6 +183,11 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         if (bitmap == null) {
             Log.w(TAG, "fail in decoding region");
         }
+
+        /// M: [BUG.ADD] Some bitmaps have transparent areas, so clear alpha value @{
+        bitmap = replaceBackgroudForTile(bitmap, level, x, y, tileSize);
+        /// @}
+
         return bitmap;
     }
 
@@ -166,14 +212,32 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         options.inSampleSize = (1 << level);
         Bitmap bitmap = null;
 
-        // In CropImage, we may call the decodeRegion() concurrently.
-        synchronized (regionDecoder) {
-            bitmap = regionDecoder.decodeRegion(overlapRegion, options);
+        /// M: [PERF.MARK] @{
+        //  Do region decode in multi-thread, so delete synchronized
+        /*
+         // In CropImage, we may call the decodeRegion() concurrently.
+         synchronized (regionDecoder) {
+        */
+        /// M: [BUG.MODIFY] @{
+        // Ensure that decodeRegion function is sync with recycle
+        // bitmap = regionDecoder.decodeRegion(wantRegion, options);
+        try {
+            mRegionDecoderLock.readLock().lock();
+            bitmap = regionDecoder.decodeRegion(wantRegion, options);
+        } finally {
+            mRegionDecoderLock.readLock().unlock();
         }
+        /// @}
+        /// M: [PERF.MARK] @{
+        /* } */
 
         if (bitmap == null) {
             Log.w(TAG, "fail in decoding region");
         }
+
+        /// M: [BUG.ADD] Some bitmaps have transparent areas, so clear alpha value @{
+        bitmap = replaceBackgroudForTile(bitmap, level, x, y, tileSize);
+        /// @}
 
         if (wantRegion.equals(overlapRegion)) return bitmap;
 
@@ -205,5 +269,73 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
     public int getLevelCount() {
         return mLevelCount;
     }
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    private static int sTileDumpNum = 0;
+    // Ensure that decodeRegion function is sync with recycle
+    private ReadWriteLock mRegionDecoderLock = new ReentrantReadWriteLock();
 
+    public ExtItem mExtItem = null;
+    public TileImageViewAdapter(
+            Bitmap bitmap, BitmapRegionDecoder regionDecoder) {
+        Utils.checkNotNull(bitmap);
+        updateScreenNail(new BitmapScreenNail(bitmap), true);
+        mRegionDecoder = regionDecoder;
+        mImageWidth = regionDecoder.getWidth();
+        mImageHeight = regionDecoder.getHeight();
+        mLevelCount = calculateLevelCount();
+    }
+
+    private void updateScreenNail(ScreenNail screenNail, boolean own) {
+        if (mScreenNail != null && mOwnScreenNail) {
+            mScreenNail.recycle();
+        }
+        mScreenNail = screenNail;
+        mOwnScreenNail = own;
+    }
+
+    /**
+     * Clear all info in TileImageViewAdapter, add recycle RegionDecoder before clear.
+     */
+    public synchronized void clearAndRecycle() {
+        mScreenNail = null;
+        mImageWidth = 0;
+        mImageHeight = 0;
+        mLevelCount = 0;
+        // When BitmapRegionDecoder is create from FileDescriptor, even if
+        // FileDescriptor is closed, BitmapRegionDecoder is still holding the file.
+        // In order to release file as soon as possible, call
+        // BitmapRegionDecoder.recycle() to release file descriptor.
+        // mRegionDecoder = null;
+        if (mRegionDecoder != null) {
+            mRegionDecoderLock.writeLock().lock();
+            mRegionDecoder.recycle();
+            mRegionDecoderLock.writeLock().unlock();
+            mRegionDecoder = null;
+        }
+    }
+
+    /// M: [FEATURE.ADD] plugin @{
+    public void updateWidthAndHeight(MediaItem item) {
+        if (item != null) {
+            mImageWidth = item.getWidth();
+            mImageHeight = item.getHeight();
+            Log.i(TAG, "<updateWidthAndHeight> mImageWidth " + mImageWidth
+                    + ", mImageHeight " + mImageHeight);
+        }
+    }
+    /// @}
+
+    /// Only replace the rect which contains valid pixel data, not replace the whole bitmap
+    private Bitmap
+            replaceBackgroudForTile(Bitmap bitmap, int level, int x, int y, int tileSize) {
+        int t = tileSize << level;
+        Rect wantRegion = new Rect(x, y, x + t, y + t);
+        int resWidth = wantRegion.right > mImageWidth ? (mImageWidth - x) >> level : tileSize;
+        int resHeight =
+                wantRegion.bottom > mImageHeight ? (mImageHeight - y) >> level : tileSize;
+        return BitmapUtils.replaceBackgroundColor(bitmap, true, new Rect(0, 0, resWidth,
+                resHeight));
+    }
 }

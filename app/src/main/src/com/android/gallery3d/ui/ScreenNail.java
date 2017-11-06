@@ -38,4 +38,16 @@ public interface ScreenNail {
 
     // This is only used by TileImageView to back up the tiles not yet loaded.
     public void draw(GLCanvas canvas, RectF source, RectF dest);
+
+    /// M: [FEATURE.ADD] plugin @{
+    public MediaItem getMediaItem();
+    /// @}
+
+    /// M: [BUG.ADD] Update animation for screenNail. @{
+    /**
+     * Check the screenNail if has animation.
+     * @return Whether is on Animating or not.
+     */
+    public boolean isAnimating();
+    /// @}
 }

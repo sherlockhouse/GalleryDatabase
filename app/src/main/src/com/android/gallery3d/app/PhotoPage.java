@@ -793,7 +793,13 @@ public abstract class PhotoPage extends ActivityState implements
                         if (stayedOnCamera) {
                             //*/ Modified by droi Linguanrong for freeme gallery, 16-2-24
                             updateBars();
-                            updateCurrentPhoto(mModel.getMediaItem(0));
+                             /// M: [BUG.MODIFY] getMediaItem(0) may be null, fix JE @{
+                                /*updateCurrentPhoto(mModel.getMediaItem(0));*/
+                                MediaItem photo = mModel.getMediaItem(0);
+                                if (photo != null) {
+                                    updateCurrentPhoto(photo);
+                                }
+                             /// @}
                             /*/
                             if (mAppBridge == null && mMediaSet.getTotalMediaItemCount() > 1) {
                                 launchCamera();
@@ -811,10 +817,14 @@ public abstract class PhotoPage extends ActivityState implements
                         break;
                     }
                     case MSG_ON_PICTURE_CENTER: {
-                        if (!mPhotoView.getFilmMode() && mCurrentPhoto != null
-                                && (mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_ACTION) != 0) {
-                            mPhotoView.setFilmMode(true);
-                        }
+                        /// M: [BUG.MARK] @{
+                        // Design change : get into page mode directly when from camera to gallery.
+                        /*if (!mPhotoView.getFilmMode() && mCurrentPhoto != null
+                             && (mCurrentPhoto.getSupportedOperations()
+                                 & MediaObject.SUPPORT_ACTION) != 0) {
+                         mPhotoView.setFilmMode(true);
+                         }*/
+                        /// @}
                         break;
                     }
                     case MSG_REFRESH_IMAGE: {
@@ -828,7 +838,16 @@ public abstract class PhotoPage extends ActivityState implements
                         break;
                     }
                     case MSG_UPDATE_SHARE_URI: {
-                        if (mCurrentPhoto == message.obj) {
+                        /// M: [BUG.ADD] @{
+                        // never update share uri when PhotoPage is not active
+                        if (!mIsActive) {
+                            break;
+                        }
+                        /// @}
+                        /// M: [BUG.MARK] @{
+                        // No matter what message.obj is, we update share intent for current photo
+                        /* if (mCurrentPhoto == message.obj) {*/
+                        /// @}
                             boolean isPanorama360 = message.arg1 != 0;
                             Uri contentUri = mCurrentPhoto.getContentUri();
                             Intent panoramaIntent = null;
@@ -839,7 +858,9 @@ public abstract class PhotoPage extends ActivityState implements
 
                             mActionBar.setShareIntents(panoramaIntent, shareIntent, PhotoPage.this);
                             setNfcBeamPushUri(contentUri);
-                        }
+                        /// M: [BUG.MARK] @{
+                        // }
+                        /// @}
                         break;
                     }
                     case MSG_UPDATE_PANORAMA_UI: {
@@ -849,9 +870,7 @@ public abstract class PhotoPage extends ActivityState implements
                         }
                         break;
                     }
-
-                    default:
-                        throw new AssertionError(message.what);
+                    default: throw new AssertionError(message.what);
                 }
             }
         };
@@ -898,7 +917,6 @@ public abstract class PhotoPage extends ActivityState implements
                     // Set the flag to be on top of the lock screen.
                     mFlags |= FLAG_SHOW_WHEN_LOCKED;
                 }
-
                 // Don't display "empty album" action item for capture intents.
                 if (!mSetPathString.equals("/local/all/0")) {
                     // Check if the path is a secure album.
@@ -907,7 +925,7 @@ public abstract class PhotoPage extends ActivityState implements
                                 .getMediaSet(mSetPathString);
                         mShowSpinner = false;
                     }
-                    mSetPathString = "/filter/empty/{" + mSetPathString + "}";
+                    mSetPathString = "/filter/empty/{"+mSetPathString+"}";
                 }
 
                 // Combine the original MediaSet with the one for ScreenNail
@@ -943,7 +961,7 @@ public abstract class PhotoPage extends ActivityState implements
                 if (mediaItemCount > 0) {
                     if (mCurrentIndex >= mediaItemCount) mCurrentIndex = 0;
                     itemPath = mMediaSet.getMediaItem(mCurrentIndex, 1)
-                            .get(0).getPath();
+                        .get(0).getPath();
                 } else {
                     // Bail out, PhotoPage can't load on an empty album
                     return;

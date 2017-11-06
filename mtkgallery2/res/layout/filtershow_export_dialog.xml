@@ -48,7 +48,7 @@
         <EditText
                 android:id="@+id/editableWidth"
                 android:layout_gravity="right|center_vertical"
-                android:layout_width="80dp"
+                android:layout_width="@dimen/export_edittext_width"
                 android:inputType="number"
                 style="@style/EditTextSytle"/>
 
@@ -61,7 +61,7 @@
         <EditText
                 android:id="@+id/editableHeight"
                 android:layout_gravity="left|center_vertical"
-                android:layout_width="80dp"
+                android:layout_width="@dimen/export_edittext_width"
                 android:inputType="number"
                 style="@style/EditTextSytle"/>
 

@@ -17,8 +17,7 @@ public class DebugUtils {
 
     public static final boolean DUMP = false ; //SystemProperties.getInt("Gallery_DUMP", 0) == 1 ? true
 //            : false;
-//    public static final boolean TILE = SystemProperties.getInt("Gallery_TILE", 0) == 1 ? true
-//            : false;
+    public static final boolean TILE = false;
 //    public static final boolean DEBUG_PLAY_ENGINE = SystemProperties.getInt(
 //            "Gallery_DEBUG_PLAY_ENGINE", 0) == 1 ? true : false;
 //    public static final boolean DEBUG_THUMBNAIL_PLAY_ENGINE = SystemProperties.getInt(
@@ -27,8 +26,8 @@ public class DebugUtils {
 //            "Gallery_DEBUG_PLAY_RENDER", 0) == 1 ? true : false;
 //    public static final boolean DEBUG_POSITION_CONTROLLER = SystemProperties.getInt(
 //            "Gallery_DEBUG_PC", 0) == 1 ? true : false;
-//    public static final boolean DEBUG_HIGH_QUALITY_SCREENAIL = SystemProperties.getInt(
-//            "Gallery_DEBUG_HQS", 0) == 1 ? true : false;
+    public static final boolean DEBUG_HIGH_QUALITY_SCREENAIL = false;
+//    SystemProperties.getInt("Gallery_DEBUG_HQS", 0) == 1 ? true : false;
 //    public static final boolean DEBUG_RENDER = SystemProperties.getInt(
 //            "Gallery_DEBUG_RENDER", 0) == 1 ? true : false;
 

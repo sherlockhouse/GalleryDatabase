@@ -25,6 +25,7 @@ import android.annotation.TargetApi;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 
+import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.glrenderer.ExtTexture;
 import com.android.gallery3d.glrenderer.GLCanvas;
 import com.android.gallery3d.common.ApiHelper;
@@ -144,4 +145,17 @@ public abstract class SurfaceTextureScreenNail implements ScreenNail,
 
     @Override
     abstract public void onFrameAvailable(SurfaceTexture surfaceTexture);
+
+    /// M: [FEATURE.ADD] plugin @{
+    @Override
+    public MediaItem getMediaItem() {
+        return null;
+    }
+    /// @}
+
+    /// M: [BUG.ADD] Update animation for this texture. @{
+    public boolean isAnimating() {
+        return false;
+    }
+    /// @}
 }

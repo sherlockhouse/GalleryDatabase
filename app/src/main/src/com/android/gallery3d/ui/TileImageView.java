@@ -41,7 +41,7 @@ import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.ThreadPool;
 import com.android.gallery3d.util.ThreadPool.CancelListener;
 import com.android.gallery3d.util.ThreadPool.JobContext;
-
+import com.mediatek.galleryframework.util.DebugUtils;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -135,7 +135,6 @@ public class TileImageView extends GLView {
     /// @}
     private final ThreadPool mThreadPool;
     private boolean mBackgroundTileUploaded;
-    private Future mTileDecoder;
 
     public static interface TileSource {
         public int getLevelCount();
@@ -161,15 +160,32 @@ public class TileImageView extends GLView {
         DisplayMetrics metrics = new DisplayMetrics();
         WindowManager wm = (WindowManager)
                 context.getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getMetrics(metrics);
-        return metrics.heightPixels > 2048 || metrics.widthPixels > 2048;
+        /// M: [BUG.MODIFY] Modify high resolution threshold @{
+        /* wm.getDefaultDisplay().getMetrics(metrics);
+         * return metrics.heightPixels > 2048 || metrics.widthPixels > 2048;
+         */
+        wm.getDefaultDisplay().getRealMetrics(metrics);
+        return metrics.heightPixels >= HIGH_RESOLUTION_THRESHOLD
+                || metrics.widthPixels >= HIGH_RESOLUTION_THRESHOLD;
+        /// @}
     }
-
-
 
     public TileImageView(GalleryContext context) {
         mThreadPool = context.getThreadPool();
-        mTileDecoder = mThreadPool.submit(new TileDecoder());
+        /// M: [PERF.MODIFY] @{
+        /* mTileDecoder = mThreadPool.submit(new TileDecoder());*/
+        // Do region decode in multi-thread
+        Log.i(TAG, "<TileImageView> TILE_DECODER_NUM = " + TILE_DECODER_NUM);
+        mTileDecoderThread = new ArrayList<Thread>();
+        for (int i = 0; i < TILE_DECODER_NUM; i++) {
+            Thread t = new TileDecoder();
+            t.setName("TileDecoder-" + i);
+            t.start();
+            Log.i(TAG, "<TileImageView> create Thread-" + i + ", id = "
+                    + t.getId());
+            mTileDecoderThread.add(t);
+        }
+        /// @}
         if (sTileSize == 0) {
             if (isHighResolution(context.getAndroidContext())) {
                 sTileSize = 512 ;
@@ -383,11 +399,25 @@ public class TileImageView extends GLView {
     public void freeTextures() {
         mIsTextureFreed = true;
 
+        /// M: [PERF.MODIFY] @{
+        // Do region decode in multi-thread
+        /*
         if (mTileDecoder != null) {
             mTileDecoder.cancel();
             mTileDecoder.get();
             mTileDecoder = null;
         }
+        */
+        if (mTileDecoderThread != null) {
+            for (int i = 0; i < TILE_DECODER_NUM; i++) {
+                if (mTileDecoderThread.get(i) != null) {
+                    mTileDecoderThread.get(i).interrupt();
+                }
+            }
+            mTileDecoderThread.clear();
+            mTileDecoderThread = null;
+        }
+        /// @}
 
         int n = mActiveTiles.size();
         for (int i = 0; i < n; i++) {
@@ -410,9 +440,24 @@ public class TileImageView extends GLView {
     }
 
     public void prepareTextures() {
+        /// M: [PERF.MODIFY] @{
+        // Do region decode in multi-thread
+        /*
         if (mTileDecoder == null) {
-            mTileDecoder = mThreadPool.submit(new TileDecoder());
+             mTileDecoder = mThreadPool.submit(new TileDecoder());
         }
+        */
+        if (mTileDecoderThread == null) {
+            mTileDecoderThread = new ArrayList<Thread>();
+            for (int i = 0; i < TILE_DECODER_NUM; i++) {
+                Thread t = new TileDecoder();
+                t.setName("TileDecoder-" + i);
+                t.start();
+                Log.i(TAG, "<TileImageView> create Thread-" + i + ", id = " + t.getId());
+                mTileDecoderThread.add(t);
+            }
+        }
+        /// @}
         if (mIsTextureFreed) {
             layoutTiles(mCenterX, mCenterY, mScale, mRotation);
             mIsTextureFreed = false;
@@ -456,13 +501,27 @@ public class TileImageView extends GLView {
                         drawTile(canvas, tx, ty, level, x, y, length);
                     }
                 }
+                /// M: [PERF.ADD] add for performance test case@{
+                if (sScreenNailShowEnd == 0 && sPerformanceCaseRunning) {
+                    sScreenNailShowEnd = System.currentTimeMillis();
+                    Log.d(TAG, "[CMCC Performance test][Gallery2][Gallery] load 1M image time end ["
+                            + sScreenNailShowEnd + "]");
+                }
+                /// @}
             } else if (mScreenNail != null) {
                 mScreenNail.draw(canvas, mOffsetX, mOffsetY,
                         Math.round(mImageWidth * mScale),
                         Math.round(mImageHeight * mScale));
                 if (isScreenNailAnimating()) {
                     invalidate();
+                /// M: [PERF.ADD]add for performance test case @{
+                } else if (PhotoDataAdapter.sCurrentScreenNailDone && sPerformanceCaseRunning
+                        && sScreenNailShowEnd == 0) {
+                    sScreenNailShowEnd = System.currentTimeMillis();
+                    Log.d(TAG, "[CMCC Performance test][Gallery2][Gallery] load 1M image time end ["
+                        + sScreenNailShowEnd + "]");
                 }
+                /// @}
             }
         } finally {
             if (flags != 0) canvas.restore();
@@ -476,10 +535,12 @@ public class TileImageView extends GLView {
     }
 
     private boolean isScreenNailAnimating() {
-        
-        return (mScreenNail instanceof TiledScreenNail)
-         && ((TiledScreenNail) mScreenNail).isAnimating();
-        
+        /// M: [BEHAVIOR.MODIFY] using BitmapScreenNail instead of TiledScreenNail @{
+        /*return (mScreenNail instanceof TiledScreenNail)
+         && ((TiledScreenNail) mScreenNail).isAnimating();*/
+        return (mScreenNail instanceof BitmapScreenNail)
+                && ((BitmapScreenNail) mScreenNail).isAnimating();
+        /// @}
     }
 
     private void uploadBackgroundTiles(GLCanvas canvas) {
@@ -496,7 +557,14 @@ public class TileImageView extends GLView {
             mUploadQueue.push(tile);
         }
         if (mTileUploader.mActive.compareAndSet(false, true)) {
-            getGLRoot().addOnGLIdleListener(mTileUploader);
+            /// M: [BUG.MODIFY] @{
+            // avoid JE when this view has been detached from root
+            /* getGLRoot().addOnGLIdleListener(mTileUploader);*/
+            GLRoot root = getGLRoot();
+            if (root != null) {
+                root.addOnGLIdleListener(mTileUploader);
+            }
+            /// @}
         }
     }
 
@@ -580,25 +648,61 @@ public class TileImageView extends GLView {
         /// @}
         @Override
         public boolean onGLIdle(GLCanvas canvas, boolean renderRequested) {
+            /// M: [DEBUG.ADD] @{
+            Log.d(TAG, "<TileUploader.onGLIdle> begin");
+            /// @}
             // Skips uploading if there is a pending rendering request.
             // Returns true to keep uploading in next rendering loop.
-            if (renderRequested) return true;
+            /// M: [DEBUG.MODIFY] @{
+            /*if (renderRequested) return true;*/
+            if (renderRequested) {
+                Log.d(TAG, "<TileUploader.onGLIdle> renderRequested, return");
+                return true;
+            }
+            /// @}
+
             int quota = UPLOAD_LIMIT;
             Tile tile = null;
             while (quota > 0) {
+                /// M: [DEBUG.ADD] @{
+                Log.d(TAG, "<TileUploader.onGLIdle> [while] quota = " + quota);
+                /// @}
                 synchronized (TileImageView.this) {
                     tile = mUploadQueue.pop();
                 }
-                if (tile == null) break;
+                /// M: [DEBUG.MODIFY] @{
+                /*if (tile == null) break;*/
+                if (tile == null) {
+                    Log.d(TAG, "<TileUploader.onGLIdle> [while] tile is null, break");
+                    break;
+                }
+                /// @}
+                /// M: [DEBUG.ADD] @{
+                Log.d(TAG, "<TileUploader.onGLIdle> [while] call isContentValid, tile = " + tile);
+                /// @}
                 if (!tile.isContentValid()) {
                     boolean hasBeenLoaded = tile.isLoaded();
-                    Utils.assertTrue(tile.mTileState == STATE_DECODED);
+                    /// M: [BUG.MODIFY] seldom case,error state,don't draw this tile @{
+                    // Utils.assertTrue(tile.mTileState == STATE_DECODED);
+                    if (tile.mTileState != STATE_DECODED) {
+                        Log.d(TAG, "<TileUploader.onGLIdle> [while] tile not DECODED, break");
+                        break;
+                    }
+                    ///}@
                     tile.updateContent(canvas);
                     if (!hasBeenLoaded) tile.draw(canvas, 0, 0);
                     --quota;
                 }
+                /// M: [DEBUG.ADD] @{
+                else {
+                    Log.d(TAG, "<TileUploader.onGLIdle> [while] tile is valid, do nothing");
+                }
+                /// @}
             }
             if (tile == null) mActive.set(false);
+            /// M: [DEBUG.ADD] @{
+            Log.d(TAG, "<TileUploader.onGLIdle> return " + (tile != null));
+            /// @}
             return tile != null;
         }
     }
@@ -642,11 +746,16 @@ public class TileImageView extends GLView {
     static boolean drawTile(
             Tile tile, GLCanvas canvas, RectF source, RectF target) {
         while (true) {
-            if (tile.mTileState == STATE_DECODED) {
-                if (tile.isContentValid()) {
-                    canvas.drawTexture(tile, source, target);
-                    return true;
+            if (tile.isContentValid()) {
+                canvas.drawTexture(tile, source, target);
+                if (DebugUtils.TILE) {
+                    float alpha = canvas.getAlpha();
+                    canvas.setAlpha(0.3f);
+                    canvas.fillRect(target.left, target.top, target.width(), target.height(),
+                            0xFFFF0000);
+                    canvas.setAlpha(alpha);
                 }
+                return true;
             }
 
             // Parent can be divided to four quads and tile is one of the four.
@@ -764,6 +873,14 @@ public class TileImageView extends GLView {
 
         public boolean push(Tile tile) {
             boolean wasEmpty = mHead == null;
+            /// M: [BUG.ADD] @{
+            // If tile is same as head, it will lead a dead circle,
+            // pop method can not pop up tile successfully.
+            if (tile == mHead) {
+                Log.e(TAG, "<TileQueue.push> push tile same as head, return, tile = " + tile);
+                return wasEmpty;
+            }
+            /// @}
             tile.mNext = mHead;
             mHead = tile;
             return wasEmpty;
@@ -773,6 +890,9 @@ public class TileImageView extends GLView {
             mHead = null;
         }
     }
+
+    /// M: [PERF.MODIFY] @{
+    /*
     private class TileDecoder implements ThreadPool.Job<Void> {
 
         private CancelListener mNotifier = new CancelListener() {
@@ -790,7 +910,7 @@ public class TileImageView extends GLView {
             jc.setCancelListener(mNotifier);
             while (!jc.isCancelled()) {
                 Tile tile = null;
-                synchronized (TileImageView.this) {
+                synchronized(TileImageView.this) {
                     tile = mDecodeQueue.pop();
                     if (tile == null && !jc.isCancelled()) {
                         Utils.waitWithoutInterrupt(TileImageView.this);
@@ -802,4 +922,43 @@ public class TileImageView extends GLView {
             return null;
         }
     }
+    */
+    private class TileDecoder extends Thread {
+        @Override
+        public void run() {
+            while (!isInterrupted()) {
+                Tile tile = null;
+                synchronized (TileImageView.this) {
+                    tile = mDecodeQueue.pop();
+                    if (tile == null && !isInterrupted()) {
+                        Log.d(TAG, "<TileDecoder.run> wait, this = " + TileDecoder.this);
+                        try {
+                            TileImageView.this.wait();
+                        } catch (InterruptedException e) {
+                            interrupt();
+                        }
+                    }
+                }
+                if (tile == null) {
+                    continue;
+                }
+                Log.d(TAG, "<TileDecoder.run> decodeTile, this = " + TileDecoder.this
+                        + ", tile = " + tile);
+                if (decodeTile(tile)) {
+                    queueForUpload(tile);
+                }
+            }
+            Log.d(TAG, "<TileDecoder.run> exit, this = " + TileDecoder.this);
+        }
+    }
+    /// @}
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    // Do region decode in multi-thread
+    private static final int TILE_DECODER_NUM = 2;
+    // Tile size is 512, for 1080 X 1920 resolution.
+    private static final int HIGH_RESOLUTION_THRESHOLD = 1920;
+    private ArrayList<Thread> mTileDecoderThread;
 }

@@ -90,7 +90,12 @@ public class TiledScreenNail implements ScreenNail {
 
     // Combines the two ScreenNails.
     // Returns the used one and recycle the unused one.
-    public ScreenNail combine(ScreenNail other) {
+    /// M: [BUG.MODIFY] @{
+    // we won't use google's default combine(), so set it private, rename it,
+    // and re-define it in the tailing part of this file.
+    // innerCombine() is still the routine to do real "combine" work
+    private ScreenNail innerCombine(ScreenNail other) {
+    /// @}
         if (other == null) {
             return this;
         }
@@ -139,6 +144,12 @@ public class TiledScreenNail implements ScreenNail {
 
     @Override
     public void recycle() {
+        /// M: [BUG.ADD] recycle combine target used in our async combine style @{
+        if (mCombineTarget != null) {
+            mCombineTarget.recycle();
+            mCombineTarget = null;
+        }
+        /// @}
         if (mTexture != null) {
             mTexture.recycle();
             mTexture = null;
@@ -159,7 +170,16 @@ public class TiledScreenNail implements ScreenNail {
 
     @Override
     public void draw(GLCanvas canvas, int x, int y, int width, int height) {
+        /// M: [BUG.ADD] new ScreenNail is to be combined if its texture is ready @{
+        doCombine(mCombineTarget);
+        /// @}
         if (mTexture == null || !mTexture.isReady()) {
+            /// M: [BEHAVIOR.ADD] @{
+            if (isHidePlaceHolder) {
+                mLowQualityScreenNail.draw(canvas, x, y, width, height);
+                return;
+            }
+            /// @}
             if (mAnimationStartTime == ANIMATION_NOT_NEEDED) {
                 mAnimationStartTime = ANIMATION_NEEDED;
             }
@@ -172,8 +192,11 @@ public class TiledScreenNail implements ScreenNail {
         if (mAnimationStartTime == ANIMATION_NEEDED) {
             mAnimationStartTime = AnimationTime.get();
         }
-
-        if (isAnimating()) {
+        /// M: [BEHAVIOR.MODIFY] @{
+        /* if (isAnimating()) {
+         */
+        if (isAnimating() && !isHidePlaceHolder) {
+            /// @}
             mTexture.drawMixed(canvas, mPlaceholderColor, getRatio(), x, y,
                     width, height);
         } else {
@@ -183,7 +206,16 @@ public class TiledScreenNail implements ScreenNail {
 
     @Override
     public void draw(GLCanvas canvas, RectF source, RectF dest) {
+        /// M: [BUG.ADD] new ScreenNail is to be combined if its texture is ready @{
+        doCombine(mCombineTarget);
+        /// @}
         if (mTexture == null || !mTexture.isReady()) {
+            /// M: [BEHAVIOR.ADD] @{
+            if (isHidePlaceHolder) {
+                mLowQualityScreenNail.draw(canvas, source, dest);
+                return;
+            }
+            /// @}
             canvas.fillRect(dest.left, dest.top, dest.width(), dest.height(),
                     mPlaceholderColor);
             return;
@@ -191,11 +223,27 @@ public class TiledScreenNail implements ScreenNail {
 
         mTexture.draw(canvas, source, dest);
     }
-
+    ///M: [BUG.MODIFY] Modify isAnimating function to interface @{
+    /* public boolean isAnimating() {
+        // The TiledTexture may not be uploaded completely yet.
+        // In that case, we count it as animating state and we will draw
+        // the placeholder in TileImageView.
+        if (mTexture == null || !mTexture.isReady()) return true;
+        if (mAnimationStartTime < 0) return false;
+        if (AnimationTime.get() - mAnimationStartTime >= DURATION) {
+            mAnimationStartTime = ANIMATION_DONE;
+            return false;
+        }
+        return true;
+    }*/
+    @Override
     public boolean isAnimating() {
         // The TiledTexture may not be uploaded completely yet.
         // In that case, we count it as animating state and we will draw
         // the placeholder in TileImageView.
+        if (isHidePlaceHolder) {
+            return false;
+        }
         if (mTexture == null || !mTexture.isReady()) return true;
         if (mAnimationStartTime < 0) return false;
         if (AnimationTime.get() - mAnimationStartTime >= DURATION) {
@@ -223,4 +271,91 @@ public class TiledScreenNail implements ScreenNail {
     public static void setMaxSide(int size) {
         sMaxSide = size;
     }
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    public boolean isHidePlaceHolder = false;
+    public ScreenNail mLowQualityScreenNail = null;
+    public void enableDebug(boolean able) {
+        if (mTexture != null) {
+            mTexture.mEnableDrawCover = able;
+        }
+    }
+
+    public void hidePlaceHolder() {
+        Log.d(TAG, "<hidePlaceHolder> TiledSceenNail hide place holder =" + this +
+                " isHidePlaceHolder=" + isHidePlaceHolder);
+        isHidePlaceHolder = true;
+    }
+
+    public void setLowQualityScreenNail(ScreenNail screenNail) {
+        mLowQualityScreenNail = screenNail;
+    }
+
+    /// M: [FEATURE.ADD] plugin @{
+    private MediaItem mMediaItem;
+
+    public TiledScreenNail(Bitmap bitmap, MediaItem item) {
+        mWidth = bitmap.getWidth();
+        mHeight = bitmap.getHeight();
+        mBitmap = bitmap;
+        mTexture = new TiledTexture(bitmap);
+        // plugin related
+        mMediaItem = item;
+    }
+
+    public TiledScreenNail(int width, int height, MediaItem item) {
+        setSize(width, height);
+        // plugin related
+        mMediaItem = item;
+    }
+
+    @Override
+    public MediaItem getMediaItem() {
+        return mMediaItem;
+    }
+    /// @}
+
+    /// M: [BUG.ADD] async combine style @{
+    private TiledScreenNail mCombineTarget = null;
+
+    // we re-define google's combine routine here
+    // it usually takes a visually time duration for a TiledTexture to become ready
+    // (completely uploaded to GPU), so it will show a gray place holder before it ready.
+    // a notable example is the "flash" effect when rotating a picture in PhotoPage.
+    // then we modify combnine() into a "sync" style: record the combine target here,
+    // and do real "combine" in draw()
+    public ScreenNail combine(ScreenNail other) {
+        if (!(other instanceof TiledScreenNail)) {
+            recycle();
+            return other;
+        }
+        if (mTexture != null/*or !isAnimating()?*/) {
+            TiledScreenNail newer = (TiledScreenNail) other;
+            if (mCombineTarget != null) {
+                mCombineTarget.recycle();
+            }
+            mCombineTarget = newer;
+        } else {
+            return innerCombine(other);
+        }
+        return this;
+    }
+
+    private void doCombine(ScreenNail other) {
+        if (mCombineTarget != null
+                && ((mCombineTarget.mTexture == null) || mCombineTarget.mTexture
+                        .isReady())) {
+            innerCombine(mCombineTarget);
+            mCombineTarget = null;
+        }
+    }
+    /// @}
+
+    /// M: [BUG.ADD] @{
+    boolean isPlaceHolderDrawingEnabled() {
+        return mDrawPlaceholder;
+    }
+    /// @}
 }

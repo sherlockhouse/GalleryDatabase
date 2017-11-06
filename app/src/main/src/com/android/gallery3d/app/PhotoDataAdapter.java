@@ -40,7 +40,6 @@ import com.android.gallery3d.ui.PhotoView;
 import com.android.gallery3d.ui.ScreenNail;
 import com.android.gallery3d.ui.SynchronizedHandler;
 import com.android.gallery3d.ui.TileImageViewAdapter;
-import com.android.gallery3d.ui.TiledScreenNail;
 import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.FutureListener;
 import com.android.gallery3d.util.MediaSetUtils;
@@ -48,6 +47,11 @@ import com.android.gallery3d.util.ThreadPool;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.mediatek.galleryframework.base.MediaData;
+import com.mediatek.galleryframework.util.DebugUtils;
+//import com.mediatek.galleryframework.util.GalleryPluginUtils;
+
+import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,8 +70,11 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     private static final int MSG_RUN_OBJECT = 3;
     private static final int MSG_UPDATE_IMAGE_REQUESTS = 4;
 
-    private static final int MIN_LOAD_COUNT   = 16;
-    private static final int DATA_CACHE_SIZE  = 256;
+    private static final int MIN_LOAD_COUNT = 16;
+    /// M: [PERF.MODIFY] @{
+    /* private static final int DATA_CACHE_SIZE = 256; */
+    private static final int DATA_CACHE_SIZE = 128;
+    /// @}
     private static final int SCREEN_NAIL_MAX = PhotoView.SCREEN_NAIL_MAX;
     private static final int IMAGE_CACHE_SIZE = 2 * SCREEN_NAIL_MAX + 1;
 
@@ -80,6 +87,12 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     // After all the screennail are fetched, we fetch the full images (only some
     // of them because of we don't want to use too much memory).
     private static ImageFetch[] sImageFetchSeq;
+
+    /// M: [PERF.ADD] add for performance test case @{
+    public static boolean sCurrentScreenNailDone = false;
+    public static boolean sPerformanceCaseRunning = false;
+    /// @}
+
     private static class ImageFetch {
         int indexOffset;
         int imageBit;
@@ -222,6 +235,9 @@ public class PhotoDataAdapter implements PhotoPage.Model {
         };
 
         updateSlidingWindow();
+        /// M: [BUG.ADD] "no thumbnail" flash when saving edited photo. @{
+        mActivity = activity;
+        /// @]
     }
 
     private MediaItem getItemInternal(int index) {
@@ -306,19 +322,48 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             if (screenNail != null) screenNail.recycle();
             return;
         }
-
+        /// M: [BUG.ADD] "no thumbnail" flash when saving edited photo. @{
+        if (path != null) {
+            MediaObject item = mActivity.getDataManager().getMediaObject(path);
+            if (item instanceof LocalMediaItem) {
+                String filePath = ((LocalMediaItem) item).filePath;
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    Log.i(TAG, "<updateScreenNail> filePath" + filePath + " not exists!!!");
+                    return;
+                }
+            }
+        }
+        /// @}
         entry.screenNailTask = null;
+        /// M: [BUG.ADD] @{
+        // whether load has failed
+        // should be decided by the screennail in decode result
+        boolean loadFailed = (screenNail == null);
+        /// @}
 
         // Combine the ScreenNails if we already have a BitmapScreenNail
-        if (entry.screenNail instanceof TiledScreenNail) {
-            TiledScreenNail original = (TiledScreenNail) entry.screenNail;
+        /// M: [BEHAVIOR.MODIFY] using BitmapScreenNail instead of TiledScreenNail @{
+        /*if (entry.screenNail instanceof TiledScreenNail) {
+               TiledScreenNail original = (TiledScreenNail) entry.screenNail;
+               screenNail = original.combine(screenNail);
+        }*/
+        if (entry.screenNail instanceof BitmapScreenNail) {
+            BitmapScreenNail original = (BitmapScreenNail) entry.screenNail;
             screenNail = original.combine(screenNail);
         }
+        /// @}
 
         if (screenNail == null) {
-            entry.failToLoad = true;
+            /// M: [BUG.MODIFY] @{
+            /* entry.failToLoad = true;*/
+            entry.failToLoad = loadFailed;
+            /// @}
         } else {
-            entry.failToLoad = false;
+            /// M: [BUG.MODIFY] @{
+            /*   entry.failToLoad = false;*/
+            entry.failToLoad = loadFailed;
+            /// @}
             entry.screenNail = screenNail;
         }
 
@@ -371,7 +416,13 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     public void pause() {
         mIsActive = false;
 
-        mReloadTask.terminate();
+        /// M: [BUG.MODIFY] @{
+        /*mReloadTask.terminate();*/
+        if (mReloadTask != null) {
+            mReloadTask.terminate();
+        }
+        /// @}
+
         mReloadTask = null;
 
         mSource.removeContentListener(mSourceListener);
@@ -380,6 +431,14 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             if (entry.fullImageTask != null) entry.fullImageTask.cancel();
             if (entry.screenNailTask != null) entry.screenNailTask.cancel();
             if (entry.screenNail != null) entry.screenNail.recycle();
+            /// M: [BEHAVIOR.ADD] @{
+            if (entry.highQualityImageTask != null) {
+                entry.highQualityImageTask.cancel();
+            }
+            if (entry.highQualityScreenNail != null) {
+                entry.highQualityScreenNail.recycle();
+            }
+            /// @}
         }
         mImageCache.clear();
         mTileProvider.clear();
@@ -397,8 +456,12 @@ public class PhotoDataAdapter implements PhotoPage.Model {
         }
         return null;
     }
+
     private void updateCurrentIndex(int index) {
         if (mCurrentIndex == index) return;
+        /// M: [BUG.ADD] @{
+        int prevIndex = mCurrentIndex;
+        /// @}
         mCurrentIndex = index;
         updateSlidingWindow();
 
@@ -415,6 +478,7 @@ public class PhotoDataAdapter implements PhotoPage.Model {
 
         fireDataChange();
     }
+
     private void uploadScreenNail(int offset) {
         int index = mCurrentIndex + offset;
         if (index < mActiveStart || index >= mActiveEnd) return;
@@ -425,11 +489,23 @@ public class PhotoDataAdapter implements PhotoPage.Model {
         ImageEntry e = mImageCache.get(item.getPath());
         if (e == null) return;
 
-        ScreenNail s = e.screenNail;
-        if (s instanceof TiledScreenNail) {
+        /// M: [BEHAVIOR.MODIFY] @{
+        //  ScreenNail s = e.screenNail;
+        ScreenNail s = null;
+        if (e.highQualityScreenNail != null) {
+            s = e.highQualityScreenNail;
+            Log.d(TAG, "<uploadScreenNail> highQualityScreenNail " + s.getWidth()
+                    + "  " + s.getHeight());
+        } else {
+            s = e.screenNail;
+        }
+        /// @}
+        /// M: [BEHAVIOR.MARK] using BitmapScreenNail instead of TiledScreenNail @{
+        /*if (s instanceof TiledScreenNail) {
             TiledTexture t = ((TiledScreenNail) s).getTexture();
             if (t != null && !t.isReady()) mUploader.addTexture(t);
-        }
+        }*/
+        /// @}
     }
 
     private void updateScreenNailUploadQueue() {
@@ -464,7 +540,11 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             entry.screenNail = newPlaceholderScreenNail(item);
             if (offset == 0) updateTileProvider(entry);
         }
-
+        /// M: [BEHAVIOR.ADD] @{
+        if (entry.highQualityScreenNail != null) {
+            return entry.highQualityScreenNail;
+        }
+        /// @}
         return entry.screenNail;
     }
 
@@ -613,17 +693,47 @@ public class PhotoDataAdapter implements PhotoPage.Model {
 
     private void updateTileProvider(ImageEntry entry) {
         ScreenNail screenNail = entry.screenNail;
+        /// M: [BEHAVIOR.ADD] @{
+        if (entry.highQualityScreenNail != null) {
+            screenNail = entry.highQualityScreenNail;
+            Log.d(TAG, "<updateTileProvider> highQualityScreenNail  " + screenNail.getWidth()
+                    + "  " + screenNail.getHeight());
+        }
+        /// @}
         BitmapRegionDecoder fullImage = entry.fullImage;
         if (screenNail != null) {
             if (fullImage != null) {
+                /// M: [PERF.MODIFY] reuse width and height {@
+                /*
+                mTileProvider.setScreenNail(screenNail,
+                        fullImage.getWidth(), fullImage.getHeight());
+                mTileProvider.setRegionDecoder(fullImage);
+                */
+                if (entry.width > 0 && entry.height > 0) {
+                    mTileProvider.setScreenNail(screenNail, entry.width, entry.height);
+                    mTileProvider.setRegionDecoder(fullImage, entry.width, entry.height);
+                } else {
                     mTileProvider.setScreenNail(screenNail,
                             fullImage.getWidth(), fullImage.getHeight());
                     mTileProvider.setRegionDecoder(fullImage);
+                }
+                /// @}
+                /// M: [FEATURE.ADD] Image DC @{
+                MediaItem item = getItem(mCurrentIndex);
+                if (item != null) {
+                    mTileProvider.mExtItem = item.getExtItem();
+                }
+                /// @}
             } else {
                 int width = screenNail.getWidth();
                 int height = screenNail.getHeight();
                 mTileProvider.setScreenNail(screenNail, width, height);
             }
+            /// M: [FEATURE.ADD] plugin @{
+            // update ImageWidth&height in mTileProvider
+//            GalleryPluginUtils.getImageOptionsPlugin()
+//                    .updateTileProviderWithScreenNail(mTileProvider, screenNail);
+            /// @}
         } else {
             mTileProvider.clear();
         }
@@ -689,6 +799,14 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 entry.fullImageTask = null;
                 entry.requestedFullImage = MediaObject.INVALID_DATA_VERSION;
             }
+            /// M: [BEHAVIOR.ADD] cancel decode original highQualityImage task @{
+            if (mReDecodeToImproveImageQuality && entry.highQualityImageTask != null
+                    && entry.highQualityImageTask != task) {
+                entry.highQualityImageTask.cancel();
+                entry.highQualityImageTask = null;
+                entry.requestedhighQualityImage = MediaObject.INVALID_DATA_VERSION;
+            }
+            /// @}
         }
     }
 
@@ -709,19 +827,32 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             // If this is a temporary item, don't try to get its bitmap because
             // it won't be available. We will get its bitmap after a data reload.
             if (isTemporaryItem(mItem)) {
+                /// M: [DEBUG.ADD] @{
+                Log.d(TAG, "<ScreenNailJob.run> this is temporary item");
+                /// @}
                 return newPlaceholderScreenNail(mItem);
             }
-
+            /// M: [DEBUG.ADD] @{
+            Log.d(TAG, "<ScreenNailJob.run> ScreenNail requestImage");
+            /// @}
             Bitmap bitmap = mItem.requestImage(MediaItem.TYPE_THUMBNAIL).run(jc);
             if (jc.isCancelled()) return null;
             if (bitmap != null) {
                 bitmap = BitmapUtils.rotateBitmap(bitmap,
-                        mItem.getRotation() - mItem.getFullImageRotation(), true);
+                    mItem.getRotation() - mItem.getFullImageRotation(), true);
             }
-            return bitmap == null ? null : new TiledScreenNail(bitmap);
+            /// M: [PERF.ADD]add for performance test case @{
+            if (sPerformanceCaseRunning && bitmap != null && getMediaItem(0) == mItem) {
+                sCurrentScreenNailDone = true;
+            }
+            /// M: [FEATURE.MODIFY] plugin @{
+            // using BitmapScreenNail instead of TiledScreenNail
+            // return bitmap == null ? null : new TiledScreenNail(bitmap);
+            return bitmap == null ? null : new BitmapScreenNail(bitmap, mItem);
+            /// @}
         }
     }
- 
+
     private class FullImageJob implements Job<BitmapRegionDecoder> {
         private MediaItem mItem;
 
@@ -734,9 +865,54 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             if (isTemporaryItem(mItem)) {
                 return null;
             }
-            return mItem.requestLargeImage().run(jc);
+            /// M: [BUG.ADD] @{
+            // If decode thumbnail fail, there is no need to decode full image
+            ImageEntry entry = mImageCache.get(mItem.getPath());
+            if (entry != null && entry.failToLoad == true) {
+                Log.i(TAG, "<FullImageJob.run> decode thumbnail fail,"
+                        + "no need to decode full image, return null");
+                return null;
+            }
+            /// @}
+            /// M: [PERF.MODIFY] {@
+            // return mItem.requestLargeImage().run(jc);
+            BitmapRegionDecoder regionDecoder = mItem.requestLargeImage().run(jc);
+            // Cache image width and height
+            cacheFullImageSize(entry, mItem, regionDecoder);
+            return regionDecoder;
+            /// @}
         }
     }
+
+    /**
+     * M: [PERF.ADD]
+     * Get the full image size and cache to ImageEntry
+     * First get image size from media provider, then get from region decoder
+     * @param entry
+     * @param item
+     * @param regionDecoder
+     */
+    private void cacheFullImageSize(ImageEntry entry,
+                MediaItem item, BitmapRegionDecoder regionDecoder) {
+        if (entry == null) {
+            Log.w(TAG, "can not cache full image size");
+            return;
+        }
+        int width = 0;
+        int height = 0;
+        if (item != null && item.getWidth() > 0 && item.getHeight() > 0) {
+            width = item.getWidth();
+            height = item.getHeight();
+            Log.d(TAG, "cache image size from media provider: " + width + "x" + height);
+        } else if (regionDecoder != null) {
+            width = regionDecoder.getWidth();
+            height = regionDecoder.getHeight();
+            Log.d(TAG, "cache image size from region decoder: " + width + "x" + height);
+        }
+        entry.width = width;
+        entry.height = height;
+    }
+
     // Returns true if we think this is a temporary item created by Camera. A
     // temporary item is an image or a video whose data is still being
     // processed, but an incomplete entry is created first in MediaProvider, so
@@ -756,9 +932,9 @@ public class PhotoDataAdapter implements PhotoPage.Model {
         if (item.getWidth() == 0) return false;
         if (item.getHeight() == 0) return false;
         // Must be created in the last 10 seconds.
-        return item.getDateInMs() - System.currentTimeMillis() <= 10000;
+        if (item.getDateInMs() - System.currentTimeMillis() > 10000) return false;
+        return true;
     }
-
 
     // Create a default ScreenNail when a ScreenNail is needed, but we don't yet
     // have one available (because the image data is still being saved, or the
@@ -766,7 +942,27 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     private ScreenNail newPlaceholderScreenNail(MediaItem item) {
         int width = item.getWidth();
         int height = item.getHeight();
-        return new TiledScreenNail(width, height);
+        /// M: [FEATURE.MODIFY] plugin @{
+        // return new TiledScreenNail(width, height);
+
+        // gain video's real width and height by considering its orientation
+        // or it may show a place holder that doesn't match the decoded thumbnail
+        MediaData mediaData = item.getMediaData();
+        if ((mediaData != null) && mediaData.isVideo) {
+            int rot = mediaData.orientation;
+            if (rot % ROTATION_180 != 0) {
+                rot = width;
+                width = height;
+                height = rot;
+            }
+            Log.v(TAG, "<newPlaceholderScreenNail> width=" + width
+                    + ", height=" + height);
+        }
+
+        // using BitmapScreenNail instead of TiledScreenNail
+        // return new TiledScreenNail(width, height);
+        return new BitmapScreenNail(width, height, item);
+        /// @}
     }
 
     // Returns the task if we started the task or the task is already started.
@@ -786,6 +982,12 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 && entry.requestedFullImage == version) {
             return entry.fullImageTask;
         }
+        /// M: [BEHAVIOR.ADD] @{
+        else if (which == BIT_FULL_IMAGE && entry.highQualityImageTask != null
+                && entry.requestedhighQualityImage == version && mReDecodeToImproveImageQuality) {
+            return entry.highQualityImageTask;
+        }
+        /// @}
 
         if (which == BIT_SCREEN_NAIL && entry.requestedScreenNail != version) {
             entry.requestedScreenNail = version;
@@ -796,8 +998,8 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             return entry.screenNailTask;
         }
         if (which == BIT_FULL_IMAGE && entry.requestedFullImage != version
-                && (item.getSupportedOperations()
-                & MediaItem.SUPPORT_FULL_IMAGE) != 0) {
+                && ((item.getSupportedOperations() & MediaItem.SUPPORT_FULL_IMAGE) != 0)) {
+            Log.d(TAG, "<startTaskIfNeeded> fullImageTask!");
             entry.requestedFullImage = version;
             entry.fullImageTask = mThreadPool.submit(
                     new FullImageJob(item),
@@ -805,13 +1007,25 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             // request full image
             return entry.fullImageTask;
         }
+        /// M: [BEHAVIOR.ADD] If the bitmap is very small(levelCount is 0),
+        //should no use ReginDecoder to decode tile . @{
+        else if (mReDecodeToImproveImageQuality && which == BIT_FULL_IMAGE
+                && entry.requestedhighQualityImage != version && !entry.failToLoad
+                && (item.getExtItem() != null && item.getExtItem().supportHighQuality())
+                && ((item.getSupportedOperations() & MediaItem.SUPPORT_FULL_IMAGE) == 0)) {
+            Log.d(TAG, "<startTaskIfNeeded> highQualityImageTask!");
+            entry.requestedhighQualityImage = version;
+            entry.highQualityImageTask = mThreadPool.submit(
+                    new HighQualityScreenNailJob(item),
+                    new HighQualityScreenNailListener(item));
+            // request hight quality image
+            return entry.highQualityImageTask;
+        }
+        /// @}
         return null;
     }
 
-
-
-
-   private void updateImageCache() {
+    private void updateImageCache() {
         HashSet<Path> toBeRemoved = new HashSet<Path>(mImageCache.keySet());
         for (int i = mActiveStart; i < mActiveEnd; ++i) {
             MediaItem item = mData[i % DATA_CACHE_SIZE];
@@ -831,11 +1045,18 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 if (entry.requestedScreenNail != item.getDataVersion()) {
                     // This ScreenNail is outdated, we want to update it if it's
                     // still a placeholder.
-                    if (entry.screenNail instanceof TiledScreenNail) {
+                    /// M: [BEHAVIOR.MODIFY] using BitmapScreenNail instead of TiledScreenNail @{
+                    /*if (entry.screenNail instanceof TiledScreenNail) {
                         TiledScreenNail s = (TiledScreenNail) entry.screenNail;
                         s.updatePlaceholderSize(
                                 item.getWidth(), item.getHeight());
+                    }*/
+                    if (entry.screenNail instanceof BitmapScreenNail) {
+                        BitmapScreenNail s = (BitmapScreenNail) entry.screenNail;
+                        s.updatePlaceholderSize(
+                                item.getWidth(), item.getHeight());
                     }
+                    /// @}
                 }
             } else {
                 entry = new ImageEntry();
@@ -849,6 +1070,14 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             if (entry.fullImageTask != null) entry.fullImageTask.cancel();
             if (entry.screenNailTask != null) entry.screenNailTask.cancel();
             if (entry.screenNail != null) entry.screenNail.recycle();
+            /// M: [BEHAVIOR.ADD] @{
+            if (entry.highQualityImageTask != null) {
+                entry.highQualityImageTask.cancel();
+            }
+            if (entry.highQualityScreenNail != null) {
+                entry.highQualityScreenNail.recycle();
+            }
+            /// @}
         }
 
         updateScreenNailUploadQueue();
@@ -899,14 +1128,30 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     }
 
     private static class ImageEntry {
-        public BitmapRegionDecoder         fullImage;
+        public BitmapRegionDecoder fullImage;
+        /// M: [PERF.MODIFY]
+        // Get width and height from region decoder will spend a lot of time in multi
+        // thread environment, and the width and height will be used when update tile
+        // provider, This action has been executed in UI thread, It will cause performance
+        // issue.
+        // For better UI performance, cache the width and height in ImageEntry when instantiate
+        // region decoder, and reuse when update tile provider. {@
+        public int width;
+        public int height;
+        /// @}
         public ScreenNail screenNail;
         public Future<ScreenNail> screenNailTask;
         public Future<BitmapRegionDecoder> fullImageTask;
+        /// M: [BEHAVIOR.ADD] @{
+        public ScreenNail highQualityScreenNail;
+        public Future<ScreenNail> highQualityImageTask;
+        public long requestedhighQualityImage = MediaObject.INVALID_DATA_VERSION;
+        /// @}
         public long requestedScreenNail = MediaObject.INVALID_DATA_VERSION;
         public long requestedFullImage = MediaObject.INVALID_DATA_VERSION;
         public boolean failToLoad = false;
     }
+
     private class SourceListener implements ContentListener {
         @Override
         public void onContentDirty() {
@@ -982,7 +1227,20 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 if (mActiveEnd > mSize) mActiveEnd = mSize;
             }
 
-            mCurrentIndex = info.indexHint;
+            /// M: [BUG.MODIFY] @{
+            /*mCurrentIndex = info.indexHint;*/
+            if (info.target == mItemPath) {
+                int oldIndex = mCurrentIndex;
+                mCurrentIndex = info.indexHint;
+            }
+            /// @}
+
+            /// M: [BUG.ADD] indexHint needs to be limited to [0, mSize) @{
+            if (mSize > 0 && mCurrentIndex >= mSize) {
+                mCurrentIndex = mSize - 1;
+            }
+            /// @}
+
             updateSlidingWindow();
 
             if (info.items != null) {
@@ -1026,6 +1284,9 @@ public class PhotoDataAdapter implements PhotoPage.Model {
 
         @Override
         public void run() {
+            /// M: [DEBUG.ADD] @{
+            Log.i(TAG, "<ReloadTask.run> begin, tid = " + this.getId());
+            /// @}
             while (mActive) {
                 synchronized (this) {
                     if (!mDirty && mActive) {
@@ -1041,10 +1302,29 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 if (info.version != version) {
                     info.reloadContent = true;
                     info.size = mSource.getMediaItemCount();
+                    /// M: [DEBUG.ADD] @{
+                    Log.i(TAG, "<ReloadTask.run> set=" + mSource + ", name="
+                            + mSource.getName() + ", item count=" + info.size
+                            + ", mSize=" + mSize);
+                    /// @}
                 }
                 if (!info.reloadContent) continue;
+                /// M: [PERF.MODIFY] @{
+                /*
                 info.items = mSource.getMediaItem(
-                        info.contentStart, info.contentEnd);
+                    info.contentStart, info.contentEnd);
+                */
+                // When open an image which not the cover of the MediaSet,
+                // the decode task will submit at the second run time of while.
+                // In order to submit task in advance, make this modification
+                if (info.contentEnd == 0) {
+                    info.items = mSource.getMediaItem(info.contentStart, Math.min(info.size,
+                            DATA_CACHE_SIZE));
+                } else {
+                    info.items = mSource.getMediaItem(info.contentStart,
+                            Math.min(info.size, (info.contentEnd - info.contentStart + 1)));
+                }
+                /// @}
 
                 int index = MediaSet.INDEX_NOT_FOUND;
 
@@ -1055,7 +1335,11 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 }
 
                 // Otherwise try to see if the currently focused item can be found.
-                if (index == MediaSet.INDEX_NOT_FOUND) {
+                /// M: [PERF.MODIFY] no need query media item when fling image
+                // to delete in film mode @{
+                /*if (index == MediaSet.INDEX_NOT_FOUND) {*/
+                if (index == MediaSet.INDEX_NOT_FOUND && (info.size != mSize - 1)) {
+                /// @}
                     MediaItem item = findCurrentMediaItem(info);
                     if (item != null && item.getPath() == info.target) {
                         index = info.indexHint;
@@ -1075,23 +1359,37 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                     index = info.indexHint;
                     int focusHintDirection = mFocusHintDirection;
                     if (index == (mCameraIndex + 1)) {
-                        focusHintDirection = PhotoView.Model.FOCUS_HINT_NEXT;
+                        focusHintDirection = FOCUS_HINT_NEXT;
                     }
-                    if (focusHintDirection == PhotoView.Model.FOCUS_HINT_PREVIOUS
+                    if (focusHintDirection == FOCUS_HINT_PREVIOUS
                             && index > 0) {
                         index--;
                     }
                 }
 
                 // Don't change index if mSize == 0
+                /// M: [BUG.MODIFY] @{
+                // mSize is old, info.size is new,
+                // so using info.size to change index
+                /*
                 if (mSize > 0) {
                     if (index >= mSize) index = mSize - 1;
                 }
+                */
+                if (info.size > 0) {
+                    if (index >= info.size) {
+                        index = info.size - 1;
+                    }
+                }
+                /// @}
 
                 info.indexHint = index;
 
                 executeAndWait(new UpdateContent(info));
             }
+            /// M: [DEBUG.ADD] @{
+            Log.i(TAG, "<ReloadTask.run> exit, tid = " + this.getId());
+            /// @}
         }
 
         public synchronized void notifyDirty() {
@@ -1099,11 +1397,18 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             notifyAll();
         }
 
-       public synchronized void terminate() {
+        public synchronized void terminate() {
+            /// M: [DEBUG.ADD] @{
+            Log.i(TAG, "<ReloadTask.terminate>");
+            /// @}
             mActive = false;
+            /// M: [BUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload@{
+            if (null != mSource) {
+                mSource.stopReload();
+            }
+            /// @}
             notifyAll();
         }
-
 
         private MediaItem findCurrentMediaItem(UpdateInfo info) {
             ArrayList<MediaItem> items = info.items;
@@ -1121,8 +1426,21 @@ public class PhotoDataAdapter implements PhotoPage.Model {
                 if (i != MediaSet.INDEX_NOT_FOUND) return i;
             }
 
+            /// M: [BUG.MODIFY] @{
+            // In order to stop this waste time operation immediately, if current mSource
+            /// has items above 5000, we do not call mSource.getIndexOfItem directly, but call
+            /// getIndexOfItemQuickStop @{
+            /*
             // Not found, find it in mSource.
             return mSource.getIndexOfItem(info.target, info.indexHint);
+            */
+            if (info.size <= MEDIAITEM_MAX_COUNT) {
+                // Not found, find it in mSource.
+                return mSource.getIndexOfItem(info.target, info.indexHint);
+            } else {
+                return getIndexOfItemQuickStop(info.target, info.indexHint);
+            }
+            /// @}
         }
 
         private int findIndexOfPathInCache(UpdateInfo info, Path path) {
@@ -1136,7 +1454,154 @@ public class PhotoDataAdapter implements PhotoPage.Model {
             return MediaSet.INDEX_NOT_FOUND;
         }
 
+        /// M: [BUG.ADD] @{
+        // Put the code of MediaSet.getIndexOfItem here, when mActive == false, return immediately
+        private int getIndexOfItemQuickStop(Path path, int hint) {
+            int start = Math.max(0,
+                    hint - MEDIAITEM_BATCH_FETCH_COUNT / 2);
+            ArrayList<MediaItem> list = mSource.getMediaItem(
+                    start, MEDIAITEM_BATCH_FETCH_COUNT);
+            int index = mSource.getIndexOf(path, list);
+            if (index != MediaSet.INDEX_NOT_FOUND) {
+                return start + index;
+            }
 
- 
+            // try to find it globally
+            start = start == 0 ? MEDIAITEM_BATCH_FETCH_COUNT : 0;
+            list = mSource.getMediaItem(start, MEDIAITEM_BATCH_FETCH_COUNT);
+            while (mActive) {
+                index = mSource.getIndexOf(path, list);
+                if (index != MediaSet.INDEX_NOT_FOUND) {
+                    return start + index;
+                }
+                if (list.size() < MEDIAITEM_BATCH_FETCH_COUNT) {
+                    return MediaSet.INDEX_NOT_FOUND;
+                }
+                start += MEDIAITEM_BATCH_FETCH_COUNT;
+                list = mSource.getMediaItem(start, MEDIAITEM_BATCH_FETCH_COUNT);
+            }
+            Log.i(TAG, "<ReloadTask.getIndexOfItemQuickStop> mActive = false, "
+                    + "return MediaSet.INDEX_NOT_FOUND");
+            return MediaSet.INDEX_NOT_FOUND;
+        }
+        /// @}
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    public void notifyDataChange(MediaData mediaData) {
+        for (int i = mActiveStart; i < mActiveEnd; ++i) {
+            MediaItem item = mData[i % DATA_CACHE_SIZE];
+            if (item == null) {
+                continue;
+            }
+            if (mediaData.filePath.equals(item.getFilePath())) {
+                Path path = item.getPath();
+                ImageEntry entry = mImageCache.get(path);
+                if (entry != null) {
+                    entry.requestedScreenNail = MediaObject.INVALID_DATA_VERSION;
+                    // entry.requestedFullImage = MediaObject.INVALID_DATA_VERSION;
+                    break;
+                }
+            }
+        }
+        updateImageRequests();
+    }
+    //because Gallery cached thumbnail as JPEG, and JPEG usually loses image
+    //quality. For those image format whose does not has BitmapRegionDecoder
+    //this will results in poor image quality, expecially for those man-made
+    //image which is used to test image quality.
+    //So we will decode from original image to improve image quality if there
+    //is no regiondecoder for that image
+    private final boolean mReDecodeToImproveImageQuality = true;
+    private final static int MEDIAITEM_BATCH_FETCH_COUNT = 200;
+    private final static int MEDIAITEM_MAX_COUNT = 5000;
+    private final static int ROTATION_180 = 180;
+
+    private static class HighQualityScreenNailJob implements Job<ScreenNail> {
+        private MediaItem mItem;
+        public HighQualityScreenNailJob(MediaItem item) {
+            mItem = item;
+        }
+        @Override
+        public ScreenNail run(JobContext jc) {
+            Job<Bitmap> imageRequest = mItem.requestImage(
+                    MediaItem.TYPE_HIGHQUALITYTHUMBNAIL);
+            if (imageRequest == null) {
+                return null;
+            }
+            Bitmap bitmap = imageRequest.run(jc);
+            if (null == bitmap) {
+                return null;
+            }
+            BitmapScreenNail nail = new BitmapScreenNail(bitmap, mItem);
+            nail.setDebugEnable(DebugUtils.DEBUG_HIGH_QUALITY_SCREENAIL);
+            return nail;
+        }
+    }
+
+    private class HighQualityScreenNailListener implements Runnable,
+            FutureListener<ScreenNail> {
+        private final Path mPath;
+        private Future<ScreenNail> mFuture;
+
+        public HighQualityScreenNailListener(MediaItem item) {
+            mPath = item.getPath();
+        }
+
+        @Override
+        public void onFutureDone(Future<ScreenNail> future) {
+            mFuture = future;
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(MSG_RUN_OBJECT,
+                    this));
+        }
+
+        @Override
+        public void run() {
+            updateHighQualityScreenNail(mPath, mFuture);
+        }
+    }
+
+    private void updateHighQualityScreenNail(Path path, Future<ScreenNail> future) {
+        ImageEntry entry = mImageCache.get(path);
+        ScreenNail screenNail = future.get();
+
+        if (entry == null || entry.highQualityImageTask != future) {
+            if (screenNail != null) {
+                screenNail.recycle();
+            }
+            return;
+        }
+        entry.highQualityImageTask = null;
+        if (screenNail == null) {
+            return;
+        }
+        // Combine the ScreenNails if we already have a BitmapScreenNail
+        if (entry.highQualityScreenNail instanceof BitmapScreenNail) {
+            BitmapScreenNail original = (BitmapScreenNail) entry.highQualityScreenNail;
+            screenNail = original.combine(screenNail);
+        }
+
+        if (screenNail != null) {
+            entry.highQualityScreenNail = screenNail;
+        }
+
+        uploadScreenNail(0);
+        if (entry.highQualityScreenNail != null) {
+            if (path == getPath(mCurrentIndex)) {
+                updateTileProvider(entry);
+                mPhotoView.notifyImageChange(0);
+            }
+        }
+        updateImageRequests();
+    }
+
+    /// M: [BUG.ADD] "no thumbnail" flash when saving edited photo. @{
+    private AbstractGalleryActivity mActivity;
+    /// @}
+
+    public int getTotalCount() {
+        return mSize;
     }
 }
