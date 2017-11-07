@@ -378,7 +378,7 @@ public class AlbumStorySetPage extends ActivityState implements
 
             @Override
             public void afterTextChanged(Editable s) {
-                boolean enable = s.length() > 0;
+                boolean enable = s.toString().trim().length() > 0;
                 mPositiveBtn.setEnabled(enable);
                 mPositiveBtn.setTextColor(enable ? res.getColor(R.color.dialog_button_text_color_enable)
                         : res.getColor(R.color.dialog_button_text_color_disable));
@@ -391,7 +391,7 @@ public class AlbumStorySetPage extends ActivityState implements
                 .setPositiveButton(R.string.add_images,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int i) {
-                                final String text = mEditText.getText().toString();
+                                final String text = mEditText.getText().toString().trim();
                                 if (!"".equals(text)) {
                                     if (((StoryAlbumSet) mMediaSet).checkIsContainName(mRenameItemId, text)) {
                                         Toast.makeText(mActivity, R.string.contain_name, Toast.LENGTH_SHORT).show();
