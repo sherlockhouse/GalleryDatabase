@@ -44,6 +44,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -305,6 +306,11 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (isInMultiWindowMode()) {
+                savedInstanceState = null;
+            }
+        }
         super.onCreate(savedInstanceState);
 
         /// M: [FEATURE.ADD] [Runtime permission] @{
