@@ -718,15 +718,16 @@ public class TileImageView extends GLView {
 
         Tile tile = getTile(tx, ty, level);
         if (tile != null) {
-            if (!tile.isContentValid()) {
-                if (tile.mTileState == STATE_DECODED) {
+            if (tile.mTileState == STATE_DECODED
+                    && tile.getmBitmap() != null) {
+                if (!tile.isContentValid()) {
                     if (mUploadQuota > 0) {
                         --mUploadQuota;
                         tile.updateContent(canvas);
                     } else {
                         mRenderComplete = false;
                     }
-                } else if (tile.mTileState != STATE_DECODE_FAIL){
+                } else if (tile.mTileState != STATE_DECODE_FAIL) {
                     mRenderComplete = false;
                     queueForDecode(tile);
                 }
@@ -746,16 +747,18 @@ public class TileImageView extends GLView {
     static boolean drawTile(
             Tile tile, GLCanvas canvas, RectF source, RectF target) {
         while (true) {
-            if (tile.isContentValid()) {
-                canvas.drawTexture(tile, source, target);
-                if (DebugUtils.TILE) {
-                    float alpha = canvas.getAlpha();
-                    canvas.setAlpha(0.3f);
-                    canvas.fillRect(target.left, target.top, target.width(), target.height(),
-                            0xFFFF0000);
-                    canvas.setAlpha(alpha);
+            if (tile.mTileState == STATE_DECODED) {
+                if (tile.isContentValid()) {
+                    canvas.drawTexture(tile, source, target);
+                    if (DebugUtils.TILE) {
+                        float alpha = canvas.getAlpha();
+                        canvas.setAlpha(0.3f);
+                        canvas.fillRect(target.left, target.top, target.width(), target.height(),
+                                0xFFFF0000);
+                        canvas.setAlpha(alpha);
+                    }
+                    return true;
                 }
-                return true;
             }
 
             // Parent can be divided to four quads and tile is one of the four.

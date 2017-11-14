@@ -929,6 +929,9 @@ public class PositionController {
     private void convertBoxToRect(int i) {
         Box b = mBoxes.get(i);
         Rect r = mRects.get(i);
+        if (r == null) {
+            return;
+        }
         int y = b.mCurrentY + mPlatform.mCurrentY + mViewH / 2;
         int w = widthOf(b);
         int h = heightOf(b);
@@ -939,11 +942,17 @@ public class PositionController {
         } else if (i > 0) {
             Rect a = mRects.get(i - 1);
             Gap g = mGaps.get(i - 1);
+            if (a ==null || g == null) {
+                return;
+            }
             r.left = a.right + g.mCurrentGap;
             r.right = r.left + w;
         } else {  // i < 0
             Rect a = mRects.get(i + 1);
             Gap g = mGaps.get(i);
+            if (a ==null || g == null) {
+                return;
+            }
             r.right = a.left - g.mCurrentGap;
             r.left = r.right - w;
         }
