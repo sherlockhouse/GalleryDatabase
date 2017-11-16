@@ -71,8 +71,10 @@ public class BlockbustercropActivity extends BlockBaseActivity {
                 onBackPressed();
                 break;
             case 1:
-                SaveTask task = new SaveTask();
-                task.execute(mCropImage.getCropBitmap(mOriginalBitmap));
+                if (mOriginalBitmap != null) {
+                    SaveTask task = new SaveTask();
+                    task.execute(mCropImage.getCropBitmap(mOriginalBitmap));
+                }
                 //*/end
                 break;
         }
