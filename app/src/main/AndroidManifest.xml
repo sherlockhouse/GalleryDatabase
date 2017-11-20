@@ -523,18 +523,6 @@
 
         <service android:name="com.freeme.provider.MediaStoreImportService"/>
 
-        <receiver
-            android:name="com.freeme.provider.MediaStoreImportService$ImportReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_SCANNER_STARTED"/>
-                <action android:name="android.intent.action.MEDIA_SCANNER_FINISHED"/>
-                <action android:name="android.intent.action.MEDIA_SCANNER_SCAN_FILE"/>
-
-                <data android:scheme="file"/>
-            </intent-filter>
-        </receiver>
-
         <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
         <activity
             android:name="com.freeme.jigsaw.app.JigsawEntry"

@@ -113,22 +113,6 @@ public class MediaStoreImportService extends IntentService {
 
     }
 
-    public static class ImportReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            LogUtil.i("MediaStoreImportService action = " + action);
-            if (Intent.ACTION_MEDIA_SCANNER_FINISHED.equals(action)) {
-
-            } else if (Intent.ACTION_MEDIA_SCANNER_SCAN_FILE.equals(action)) {
-
-            } else if (Intent.ACTION_MEDIA_SCANNER_STARTED.equals(action)) {
-
-            }
-        }
-    }
-
     class DelayedImport implements Runnable {
 
         private String mSegment = "";
