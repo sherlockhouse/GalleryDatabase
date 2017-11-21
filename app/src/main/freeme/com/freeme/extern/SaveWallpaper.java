@@ -274,7 +274,7 @@ public class SaveWallpaper {
                 break;
             }
             case SaveTypeGener.SAVE_TYPE_WALLPAPER: {
-                resid = R.string.set_wallpaper;
+                resid = R.string.wallpaper;
                 break;
             }
             case SaveTypeGener.SAVE_TYPE_ALL: {
