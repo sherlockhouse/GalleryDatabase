@@ -148,32 +148,11 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         options.inBitmap = bitmap;
 
         try {
-            /// M: [PERF.MARK] @{
-            //  Do region decode in multi-thread, so delete synchronized
-            /*
-             // In CropImage, we may call the decodeRegion() concurrently.
-             synchronized (regionDecoder) {
-            */
-            /// M: [BUG.ADD] Ensure that decodeRegion function is sync with recycle@{
-            mRegionDecoderLock.readLock().lock();
-            /// @}
-            bitmap = regionDecoder.decodeRegion(wantRegion, options);
-            if (DebugUtils.TILE) {
-                if (bitmap == null) {
-                    Log.i(TAG, "<getTile1> decodeRegion l" + level + "-x" + x + "-y" + y + "-size"
-                            + tileSize + ", return null");
-                } else {
-                    DebugUtils.dumpBitmap(bitmap, "Tile-l" + level + "-x" + x + "-y" + y + "-size"
-                            + tileSize + "-" + sTileDumpNum);
-                    sTileDumpNum++;
-                }
+            // In CropImage, we may call the decodeRegion() concurrently.
+            synchronized (regionDecoder) {
+                bitmap = regionDecoder.decodeRegion(wantRegion, options);
             }
-            /// M: [PERF.MARK] @{
-            /* } */
         } finally {
-            /// M: [BUG.ADD] Ensure that decodeRegion function is sync with recycle@{
-            mRegionDecoderLock.readLock().unlock();
-            /// @}
             if (options.inBitmap != bitmap && options.inBitmap != null) {
                 GalleryBitmapPool.getInstance().put(options.inBitmap);
                 options.inBitmap = null;
@@ -212,24 +191,10 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         options.inSampleSize = (1 << level);
         Bitmap bitmap = null;
 
-        /// M: [PERF.MARK] @{
-        //  Do region decode in multi-thread, so delete synchronized
-        /*
-         // In CropImage, we may call the decodeRegion() concurrently.
-         synchronized (regionDecoder) {
-        */
-        /// M: [BUG.MODIFY] @{
-        // Ensure that decodeRegion function is sync with recycle
-        // bitmap = regionDecoder.decodeRegion(wantRegion, options);
-        try {
-            mRegionDecoderLock.readLock().lock();
-            bitmap = regionDecoder.decodeRegion(wantRegion, options);
-        } finally {
-            mRegionDecoderLock.readLock().unlock();
+        // In CropImage, we may call the decodeRegion() concurrently.
+        synchronized (regionDecoder) {
+            bitmap = regionDecoder.decodeRegion(overlapRegion, options);
         }
-        /// @}
-        /// M: [PERF.MARK] @{
-        /* } */
 
         if (bitmap == null) {
             Log.w(TAG, "fail in decoding region");
