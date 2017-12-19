@@ -1133,7 +1133,8 @@ public abstract class PhotoPage extends ActivityState implements
         mDetailsHelper.hide();
     }
 
-    @Override
+ 
+   @Override
     protected void onResume() {
         super.onResume();
 
@@ -1163,8 +1164,10 @@ public abstract class PhotoPage extends ActivityState implements
 
         mPhotoView.setFilmMode(mStartInFilmstrip && mMediaSet.getMediaItemCount() > 1);
         //*/
-
         if (mModel == null) {
+            /// M: [BUG.ADD] pause PhotoView before finish PhotoPage @{
+            mPhotoView.pause();
+            /// @}
             mActivity.getStateManager().finishState(this);
             return;
         }
@@ -1174,7 +1177,12 @@ public abstract class PhotoPage extends ActivityState implements
         mOrientationManager.unlockOrientation();
         //*/
 
-        mActivity.getGLRoot().freeze();
+        /// M: [BUG.MARK] @{
+        // In order to avoid black screen when PhotoPage just starts, google freeze the GLRoot when
+        // resume, and unfreeze it when image updated or unfreeze time out. But this solution is not
+        // suitable for N, it will cause ANR when lock/unlock screen.
+        /* mActivity.getGLRoot().freeze();*/
+        /// @}
         mIsActive = true;
 
         if (mPhotoView.getFilmMode()) {

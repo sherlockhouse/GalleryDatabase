@@ -1378,6 +1378,12 @@ public class PhotoView extends GLView {
     ////////////////////////////////////////////////////////////////////////////
 
     public void pause() {
+        /// M: [BUG.ADD] Change Gallery animation of unlocking screen:
+        // just reset picture to center of view other than snapping back @{
+        if (!mFilmMode) {
+            mPositionController.resetToFullView();
+        }
+        /// @}
         mPositionController.skipAnimation();
         mTileView.freeTextures();
         for (int i = -SCREEN_NAIL_MAX; i <= SCREEN_NAIL_MAX; i++) {
