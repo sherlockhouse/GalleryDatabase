@@ -32,6 +32,9 @@ import android.view.View;
 
 import com.android.gallery3d.common.ApiHelper;
 import com.mediatek.gallery3d.util.Log;
+//import com.mediatek.gallery3d.video.MtkVideoFeature;
+//import com.mediatek.gallery3d.video.SlowMotionItem;
+//import com.mediatek.gallery3d.video.SlowMotionTrimTimebar;
 /**
  * The controller for the Trimming Video.
  */
@@ -46,10 +49,25 @@ public class TrimControllerOverlay extends CommonControllerOverlay  {
 
     @Override
     protected void createTimeBar(Context context) {
-        mTimeBar = new TrimTimeBar(context, this);
+        /*if (MtkVideoFeature.isSlowMotionSupport()) {
+            SlowMotionItem item = new SlowMotionItem(context, ((Activity) context).getIntent()
+                    .getData());
+            if (item.isSlowMotionVideo()) {
+                mTimeBar = new SlowMotionTrimTimebar(context, this);
+            } else {
+                mTimeBar = new TrimTimeBar(context, this);
+            }
+        } else {*/
+            mTimeBar = new TrimTimeBar(context, this);
+        //}
     }
 
-
+    /*@Override
+    protected void onPlayerWrapperChanged() {
+        if (mTimeBar != null && mTimeBar instanceof SlowMotionTrimTimebar) {
+            ((SlowMotionTrimTimebar)mTimeBar).setMediaPlayerWrapper(mMediaPlayerWrapper);
+        }
+    }*/
 
     private void hidePlayButtonIfPlaying() {
         if (mState == State.PLAYING) {

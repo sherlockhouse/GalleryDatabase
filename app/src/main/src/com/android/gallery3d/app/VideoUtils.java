@@ -35,6 +35,7 @@ import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.util.SaveVideoFileInfo;
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.TimeToSampleBox;
+import com.freeme.gallery.app.TrimVideo;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
@@ -66,24 +67,26 @@ public class VideoUtils {
             throws IOException {
         if (ApiHelper.HAS_MEDIA_MUXER) {
             return genVideoUsingMuxer(filePath, dstFileInfo.mFile.getPath(), -1, -1,
-                    false, true);
+                           false, true, mProgress, false);
         } else {
             return startMuteUsingMp4Parser(filePath, dstFileInfo);
         }
     }
-    /*
+
+    /**
      * Shortens/Crops tracks
      */
-    public static void startTrim(File src, File dst, int startMs, int endMs)
+     ///M: use for control main thread dialog display
+    public static boolean startTrim(File src, File dst, int startMs, int endMs,
+            TrimVideo trimVideo, ProgressDialog mProgress, boolean disableSlowMotion)
             throws IOException {
         if (ApiHelper.HAS_MEDIA_MUXER) {
-            genVideoUsingMuxer(src.getPath(), dst.getPath(), startMs, endMs,
-                    true, true);
+            return genVideoUsingMuxer(src.getPath(), dst.getPath(), startMs, endMs,
+                    true, true, mProgress, disableSlowMotion);
         } else {
-            trimUsingMp4Parser(src, dst, startMs, endMs);
+            return trimUsingMp4Parser(src, dst, startMs, endMs, trimVideo);
         }
     }
- 
 
     private static boolean startMuteUsingMp4Parser(String filePath,
             SaveVideoFileInfo dstFileInfo) throws FileNotFoundException, IOException {
@@ -138,11 +141,13 @@ public class VideoUtils {
      * @param useVideo true if keep the video track from the source.
      * @throws IOException
      */
-    private static boolean genVideoUsingMuxer(String srcPath, String dstPath,
-                                           int startMs, int endMs, boolean useAudio, boolean useVideo)
-            throws IOException {
+    private static boolean genVideoUsingMuxer(String srcPath, String dstPath, int startMs,
+            int endMs, boolean useAudio, boolean useVideo, ProgressDialog mProgress,
+            boolean disableSlowMotion) throws IOException {
         // Set up MediaExtractor to read from the source.
         MediaExtractor extractor = new MediaExtractor();
+        // /M: log for setDataSource
+        Log.d(LOGTAG, "setDataSource:" + srcPath);
         extractor.setDataSource(srcPath);
 
         int trackCount = extractor.getTrackCount();
@@ -154,41 +159,113 @@ public class VideoUtils {
 
         // Set up the tracks and retrieve the max buffer size for selected
         // tracks.
-        HashMap<Integer, Integer> indexMap = new HashMap<Integer,
-                Integer>(trackCount);
+        HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>(trackCount);
         int bufferSize = -1;
+        int yuvBufferSize = -1;
+
+        // /M:MediaMuxer only support 1 video track and 1 audio track, not
+        // support 2 video track or 2 audio track
+        int selectVideoTrackNum = 0;
+        int selectAudioTrackNum = 0;
+        int audioTrackIndex = -1;
+        int maxInputSizeNum = 0;
+        String mimes[] = new String[18];             // for check frame mime type recognize
         for (int i = 0; i < trackCount; i++) {
             MediaFormat format = extractor.getTrackFormat(i);
             String mime = format.getString(MediaFormat.KEY_MIME);
 
+            // error handle for klocwork @{
+            if (mime == null) {
+                muxer.release(); // release would all stop
+                mProgress.dismiss();
+                Log.d(LOGTAG, "mime is null:" + i);
+                return false;
+            }
+            if (i < 18) {
+                mimes[i] = mime;
+            }
+            // @}
+            // /M: Check trim capability
+            // / Audio: MEDIA_MIMETYPE_AUDIO_AMR_NB,
+            // MEDIA_MIMETYPE_AUDIO_AMR_WB, MEDIA_MIMETYPE_AUDIO_AAC
+            // / Video: MEDIA_MIMETYPE_VIDEO_MPEG4, MEDIA_MIMETYPE_VIDEO_H263,
+            // MEDIA_MIMETYPE_VIDEO_AVC @{
+            Log.d(LOGTAG, "genVideoUsingMuxer mime:" + mime);
             boolean selectCurrentTrack = false;
 
-            if (mime.startsWith("audio/") && useAudio) {
-                selectCurrentTrack = true;
-            } else if (mime.startsWith("video/") && useVideo) {
-                selectCurrentTrack = true;
+            if (format.containsKey(MediaFormat.KEY_DURATION)) {
+                long duration = format.getLong(MediaFormat.KEY_DURATION);
+                if (duration / 1000 <= startMs) {
+                    Log.d(LOGTAG, "durationMs: " + duration / 1000 + " < startMs:" + startMs);
+                    continue;
+                }
             }
+            if ((mime.equals("audio/3gpp") || mime.equals("audio/amr-wb") || mime
+                    .equals("audio/mp4a-latm")) && useAudio && selectAudioTrackNum == 0) {
+                selectCurrentTrack = true;
+                selectAudioTrackNum = 1;
+                audioTrackIndex = i;
+            } else if ((mime.equals("video/mp4v-es") || mime.equals("video/3gpp") ||
+                    mime.equals("video/avc") ||
+                    mime.equals("video/hevc")) && useVideo && selectVideoTrackNum == 0) {
+                selectCurrentTrack = true;
+                selectVideoTrackNum = 1;
+                // /M: add for slow motion clear slow motion flag {@
+                /*if (disableSlowMotion && format.containsKey("slow-motion-speed-value")) {
+                    // set to 0, it would not be trimmed to slow motion video
+                    format.setInteger("slow-motion-speed-value", 0);
+                }*/
+                // @}
+            }
+            // / @}
 
             if (selectCurrentTrack) {
+                Log.d(LOGTAG, "Add Track mime:" + mime);
                 extractor.selectTrack(i);
+
                 int dstIndex = muxer.addTrack(format);
                 indexMap.put(i, dstIndex);
                 if (format.containsKey(MediaFormat.KEY_MAX_INPUT_SIZE)) {
                     int newSize = format.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE);
+                    // /M: log for max input size and KEY_MAX_INPUT_SIZE number
+                    maxInputSizeNum++;
+                    Log.d(LOGTAG, "KEY_MAX_INPUT_SIZE " + maxInputSizeNum + ":" + newSize);
                     bufferSize = newSize > bufferSize ? newSize : bufferSize;
+                }
+                if (format.containsKey(MediaFormat.KEY_WIDTH)
+                    && format.containsKey(MediaFormat.KEY_HEIGHT)) {
+                    int width = format.getInteger(MediaFormat.KEY_WIDTH);
+                    int hight = format.getInteger(MediaFormat.KEY_HEIGHT);
+                    Log.d(LOGTAG, "KEY_WIDTH : " +  width + " KEY_HEIGHT : " +  hight);
+                    yuvBufferSize = (width * hight * 15) / 10;
+                    // /M: log for buffersize when colorformat is YUV420, used when
+                    // /M: KEY_MAX_INPUT_SIZE not set. Avoid JE when readsamplesize > buffersize.
+                    Log.d(LOGTAG, "yuvBufferSize : " +  yuvBufferSize);
                 }
             }
         }
-
-        if (bufferSize < 0) {
-            bufferSize = DEFAULT_BUFFER_SIZE;
+        // /M: check timeUs back problem @{
+        if (selectVideoTrackNum == 0 && selectAudioTrackNum == 0) {
+            muxer.release(); // release would all stop
+            mProgress.dismiss();
+            Log.d(LOGTAG, "No Track support");
+            return false;
         }
+        // / @}
+
+        // /M: if two track is selected, only one KEY_MAX_INPUT_SIZE would has
+        // risk @{
+        if (bufferSize < 0 || (maxInputSizeNum < selectVideoTrackNum + selectAudioTrackNum)) {
+            bufferSize = DEFAULT_BUFFER_SIZE > yuvBufferSize ? DEFAULT_BUFFER_SIZE : yuvBufferSize;
+            Log.d(LOGTAG, "use DEFAULT_BUFFER_SIZE or yuvbuffersize : " + bufferSize);
+        }
+        // / @}
 
         // Set up the orientation and starting time for extractor.
         MediaMetadataRetriever retrieverSrc = new MediaMetadataRetriever();
         retrieverSrc.setDataSource(srcPath);
-        String degreesString = retrieverSrc.extractMetadata(
-                MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        String degreesString = retrieverSrc
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
         if (degreesString != null) {
             int degrees = Integer.parseInt(degreesString);
             if (degrees >= 0) {
@@ -196,8 +273,35 @@ public class VideoUtils {
             }
         }
 
+        String fileMime = retrieverSrc
+            .extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+
+        boolean shouldFixKeyFrame = false;
+        if (fileMime.equals("video/mp2ts") || fileMime.equals("video/mp2p")) {
+            Log.d(LOGTAG, "Fix key frame:" + fileMime);
+            shouldFixKeyFrame = true;
+        }
         if (startMs > 0) {
-            extractor.seekTo(startMs * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+            // /M: startTime should correct to video sync frame, only for mpeg4
+            // @{
+            if (selectVideoTrackNum == 1 && selectAudioTrackNum == 1) {
+                if (fileMime.equals("video/mp4") || fileMime.equals("video/3gpp")
+                        || fileMime.equals("video/quicktime")) {
+                    extractor.unselectTrack(audioTrackIndex);
+                    startMs = correctSeekTime(extractor, startMs, bufferSize);
+                    Log.d(LOGTAG, "correct new StartMs: " + startMs);
+                    if (startMs == -10000000 || startMs > endMs) {
+                        muxer.release(); // release would all stop
+                        mProgress.dismiss();
+                        Log.d(LOGTAG, "startMs can not be trimed");
+                        return false;
+                    }
+                    extractor.selectTrack(audioTrackIndex);
+                }
+            }
+            // /M: startMs overFlow
+            extractor.seekTo((long) startMs * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+            // / @}
         }
 
         // Copy the samples from MediaExtractor to MediaMuxer. We will loop
@@ -207,6 +311,9 @@ public class VideoUtils {
         int trackIndex = -1;
         ByteBuffer dstBuf = ByteBuffer.allocate(bufferSize);
         BufferInfo bufferInfo = new BufferInfo();
+
+        // /M: lastTimeUs is used to keep old timeUs
+        long lastTimeUs = -1;
         try {
             muxer.start();
             while (true) {
@@ -218,24 +325,43 @@ public class VideoUtils {
                     break;
                 } else {
                     bufferInfo.presentationTimeUs = extractor.getSampleTime();
-                    if (endMs > 0 && bufferInfo.presentationTimeUs > (endMs * 1000)) {
+                    // /M: check timeUs back problem @{
+                    if (lastTimeUs != -1 && bufferInfo.presentationTimeUs < lastTimeUs) {
+                        Log.d(LOGTAG, "timeUs back!");
+                        muxer.release(); // release would call stop
+                        mProgress.dismiss();
+                        return false;
+                    }
+                    // / @}
+                    // /M: endMs is int type, it would overflow and cause judge
+                    // fail
+                    if (endMs > 0 && bufferInfo.presentationTimeUs > ((long) endMs * 1000)) {
                         Log.d(LOGTAG, "The current sample is over the trim end time.");
+                        Log.d(LOGTAG, "presentationTimeUs:" + bufferInfo.presentationTimeUs
+                                + "endMs:" + endMs);
                         break;
                     } else {
                         bufferInfo.flags = extractor.getSampleFlags();
                         trackIndex = extractor.getSampleTrackIndex();
 
-                        muxer.writeSampleData(indexMap.get(trackIndex), dstBuf,
-                                bufferInfo);
+                        /// check key frame or not
+                        if (shouldFixKeyFrame &&
+                                checkKeyFrameIfPossible(dstBuf, mimes[trackIndex])) {
+                            bufferInfo.flags |= 1;
+                        }
+
+                        muxer.writeSampleData(indexMap.get(trackIndex), dstBuf, bufferInfo);
                         extractor.advance();
                     }
+                    // /M: set lastTimeUs
+                    lastTimeUs = bufferInfo.presentationTimeUs;
                 }
             }
 
             muxer.stop();
         } catch (IllegalStateException e) {
-            // Swallow the exception due to malformed source.
-            Log.w(LOGTAG, "The source video file is malformed");
+            mProgress.dismiss();
+            Log.d(LOGTAG, "MediaMuxer.nativeStop failed");
             return false;
         } finally {
             muxer.release();
@@ -243,10 +369,22 @@ public class VideoUtils {
         return true;
     }
 
-    private static void trimUsingMp4Parser(File src, File dst, int startMs, int endMs)
-            throws IOException {
+    private static boolean trimUsingMp4Parser(File src, File dst, int startMs, int endMs,
+            TrimVideo trimVideo) throws FileNotFoundException, IOException {
+
+        if (src.exists() && dst.exists()) {
+            Log.v(LOGTAG  , "startTrim() src is " + src.getAbsolutePath() +
+                " and dst is " + dst.getAbsolutePath());
+        }
+        Log.v(LOGTAG  , "startTrim() startMs is " + startMs + " endMs is " + endMs);
+
         RandomAccessFile randomAccessFile = new RandomAccessFile(src, "r");
         Movie movie = MovieCreator.build(randomAccessFile.getChannel());
+        ///M: if this video can be trimmed, show progress dialog @{
+        if (movie == null) {
+            return false;
+        }
+        /// @}
 
         // remove all tracks we will create new tracks from the old
         List<Track> tracks = movie.getTracks();
@@ -268,16 +406,30 @@ public class VideoUtils {
                     // same positions. E.g. a single movie containing multiple
                     // qualities of the same video (Microsoft Smooth Streaming
                     // file)
-                    throw new RuntimeException(
+                    ///M: mark google default
+                    /*throw new RuntimeException(
                             "The startTime has already been corrected by" +
-                                    " another track with SyncSample. Not Supported.");
+                            " another track with SyncSample. Not Supported.");*/
+                    return false;
                 }
-                startTime = correctTimeToSyncSample(track, startTime, false);
-                endTime = correctTimeToSyncSample(track, endTime, true);
+                //startTime = correctTimeToSyncSample(track, startTime, false);
+                //endTime = correctTimeToSyncSample(track, endTime, true);
+                ///M:enhance correctTimeToSyncSample, correct only once{
+                double[] newCut = new double[2];
+                correctTimeToSyncSample2(track, startTime, endTime, newCut);
+                startTime = newCut[0];
+                endTime = newCut[1];
+                ///@}
                 timeCorrected = true;
             }
         }
-
+        ///M:when the video cann't trim, show a toast to user.@{
+        Log.v(LOGTAG  , "startTrim() startTime " + startTime + " endTime " + endTime);
+        if (startTime == endTime) {
+           return false;
+        }
+        ///@}
+//TODO        trimVideo.showDialogCommand();
         for (Track track : tracks) {
             long currentSample = 0;
             double currentTime = 0;
@@ -311,6 +463,7 @@ public class VideoUtils {
         }
         writeMovieIntoFile(dst, movie);
         randomAccessFile.close();
+        return true;
     }
 
     private static double correctTimeToSyncSample(Track track, double cutHere,
@@ -345,5 +498,114 @@ public class VideoUtils {
         }
         return timeOfSyncSamples[timeOfSyncSamples.length - 1];
     }
+
+    ///M:enhance correctTimeToSyncSample, correct only once{
+    private static void correctTimeToSyncSample2(Track track, double cutStart,
+            double cutEnd, double[] newCut) {
+        double[] timeOfSyncSamples = new double[track.getSyncSamples().length];
+        long currentSample = 0;
+        double currentTime = 0;
+        Log.v(LOGTAG  , "correctTimeToSyncSample()" + "SyncSample length:" +
+                track.getSyncSamples().length + "DecodingTimeEntries: " +
+                track.getDecodingTimeEntries().size());
+        for (int i = 0; i < track.getDecodingTimeEntries().size(); i++) {
+            TimeToSampleBox.Entry entry = track.getDecodingTimeEntries().get(i);
+            for (int j = 0; j < entry.getCount(); j++) {
+                int indexToSyncSample = Arrays.binarySearch(
+                            track.getSyncSamples(), currentSample + 1);
+                if (indexToSyncSample >= 0) {
+                    // samples always start with 1 but we start with zero therefore +1
+                    timeOfSyncSamples[indexToSyncSample] = currentTime;
+                }
+                currentTime += (double) entry.getDelta()
+                    / (double) track.getTrackMetaData().getTimescale();
+                currentSample++;
+            }
+        }
+
+        double previous = 0;
+        double newCutEnd = -1;
+        double newCutStart = -1;
+        for (double timeOfSyncSample : timeOfSyncSamples) {
+            if (timeOfSyncSample > cutStart && newCutStart == -1) {
+                newCutStart = previous;
+                Log.v(LOGTAG  , "newCutStart " + newCutStart);
+            }
+            if (timeOfSyncSample > cutEnd && newCutEnd == -1) {
+                newCutEnd = timeOfSyncSample;
+                Log.v(LOGTAG  , "newCutEnd " + newCutEnd);
+                break;
+            }
+            previous = timeOfSyncSample;
+        }
+        if (newCutStart == -1) {
+            newCutStart = timeOfSyncSamples[timeOfSyncSamples.length - 1];
+        }
+        if (newCutEnd == -1) {
+            newCutEnd = timeOfSyncSamples[timeOfSyncSamples.length - 1];
+        }
+
+        newCut[0] = newCutStart;
+        newCut[1] = newCutEnd;
+    }
+    /// @}
+    ///M: get first sample timeUs when video seek, startMs should use the time,
+    ///or else, it would cause AV not syc{
+    private static int correctSeekTime(MediaExtractor extractor, int startMs, int bufSize) {
+        int offset = 0;
+
+        extractor.seekTo((long) startMs * 1000, MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+
+        ByteBuffer dstBuf = ByteBuffer.allocate(bufSize);
+        BufferInfo bufferInfo = new BufferInfo();
+        bufferInfo.offset = offset;
+        bufferInfo.size = extractor.readSampleData(dstBuf, offset);
+        if (bufferInfo.size < 0) {
+            Log.d(LOGTAG, "correctSeekTime again Saw input EOS.");
+            return -10000000;
+        }
+        bufferInfo.presentationTimeUs = extractor.getSampleTime();
+        return (int) (bufferInfo.presentationTimeUs / 1000);
+    }
+    /// @}
+
+    ///M: CheckKeyFrameIfPossible{
+    private static boolean checkKeyFrameIfPossible(ByteBuffer buf, String mime) {
+        if (mime.equals("video/avc")) {
+            int lastPos = buf.position();
+            if (lastPos + 4 < buf.limit()) {
+                buf.position(lastPos + 4);
+                int type = buf.get();
+                buf.position(lastPos);
+                int nalUnitType = type & 0x1f;
+                if (nalUnitType == 5 || nalUnitType == 7) {
+                    Log.d(LOGTAG, "key Frame:" + nalUnitType);
+                    return true;
+                } else if (nalUnitType == 9) {
+                    buf.position(lastPos + 10);
+                    type = buf.get();
+                    buf.position(lastPos);
+                    nalUnitType = type & 0x1f;
+                    if (nalUnitType == 5 || nalUnitType == 7) {
+                        Log.d(LOGTAG, "key Frame:" + nalUnitType);
+                        return true;
+                    }
+                }
+            }
+        } else if (mime.equals("video/mp4v-es")) {
+            int lastPos = buf.position();
+            if (lastPos + 4 < buf.limit()) {
+                buf.position(lastPos + 3);
+                int type = buf.get();
+                buf.position(lastPos);
+                if ((type & 0xff)  == 0xB3) {
+                    Log.d(LOGTAG, "key Frame:" + type);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /// @}
 
 }

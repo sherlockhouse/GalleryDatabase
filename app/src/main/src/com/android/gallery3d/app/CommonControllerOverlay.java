@@ -38,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.gallery3d.R;
+import com.mediatek.gallery3d.video.MediaPlayerWrapper;
 
 /**
  * The common playback controller for the Movie Player or Video Trimming.
@@ -53,6 +54,9 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
         ENDED,
         ERROR,
         LOADING, //mean connecting
+        BUFFERING,
+        RETRY_CONNECTING,
+        RETRY_CONNECTING_ERROR
     }
 
     protected static final float ERROR_MESSAGE_RELATIVE_PADDING = 1.0f / 6;
@@ -66,10 +70,24 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
     protected final LinearLayout mLoadingView;
     protected final TextView mErrorView;
     protected final ImageView mPlayPauseReplayView;
+    // / M: [FEATURE.ADD] Audio only video@{
+    protected final ImageView mAudioOnlyView;
+    // / @}
 
     protected State mState;
 
     protected boolean mCanReplay = true;
+    protected MediaPlayerWrapper mMediaPlayerWrapper;
+
+    public void setMediaPlayerWrapper(MediaPlayerWrapper mediaPlayerWrapper) {
+        this.mMediaPlayerWrapper = mediaPlayerWrapper;
+        onPlayerWrapperChanged();
+    }
+
+    protected void onPlayerWrapperChanged() {
+
+    }
+
     public void setSeekable(boolean canSeek) {
         mTimeBar.setSeekable(canSeek);
     }
@@ -83,7 +101,13 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         LayoutParams matchParent =
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
+        // / M: [FEATURE.ADD] Audio only video@{
+        mAudioOnlyView = new ImageView(context);
+        mAudioOnlyView.setImageResource(R.drawable.ic_media_audio_only_video);
+        mAudioOnlyView.setScaleType(ScaleType.CENTER);
+        addView(mAudioOnlyView, wrapContent);
+        mAudioOnlyView.setVisibility(View.GONE);
+        // / @}
         mBackground = new View(context);
         mBackground.setBackgroundColor(context.getResources().getColor(R.color.darker_transparent));
         addView(mBackground, matchParent);
@@ -100,13 +124,15 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
         ProgressBar spinner = new ProgressBar(context);
         spinner.setIndeterminate(true);
         mLoadingView.addView(spinner, wrapContent);
-        TextView loadingText = createOverlayTextView(context);
-        loadingText.setText(R.string.loading_video);
-        mLoadingView.addView(loadingText, wrapContent);
+     // / M: mark it for mediatek info feature.
+//        TextView loadingText = createOverlayTextView(context);
+//        loadingText.setText(R.string.loading_video);
+//        mLoadingView.addView(loadingText, wrapContent);
         addView(mLoadingView, wrapContent);
 
         mPlayPauseReplayView = new ImageView(context);
-        mPlayPauseReplayView.setImageResource(R.drawable.ic_vidcontrol_play);
+        // M: bug fix
+        // mPlayPauseReplayView.setImageResource(R.drawable.ic_vidcontrol_play);
         mPlayPauseReplayView.setContentDescription(
                 context.getResources().getString(R.string.accessibility_play_video));
         mPlayPauseReplayView.setBackgroundResource(R.drawable.bg_vidcontrol);
@@ -123,7 +149,8 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
                 new RelativeLayout.LayoutParams(
                         LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         setLayoutParams(params);
-        hide();
+
+        //hide();
     }
 
     abstract protected void createTimeBar(Context context);
@@ -221,7 +248,8 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
     public void onClick(View view) {
         if (mListener != null) {
             if (view == mPlayPauseReplayView) {
-                if (mState == State.ENDED) {
+                /// M: when state is retry connecting error, user can replay video
+                if (mState == State.ENDED || mState == State.RETRY_CONNECTING_ERROR) {
                     if (mCanReplay) {
                         mListener.onReplay();
                     }
@@ -239,7 +267,10 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return super.onTouchEvent(event);
+        if (super.onTouchEvent(event)) {
+            return true;
+        }
+        return false;
     }
 
     // The paddings of 4 sides which covered by system components. E.g.
@@ -273,7 +304,6 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
 
         int h = bottom - top;
         int w = right - left;
-        boolean error = mErrorView.getVisibility() == View.VISIBLE;
 
         int y = h - pb;
         // Put both TimeBar and Background just above the bottom system
@@ -332,19 +362,25 @@ public abstract class CommonControllerOverlay extends FrameLayout implements
 
     @Override
     public void onScrubbingStart() {
-        mListener.onSeekStart();
+        /// M: add if for safe
+        if (mListener != null) {
+            mListener.onSeekStart();
+        }
     }
-
 
     @Override
     public void onScrubbingMove(int time) {
-        mListener.onSeekMove(time);
+        /// M: add if for safe
+        if (mListener != null) {
+            mListener.onSeekMove(time);
+        }
     }
 
     @Override
     public void onScrubbingEnd(int time, int trimStartTime, int trimEndTime) {
-        mListener.onSeekEnd(time, trimStartTime, trimEndTime);
+        /// M: add if for safe
+        if (mListener != null) {
+            mListener.onSeekEnd(time, trimStartTime, trimEndTime);
+        }
     }
-
-
 }
