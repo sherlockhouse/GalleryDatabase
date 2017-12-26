@@ -21,6 +21,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.view.Surface;
@@ -41,18 +43,20 @@ public class OrientationManager implements OrientationSource {
 
     // This is true if "Settings -> Display -> Rotation Lock" is checked. We
     // don't allow the orientation to be unlocked if the value is true.
-    private boolean mRotationLockedSetting = false;
+    private boolean mRotationLockedSetting;
 
     public OrientationManager(Activity activity) {
         mActivity = activity;
         mOrientationListener = new MyOrientationEventListener(activity);
+        mRotationObserver = new RotationObserver(new Handler());
+
     }
 
     public void resume() {
-        ContentResolver resolver = mActivity.getContentResolver();
-        mRotationLockedSetting = Settings.System.getInt(
-                resolver, Settings.System.ACCELEROMETER_ROTATION, 0) != 1;
         mOrientationListener.enable();
+        ContentResolver resolver = mActivity.getContentResolver();
+        mRotationLockedSetting = Settings.System.getInt(resolver,
+                Settings.System.ACCELEROMETER_ROTATION, 0) != 1;
     }
 
     public void pause() {
@@ -91,12 +95,15 @@ public class OrientationManager implements OrientationSource {
     // Unlock the framework orientation, so it can change when the device
     // rotates.
     public void unlockOrientation() {
-        if (!mOrientationLocked) return;
+        if (!mOrientationLocked ) return;
+        ContentResolver resolver = mActivity.getContentResolver();
+        mRotationLockedSetting = Settings.System.getInt(resolver,
+                Settings.System.ACCELEROMETER_ROTATION, 0) != 1;
+        if (mRotationLockedSetting) return;
         mOrientationLocked = false;
         Log.d(TAG, "unlock orientation");
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
     }
-
     private int calculateCurrentScreenOrientation() {
         int displayRotation = getDisplayRotation();
         // Display rotation >= 180 means we need to use the REVERSE landscape/portrait
@@ -171,5 +178,50 @@ public class OrientationManager implements OrientationSource {
             case Surface.ROTATION_270: return 270;
         }
         return 0;
+    }
+
+    public RotationObserver getmRotationObserver() {
+        return mRotationObserver;
+    }
+
+    private RotationObserver mRotationObserver;
+
+    public class RotationObserver extends ContentObserver
+    {
+        ContentResolver mResolver;
+
+        public RotationObserver(Handler handler)
+        {
+            super(handler);
+            mResolver = mActivity.getContentResolver();
+            // TODO Auto-generated constructor stub
+        }
+
+        @Override
+        public void onChange(boolean selfChange)
+        {
+            super.onChange(selfChange);
+            ContentResolver resolver = mActivity.getContentResolver();
+            if (Settings.System.getInt(resolver,
+                    Settings.System.ACCELEROMETER_ROTATION, 0) != 1) {
+                mRotationLockedSetting = true;
+                lockOrientation();
+            } else {
+                mRotationLockedSetting = false;
+                unlockOrientation();
+            }
+        }
+
+        public void startObserver()
+        {
+            mResolver.registerContentObserver(Settings.System
+                            .getUriFor(Settings.System.ACCELEROMETER_ROTATION), false,
+                    this);
+        }
+
+        public void stopObserver()
+        {
+            mResolver.unregisterContentObserver(this);
+        }
     }
 }

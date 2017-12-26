@@ -1106,6 +1106,7 @@ public abstract class PhotoPage extends ActivityState implements
         super.onPause();
         mIsActive = false;
 
+        mOrientationManager.getmRotationObserver().stopObserver();
         mActivity.getGLRoot().unfreeze();
         mHandler.removeMessages(MSG_UNFREEZE_GLROOT);
 
@@ -1176,6 +1177,7 @@ public abstract class PhotoPage extends ActivityState implements
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.unlockOrientation();
         //*/
+        mOrientationManager.getmRotationObserver().startObserver();
 
         /// M: [BUG.MARK] @{
         // In order to avoid black screen when PhotoPage just starts, google freeze the GLRoot when
