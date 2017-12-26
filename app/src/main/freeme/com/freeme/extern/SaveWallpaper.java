@@ -428,7 +428,8 @@ public class SaveWallpaper {
         WallpaperManager ws = WallpaperManager.getInstance(mActivity);
 
         try {
-            ws.setStream(new ByteArrayInputStream(croppedBytes));
+            ws.setStream(new ByteArrayInputStream(croppedBytes),
+                    null, true, WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
             return true;
         } catch (Exception e) {
             LogUtil.i(TAG, "fail to set wall paper, inner :" + e);
