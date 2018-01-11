@@ -138,6 +138,6 @@ public class MediaStoreImportService extends IntentService {
 
     public void deleyImport(DelayedImport delayedImport) {
         mHandler.removeCallbacks(delayedImport);
-        mHandler.postDelayed(delayedImport, 1000L);
+        mHandler.postDelayed(delayedImport, 400L);
     }
 }
