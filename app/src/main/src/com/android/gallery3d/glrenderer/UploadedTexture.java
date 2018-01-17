@@ -142,6 +142,11 @@ public abstract class UploadedTexture extends BasicTexture {
     private Bitmap getBitmap() {
         if (mBitmap == null) {
             mBitmap = onGetBitmap();
+            //*/ freeme.gulincheng, 20180117, bugfix:0024189 tmp modification .
+            if (mBitmap == null) {
+                return null;
+            }
+            //*/
             int w = mBitmap.getWidth() + mBorder * 2;
             int h = mBitmap.getHeight() + mBorder * 2;
             if (mWidth == UNSPECIFIED) {
@@ -341,7 +346,12 @@ public abstract class UploadedTexture extends BasicTexture {
             mContentValid = true;
         } else {
             mState = STATE_ERROR;
+
+            //*/ freeme.gulincheng, 20180117, bugfix:0024189 tmp modification .
+            Log.e(TAG, "Texture load fail, no bitmap");
+            /*/
             throw new RuntimeException("Texture load fail, no bitmap");
+            //*/
         }
     }
 

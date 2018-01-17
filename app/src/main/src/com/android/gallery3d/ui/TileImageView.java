@@ -608,6 +608,9 @@ public class TileImageView extends GLView {
     }
 
     synchronized void recycleTile(Tile tile) {
+        //*/ freeme.gulincheng, 20180117, bugfix:0024189 tmp modification .
+        if (tile == null) return;
+        //*/
         if (tile.mTileState == STATE_DECODING) {
             tile.mTileState = STATE_RECYCLING;
             return;
@@ -813,7 +816,13 @@ public class TileImageView extends GLView {
 
         @Override
         protected Bitmap onGetBitmap() {
+            //*/ freeme.gulincheng, 20180117, bugfix:0024189 tmp modification .
+            if (mTileState == STATE_DECODED) {
+                return null;
+            }
+            /*/
             Utils.assertTrue(mTileState == STATE_DECODED);
+            //*/
 
             // We need to override the width and height, so that we won't
             // draw beyond the boundaries.
