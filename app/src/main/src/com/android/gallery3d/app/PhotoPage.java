@@ -25,12 +25,15 @@ import android.annotation.TargetApi;
 import android.app.ActionBar.OnMenuVisibilityListener;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateBeamUrisCallback;
@@ -49,8 +52,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.gallery3d.data.LocalImage;
 import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.extern.PhotopageComments;
 import com.freeme.gallery.R;
@@ -90,12 +95,16 @@ import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.common.ApiHelper;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.utils.FrameworkSupportUtils;
 import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
+import java.io.File;
+import com.sprd.gallery3d.refocus.RefocusPhotoEditActivity;
 
 public abstract class PhotoPage extends ActivityState implements
         PhotoView.Listener, AppBridge.Server, ShareActionProvider.OnShareTargetSelectedListener,
-        PhotoPageBottomControls.Delegate, GalleryActionBar.OnAlbumModeSelectedListener {
+        PhotoPageBottomControls.Delegate, GalleryActionBar.OnAlbumModeSelectedListener ,
+        PhotoVoiceProgress.TimeListener{
     public static final  int                      REQUEST_PLAY_VIDEO                = 5;
     public static final  int                      REQUEST_TRIM                      = 6;
     public static final  String                   KEY_MEDIA_SET_PATH                = "media-set-path";
@@ -314,26 +323,52 @@ public abstract class PhotoPage extends ActivityState implements
         //*/
     }
 
-    //*/ Modified by Linguanrong for photopage bottom controls, 2014-9-17
     @Override
-    public boolean canDisplayBottomControl(int control) {
+    public boolean canDisplayBottomControl(int control, View view) {
         if (mCurrentPhoto == null) {
             return false;
         }
         if (isCommentvisible && mBottomText != null && !mPhotoView.getFilmMode()) {
             mBottomText.setvisible(true);
         }
-        if (R.id.photopage_bottom_control_edit == control) {
-            mBottomControls.getMenuEdit().setEnabled(
+        switch (control) {
+            case R.id.photopage_bottom_control_edit:
+                mBottomControls.getMenuEdit().setEnabled(
                     (mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0);
-        }
-        //*/Added by tyd  heqianqian for big mode tab 20150710
-        if (R.id.photopage_bottom_control_blockbuster == control) {
-            mBottomControls.getMenuBlock().setEnabled(
+                return true;
+            case R.id.photopage_bottom_control_blockbuster:
+                mBottomControls.getMenuBlock().setEnabled(
                     (mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0);
+                return true;
+            case R.id.photo_voice_icon:
+                if (mCurrentPhoto instanceof LocalImage && FrameworkSupportUtils.isSupportVoiceImage()) {
+                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+                    String photoVoice = localImage.getPhotoVoice();
+                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
+                    return photoVoice != null ? true : false;
+                }
+                return false;
+
+            case R.id.photo_voice_progress:
+                if (mCurrentPhoto instanceof LocalImage) {
+                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+                    String photoVoice = localImage.getPhotoVoice();
+                    if (photoVoice != null) {
+                        mPhotoVoiceProgress = (PhotoVoiceProgress) view;
+                    }
+                }
+                return false;
+            case R.id.photo_refocus_icon:
+                if (mCurrentPhoto instanceof LocalImage && FrameworkSupportUtils.isSupportRefocusImage()) {
+                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+                    boolean isRefocus = localImage.getMimeType().startsWith("refocusImage/");
+                    Log.d(TAG, "updateCurrentPhoto   isRefocusImage = " + isRefocus);
+                    return isRefocus;
+                }
+                return false;
+            default:
+                return true;
         }
-        //*/
-        return true;
     }
 
     @Override
@@ -374,7 +409,25 @@ public abstract class PhotoPage extends ActivityState implements
             case R.id.photopage_bottom_control_slideshow:
                 onItemSelected(menu.findItem(R.id.action_slideshow));
                 return;
-
+      /* SPRD: Add for bug535110 new feature,  support play audio picture @{ */
+            case R.id.photo_voice_icon:
+                if (mCurrentPhoto instanceof LocalImage) {
+                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+                    String photoVoice = localImage.getPhotoVoice();
+                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
+                    playPhotoVoice(photoVoice);
+                }
+                return;
+            case R.id.photo_refocus_icon:
+                if (mCurrentPhoto instanceof LocalImage) {
+                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+                    boolean isRefocus = localImage.getMimeType().startsWith("refocusImage/");
+                    Log.d(TAG, "updateCurrentPhoto   isRefocusImage = " + isRefocus);
+                    if (isRefocus) {
+                        startRefocusActivity(localImage.getPlayUri(), localImage);
+                    }
+                }
+                return;
             default:
                 return;
         }
@@ -549,6 +602,8 @@ public abstract class PhotoPage extends ActivityState implements
 
     private void updateCurrentPhoto(MediaItem photo) {
         if (mCurrentPhoto == photo) return;
+        // Add for bug535110 new feature,  support play audio picture
+        playPhotoVoice(null);
         mCurrentPhoto = photo;
         if (mPhotoView.getFilmMode()) {
             requestDeferredUpdate();
@@ -728,7 +783,8 @@ public abstract class PhotoPage extends ActivityState implements
         mApplication = (GalleryApp) mActivity.getApplication();
         mOrientationManager = mActivity.getOrientationManager();
         mActivity.getGLRoot().setOrientationSource(mOrientationManager);
-
+        // Add for bug535110 new feature,  support play audio picture
+        mAudioManager = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
         mHandler = new SynchronizedHandler(mActivity.getGLRoot()) {
             @Override
             public void handleMessage(Message message) {
@@ -1127,6 +1183,9 @@ public abstract class PhotoPage extends ActivityState implements
         onCommitDeleteImage();
         mMenuExecutor.pause();
         if (mMediaSet != null) mMediaSet.clearDeletion();
+
+        // SPRD: Add for bug535110 new feature,  support play audio picture
+        releasePlayer();
     }
 
     private void hideDetails() {
@@ -1503,6 +1562,16 @@ public abstract class PhotoPage extends ActivityState implements
             supportedOperations |= MediaObject.SUPPORT_COMMENT;
         }
         //end
+
+        if (mCurrentPhoto.getMediaType() == MediaObject.MEDIA_TYPE_IMAGE_REFOCUS
+                || mCurrentPhoto.getMimeType().startsWith("refocusImage/")) {
+            supportedOperations &= ~MediaObject.SUPPORT_SHARE;
+            supportedOperations &= ~MediaObject.SUPPORT_ROTATE;
+            supportedOperations &= ~MediaObject.SUPPORT_CROP;
+            /*if (GalleryUtils.isBlendingEnable()) {
+                supportedOperations |= MediaObject.SUPPORT_BLENDING;
+            }*/
+        }
         MenuExecutor.updateMenuOperation(menu, supportedOperations);
 
         //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
@@ -1698,18 +1767,22 @@ public abstract class PhotoPage extends ActivityState implements
             // item is not ready or it is camera preview, ignore
             return;
         }
-
+        int w = mPhotoView.getWidth();
+        int h = mPhotoView.getHeight();
         int supported = item.getSupportedOperations();
         boolean playVideo = ((supported & MediaItem.SUPPORT_PLAY) != 0);
         boolean unlock = ((supported & MediaItem.SUPPORT_UNLOCK) != 0);
         boolean goBack = ((supported & MediaItem.SUPPORT_BACK) != 0);
         boolean launchCamera = ((supported & MediaItem.SUPPORT_CAMERA_SHORTCUT) != 0);
+        boolean clickCenter = false;
 
-        if (playVideo) {
+        clickCenter = (Math.abs(x - w / 2) * 12 <= w) && (Math.abs(y - h / 2) * 12 <= h);
+
+        if (playVideo && clickCenter) {
             // determine if the point is at center (1/6) of the photo view.
             // (The position of the "play" icon is at center (1/6) of the photo)
-            int w = mPhotoView.getWidth();
-            int h = mPhotoView.getHeight();
+//            int w = mPhotoView.getWidth();
+//            int h = mPhotoView.getHeight();
             playVideo = (Math.abs(x - w / 2) * 12 <= w)
                     && (Math.abs(y - h / 2) * 12 <= h);
         }
@@ -1728,6 +1801,10 @@ public abstract class PhotoPage extends ActivityState implements
             mActivity.startActivity(intent);
         } else if (launchCamera) {
             launchCamera();
+        } else if (item.getMimeType().startsWith("refocusImage/") && clickCenter) {
+            if (FrameworkSupportUtils.isSupportRefocusImage()) {
+                startRefocusActivity(item.getPlayUri(), item);
+            }
         } else {
             toggleBars();
         }
@@ -2045,4 +2122,157 @@ public abstract class PhotoPage extends ActivityState implements
         guide.setContentView(view);
         guide.show();
     }
+
+    //********************************************************************
+    //*                              sprd                                *
+    //********************************************************************
+
+    private static final String ACTION_REFOCUS_EDIT = "com.android.sprd.gallery3d.refocusedit";
+
+    public void startRefocusActivity(Uri uri, MediaItem item) {
+        if (uri == null || item == null)
+            return;
+        int refocusPhotoWidth = item.getWidth();
+        int refocusPhotoHeight = item.getHeight();
+        Intent intent = new Intent();
+        intent.setAction(ACTION_REFOCUS_EDIT);
+        intent.setDataAndType(uri, "refocusImage/jpeg");
+        intent.putExtra(RefocusPhotoEditActivity.REFOCUS_WIDTH, refocusPhotoWidth);
+        intent.putExtra(RefocusPhotoEditActivity.REFOCUS_HEIGHT, refocusPhotoHeight);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        try {
+            Log.d(TAG, "startRefocusActivity");
+            mActivity.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "Refocus activity previously detected but cannot be found", e);
+        }
+    }
+    /* SPRD: Add for bug535110 new feature,  support play audio picture @{ */
+    private PhotoVoiceProgress mPhotoVoiceProgress;
+    private AudioManager mAudioManager;
+    private MediaPlayer mMediaPlayer;
+
+    private void releasePlayer() {
+        if (mMediaPlayer != null) {
+            Log.e(TAG, "releasePlayer");
+            mMediaPlayer.reset();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+            //SPRD : fix bug 604671 show voice photo is different from camera.
+            if (mPhotoVoiceProgress != null) {
+                mPhotoVoiceProgress.stopShowTime();
+            }
+            abandonAudioFocus();
+        }
+    }
+
+    @Override
+    public int getTime() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()){
+            return mMediaPlayer.getCurrentPosition();
+        }
+        return 0;
+    }
+
+    private void playPhotoVoice(String path) {
+        if (null == mMediaPlayer) {
+            mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer arg0) {
+                    //SPRD : fix bug 604671 show voice photo is different from camera.
+                    if (mPhotoVoiceProgress != null) {
+                        mPhotoVoiceProgress.stopShowTime();
+                        mPhotoVoiceProgress.setTimeListener(null);
+
+                    }
+                    abandonAudioFocus();
+                }
+            });
+            mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
+                    //SPRD : fix bug 604671 show voice photo is different from camera.
+                    if (mPhotoVoiceProgress != null) {
+                        mPhotoVoiceProgress.stopShowTime();
+                    }
+                    abandonAudioFocus();
+                    return false;
+                }
+            });
+        }
+
+        if (path != null && mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.reset();
+                //SPRD : fix bug 604671 show voice photo is different from camera.
+                if (mPhotoVoiceProgress != null) {
+                    mPhotoVoiceProgress.stopShowTime();
+                }
+                abandonAudioFocus();
+                Log.e(TAG, "playPhotoVoice isPlaying , reset stop play");
+                return;
+            }
+            File voiceFile = new File(path);
+            if (!voiceFile.exists()) {
+                Log.e(TAG, "playPhotoVoice path = " + path + " does not exist!");
+                return;
+            }
+            try {
+                if (mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT) == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+                    Toast.makeText(mActivity, R.string.play_audio_failed, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                mPhotoVoiceProgress.setTimeListener(this);
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(path);
+                mMediaPlayer.prepare();
+                //SPRD : fix bug 604671 show voice photo is different from camera.
+                if (mPhotoVoiceProgress != null) {
+                    mPhotoVoiceProgress.setTotalTime(mMediaPlayer.getDuration());
+                    mPhotoVoiceProgress.setFocusable(false);
+                    mPhotoVoiceProgress.setClickable(false);
+                    mPhotoVoiceProgress.startShowTime();
+                }
+                mMediaPlayer.start();
+            } catch (Exception e) {
+                Log.e(TAG, "playPhotoVoice Exception e = " + e.toString());
+            }
+            Log.e(TAG, "playPhotoVoice play path = " + path);
+        } else {
+            if (mMediaPlayer != null) {
+                mMediaPlayer.reset();
+                //SPRD : fix bug 604671 show voice photo is different from camera.
+                if (mPhotoVoiceProgress != null) {
+                    mPhotoVoiceProgress.stopShowTime();
+                }
+                abandonAudioFocus();
+            }
+        }
+    }
+
+    AudioManager.OnAudioFocusChangeListener afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    if (mMediaPlayer != null) {
+                        mMediaPlayer.reset();
+                        //SPRD : fix bug 604671 show voice photo is different from camera.
+                        if (mPhotoVoiceProgress != null) {
+                            mPhotoVoiceProgress.stopShowTime();
+                        }
+                    }
+            }
+        }
+
+        ;
+    };
+
+    private void abandonAudioFocus() {
+        mAudioManager.abandonAudioFocus(afChangeListener);
+    }
+    /* @} */
 }

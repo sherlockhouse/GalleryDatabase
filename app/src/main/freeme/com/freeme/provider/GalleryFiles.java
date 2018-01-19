@@ -41,6 +41,7 @@ public class GalleryFiles {
     private Integer story_bucket_id;
     private Integer is_hidden;
     private String  lbs_loc;
+    private Integer  photo_voice_id;
 
     public GalleryFiles() {
     }
@@ -55,7 +56,7 @@ public class GalleryFiles {
                         String album, String resolution, Integer width, Integer height,
                         Double latitude, Double longitude, Integer datetaken, Integer orientation,
                         Integer mini_thumb_magic, String bucket_id, String bucket_display_name,
-                        Integer story_bucket_id, Integer is_hidden, String lbs_loc) {
+                        Integer story_bucket_id, Integer is_hidden, String lbs_loc, Integer photo_voice_id) {
         this.id = id;
         this.data = data;
         this.size = size;
@@ -83,6 +84,7 @@ public class GalleryFiles {
         this.story_bucket_id = story_bucket_id;
         this.is_hidden = is_hidden;
         this.lbs_loc = lbs_loc;
+        this.photo_voice_id = photo_voice_id;
     }
 
     public static GalleryFiles getGalleryFiles(GalleryFilesDao galleryFilesDao, long id) {
@@ -309,6 +311,14 @@ public class GalleryFiles {
         this.is_hidden = is_hidden;
     }
 
+    public Integer getPhoto_voice_id_() {
+        return photo_voice_id;
+    }
+
+    public void setPhoto_voice_id(Integer photo_voice_id) {
+        this.photo_voice_id = photo_voice_id;
+    }
+
     public String getLbs_loc() {
         return lbs_loc;
     }
@@ -346,7 +356,8 @@ public class GalleryFiles {
                 ", bucket_display_name='" + bucket_display_name + '\'' +
                 ", story_bucket_id=" + story_bucket_id +
                 ", is_hidden=" + is_hidden +
-                ", lbs_loc='" + lbs_loc + '\'' +
+                ", lbs_loc='" + lbs_loc  +
+                ", photo_voice_id='" + photo_voice_id + '\'' +
                 '}';
     }
 }

@@ -44,6 +44,7 @@ import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
+import com.freeme.utils.FrameworkSupportUtils;
 import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.adapter.MediaDataParser;
 import com.mediatek.gallery3d.layout.FancyHelper;
@@ -98,12 +99,9 @@ public class LocalImage extends LocalMediaItem {
     public static final int INDEX_HEIGHT = 13;
     /// @}
 
-    /// M: [FEATURE.ADD] @{
-    public static final int INDEX_IS_DRM = 14;
-    public static final int INDEX_DRM_METHOD = 15;
-    public static final int INDEX_IS_BEST_SHOT = 16;
-    public static final int INDEX_CAMERA_REFOCUS = 17;
-    /// @}
+
+    // Add for bug535110 new feature,  support play audio picture
+    public static final int COL_PHOTO_VOICE = 15;
 
     /// M: [FEATURE.MODIFY] @{
     // When add/modify column in PROJECTION,
@@ -124,10 +122,12 @@ public class LocalImage extends LocalMediaItem {
             ImageColumns.BUCKET_ID,     // 10
             ImageColumns.SIZE,          // 11
             "0",                        // 12
-            "0"                         // 13
+            "0",                        // 13
             //*/ Added by Linguanrong for story album, 2015-4-9
-            , "story_bucket_id"
+            "story_bucket_id",//14
             //*/
+            // Add for bug535110 new feature,  support play audio picture
+            "photo_voice_id"            // 15
     };
 
 
@@ -196,6 +196,33 @@ public class LocalImage extends LocalMediaItem {
         fileSize = cursor.getLong(INDEX_SIZE);
         width = cursor.getInt(INDEX_WIDTH);
         height = cursor.getInt(INDEX_HEIGHT);
+
+        mVoiceId = cursor.getInt(COL_PHOTO_VOICE);
+
+        if (mVoiceId != 0) {
+            Log.d(TAG, "query photoVoice begin voiceId = " + mVoiceId);
+            ContentResolver resolver = mApplication.getContentResolver();
+            Cursor sc = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
+                    MediaStore.Audio.Media.DATA
+            }, MediaStore.Audio.Media._ID + "=?", new String[]{
+                    String.valueOf(mVoiceId)
+            }, null);
+            if (sc != null && sc.moveToFirst()) {
+                mPhotoVoice = sc.getString(sc.getColumnIndex(MediaStore.Audio.Media.DATA));
+            }
+
+            if (sc != null) {
+                sc.close();
+            }
+            Log.d(TAG, "query photoVoice end");
+        }
+
+        if (mPhotoVoice != null) {
+            File voiceFile = new File(mPhotoVoice);
+            if (!voiceFile.exists()) {
+                mPhotoVoice = null;
+            }
+        }
     }
 
     @Override
@@ -460,6 +487,18 @@ public class LocalImage extends LocalMediaItem {
 
     @Override
     public int getMediaType() {
+        if (mimeType != null) {
+            if (mimeType.equalsIgnoreCase("refocusImage/jpeg")) {
+                if (FrameworkSupportUtils.isSupportRefocusImage()) {
+                    return MEDIA_TYPE_IMAGE_REFOCUS;
+                }
+            }
+            // Log.d(TAG, "getMediaType mPhotoVoice="+mPhotoVoice);
+            if (mPhotoVoice != null) {
+                if (FrameworkSupportUtils.isSupportVoiceImage())
+                return MEDIA_TYPE_IMAGE_PHOTO_VOICE;
+            }
+        }
         return MEDIA_TYPE_IMAGE;
     }
 
@@ -521,5 +560,23 @@ public class LocalImage extends LocalMediaItem {
 //            return true;
 //        }
         return false;
+    }
+
+    //********************************************************************
+    //*                              sprd                                 *
+    //********************************************************************
+    public static final int MEDIA_TYPE_IMAGE_REFOCUS = 32;
+    @Override
+    public Uri getPlayUri() {
+        return getContentUri();
+    }
+    private int mVoiceId;
+    protected String mPhotoVoice;
+    public int getVoiceId() {
+        return mVoiceId;
+    }
+
+    public String getPhotoVoice() {
+        return mPhotoVoice;
     }
 }

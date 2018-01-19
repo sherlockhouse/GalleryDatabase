@@ -201,7 +201,7 @@ public final class ImageLoader {
         try {
             if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
                 String mimeType = getMimeType(uri);
-                if (!JPEG_MIME_TYPE.equals(mimeType)) {
+                if (!JPEG_MIME_TYPE.equals(mimeType) ||!JPEG_MIME_TYPE_REFOCUS.equals(mimeType)) {
                     return ORI_NORMAL;
                 }
                 return getOrientationFromExif(uri.getPath(), null);
@@ -672,7 +672,7 @@ public final class ImageLoader {
         if (path != null) {
             Uri localUri = Uri.parse(path);
             String mimeType = getMimeType(localUri);
-            if (!JPEG_MIME_TYPE.equals(mimeType)) {
+            if (!JPEG_MIME_TYPE.equals(mimeType) ||!JPEG_MIME_TYPE_REFOCUS.equals(mimeType)) {
                 return null;
             }
             try {
@@ -750,4 +750,7 @@ public final class ImageLoader {
         }
     }
     /// @}
+
+    public static final String JPEG_MIME_TYPE_REFOCUS = "refocusImage/jpeg";
+
 }

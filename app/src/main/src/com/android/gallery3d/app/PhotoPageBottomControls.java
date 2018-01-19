@@ -47,13 +47,10 @@ public class PhotoPageBottomControls implements OnClickListener {
     public  SharedPreferences        mSharedPref;
 
     public interface Delegate {
-        boolean canDisplayBottomControls();
-
-        boolean canDisplayBottomControl(int control);
-
-        void onBottomControlClicked(int control);
-
-        void refreshBottomControlsWhenReady();
+        public boolean canDisplayBottomControls();
+        public boolean canDisplayBottomControl(int control, View view);
+        public void onBottomControlClicked(int control);
+        public void refreshBottomControlsWhenReady();
     }
     public  SharedPreferences.Editor mEditor;
     private Delegate  mDelegate;
@@ -68,10 +65,11 @@ public class PhotoPageBottomControls implements OnClickListener {
     private TextView mMenuBlock;
     //*/
     private Context                  mContext;
-    private boolean            mContainerVisible = false;
-    private Map<View, Boolean> mControlsVisible  = new HashMap<View, Boolean>();
-    private             Animation mContainerAnimIn           = new AlphaAnimation(0f, 1f);
-    private             Animation mContainerAnimOut          = new AlphaAnimation(1f, 0f);
+    private boolean mContainerVisible = false;
+    private Map<View, Boolean> mControlsVisible = new HashMap<View, Boolean>();
+
+    private Animation mContainerAnimIn = new AlphaAnimation(0f, 1f);
+    private Animation mContainerAnimOut = new AlphaAnimation(1f, 0f);
     //*/ Added by droi Linguanrong for freeme gallery, 16-1-30
     private View mNavigationBar;
     private ContentObserver mNavigationBarShowHideObserver = new ContentObserver(new Handler()) {
@@ -107,8 +105,14 @@ public class PhotoPageBottomControls implements OnClickListener {
         mParentLayout.addView(mContainer);
         mControls = (ViewGroup) mContainer.findViewById(R.id.photopage_bottom_controls);
         mNavigationBar = mContainer.findViewById(R.id.navigation_bar);
-        for (int j = 0; j < mControls.getChildCount(); j++) {
-            View child = mControls.getChildAt(j);
+        for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
+            View child = mContainer.getChildAt(i);
+            child.setOnClickListener(this);
+            mControlsVisible.put(child, false);
+        }
+
+        for (int i = mControls.getChildCount() - 1; i >= 0; i--) {
+            View child = mControls.getChildAt(i);
             child.setOnClickListener(this);
             mControlsVisible.put(child, false);
         }
@@ -192,7 +196,7 @@ public class PhotoPageBottomControls implements OnClickListener {
         }
         for (View control : mControlsVisible.keySet()) {
             Boolean prevVisibility = mControlsVisible.get(control);
-            boolean curVisibility = mDelegate.canDisplayBottomControl(control.getId());
+            boolean curVisibility = mDelegate.canDisplayBottomControl(control.getId(), control);
             if (prevVisibility.booleanValue() != curVisibility) {
                 if (!containerVisibilityChanged) {
                     control.clearAnimation();

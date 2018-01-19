@@ -18,7 +18,9 @@ package com.freeme.gallery.app;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.multidex.MultiDexApplication;
+import android.util.Log;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.droi.sdk.analytics.DroiAnalytics;
@@ -37,12 +39,15 @@ import com.android.gallery3d.util.ThreadPool;
 import com.freeme.provider.GalleryDBManager;
 //import com.freeme.updateself.update.UpdateMonitor;
 import com.freeme.utils.CustomJsonParser;
+import com.freeme.utils.SettingProperties;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.File;
+import java.io.IOException;
 
 public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
 
+    private static final String TAG = "GalleryAppImpl";
     private static final String DOWNLOAD_FOLDER   = "download";
     private static final long   DOWNLOAD_CAPACITY = 64 * 1024 * 1024; // 64M
 
@@ -51,6 +56,25 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
     private DataManager   mDataManager;
     private ThreadPool    mThreadPool;
     private DownloadCache mDownloadCache;
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        System.getProperties();
+
+        // Load configurations from setting files
+        try {
+            SettingProperties.build("/assets/freemegallery.properties",
+                    "/system/vendor/etc/freemegallery_custom.properties",
+                    "/system/etc/freemegallery_custom.properties");
+        } catch (IOException e) {
+            if (Build.TYPE.equals("eng") || Build.TYPE.equals("userdebug")) {
+                throw new RuntimeException(e);
+            } else {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -68,6 +92,7 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
         //DroiPushManager.getInstance(this).init();
         //*/
         CustomJsonParser.getInstance();
+
 
         // for baas analytics
        /* DroiAnalytics.initialize(this);

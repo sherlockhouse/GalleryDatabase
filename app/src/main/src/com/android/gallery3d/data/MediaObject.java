@@ -52,6 +52,7 @@ public abstract class MediaObject {
     //*/
     public static final int SUPPORT_ALL             = 0xffffffff;
 
+
     // These are the bits returned from getMediaType():
     public static final int MEDIA_TYPE_UNKNOWN = 1;
     public static final int MEDIA_TYPE_IMAGE = 2;
@@ -173,4 +174,6 @@ public abstract class MediaObject {
         throw new IllegalArgumentException();
     }
 
+    public static final int MEDIA_TYPE_IMAGE_REFOCUS = 32;
+    public static final int MEDIA_TYPE_IMAGE_PHOTO_VOICE = 128;
 }

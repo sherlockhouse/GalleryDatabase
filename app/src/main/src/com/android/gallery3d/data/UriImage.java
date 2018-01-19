@@ -101,7 +101,8 @@ public class UriImage extends MediaItem {
                 || ContentResolver.SCHEME_ANDROID_RESOURCE.equals(scheme)
                 || ContentResolver.SCHEME_FILE.equals(scheme)) {
             try {
-                if (MIME_TYPE_JPEG.equalsIgnoreCase(mContentType)) {
+                if (MIME_TYPE_JPEG.equalsIgnoreCase(mContentType)
+                        || MIME_TYPE_REFOCUS_JPEG.equalsIgnoreCase(mContentType)) {
                     InputStream is = mApplication.getContentResolver()
                             .openInputStream(mUri);
                     mRotation = Exif.getOrientation(is);
@@ -124,7 +125,8 @@ public class UriImage extends MediaItem {
                     Log.w(TAG, "download failed " + url);
                     return STATE_ERROR;
                 }
-                if (MIME_TYPE_JPEG.equalsIgnoreCase(mContentType)) {
+                if (MIME_TYPE_JPEG.equalsIgnoreCase(mContentType)
+                        || MIME_TYPE_REFOCUS_JPEG.equalsIgnoreCase(mContentType)) {
                     InputStream is = new FileInputStream(mCacheEntry.cacheFile);
                     mRotation = Exif.getOrientation(is);
                     Utils.closeSilently(is);
@@ -302,6 +304,9 @@ public class UriImage extends MediaItem {
     public int getRotation() {
         return mRotation;
     }
-
+    @Override
+    public Uri getPlayUri() {
+        return getContentUri();
+    }
 
 }

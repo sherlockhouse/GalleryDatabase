@@ -30,7 +30,7 @@ public class CustomJsonParser {
 
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            File file = new File("/system/etc/FreemeGalleryCustom.json");
+            File file = new File("/system/vendor/etc/FreemeGalleryCustom.json");
             if (!file.exists()) {
                 return "";
             }
@@ -48,7 +48,7 @@ public class CustomJsonParser {
         return stringBuilder.toString();
     }
 
-    public static CustomConfig getCustomConfig() {
+    public CustomConfig getCustomConfig() {
         if (mCustomConfig == null) {
             mCustomConfig = new CustomConfig();
         }

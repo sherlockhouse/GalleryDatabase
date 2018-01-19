@@ -48,6 +48,7 @@ def getTime() {
     return new Date().format("yyyyMMdd", TimeZone.getDefault());
 }
 android {
+
     compileSdkVersion cfg.compileSdkVersion
     buildToolsVersion cfg.buildToolsVersion
     defaultConfig {
@@ -87,7 +88,7 @@ android {
         }
 
         platform {
-            storeFile file("../signature/droigallery.jks")
+            storeFile file("/droi/work/freemeos/signature/droigallery_platform.jks")
             storePassword 'zhuoyigallery'
             keyAlias 'droigallery'
             keyPassword 'zhuoyigallery'
@@ -100,7 +101,7 @@ android {
 //            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.platform
         }
 
         debug {
@@ -108,7 +109,7 @@ android {
 //            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.platform
         }
     }
 
@@ -124,6 +125,7 @@ android {
                             'src/main/mtkframework',
                             'src/main/mtkgallery/src']
             res.srcDirs = ['src/main/res',
+                           'src/main/res_sprd',
                            'src/main/freeme/res',
                            'src/main/community/res',
                            'src/main/bigModel/res']
@@ -150,85 +152,60 @@ android {
 
     productFlavors {
         devOfficial {
-
             // Community official url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_OFFICIAL
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, FALSE
-
             buildConfigField BOOLEAN, CUSTOM_SHARE, TRUE
-
             manifestPlaceholders = META_OFFICIAL
+            signingConfig signingConfigs.platform
         }
-
         devTest {
             // Community test url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_TEST
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
-
             manifestPlaceholders = META_TEST
         }
-
         devInternationalOfficial {
             // Community official url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_INTERNATIONAL_OFFICIAL
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, FALSE
-
             // 是否海外版
             buildConfigField BOOLEAN, VERSION_FOREIGN, TRUE
-
             manifestPlaceholders = META_OFFICIAL
         }
-
         devInternatinalTest {
             // Community test url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_INTERNATIONAL_TEST
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
-
             // 是否海外版
             buildConfigField BOOLEAN, VERSION_FOREIGN, TRUE
-
             manifestPlaceholders = META_TEST
         }
-
         freemeos_6_0_native {
             applicationId cfg_freeme_6_0.applicationId
             versionCode cfg_freeme_6_0.versionCode
             versionName cfg_freeme_6_0.versionName
-
             // Community official url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_OFFICIAL
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
-
             buildConfigField BOOLEAN, SUPPORT_LAGACY_FREEMEOS_PLATFORM, TRUE
-
             manifestPlaceholders = META_OFFICIAL
         }
-
         freemeos_6_0_native_test {
             applicationId cfg_freeme_6_0.applicationId
             versionCode cfg_freeme_6_0.versionCode
             versionName cfg_freeme_6_0.versionName
-
             // Community official url
             buildConfigField STRING, COMMUNITY_REQUEST_URL, COMMUNITY_REQUEST_URL_TEST
-
             // Support print
             buildConfigField BOOLEAN, SUPPORT_PRINT, TRUE
-
             buildConfigField BOOLEAN, SUPPORT_LAGACY_FREEMEOS_PLATFORM, TRUE
-
             manifestPlaceholders = META_TEST
-
             //add key
             signingConfig signingConfigs.platform
         }
@@ -289,7 +266,7 @@ dependencies {
 //    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
     compile project(':baas_analytics')
     compile project(':mtkgallery2')
-    compile project(':mtkreflectlib-release')
+    implementation project(':mtkreflectlib-release')
     compile 'com.facebook.stetho:stetho:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile project(':freeme-support-design')

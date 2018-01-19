@@ -142,6 +142,14 @@ public class AlbumSlotRenderer extends AbstractSlotRenderer {
             drawPanoramaIcon(canvas, width, height);
         }
 
+        if (entry.mediaType == MediaObject.MEDIA_TYPE_IMAGE_REFOCUS) {
+            drawRefocusIndicator(canvas, width, height);
+        }
+
+        if (entry.mediaType == MediaObject.MEDIA_TYPE_IMAGE_PHOTO_VOICE) {
+            drawVoiceIndicator(canvas, width, height);
+        }
+
         renderRequestFlags |= renderOverlay(canvas, index, entry, width, height);
 
         return renderRequestFlags;

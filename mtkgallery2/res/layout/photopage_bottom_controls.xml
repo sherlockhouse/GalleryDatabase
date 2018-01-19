@@ -1,28 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
-    android:layout_centerHorizontal="true"
-    android:layout_gravity="center_horizontal|bottom"
-    android:orientation="vertical"
+    android:layout_alignParentLeft="true"
     android:visibility="gone">
+
+    <!--SPRD : fix bug 604671 show voice photo is different from camera.@{-->
+    <com.android.gallery3d.app.PhotoVoiceProgress
+        android:id="@+id/photo_voice_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingBottom="60dp"
+        android:textColor="@color/white"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/photo_voice_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_voice_gallery_sprd_normal"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/photo_refocus_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_aperture_gallery_sprd"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/photopage_bottom_controls"
         android:layout_width="match_parent"
         android:layout_height="@dimen/tab_bar_default_height"
-        android:layout_gravity="center"
         android:background="@drawable/bottom_tab_bg"
-        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/photopage_bottom_control_edit"
             style="@style/BottomControlsItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:drawableTop="@drawable/bottom_controls_edit"
             android:text="@string/bottom_controls_edit"/>
+
+        <!--<TextView-->
+        <!--android:id="@+id/photopage_bottom_control_edit"-->
+        <!--style="@style/BottomControlsItem"-->
+        <!--android:drawableTop="@drawable/bottom_controls_edit"-->
+        <!--android:text="@string/bottom_controls_edit"/>-->
 
         <!-- add blockbuster by heqianqian 2015/5/18 -->
         <TextView
@@ -30,27 +67,32 @@
             style="@style/BottomControlsItem"
             android:drawableTop="@drawable/bottom_controls_blockbuster"
             android:text="@string/blockbuster"
+            android:visibility="visible"
             />
         <!-- end -->
         <TextView
             android:id="@+id/photopage_bottom_control_share"
             style="@style/BottomControlsItem"
             android:drawableTop="@drawable/bottom_controls_share"
-            android:text="@string/share"/>
+            android:text="@string/share"
+            android:visibility="visible"/>
 
         <TextView
             android:id="@+id/photopage_bottom_control_delete"
             style="@style/BottomControlsItem"
             android:drawableTop="@drawable/bottom_controls_trash"
-            android:text="@string/delete"/>
+            android:text="@string/delete"
+            android:visibility="visible"/>
 
         <TextView
             android:id="@+id/photopage_bottom_control_slideshow"
             style="@style/BottomControlsItem"
             android:drawableTop="@drawable/bottom_controls_slideshow"
-            android:text="@string/bottom_controls_slideshow"/>
+            android:text="@string/bottom_controls_slideshow"
+            android:visibility="visible"/>
 
     </LinearLayout>
+
 
     <View
         android:id="@+id/navigation_bar"
@@ -60,4 +102,4 @@
         android:visibility="gone"
         />
 
-</LinearLayout>
+</RelativeLayout>

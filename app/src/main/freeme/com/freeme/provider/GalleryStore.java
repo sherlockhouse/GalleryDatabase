@@ -10,6 +10,8 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.freeme.utils.FrameworkSupportUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,11 +54,13 @@ public class GalleryStore {
             Columns.ORIENTATION.getName(),
             Columns.MINI_THUMB_MAGIC.getName(),
             Columns.BUCKET_ID.getName(),
-            Columns.BUCKET_DISPLAY_NAME.getName()
-//            ,
+            Columns.BUCKET_DISPLAY_NAME.getName(),
 //            Columns.STORY_BUCKET_ID.getName(),
 //            Columns.IS_HIDDEN.getName(),
-//            Columns.LBS_LOC.getName()
+//            Columns.LBS_LOC.getName(),
+            Columns.PHOTO_VOICE_ID.getName()
+//            ,
+
     };
     private static final String TAG = GalleryStore.class.getSimpleName();
 
@@ -83,7 +87,8 @@ public class GalleryStore {
                 .append(Columns.BUCKET_DISPLAY_NAME.getName()).append(", ").append(Columns.STORY_BUCKET_ID.getName())
                 .append(", ").append(Columns.IS_HIDDEN.getName())
                 .append(", ").append(Columns.LBS_LOC.getName())
-                .append(" ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .append(", ").append(Columns.PHOTO_VOICE_ID.getName())
+                .append(" ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)")
                 .toString();
     }
 
@@ -127,6 +132,7 @@ public class GalleryStore {
         stmt.bindString(i++, value != null ? value : "");
         stmt.bindLong(i++, values.getAsLong(Columns.STORY_BUCKET_ID.getName()));
         stmt.bindLong(i++, values.getAsLong(Columns.IS_HIDDEN.getName()));
+        stmt.bindLong(i++, values.getAsLong(Columns.PHOTO_VOICE_ID.getName()));
         value = values.getAsString(Columns.LBS_LOC.getName());
         stmt.bindString(i++, value != null ? value : "");
     }
@@ -158,13 +164,22 @@ public class GalleryStore {
         BUCKET_DISPLAY_NAME("bucket_display_name", "text"),
         STORY_BUCKET_ID("story_bucket_id", "integer"),
         IS_HIDDEN("is_hidden", "integer"),
-        LBS_LOC("lbs_loc", "text");
+        LBS_LOC("lbs_loc", "text"),
+        PHOTO_VOICE_ID("photo_voice_id", "integer");
 
         private final String mName;
         private final String mType;
 
         Columns(String name, String type) {
-            mName = name;
+            if (!name.equals("photo_voice_id")) {
+                mName = name;
+            } else {
+                if (FrameworkSupportUtils.isSupportVoiceImage()) {
+                    mName = name;
+                } else {
+                    mName = "0";
+                }
+            }
             mType = type;
         }
 
@@ -423,6 +438,7 @@ public class GalleryStore {
              * <P>Type: TEXT</P>
              */
             String BUCKET_DISPLAY_NAME = "bucket_display_name";
+            String PHOTO_VOICE_ID = "photo_voice_id";
         }
 
         public static final class Media implements ImageColumns {

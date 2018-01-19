@@ -35,6 +35,10 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
     private final NinePatchTexture mListDivider;
     private final ResourceTexture  mExpanedBtn;
     private       FadeOutTexture   mFramePressedUp;
+    private final ResourceTexture mRefocusTexture;
+    private final ResourceTexture mVoiceTexture;
+
+
 
     protected AbstractTimeSlotRenderer(Context context) {
         mVideoOverlay = new NinePatchTexture(context, R.drawable.ic_video_thumb_freeme);
@@ -43,6 +47,9 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
         mFrameSelected = new NinePatchTexture(context, R.drawable.grid_selected);
         mListDivider = new NinePatchTexture(context, R.drawable.day_division);
         mExpanedBtn = new ResourceTexture(context, R.drawable.expansion_normal);
+        mRefocusTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_refocus);
+        mVoiceTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_voice);
+
     }
 
     protected void drawContent(GLCanvas canvas,
@@ -84,6 +91,18 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
         // int iconSize = Math.min(width, height) / 6;
         int iconSize = Math.min(width, height) / 5;
         mPanoramaIcon.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,
+                iconSize, iconSize);
+    }
+
+    protected void drawRefocusIndicator(GLCanvas canvas, int width, int height) {
+        int iconSize = Math.min(width, height) / 3;
+        mRefocusTexture.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,
+                iconSize, iconSize);
+    }
+
+    protected void drawVoiceIndicator(GLCanvas canvas, int width, int height) {
+        int iconSize = Math.min(width, height) / 3;
+        mVoiceTexture.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,
                 iconSize, iconSize);
     }
 

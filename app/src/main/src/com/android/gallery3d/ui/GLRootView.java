@@ -634,9 +634,17 @@ public class GLRootView extends GLSurfaceView
     @Override
     public void unfreeze() {
         mRenderLock.lock();
-        mFreeze = false;
+        /// M: [BUG.MODIFY] @{
+        /*mFreeze = false;
         mFreezeCondition.signalAll();
-        mRenderLock.unlock();
+        mRenderLock.unlock();*/
+        try {
+            mFreeze = false;
+            mFreezeCondition.signalAll();
+        } finally {
+            mRenderLock.unlock();
+        }
+        /// @}
     }
     @Override
     public void surfaceCreated(SurfaceHolder holder) {

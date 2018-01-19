@@ -23,6 +23,7 @@ package com.android.gallery3d.ui;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.SensorEvent;
@@ -275,11 +276,15 @@ public class PhotoView extends GLView {
                     hideUndoBar();
                 }
             });
-        int noThumbnailColor = mContext.getResources().getColor(R.color.no_photos_color);
-        mNoThumbnailText = StringTexture.newInstance(
-                mContext.getString(R.string.no_thumbnail),
-                DEFAULT_TEXT_SIZE, noThumbnailColor);
-
+        /// M: [BUG.MODIFY] set text size by considering device resolution @{
+        // mNoThumbnailText = StringTexture.newInstance(
+        //         mContext.getString(R.string.no_thumbnail),
+        //        DEFAULT_TEXT_SIZE, Color.WHITE);
+        mNoThumbnailText = StringTexture.newInstance(mContext
+                .getString(R.string.no_thumbnail), mContext.getResources()
+                .getDimensionPixelSize(R.dimen.albumset_title_font_size),
+                Color.WHITE);
+        /// @}
         mHandler = new MyHandler(activity.getGLRoot());
 
         mGestureListener = new MyGestureListener();
@@ -1904,4 +1909,18 @@ public class PhotoView extends GLView {
     }
 
  
+    /**
+     * Add for plug-in, update MediaType.
+     * @param mediaItem
+     */
+    public void updateFullPicture(MediaItem mediaItem) {
+        if (mediaItem == null) {
+            Log.i(TAG, "<updateFullPicture> mediaItem is null, return");
+            return;
+        }
+//        Picture p = mPictures.get(0);
+//        p.updateMediaData(p.getMediaData());
+//        GalleryPluginUtils.getImageOptionsPlugin().updateBoxMediaData(mPositionController, 0,
+//                p.getMediaData());
+    }
 }

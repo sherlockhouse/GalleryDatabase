@@ -42,6 +42,9 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
     private final NinePatchTexture mFrameOutSide;
     private       FadeOutTexture   mFramePressedUp;
     //*/
+    private final ResourceTexture mRefocusTexture;
+    private final ResourceTexture mVoiceTexture;
+
 
     protected AbstractSlotRenderer(Context context) {
         mVideoOverlay = new NinePatchTexture(context, R.drawable.ic_video_thumb_freeme);
@@ -52,6 +55,9 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         //*/ Added by Linguanrong for Gallery new styel, 2014-2-27
         mFrameOutSide = new NinePatchTexture(context, R.drawable.albumset_outside_frame);
         //*/
+        mRefocusTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_refocus);
+        mVoiceTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_voice);
+
     }
 
     protected void drawContent(GLCanvas canvas,
@@ -77,6 +83,12 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         canvas.restore();
     }
 
+    protected void drawRefocusIndicator(GLCanvas canvas, int width, int height) {
+        int iconSize = Math.min(width, height) / 3;
+        mRefocusTexture.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,
+                iconSize, iconSize);
+    }
+
     protected void drawVideoOverlay(GLCanvas canvas, int width, int height) {
         // Scale the video overlay to the height of the thumbnail and put it
         // on the left side.
@@ -90,6 +102,11 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         // int s = Math.min(width, height) / 6;
         // mVideoPlayIcon.draw(canvas, (width - s) / 2, (height - s) / 2, s, s);
         /// @}
+    }
+    protected void drawVoiceIndicator(GLCanvas canvas, int width, int height) {
+        int iconSize = Math.min(width, height) / 3;
+        mVoiceTexture.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,
+                iconSize, iconSize);
     }
 
     protected void drawPanoramaIcon(GLCanvas canvas, int width, int height) {

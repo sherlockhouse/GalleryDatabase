@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.freeme.utils.LogUtil;
 
@@ -230,6 +231,10 @@ public class MediaStoreImporter {
         if (tmpString != null) {
             galleryFiles.setBucket_display_name(tmpString);
         }
+
+        // photo_voice_id
+        index++;
+        galleryFiles.setPhoto_voice_id(cursor.getInt(index));
     }
 
     public void addFile(String type, long selectionId) {

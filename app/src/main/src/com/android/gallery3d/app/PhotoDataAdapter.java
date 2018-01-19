@@ -1604,4 +1604,16 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     public int getTotalCount() {
         return mSize;
     }
+
+    //********************************************************************
+    //*                              sprd                                *
+    //********************************************************************
+    public boolean isRedoFocus(int offset) {
+        // TODO Auto-generated method stub
+        MediaItem item = getItem(mCurrentIndex + offset);
+        if (item != null && item.getMimeType().startsWith("refocusImage/")) {
+            return true;
+        }
+        return false;
+    }
 }

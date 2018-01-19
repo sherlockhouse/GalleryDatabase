@@ -82,6 +82,13 @@ public class GalleryUtils {
     private static final String KEY_CAMERA_UPDATE = "camera-update";
     private static final String KEY_HAS_CAMERA = "has-camera";
 
+    /* sprd: add to support play gif @{ */
+    public static final String MIME_TYPE_IMAGE_GIF = "image/gif";
+    public static final boolean SUPPORT_GIF = true;
+    /* @} */
+    // SPRD: fix bug 387548, WBMP don't support edit
+    public static final String MIME_TYPE_IMAGE_WBMP = "image/vnd.wap.wbmp";
+
     private static float sPixelDensity = -1f;
     private static boolean sCameraAvailableInitialized = false;
     private static boolean sCameraAvailable;
@@ -489,5 +496,47 @@ public class GalleryUtils {
         }
     }
     // @}
+    private static final String TEST_INTENT_KEY = "test_key";
 
+    // SPRD:  Fix bug 659304, there is a general denial of service vulnerability  for intent with some malformed extras.
+    public static boolean isAlnormalIntent(Intent intent) {
+        boolean isAlnormalIntent = false;
+        try {
+            intent.getIntExtra(TEST_INTENT_KEY, -1);
+        } catch (RuntimeException e) {
+            android.util.Log.e(TAG, "alnormal intent is:" + intent, e);
+            isAlnormalIntent = true;
+        }
+        return isAlnormalIntent;
+    }
+
+    public static boolean isRefocusTestMode() {
+        return false;
+//        return SystemProperties.getBoolean(TARGET_TEST_MODE, false);
+    }
+
+    public static boolean isNeedSR() {
+        return false;
+//        return SystemProperties.getBoolean(TARGET_SR_PROCESSING, false);
+    }
+
+    public static boolean isSprdBokeh() {
+        return true;
+//        return SystemProperties.getBoolean(TARGET_SPRD_BOKEH, false);
+    }
+
+    public static boolean isBlendingEnable() {
+        return false;
+//        return SystemProperties.getBoolean(TARGET_TS_BLENDING, false);
+    }
+
+    public static boolean isRefocusRotateSupport(String mimeType) {
+        if (mimeType == null)
+            return false;
+        if (mimeType.equals("refocusImage/jpeg")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

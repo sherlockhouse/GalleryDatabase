@@ -58,7 +58,8 @@ public class GalleryFilesDao extends AbstractDao<GalleryFiles, Long> {
                 "\"bucket_display_name\" TEXT," + // 23: bucket_display_name
                 "\"story_bucket_id\" INTEGER," + // 24: story_bucket_id
                 "\"is_hidden\" INTEGER," + // 25: is_hidden
-                "\"lbs_loc\" TEXT);"); // 26: lbs_loc
+                "\"lbs_loc\" TEXT," +  // 26: lbs_loc
+                "\"photo_voice_id\" INTEGER);"); // 27: photo_voice_id
     }
 
     /**
@@ -101,7 +102,8 @@ public class GalleryFilesDao extends AbstractDao<GalleryFiles, Long> {
                 cursor.isNull(offset + 23) ? null : cursor.getString(offset + 23), // bucket_display_name
                 cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24), // story_bucket_id
                 cursor.isNull(offset + 25) ? null : cursor.getInt(offset + 25), // is_hidden
-                cursor.isNull(offset + 26) ? null : cursor.getString(offset + 26) // lbs_loc
+                cursor.isNull(offset + 26) ? null : cursor.getString(offset + 26), // lbs_loc
+                cursor.isNull(offset + 27) ? null : cursor.getInt(offset + 27) // lbs_loc
         );
         return entity;
     }
@@ -146,6 +148,7 @@ public class GalleryFilesDao extends AbstractDao<GalleryFiles, Long> {
         entity.setStory_bucket_id(cursor.isNull(offset + 24) ? null : cursor.getInt(offset + 24));
         entity.setIs_hidden(cursor.isNull(offset + 25) ? null : cursor.getInt(offset + 25));
         entity.setLbs_loc(cursor.isNull(offset + 26) ? null : cursor.getString(offset + 26));
+        entity.setPhoto_voice_id(cursor.isNull(offset + 27) ? null : cursor.getInt(offset + 27));
     }
 
     /**
@@ -285,6 +288,11 @@ public class GalleryFilesDao extends AbstractDao<GalleryFiles, Long> {
         if (lbs_loc != null) {
             stmt.bindString(27, lbs_loc);
         }
+
+        Integer photo_voice_id = entity.getPhoto_voice_id_();
+        if (photo_voice_id != null) {
+            stmt.bindLong(28, photo_voice_id);
+        }
     }
 
     /**
@@ -348,6 +356,7 @@ public class GalleryFilesDao extends AbstractDao<GalleryFiles, Long> {
         public final static Property Story_bucket_id     = new Property(24, Integer.class, "story_bucket_id", false, "story_bucket_id");
         public final static Property Is_hidden           = new Property(25, Integer.class, "is_hidden", false, "is_hidden");
         public final static Property Lbs_loc             = new Property(26, String.class, "lbs_loc", false, "lbs_loc");
+        public final static Property Photo_voice_id      = new Property(27, Integer.class, "photo_voice_id", false, "photo_voice_id");
     }
 
 }

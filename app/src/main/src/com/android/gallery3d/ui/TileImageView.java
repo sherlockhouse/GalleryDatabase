@@ -818,7 +818,7 @@ public class TileImageView extends GLView {
         protected Bitmap onGetBitmap() {
             //*/ freeme.gulincheng, 20180117, bugfix:0024189 tmp modification .
             if (mTileState == STATE_DECODED) {
-                return null;
+                return mDecodedTile;
             }
             /*/
             Utils.assertTrue(mTileState == STATE_DECODED);

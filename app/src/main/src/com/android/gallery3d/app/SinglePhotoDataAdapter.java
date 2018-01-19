@@ -41,6 +41,7 @@ import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.FutureListener;
 import com.android.gallery3d.util.ThreadPool;
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
 
 public class SinglePhotoDataAdapter extends TileImageViewAdapter
         implements PhotoPage.Model {
@@ -92,20 +93,56 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
 
     private FutureListener<BitmapRegionDecoder> mLargeListener =
             new FutureListener<BitmapRegionDecoder>() {
-                @Override
-                public void onFutureDone(Future<BitmapRegionDecoder> future) {
-                    BitmapRegionDecoder decoder = future.get();
-                    if (decoder == null) return;
-                    int width = decoder.getWidth();
-                    int height = decoder.getHeight();
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inSampleSize = BitmapUtils.computeSampleSize(
-                            (float) SIZE_BACKUP / Math.max(width, height));
-                    Bitmap bitmap = decoder.decodeRegion(new Rect(0, 0, width, height), options);
-                    mHandler.sendMessage(mHandler.obtainMessage(
-                            MSG_UPDATE_IMAGE, new ImageBundle(decoder, bitmap)));
-                }
-            };
+        @Override
+        public void onFutureDone(Future<BitmapRegionDecoder> future) {
+            BitmapRegionDecoder decoder = future.get();
+            /// M: [BUG.MODIFY] @{
+            // if (decoder == null) return;
+            // Some special images which support FULL_IMAGE cannot get
+            // BitmapRegionDecoder successfully,
+            // but can decode thumbnail, so we try to decode thumbnail again
+            if (decoder == null) {
+                Log.i(TAG,
+                        "<mLargeListener.onFutureDone> get RegionDecoder fail, uri = "
+                                + mItem.getContentUri()
+                                + ", try to decode thumb");
+                mHasFullImage = false;
+                mTask = mThreadPool.submit(
+                        mItem.requestImage(MediaItem.TYPE_THUMBNAIL),
+                        mThumbListener);
+                return;
+            }
+            /// @}
+            int width = decoder.getWidth();
+            int height = decoder.getHeight();
+
+            /// M: [BUG.ADD] The large picture can not be decoded clearly.@{
+            if ((mLoadingState == LOADING_FAIL)
+                    && FeatureHelper.isJpegOutOfLimit(mItem.getMimeType(),
+                            width, height)) {
+                Log.d(TAG, String.format(
+                        "out of limitation: %s [mime type: %s, width: %d, height: %d]", mItem
+                                .getPath().toString(), mItem.getMimeType(), width, height));
+                decoder.recycle();
+                return;
+            }
+            /// @}
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = BitmapUtils.computeSampleSize(
+                    (float) SIZE_BACKUP / Math.max(width, height));
+            Bitmap bitmap = decoder.decodeRegion(new Rect(0, 0, width, height), options);
+            /// M: [BUG.ADD] @{
+            //Add background for alpha bitmap.
+            bitmap =
+                    com.mediatek.galleryframework.util.BitmapUtils
+                            .replaceBackgroundColor(bitmap, true);
+            /// @}
+            mHandler.sendMessage(mHandler.obtainMessage(
+                    MSG_UPDATE_IMAGE, new ImageBundle(decoder, bitmap)));
+        }
+    };
+
     private FutureListener<Bitmap> mThumbListener =
             new FutureListener<Bitmap>() {
         @Override
@@ -121,7 +158,10 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
     }
 
     private void setScreenNail(Bitmap bitmap, int width, int height) {
-        mBitmapScreenNail = new BitmapScreenNail(bitmap);
+        /// M: [FEATURE.MODIFY] plugin @{
+        // mBitmapScreenNail = new BitmapScreenNail(bitmap);
+        mBitmapScreenNail = new BitmapScreenNail(bitmap, mItem);
+        /// @}
         setScreenNail(mBitmapScreenNail, width, height);
     }
     private void onDecodeLargeComplete(ImageBundle bundle) {
@@ -140,6 +180,9 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
             Bitmap backup = future.get();
             if (backup == null) {
                 mLoadingState = LOADING_FAIL;
+                /// M: [BUG.ADD] refresh for Fail text if loading fail. @{
+                mPhotoView.notifyImageChange(0);
+                /// @}
                 return;
             } else {
                 mLoadingState = LOADING_COMPLETE;
@@ -170,13 +213,25 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
         Future<?> task = mTask;
         task.cancel();
         task.waitDone();
-        if (task.get() == null) {
+        /// M: [BUG.MODIFY] reset task as null, Renew task on onResume, @{
+        /*
+         * if (task.get() == null) {
             mTask = null;
-        }
+        }*/
+        mTask = null;
+        /// @}
         if (mBitmapScreenNail != null) {
             mBitmapScreenNail.recycle();
             mBitmapScreenNail = null;
         }
+        /// M: [BUG.ADD] reset mLoadingState flag when pause @{
+        mLoadingState = LOADING_INIT;
+        /// @}
+        /// M: [BUG.ADD] @{
+        // Clear the information of TileImageViewAdapter to release RegionDecoder as soon as
+        // possible.
+        clearAndRecycle();
+        /// @}
     }
 
     @Override
@@ -232,8 +287,15 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
 
     @Override
     public boolean isDeletable(int offset) {
-        return (mItem.getSupportedOperations() & MediaItem.SUPPORT_DELETE) != 0;
-    }
+        /// M: [BUG.MODIFY] @{
+        // Item in SinglePhotoDataAdapter should always be undeletable,
+        // since it does not have a containing set, and might cause JE
+        // when deleting it in film mode.
+        /* return (mItem.getSupportedOperations() & MediaItem.SUPPORT_DELETE) != 0; */
+        return false;
+        /// @}
+     }
+
     @Override
     public MediaItem getMediaItem(int offset) {
         return offset == 0 ? mItem : null;
@@ -262,6 +324,27 @@ public class SinglePhotoDataAdapter extends TileImageViewAdapter
     @Override
     public int getLoadingState(int offset) {
         return mLoadingState;
+    }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    @Override
+    public int getImageHeight() {
+        return mItem.getHeight();
+    }
+
+    @Override
+    public int getImageWidth() {
+        return mItem.getWidth();
+    }
+    public boolean isRedoFocus(int offset) {
+        // TODO Auto-generated method stub
+        if (mItem != null
+                && mItem.getMimeType().startsWith("refocusImage/")) {
+            return true;
+        }
+        return false;
     }
 
 }

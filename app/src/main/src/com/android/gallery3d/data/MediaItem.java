@@ -241,4 +241,6 @@ public abstract class MediaItem extends MediaObject {
     /// M: [BUG.ADD] read DNG EXIF details. @{
     public static final String MIME_TYPE_DNG = "image/x-adobe-dng";
     /// @}
+
+    public static final String MIME_TYPE_REFOCUS_JPEG = "refocusImage/jpeg";
 }
