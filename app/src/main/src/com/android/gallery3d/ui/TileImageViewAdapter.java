@@ -135,7 +135,7 @@ public class TileImageViewAdapter implements TileImageView.TileSource {
         }
 
         Bitmap bitmap = GalleryBitmapPool.getInstance().get(tileSize, tileSize);
-        if (bitmap != null) {
+        if (bitmap != null && !bitmap.isRecycled()) {
             if (needClear) bitmap.eraseColor(0);
         } else {
             bitmap = Bitmap.createBitmap(tileSize, tileSize, Config.ARGB_8888);
