@@ -22,12 +22,15 @@
 package com.android.gallery3d.data;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.BitmapRegionDecoder;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.app.PanoramaMetadataSupport;
@@ -36,7 +39,15 @@ import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.ThreadPool.CancelListener;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
+import com.mediatek.gallery3d.adapter.FeatureHelper;
+import com.mediatek.gallery3d.adapter.MediaDataParser;
+import com.mediatek.gallery3d.util.DecodeSpecLimitor;
+import com.mediatek.gallery3d.util.Log;
+import com.mediatek.galleryfeature.config.FeatureConfig;
+import com.mediatek.galleryframework.base.ExtItem.Thumbnail;
 
+import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -69,6 +80,8 @@ public class UriImage extends MediaItem {
         mUri = uri;
         mApplication = Utils.checkNotNull(application);
         mContentType = contentType;
+        Log.i(TAG, "<UriImage> mUri " + mUri + " mContentType " + mContentType + " mWidth = "
+                + mWidth + " mHeight = " + mHeight);
     }
 
     @Override
@@ -107,7 +120,14 @@ public class UriImage extends MediaItem {
                             .openInputStream(mUri);
                     mRotation = Exif.getOrientation(is);
                     Utils.closeSilently(is);
+                /// M: [BUG.ADD] read DNG EXIF details. @{
+                } else if (MIME_TYPE_DNG.equalsIgnoreCase(mContentType)) {
+                    InputStream is = mApplication.getContentResolver()
+                            .openInputStream(mUri);
+                    mRotation = FeatureHelper.getOrientationFromExif(null, is);
+                    Utils.closeSilently(is);
                 }
+                /// @}
                 mFileDescriptor = mApplication.getContentResolver()
                         .openFileDescriptor(mUri, "r");
                 if (jc.isCancelled()) return STATE_INIT;
@@ -118,8 +138,19 @@ public class UriImage extends MediaItem {
             }
         } else {
             try {
+                /// M: [BUG.ADD] disable setAs Action for URL image. @{
+                mIsUrlImage = true;
+                /// @}
                 URL url = new URI(mUri.toString()).toURL();
-                mCacheEntry = mApplication.getDownloadCache().download(jc, url);
+                /// M: [BUG.MODIFY] @{
+                /*mCacheEntry = mApplication.getDownloadCache().download(jc, url);*/
+                DownloadCache downloadCache = mApplication.getDownloadCache();
+                if (downloadCache == null) {
+                    Log.w(TAG, "<openOrDownloadInner> failed to get DownloadCache");
+                    return STATE_ERROR;
+                }
+                mCacheEntry = downloadCache.download(jc, url);
+                /// @}
                 if (jc.isCancelled()) return STATE_INIT;
                 if (mCacheEntry == null) {
                     Log.w(TAG, "download failed " + url);
@@ -179,10 +210,36 @@ public class UriImage extends MediaItem {
         @Override
         public BitmapRegionDecoder run(JobContext jc) {
             if (!prepareInputFile(jc)) return null;
+            /// M: [BUG.ADD] check decode spec @{
+            if (mMediaData != null
+                    && DecodeSpecLimitor.isOutOfSpecLimit(getUriImageFileSize(mUri),
+                            mMediaData.width, mMediaData.height, mContentType)) {
+                releaseInputFile();
+                Log.i(TAG, "<RegionDecoderJob.run> out of spec limit, abort decoding!");
+                return null;
+            }
+            /// @}
             BitmapRegionDecoder decoder = DecodeUtils.createBitmapRegionDecoder(
                     jc, mFileDescriptor.getFileDescriptor(), false);
-            mWidth = decoder.getWidth();
-            mHeight = decoder.getHeight();
+            if (decoder == null) {
+                /// M: [BUG.ADD] Release input file before return @{
+                releaseInputFile();
+                /// @}
+                return null;
+            }
+            int width = decoder.getWidth();
+            int height = decoder.getHeight();
+            /// M: [FEATURE.ADD] @{
+            if (width > 0 && height > 0 && width != mWidth && height != mHeight) {
+                mWidth = width;
+                mHeight = height;
+//                updateMediaData();
+            }
+
+            /// @}
+            /// M: [BUG.ADD] Release input file before return @{
+            releaseInputFile();
+            /// @}
             return decoder;
         }
     }
@@ -197,33 +254,113 @@ public class UriImage extends MediaItem {
         @Override
         public Bitmap run(JobContext jc) {
             if (!prepareInputFile(jc)) return null;
-            int targetSize = getTargetSize(mType);
+            /// M: [BUG.ADD] check decode spec @{
+            if (mMediaData != null
+                    && DecodeSpecLimitor.isOutOfSpecLimit(getUriImageFileSize(mUri),
+                            mMediaData.width, mMediaData.height, mContentType)) {
+                Log.i(TAG, "<BitmapJob.run> out of spec limit, abort decoding!");
+                releaseInputFile();
+                return null;
+            }
+            /// @}
+            /// M: [BUG.ADD] @{
+            // for images which not support RegionDecode,
+            // get width and height from decodeBounds.
+            // Decode bound for Drm image.
+            int width;
+            int height;
+            Options op = new Options();
+            if (mFileDescriptor != null) {
+                DecodeUtils.decodeBounds(jc, mFileDescriptor.getFileDescriptor(), op);
+                width = op.outWidth;
+                height = op.outHeight;
+            } else {
+                width = mExtItem.getWidth();
+                height = mExtItem.getHeight();
+            }
+            if (width > 0 && height > 0 && width != mWidth && height != mHeight) {
+                mWidth = width;
+                mHeight = height;
+//                updateMediaData();
+            }
+            /// @}
+            /// M: [FEATURE.ADD] @{
+            Thumbnail thumb = mExtItem.getThumbnail(FeatureHelper
+                    .convertToThumbType(mType));
+            if (thumb != null && thumb.mBitmap != null) {
+                releaseInputFile();
+                return thumb.mBitmap;
+            }
+            if (thumb != null && thumb.mBitmap == null
+                    && thumb.mStillNeedDecode == false) {
+                releaseInputFile();
+                return null;
+            }
+            /// @}
+            int targetSize = MediaItem.getTargetSize(mType);
             Options options = new Options();
             options.inPreferredConfig = Config.ARGB_8888;
             Bitmap bitmap = DecodeUtils.decodeThumbnail(jc,
                     mFileDescriptor.getFileDescriptor(), options, targetSize, mType);
 
             if (jc.isCancelled() || bitmap == null) {
+                /// M: [BUG.ADD] Release input file before return @{
+                releaseInputFile();
+                /// @}
                 return null;
             }
 
-            if (mType == TYPE_MICROTHUMBNAIL) {
+            if (mType == MediaItem.TYPE_MICROTHUMBNAIL) {
                 bitmap = BitmapUtils.resizeAndCropCenter(bitmap, targetSize, true);
             } else {
                 bitmap = BitmapUtils.resizeDownBySideLength(bitmap, targetSize, true);
             }
+
+            /// M: [BUG.ADD] @{
+            // Some png bitmaps have transparent areas, so clear alpha value
+            bitmap = com.mediatek.galleryframework.util.BitmapUtils.clearAlphaValueIfPng(
+                    bitmap, mMediaData.mimeType, true);
+            /// @}
+
+            /// M: [BUG.ADD] Release input file before return @{
+            releaseInputFile();
+            /// @}
             return bitmap;
         }
     }
 
-
-
     @Override
     public int getSupportedOperations() {
-        int supported = SUPPORT_PRINT | SUPPORT_SETAS;
+        /// M: [BUG.MODIFY] disable setAs Action for URL image. @{
+        // int supported = SUPPORT_PRINT | SUPPORT_SETAS;
+        int supported = SUPPORT_PRINT;
+        if (!mIsUrlImage) {
+            supported |= SUPPORT_SETAS;
+        }
+        /// @}
         if (isSharable()) supported |= SUPPORT_SHARE;
         if (BitmapUtils.isSupportedByRegionDecoder(mContentType)) {
             supported |= SUPPORT_EDIT | SUPPORT_FULL_IMAGE;
+            /// M: [BUG.ADD] @{
+            float scale = (float) sThumbnailTargetSize / Math.max(mWidth, mHeight);
+            int thumbWidth = (int) (mWidth * scale);
+            if (Math.max(0, Utils.ceilLog2((float) mWidth / thumbWidth)) == 0
+                    || (FeatureConfig.sIsLowRamDevice
+                            && mWidth * mHeight > REGION_DECODER_PICTURE_SIZE_LIMIT)) {
+                // 1. if current item is not bigger than thumbnail size,
+                // don't support full image display
+                // 2. use high-quality screennail instead of region decoder
+                // for extremely large image
+                Log.i(TAG, "<getSupportedOperations> item thumbWidth " + thumbWidth
+                        + " scale " + scale);
+                Log.i(TAG, "<getSupportedOperations> item not support full image, mWidth "
+                        + mWidth + " sthumbnailsize " + sThumbnailTargetSize);
+                Log.i(TAG, "<getSupportedOperations> sIsLowRamDevice "
+                        + FeatureConfig.sIsLowRamDevice + ", mWidth * mHeight is "
+                        + mWidth * mHeight);
+                supported &= ~SUPPORT_FULL_IMAGE;
+            }
+            /// @}
         }
         return supported;
     }
@@ -238,14 +375,22 @@ public class UriImage extends MediaItem {
         mPanoramaMetadata.clearCachedValues();
     }
 
-    @Override
-    public Uri getContentUri() {
-        return mUri;
+    private boolean isSharable() {
+        // We cannot grant read permission to the receiver since we put
+        // the data URI in EXTRA_STREAM instead of the data part of an intent
+        // And there are issues in MediaUploader and Bluetooth file sender to
+        // share a general image data. So, we only share for local file.
+        return ContentResolver.SCHEME_FILE.equals(mUri.getScheme());
     }
 
     @Override
     public int getMediaType() {
         return MEDIA_TYPE_IMAGE;
+    }
+
+    @Override
+    public Uri getContentUri() {
+        return mUri;
     }
 
     @Override
@@ -270,13 +415,6 @@ public class UriImage extends MediaItem {
     public String getMimeType() {
         return mContentType;
     }
-    private boolean isSharable() {
-        // We cannot grant read permission to the receiver since we put
-        // the data URI in EXTRA_STREAM instead of the data part of an intent
-        // And there are issues in MediaUploader and Bluetooth file sender to
-        // share a general image data. So, we only share for local file.
-        return ContentResolver.SCHEME_FILE.equals(mUri.getScheme());
-    }
 
     @Override
     protected void finalize() throws Throwable {
@@ -289,24 +427,78 @@ public class UriImage extends MediaItem {
         }
     }
 
-
-
     @Override
     public int getWidth() {
-        return 0;
+        /// M: [FEATURE.MARK] @{
+        /*return 0;*/
+        return mWidth;
+        /// @}
     }
 
     @Override
     public int getHeight() {
-        return 0;
+        /// M: [FEATURE.MARK] @{
+        /*return 0;*/
+        return mHeight;
+        /// @}
     }
+
     @Override
     public int getRotation() {
         return mRotation;
     }
+    private long getUriImageFileSize(Uri uri) {
+        if (!FeatureHelper.isLocalUri(uri)) {
+            return 0;
+        }
+        String[] proj = { MediaStore.Video.Media.DATA };
+        Cursor cursor = null;
+        long fileSize = 0;
+        String nameFromURI = null;
+        try {
+            cursor = mApplication.getContentResolver().query(uri, proj, null,
+                    null, null);
+            if (cursor == null) {
+                return 0;
+            }
+            int colummIndex = cursor
+                    .getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+            cursor.moveToFirst();
+            nameFromURI = cursor.getString(colummIndex);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "<getUriImageFileSize> Exception", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        if (nameFromURI != null) {
+            File file = new File(nameFromURI);
+            if (file.exists()) {
+                fileSize = file.length();
+            }
+        }
+        return fileSize;
+    }
+
+    // disable setAs Action for URL image
+    private boolean mIsUrlImage = false;
+
+    // After open the uri image file which locates on the storage that can eject dynamically,
+    // gallery process can not close FileDescriptor immediately, it will extend the
+    // time in ejecting status, and gallery process will be killed forced.
+    // So release input file immediately after decode.
+    private synchronized void releaseInputFile() {
+        if (mFileDescriptor != null) {
+            Utils.closeSilently(mFileDescriptor);
+            mFileDescriptor = null;
+        }
+        mState = STATE_INIT;
+    }
+
+
     @Override
     public Uri getPlayUri() {
         return getContentUri();
     }
-
 }

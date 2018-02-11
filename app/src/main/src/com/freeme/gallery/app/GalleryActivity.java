@@ -88,6 +88,8 @@ import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogcatHelper;
+import com.mediatek.galleryframework.base.MediaFilter;
+import com.mediatek.galleryframework.base.MediaFilterSetting;
 
 public final class GalleryActivity extends AbstractGalleryActivity implements OnCancelListener {
     public static final String EXTRA_SLIDESHOW = "slideshow";
@@ -558,7 +560,9 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                     startDefaultPage();
                 }
             } else {
-                uri = FreemeUtils.tryContentMediaUri(this, uri, contentType);
+                MediaFilter mf = MediaFilterSetting.getCurrentFilter();
+                uri = FeatureHelper.tryContentMediaUri(this, uri);
+                Log.d(TAG, "<startViewAction> uri:" + uri);
 
                 Path itemPath = dm.findPathByUri(uri, contentType);
 
@@ -606,7 +610,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                         data.putBoolean(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
                     }
                 }
-                data.putBoolean(SinglePhotoPage.mIsSingle, true);
                 getStateManager().startState(SinglePhotoPage.class, data);
             }
         }
