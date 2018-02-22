@@ -74,4 +74,5 @@
     <color name="face_detect_fail">#80d05060</color>
     <color name="gray">#FFAAAAAA</color>
 
+    <color name="trans_gray">#66AAAAAA</color>
 </resources>

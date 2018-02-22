@@ -16,6 +16,7 @@
         android:layout_centerHorizontal="true"
         android:paddingBottom="60dp"
         android:textColor="@color/white"
+        android:background="@drawable/voice_progress_background"
         android:visibility="gone"/>
 
     <ImageView
