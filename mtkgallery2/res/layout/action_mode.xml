@@ -17,9 +17,37 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/navigation_bar"
+        android:background="@color/transparent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/cancel"
+        android:paddingStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="@dimen/text_size_menu_freeme"
+        android:text="@string/cancel"
+        android:textColor="@color/theme_color"
+        android:visibility="visible"/>
+    <!-- Added by Linguanrong for story album, 2015-6-27 -->
+    <TextView
+        android:id="@+id/selection_confirm"
+        android:paddingStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textSize="@dimen/text_size_menu_freeme"
+        android:text="@string/cancel"
+        android:textColor="@color/theme_color"
+        android:visibility="gone"/>
+    <!-- Tyd -->
 
     <!--Modified by Linguanrong for Gallery new style, 2014-02-14-->
     <TextView
@@ -42,20 +70,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|center_vertical"
         android:layout_marginEnd="15dip"
+        android:visibility="gone"
         android:gravity="end|center_vertical"/>
     <!--Linguanrong-->
 
-    <!-- Added by Linguanrong for story album, 2015-6-27 -->
-    <TextView
-        android:id="@+id/selection_confirm"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:singleLine="true"
-        android:text="@string/ok"
-        android:visibility="gone"/>
-    <!-- Tyd -->
+
 
     <!--    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"

@@ -5,13 +5,15 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_marginBottom="@dimen/tab_bar_default_height"
-    android:background="@drawable/comment_background"
+    android:background="@color/transparent"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="left"
+        android:layout_gravity="right"
         android:text="@string/freeme_comment_comments"
         android:textColor="@color/bottom_controls_text"
         android:textSize="15dp"/>
@@ -20,7 +22,7 @@
         android:id="@+id/comment_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right|bottom"
+        android:layout_gravity="left"
         android:textColor="@color/bottom_controls_text"
         android:textSize="13dp"/>
 

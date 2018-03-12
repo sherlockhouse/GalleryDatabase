@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class DebugUtils {
+    public static boolean supportFreeme = true;
     private static final String TAG = "MtkGallery2/DebugUtils";
 
     public static final boolean DUMP = false ; //SystemProperties.getInt("Gallery_DUMP", 0) == 1 ? true

@@ -51,8 +51,9 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         mVideoPlayIcon = new ResourceTexture(context, R.drawable.ic_gallery_play);
         mPanoramaIcon = new ResourceTexture(context, R.drawable.ic_360pano_holo_light);
         mFramePressed = new NinePatchTexture(context, R.drawable.grid_pressed);
-        mFrameSelected = new NinePatchTexture(context, R.drawable.grid_selected);
+        mFrameSelected = new NinePatchTexture(context, R.drawable.freeme_grid_selected);
         //*/ Added by Linguanrong for Gallery new styel, 2014-2-27
+//        mFrameOutSide = new NinePatchTexture(context, R.drawable.albumset_outside_frame);
         mFrameOutSide = new NinePatchTexture(context, R.drawable.albumset_outside_frame);
         //*/
         mRefocusTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_refocus);
@@ -80,6 +81,40 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         canvas.scale(scale, scale, 1);
         content.draw(canvas, 0, 0);
 
+        canvas.restore();
+    }
+
+    protected void drawStoryContent(GLCanvas canvas,
+                               Texture content, int width, int height, int rotation) {
+        canvas.save(GLCanvas.SAVE_FLAG_MATRIX);
+        Log.i("sldfjl drawContent",  " mSlotHeight: " + height
+                + " mSlotWidth: " + width);
+        // Fit the content into the box
+
+        // The content is always rendered in to the largest square that fits
+        // inside the slot, aligned to t he top of the slot.
+        if (rotation == 270) {
+            canvas.rotate(rotation, 0, 0, 1);
+            canvas.translate( - height , 0 );
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+        } else if (rotation == 90){
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+            canvas.rotate(rotation, 0, 0, 1);
+            canvas.translate(0, - content.getWidth());
+        } else {
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+        }
+
+        content.draw(canvas, 0, 0);
         canvas.restore();
     }
 

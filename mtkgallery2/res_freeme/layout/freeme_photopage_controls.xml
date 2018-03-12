@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/freeme_photopage_controls"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true"
+    android:clickable="false"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:id="@+id/photopage_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/top_gradient"
+        android:orientation="horizontal"
+        android:clickable="false"
+        android:paddingEnd="6dp"
+        android:paddingStart="6dp"
+        android:paddingTop="40dp"
+        android:visibility="gone">
+
+
+        <ImageView
+            android:id="@+id/photopage_back_image"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/action_bar_content_inset_freeme"
+            android:layout_marginStart="@dimen/action_bar_icon_padding_left"
+            android:contentDescription="@string/finish"
+            android:clickable="true"
+            android:paddingStart="@dimen/action_bar_arrow_margin_left"
+            android:src="@drawable/ic_android_black_24dp" />
+
+        <TextView
+            android:id="@+id/photopage_back_text"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/action_bar_content_inset_freeme"
+            android:gravity="center"
+            android:clickable="true"
+            android:paddingStart="@dimen/action_bar_arrow_margin_left"
+            android:text="@string/tab_photos"
+            android:textColor="@color/primary_dark_freeme_light"
+            android:textSize="@dimen/text_size_title_freeme" />
+
+        <LinearLayout
+            android:id="@+id/photopage_detals_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right|center_vertical"
+            android:clickable="false"
+            android:paddingEnd="6dp"
+            android:paddingStart="6dp">
+
+            <ImageView
+                android:id="@+id/photopage_details"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/action_bar_content_inset_freeme"
+                android:layout_marginEnd="6dp"
+                android:clickable="true"
+                android:src="@drawable/ic_info" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+    <!--SPRD : fix bug 604671 show voice photo is different from camera.@{-->
+    <com.android.gallery3d.app.PhotoVoiceProgress
+        android:id="@+id/photo_voice_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingBottom="60dp"
+        android:textColor="@color/white"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/photo_voice_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_voice_gallery_sprd_normal"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/photo_refocus_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_aperture_gallery_sprd"
+        android:visibility="gone"/>
+
+
+
+    <com.freeme.scott.galleryui.design.BottomNavigationBar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/photopage_bottom_navigation_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:fitsSystemWindows="true"
+        android:visibility="visible">
+
+    </com.freeme.scott.galleryui.design.BottomNavigationBar>
+</RelativeLayout>

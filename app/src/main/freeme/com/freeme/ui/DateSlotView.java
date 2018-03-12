@@ -227,8 +227,8 @@ public class DateSlotView extends GLView {
         });
 
         mSelectButton = new SelectButton(
-                mCommonTexture.getResourceTexture(R.drawable.ic_selectdate_all),
-                mCommonTexture.getResourceTexture(R.drawable.ic_selectdate_none));
+                mCommonTexture.getResourceTexture(R.drawable.freeme_selectall),
+                mCommonTexture.getResourceTexture(R.drawable.freeme_grid_selectnone));
         mSelectButton.setOnClickListener(new SelectButton.OnClickListener() {
             @Override
             public void onClick(int itemId) {

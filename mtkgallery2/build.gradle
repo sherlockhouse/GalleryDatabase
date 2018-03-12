@@ -1,14 +1,18 @@
 apply plugin: 'com.android.library'
 
 dependencies {
+    implementation project(':freemegalleryuidesign-debug')
+
     // compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '26.0.2'
-
-
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+    }
 
     sourceSets {
         main {
@@ -19,6 +23,12 @@ android {
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res','res/ext','mtkgallery/res','mtkgallery/res_stereo','res_freeme','res_community','res_bigmodel']
             assets.srcDirs = ['assets']
+        }
+    }
+
+    aaptOptions {
+        if (rootProject.sdkFreemePlatformRes) {
+            additionalParameters '-I', rootProject.sdkFreemePlatformRes
         }
     }
 }

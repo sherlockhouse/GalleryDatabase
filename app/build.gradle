@@ -48,13 +48,12 @@ def getTime() {
     return new Date().format("yyyyMMdd", TimeZone.getDefault());
 }
 android {
-
-    compileSdkVersion cfg.compileSdkVersion
-    buildToolsVersion cfg.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
     defaultConfig {
         applicationId cfg.applicationId
-        minSdkVersion cfg.minSdkVersion
-        targetSdkVersion cfg.targetSdkVersion
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
         versionCode cfg.versionCode
         versionName cfg.versionName
         multiDexEnabled true
@@ -81,10 +80,11 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('../signature/droigallery.keystore')
-            storePassword 'zhuoyigallery'
-            keyAlias 'droigallery.keystore'
-            keyPassword 'zhuoyigallery'
+
+            storeFile file(rootProject.storeFile)
+            storePassword rootProject.storePassword
+            keyAlias rootProject.keyAlias
+            keyPassword rootProject.keyPassword
         }
 
         platform {
@@ -244,7 +244,12 @@ android {
             }
         }
     }
-    buildToolsVersion '26.0.2'
+
+    aaptOptions {
+        if (rootProject.sdkFreemePlatformRes) {
+            additionalParameters '-I', rootProject.sdkFreemePlatformRes
+        }
+    }
 }
 
 
@@ -271,4 +276,5 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile project(':freeme-support-design')
     compile 'com.android.support:multidex:1.0.1'
+    implementation project(':freemegalleryuidesign-debug')
 }

@@ -27,11 +27,13 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.ShareActionProvider;
 import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 
 import com.android.gallery3d.R;
+import com.android.gallery3d.ui.GLRoot;
 import com.freeme.gallery.app.TrimVideo;
 import com.android.gallery3d.data.MediaObject;
 import com.freeme.gallery.filtershow.FilterShowActivity;
@@ -132,26 +134,29 @@ public class MultiChoiceManager implements MultiChoiceModeListener,
 
     private void updateActionItemVisibilities(Menu menu, int supportedOperations) {
         MenuItem editItem = menu.findItem(R.id.menu_edit);
+        MenuItem selectallItem = menu.findItem(R.id.menu_selectall);
         MenuItem deleteItem = menu.findItem(R.id.menu_delete);
         MenuItem shareItem = menu.findItem(R.id.menu_share);
-        MenuItem cropItem = menu.findItem(R.id.menu_crop);
-        MenuItem trimItem = menu.findItem(R.id.menu_trim);
-        MenuItem muteItem = menu.findItem(R.id.menu_mute);
-        MenuItem setAsItem = menu.findItem(R.id.menu_set_as);
-
+//        MenuItem cropItem = menu.findItem(R.id.menu_crop);
+//        MenuItem trimItem = menu.findItem(R.id.menu_trim);
+//        MenuItem muteItem = menu.findItem(R.id.menu_mute);
+//        MenuItem setAsItem = menu.findItem(R.id.menu_set_as);
+        selectallItem.setVisible(true);
         editItem.setVisible((supportedOperations & MediaObject.SUPPORT_EDIT) > 0);
         deleteItem.setVisible((supportedOperations & MediaObject.SUPPORT_DELETE) > 0);
         shareItem.setVisible((supportedOperations & MediaObject.SUPPORT_SHARE) > 0);
-        cropItem.setVisible((supportedOperations & MediaObject.SUPPORT_CROP) > 0);
-        trimItem.setVisible((supportedOperations & MediaObject.SUPPORT_TRIM) > 0);
-        muteItem.setVisible((supportedOperations & MediaObject.SUPPORT_MUTE) > 0);
-        setAsItem.setVisible((supportedOperations & MediaObject.SUPPORT_SETAS) > 0);
+//        cropItem.setVisible((supportedOperations & MediaObject.SUPPORT_CROP) > 0);
+//        trimItem.setVisible((supportedOperations & MediaObject.SUPPORT_TRIM) > 0);
+//        muteItem.setVisible((supportedOperations & MediaObject.SUPPORT_MUTE) > 0);
+//        setAsItem.setVisible((supportedOperations & MediaObject.SUPPORT_SETAS) > 0);
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         mSelectionManager.setSelectedUriSource(this);
         mActionMode = mode;
+        mode.setSubtitle(com.freeme.gallery.R.string.albums);
+
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.gallery_multiselect, menu);
         MenuItem menuItem = menu.findItem(R.id.menu_share);
@@ -213,14 +218,14 @@ public class MultiChoiceManager implements MultiChoiceModeListener,
                 deleteTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 mode.finish();
                 return true;
-            case R.id.menu_edit:
-            case R.id.menu_crop:
-            case R.id.menu_trim:
-            case R.id.menu_mute:
-            case R.id.menu_set_as:
-                singleItemAction(getSelectedItem(), actionItemId);
-                mode.finish();
-                return true;
+//            case R.id.menu_edit:
+//            case R.id.menu_crop:
+//            case R.id.menu_trim:
+//            case R.id.menu_mute:
+//            case R.id.menu_set_as:
+//                singleItemAction(getSelectedItem(), actionItemId);
+//                mode.finish();
+//                return true;
             default:
                 return false;
         }
@@ -231,39 +236,39 @@ public class MultiChoiceManager implements MultiChoiceModeListener,
         String mime = getItemMimetype(item);
         Uri uri = mDelegate.getItemUri(item);
         switch (actionItemId) {
-            case R.id.menu_edit:
-                intent.setDataAndType(uri, mime)
-                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                      .setAction(Intent.ACTION_EDIT);
-                mContext.startActivity(Intent.createChooser(intent, null));
-                return;
-            case R.id.menu_crop:
-                intent.setDataAndType(uri, mime)
-                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                      .setAction(CropActivity.CROP_ACTION)
-                      .setClass(mContext, FilterShowActivity.class);
-                mContext.startActivity(intent);
-                return;
-            case R.id.menu_trim:
-                intent.setData(uri)
-                      .setClass(mContext, TrimVideo.class);
-                mContext.startActivity(intent);
-                return;
-            case R.id.menu_mute:
-                /* TODO need a way to get the file path of an item
-                MuteVideo muteVideo = new MuteVideo(filePath,
-                        uri, (Activity) mContext);
-                muteVideo.muteInBackground();
-                */
-                return;
-            case R.id.menu_set_as:
-                intent.setDataAndType(uri, mime)
-                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                      .setAction(Intent.ACTION_ATTACH_DATA)
-                      .putExtra("mimeType", mime);
-                mContext.startActivity(Intent.createChooser(
-                        intent, mContext.getString(R.string.set_as)));
-                return;
+//            case R.id.menu_edit:
+//                intent.setDataAndType(uri, mime)
+//                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                      .setAction(Intent.ACTION_EDIT);
+//                mContext.startActivity(Intent.createChooser(intent, null));
+//                return;
+//            case R.id.menu_crop:
+//                intent.setDataAndType(uri, mime)
+//                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                      .setAction(CropActivity.CROP_ACTION)
+//                      .setClass(mContext, FilterShowActivity.class);
+//                mContext.startActivity(intent);
+//                return;
+//            case R.id.menu_trim:
+//                intent.setData(uri)
+//                      .setClass(mContext, TrimVideo.class);
+//                mContext.startActivity(intent);
+//                return;
+//            case R.id.menu_mute:
+//                /* TODO need a way to get the file path of an item
+//                MuteVideo muteVideo = new MuteVideo(filePath,
+//                        uri, (Activity) mContext);
+//                muteVideo.muteInBackground();
+//                */
+//                return;
+//            case R.id.menu_set_as:
+//                intent.setDataAndType(uri, mime)
+//                      .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                      .setAction(Intent.ACTION_ATTACH_DATA)
+//                      .putExtra("mimeType", mime);
+//                mContext.startActivity(Intent.createChooser(
+//                        intent, mContext.getString(R.string.set_as)));
+//                return;
             default:
                 return;
         }

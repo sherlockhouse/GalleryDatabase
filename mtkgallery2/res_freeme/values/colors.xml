@@ -19,7 +19,8 @@
     <color name="album_date_label_title">#616161</color>
     <color name="album_date_label_count">#cdcdcd</color>
 
-    <color name="theme_color">#00A8DF</color>
+    <color name="theme_title_color">#f0f0f0</color>
+    <color name="theme_color">#22c580</color>
     <color name="theme_color_gray">#818181</color>
     <color name="theme_color_disable">#3F818181</color>
     <!--Linguanrong-->
@@ -50,4 +51,5 @@
 
     <color name="photopage_actionbar_bg">#dd000000</color>
 
+    <color name="trans_gray">#66AAAAAA</color>
 </resources>

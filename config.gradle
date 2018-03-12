@@ -1,10 +1,10 @@
 ext {
     android = [
-            compileSdkVersion: 25,
-            buildToolsVersion: "26.0.1",
+            compileSdkVersion: 27,
+            buildToolsVersion: "26.0.3",
             applicationId    : "com.freeme.gallery",
             minSdkVersion    : 19,
-            targetSdkVersion : 25,
+            targetSdkVersion : 27,
             versionCode      : 90052,
             versionName      : "1.0.8"
             // release 20160927

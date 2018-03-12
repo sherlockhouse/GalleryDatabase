@@ -204,33 +204,6 @@ public class DataManager implements StitchingChangeListener {
         }
     }
 
-    public MediaObject getMediaObjectFromWidget(Path path) {
-        synchronized (LOCK) {
-            MediaObject obj = path.getObject();
-            if (obj != null) return obj;
-
-            MediaSource source = mSourceMap.get(path.getPrefix());
-            if (source == null) {
-                Log.w(TAG, "cannot find media source for path: " + path);
-                return null;
-            }
-
-            try {
-                MediaObject object = source.createMediaObjectFromWidget(path);
-                if (object == null) {
-                    Log.w(TAG, "cannot create media object: " + path);
-                }
-                return object;
-            } catch (Throwable t) {
-                Log.w(TAG, "exception in creating media object: " + path, t);
-                /// M: [BUG.ADD] @{
-                path.clearObject();
-                /// @}
-                return null;
-            }
-        }
-    }
-
     public MediaObject getMediaObject(String s) {
         return getMediaObject(Path.fromString(s));
     }
@@ -413,21 +386,6 @@ public class DataManager implements StitchingChangeListener {
         // Do nothing.
     }
 
-
-    public String makeCameraSetPath(){
-        String basePath = getTopSetPath(DataManager.INCLUDE_LOCAL_ALL_ONLY);
-        String sdcardPath = DroiSDCardManager.getSDCardStoragePath(mApplication.getAndroidContext(),true) ;
-
-        String newPath = "";
-        if(sdcardPath != null){
-            int sdCardId  = GalleryUtils.getBucketId(sdcardPath + "/" + BucketNames.CAMERA);
-            newPath =  "/local/camera" + "/{/local/all/" + MediaSetUtils.CAMERA_BUCKET_ID+",/local/all/" +sdCardId+"}";
-        }else{
-            newPath = "/local/camera" + "/{/local/all/" + MediaSetUtils.CAMERA_BUCKET_ID+"}";
-        }
-        return newPath;
-    }
-	
     // ********************************************************************
     // *                             MTK                                  *
     // ********************************************************************
@@ -482,4 +440,49 @@ public class DataManager implements StitchingChangeListener {
         Log.v(TAG, "<reuseDataManager> return false");
         return false;
     }
+    
+    // ********************************************************************
+    // *                             Freeme                               *
+    // ********************************************************************
+    public String makeCameraSetPath(){
+        String basePath = getTopSetPath(DataManager.INCLUDE_LOCAL_ALL_ONLY);
+        String sdcardPath = DroiSDCardManager.getSDCardStoragePath(mApplication.getAndroidContext(),true) ;
+
+        String newPath = "";
+        if(sdcardPath != null){
+            int sdCardId  = GalleryUtils.getBucketId(sdcardPath + "/" + BucketNames.CAMERA);
+            newPath =  "/local/camera" + "/{/local/all/" + MediaSetUtils.CAMERA_BUCKET_ID+",/local/all/" +sdCardId+"}";
+        }else{
+            newPath = "/local/camera" + "/{/local/all/" + MediaSetUtils.CAMERA_BUCKET_ID+"}";
+        }
+        return newPath;
+    }
+    
+    public MediaObject getMediaObjectFromWidget(Path path) {
+        synchronized (LOCK) {
+            MediaObject obj = path.getObject();
+            if (obj != null) return obj;
+
+            MediaSource source = mSourceMap.get(path.getPrefix());
+            if (source == null) {
+                Log.w(TAG, "cannot find media source for path: " + path);
+                return null;
+            }
+
+            try {
+                MediaObject object = source.createMediaObjectFromWidget(path);
+                if (object == null) {
+                    Log.w(TAG, "cannot create media object: " + path);
+                }
+                return object;
+            } catch (Throwable t) {
+                Log.w(TAG, "exception in creating media object: " + path, t);
+                /// M: [BUG.ADD] @{
+                path.clearObject();
+                /// @}
+                return null;
+            }
+        }
+    }
+
 }

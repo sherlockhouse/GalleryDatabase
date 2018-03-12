@@ -25,14 +25,11 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.OnMenuVisibilityListener;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -42,21 +39,18 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
-import com.freeme.gallery.R;
 import com.android.gallery3d.anim.StateTransitionAnimation;
 import com.android.gallery3d.common.ApiHelper;
+import com.freeme.gallery.R;
 import com.freeme.gallery.app.AbstractGalleryActivity;
-import com.freeme.gallery.app.Gallery;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.support.design.widget.FreemeTabLayout;
-import com.freeme.support.design.widget.FreemeTabLayout.OnTabSelectedListener;
-import com.freeme.support.design.widget.FreemeTabLayout.Tab;
 import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
 
-public class GalleryActionBar {
+public class GalleryActionBar implements ActionBar.TabListener{
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/GalleryActionBar";
     public static final boolean SHOWTITLE = false;
@@ -68,7 +62,7 @@ public class GalleryActionBar {
     private Context mContext;
     private LayoutInflater mInflater;
     private AbstractGalleryActivity mActivity;
-    private ActionBar mActionBar;
+    public ActionBar mActionBar;
     private int mCurrentIndex;
     private ClusterAdapter mAdapter = new ClusterAdapter();
 
@@ -79,6 +73,33 @@ public class GalleryActionBar {
     public static final int ALBUM_FILMSTRIP_MODE_SELECTED = 0;
     public static final int ALBUM_GRID_MODE_SELECTED = 1;
     private float ACTIONBAR_ELEVATION = 3f;
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+        switch (tab.getPosition()) {
+                        case 0 :
+                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
+                            break;
+                        case 1:
+                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
+                            break;
+                        case 2:
+                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
+                            break;
+                        default:
+                            break;
+                    }
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
 
     public interface ClusterRunner {
         public void doCluster(int id);
@@ -233,55 +254,73 @@ public class GalleryActionBar {
 
     public void initActionBar() {
         if (mActionBar != null) {
-            mActionBar.setElevation(ACTIONBAR_ELEVATION);
+//            mActionBar.setElevation(ACTIONBAR_ELEVATION);
 
-            actionbarLayout = (FreemeTabLayout) LayoutInflater.from(mContext).inflate(
-                    R.layout.actionbar_layout, null);
-            Tab mTab1 = actionbarLayout.newTab();
+//
+//            actionbarLayout = (FreemeTabLayout) LayoutInflater.from(mContext).inflate(
+//                    R.layout.actionbar_layout, null);
+//            Tab mTab1 = actionbarLayout.newTab();
+//
+//            mTab1.setText(R.string.tab_by_camera);
+//            actionbarLayout.addTab(mTab1);
+//            Tab mTab2 = actionbarLayout.newTab();
+//            mTab2.setText(R.string.tab_by_story);
+//            actionbarLayout.addTab(mTab2);
+//            Tab mTab3 = actionbarLayout.newTab();
+//            mTab3.setText(R.string.tab_albums);
+//            actionbarLayout.addTab(mTab3);
+//            ActionBar.LayoutParams lp = new ActionBar.LayoutParams(
+//                    ActionBar.LayoutParams.WRAP_CONTENT,
+//                    ActionBar.LayoutParams.MATCH_PARENT,
+//                    Gravity.CENTER);
+//            actionbarLayout.addOnTabSelectedListener(new OnTabSelectedListener(){
+//
+//                public void onTabSelected(Tab tab){
+//                    switch (tab.getPosition()) {
+//                        case 0 :
+//                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
+//                            break;
+//                        case 1:
+//                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
+//                            break;
+//                        case 2:
+//                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                }
+//
+//                public void onTabUnselected(Tab tab){
+//
+//                }
+//
+//
+//                public void onTabReselected(Tab tab){
+//
+//                }
+//            });
+//
+//            mActionBar.setCustomView(actionbarLayout, lp);
+//            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
+//            mActionBar.setDisplayShowCustomEnabled(true);
+           setUpTabs();
+        }
+    }
 
-            mTab1.setText(R.string.tab_by_camera);
-            actionbarLayout.addTab(mTab1);
-            Tab mTab2 = actionbarLayout.newTab();
-            mTab2.setText(R.string.tab_by_story);
-            actionbarLayout.addTab(mTab2);
-            Tab mTab3 = actionbarLayout.newTab();
-            mTab3.setText(R.string.tab_albums);
-            actionbarLayout.addTab(mTab3);
-            ActionBar.LayoutParams lp = new ActionBar.LayoutParams(
-                    ActionBar.LayoutParams.WRAP_CONTENT,
-                    ActionBar.LayoutParams.MATCH_PARENT,
-                    Gravity.CENTER);
-            actionbarLayout.addOnTabSelectedListener(new OnTabSelectedListener(){
+    public void setUpTabs()
+    {
+        mActionBar.setDisplayShowTitleEnabled(false);
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-                public void onTabSelected(Tab tab){
-                    switch (tab.getPosition()) {
-                        case 0 :
-                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
-                            break;
-                        case 1:
-                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
-                            break;
-                        case 2:
-                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                public void onTabUnselected(Tab tab){
-
-                }
-
-
-                public void onTabReselected(Tab tab){
-
-                }
-            });
-
-            mActionBar.setCustomView(actionbarLayout, lp);
-            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
-            mActionBar.setDisplayShowCustomEnabled(true);
+        int i = mActionBar.getNavigationItemCount();
+        if (i < 3)
+        {
+            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_camera).setTabListener(this));
+            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_all).setTabListener(this));
+            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_story).setTabListener(this));
+            i += 1;
         }
     }
 
@@ -376,7 +415,7 @@ public class GalleryActionBar {
             if (mAlbumModeAdapter == null) {
                 // Initialize the album mode options if they haven't been already
                 Resources res = mActivity.getResources();
-                mAlbumModes = new CharSequence[]{
+                mAlbumModes = new CharSequence[] {
                         res.getString(R.string.switch_photo_filmstrip),
                         res.getString(R.string.switch_photo_grid)};
                 mAlbumModeAdapter = new AlbumModeAdapter();
@@ -426,44 +465,10 @@ public class GalleryActionBar {
             setActionBarBackground(showTransparent());
         }
         //*/
-        mActionBar.setDisplayShowCustomEnabled(!showTitle);
+//        mActionBar.setDisplayShowCustomEnabled(!showTitle);
 
     }
 
-    //*/ Added by Linguanrong for story album, 2015-08-05
-    private boolean isPhotoPage() {
-        if (mActivity.getStateManager().getStateCount() != 0) {
-            ActivityState topState = mActivity.getStateManager().getTopState();
-            if (topState != null && topState instanceof PhotoPage) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void setActionBarBackground(boolean translucent) {
-
-        if (translucent) {
-            mActionBar.setElevation(0);
-            mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(R.color.transparent, null));
-        } else {
-            mActionBar.setElevation(ACTIONBAR_ELEVATION);
-            mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(GalleryActivity.colorPrimary, null));
-        }
-    }
-
-    private boolean showTransparent() {
-        if (mActivity.getStateManager().getStateCount() != 0) {
-            ActivityState topState = mActivity.getStateManager().getTopState();
-            if (topState != null && topState instanceof AlbumStoryPage) {
-                return true;
-            }
-        }
-        return false;
-    }
-    //*/
 
     public void setTitle(String title) {
         if (mActionBar != null) mActionBar.setTitle(title);
@@ -589,33 +594,8 @@ public class GalleryActionBar {
 //        }
     }
 
-    //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
-    public void setBackgroundDrawable(Drawable d) {
-        if (mActionBar != null) {
-            mActionBar.setBackgroundDrawable(d);
-        }
-    }
-
-    //*/ Added by xueweili for add customView on actionbar, 2015-7-23
-    public void setCustomView(View view) {
-        if (mActionBar != null && view != null) {
-            mActionBar.setCustomView(view);
-            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
-            mActionBar.setDisplayShowCustomEnabled(true);
-        } else if (view == null) {
-            mActionBar.setCustomView(null);
-            mActionBar.setDisplayOptions(0);
-            mActionBar.setDisplayShowCustomEnabled(false);
-        }
-    }
 
 
-    //*/
-
-
-
-
-    //*/
     //********************************************************************
     //*                              MTK                                 *
     //********************************************************************
@@ -667,6 +647,62 @@ public class GalleryActionBar {
     public final void notifyDataSetChanged() {
         if (mAlbumModeAdapter != null) {
             mAlbumModeAdapter.notifyDataSetChanged();
+        }
+    }
+    
+    
+    //*/ Added by Linguanrong for story album, 2015-08-05
+    private boolean isPhotoPage() {
+        if (mActivity.getStateManager().getStateCount() != 0) {
+            ActivityState topState = mActivity.getStateManager().getTopState();
+            if (topState != null && topState instanceof PhotoPage) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setActionBarBackground(boolean translucent) {
+
+        if (translucent) {
+            mActionBar.setElevation(0);
+            mActionBar.setBackgroundDrawable(mActivity.getResources()
+                    .getDrawable(R.color.transparent, null));
+        } else {
+            mActionBar.setElevation(ACTIONBAR_ELEVATION);
+            mActionBar.setBackgroundDrawable(mActivity.getResources()
+                    .getDrawable(GalleryActivity.colorPrimary, null));
+        }
+    }
+
+    private boolean showTransparent() {
+        if (mActivity.getStateManager().getStateCount() != 0) {
+            ActivityState topState = mActivity.getStateManager().getTopState();
+            if (topState != null && topState instanceof AlbumStoryPage) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //*/
+    
+    //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
+    public void setBackgroundDrawable(Drawable d) {
+        if (mActionBar != null) {
+            mActionBar.setBackgroundDrawable(d);
+        }
+    }
+
+    //*/ Added by xueweili for add customView on actionbar, 2015-7-23
+    public void setCustomView(View view) {
+        if (mActionBar != null && view != null) {
+            mActionBar.setCustomView(view);
+            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM );
+            mActionBar.setDisplayShowCustomEnabled(true);
+        } else if (view == null) {
+            mActionBar.setCustomView(null);
+            mActionBar.setDisplayOptions(0);
+            mActionBar.setDisplayShowCustomEnabled(false);
         }
     }
 

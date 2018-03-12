@@ -122,7 +122,16 @@ public class DecodeUtils {
         jc.setCancelListener(new DecodeCanceller(options));
 
         options.inJustDecodeBounds = true;
+        /// M: [DEBUG.ADD] @{
+        long logTimeBeforDecode;
+        logTimeBeforDecode = System.currentTimeMillis();
+        Log.v(TAG, "decoding bmp's bounds begins at" + logTimeBeforDecode);
+        /// @}
         BitmapFactory.decodeFileDescriptor(fd, null, options);
+        /// M: [DEBUG.ADD] @{
+        Log.v(TAG, "decoding bmp's bounds costs "
+                + (System.currentTimeMillis() - logTimeBeforDecode));
+        /// @}
         if (jc.isCancelled()) return null;
 
         int w = options.outWidth;
@@ -150,7 +159,15 @@ public class DecodeUtils {
         options.inJustDecodeBounds = false;
         setOptionsMutable(options);
 
+        /// M: [DEBUG.ADD] @{
+        logTimeBeforDecode = System.currentTimeMillis();
+        Log.v(TAG, "decoding bmp begins at" + logTimeBeforDecode);
+        /// @}
         Bitmap result = BitmapFactory.decodeFileDescriptor(fd, null, options);
+        /// M: [DEBUG.ADD] @{
+        Log.v(TAG, "decoding bmp costs "
+                + (System.currentTimeMillis() - logTimeBeforDecode));
+        /// @}
         if (result == null) return null;
 
         // We need to resize down if the decoder does not support inSampleSize

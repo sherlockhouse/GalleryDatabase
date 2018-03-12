@@ -16,8 +16,8 @@
     <color name="primary_dark_freeme_light">@color/freeme_grey_50</color>
     <color name="primary_dark_freeme_light_light_status_bar">@color/freeme_grey_300</color>
 
-    <color name="accent_freeme_dark">#29bd68</color>
-    <color name="accent_freeme_light">#29bd68</color>
+    <color name="accent_freeme_dark">#22c580</color>
+    <color name="accent_freeme_light">#22c580</color>
 
     <color name="button_freeme_dark">#ff5a595b</color>
     <color name="button_freeme_light">#ffd6d7d7</color>

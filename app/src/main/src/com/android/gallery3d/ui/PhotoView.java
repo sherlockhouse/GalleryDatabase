@@ -53,12 +53,13 @@ import com.freeme.gesturesensor.GestureSensorManger;
 import com.freeme.utils.CustomJsonParser;
 
 public class PhotoView extends GLView {
-    public static final int  INVALID_SIZE         = -1;
+    @SuppressWarnings("unused")
+    private static final String TAG = "Gallery2/PhotoView";
+    private final int mPlaceholderColor;
+    public static final int INVALID_SIZE = -1;
     public static final long INVALID_DATA_VERSION =
             MediaObject.INVALID_DATA_VERSION;
-  ////////////////////////////////////////////////////////////////////////////
-    //  Card deck effect calculation
-    ////////////////////////////////////////////////////////////////////////////
+
     public static class Size {
         public int width;
         public int height;
@@ -142,10 +143,7 @@ public class PhotoView extends GLView {
         public void onUndoBarVisibilityChanged(boolean visible);
         /// @}
     }
-    // We keep this many previous ScreenNails. (also this many next ScreenNails)
-    public static final int SCREEN_NAIL_MAX = 3;
-    @SuppressWarnings("unused")
-    private static final String TAG = "PhotoView";
+
     // The rules about orientation locking:
     //
     // (1) We need to lock the orientation if we are in page mode camera
@@ -179,23 +177,22 @@ public class PhotoView extends GLView {
 
     // whether we want to apply offset effect in film mode.
     private static final boolean OFFSET_EFFECT = true;
+
     // Used to calculate the scaling factor for the card deck effect.
     private ZInterpolator mScaleInterpolator = new ZInterpolator(0.5f);
+
     // Used to calculate the alpha factor for the fading animation.
     private AccelerateInterpolator mAlphaInterpolator =
             new AccelerateInterpolator(0.9f);
+
+    // We keep this many previous ScreenNails. (also this many next ScreenNails)
+    public static final int SCREEN_NAIL_MAX = 3;
+
     // These are constants for the delete gesture.
     private static final int SWIPE_ESCAPE_VELOCITY = 500; // dp/sec
     private static final int MAX_DISMISS_VELOCITY = 2500; // dp/sec
     private static final int SWIPE_ESCAPE_DISTANCE = 150; // dp
 
-    private static final int UNDO_BAR_SHOW        = 1;
-    private static final int UNDO_BAR_TIMEOUT     = 2;
-    private static final int UNDO_BAR_TOUCHED     = 4;
-    private static final int UNDO_BAR_FULL_CAMERA = 8;
-    private static final int UNDO_BAR_DELETE_LAST = 16;
-
-    private final int mPlaceholderColor;
     // The picture entries, the valid index is from -SCREEN_NAIL_MAX to
     // SCREEN_NAIL_MAX.
     private final RangeArray<Picture> mPictures =
@@ -254,7 +251,6 @@ public class PhotoView extends GLView {
     private int mUndoIndexHint = Integer.MAX_VALUE;
 
     private Context mContext;
-    private int mUndoBarState;
     private AbstractGalleryActivity mActivity = null;
 
     public PhotoView(AbstractGalleryActivity activity) {
@@ -340,8 +336,6 @@ public class PhotoView extends GLView {
     public void setModel(Model model) {
         mModel = model;
         mTileView.setModel(mModel);
-
-
     }
     class MyHandler extends SynchronizedHandler {
         public MyHandler(GLRoot root) {
@@ -616,8 +610,6 @@ public class PhotoView extends GLView {
         void forceSize();  // called when mCompensation changes
         Size getSize();
     }
-
-
 
     class FullPicture implements Picture {
         private int mRotation;
@@ -1023,17 +1015,26 @@ public class PhotoView extends GLView {
                 if (item != null) supported = item.getSupportedOperations();
                 if ((supported & MediaItem.SUPPORT_ACTION) == 0) {
                     setFilmMode(false);
-                    mIgnoreUpEvent = true;
+                    /// M: [BUG.MARK] fix bug: single tap to exit film mode, then photo will
+                    // stay where it is and doesn't slide to next one when scroll the photo @{
+                    /*mIgnoreUpEvent = true;*/
+                    /// @}
                     return true;
                 }
             }
-
             if (mListener != null) {
                 // Do the inverse transform of the touch coordinates.
-                Matrix m = getGLRoot().getCompensationMatrix();
+                /// M: [BUG.MODIFY] @{
+                /*Matrix m = getGLRoot().getCompensationMatrix();*/
+                GLRoot root = getGLRoot();
+                if (root == null) {
+                    return true;
+                }
+                Matrix m = root.getCompensationMatrix();
+                /// @}
                 Matrix inv = new Matrix();
                 m.invert(inv);
-                float[] pts = new float[]{x, y};
+                float[] pts = new float[] {x, y};
                 inv.mapPoints(pts);
                 mListener.onSingleTapUp((int) (pts[0] + 0.5f), (int) (pts[1] + 0.5f));
             }
@@ -1047,6 +1048,7 @@ public class PhotoView extends GLView {
 
         @Override
         public boolean onDoubleTap(float x, float y) {
+            if (mIgnoreScalingGesture) return true;
             if (mIgnoreSwipingGesture) return true;
             if (mPictures.get(0).isCamera()) return false;
             PositionController controller = mPositionController;
@@ -1182,7 +1184,10 @@ public class PhotoView extends GLView {
         public boolean onScaleBegin(float focusX, float focusY) {
             if (mIgnoreSwipingGesture) return true;
             // We ignore the scaling gesture if it is a camera preview.
-            mIgnoreScalingGesture = mPictures.get(0).isCamera();
+            /// M: [FEATURE.MODIFY] @{
+            /*mIgnoreScalingGesture = mPictures.get(0).isCamera();*/
+            mIgnoreScalingGesture = mIgnoreScalingGesture || mPictures.get(0).isCamera();
+            /// @}
             if (mIgnoreScalingGesture) {
                 return true;
             }
@@ -1249,7 +1254,10 @@ public class PhotoView extends GLView {
         public void onScaleEnd() {
             if (mIgnoreSwipingGesture) return;
             if (mIgnoreScalingGesture) return;
-            if (mModeChanged) return;
+            /// M: [BUG.MARK] @{
+            // mark not in scale mode even scale is finished by mode(film mode or not) change
+            //if (mModeChanged) return;
+            /// @}
             mPositionController.endScale();
         }
 
@@ -1353,7 +1361,12 @@ public class PhotoView extends GLView {
     }
 
     private void updateActionBar() {
-        boolean isCamera = mPictures.get(0).isCamera();
+        /// M: [BUG.MODIFY] @{
+        // Sometimes, Picture status updating is later than Model,
+        // so using Model to check if current is camera
+        /*boolean isCamera = mPictures.get(0).isCamera();*/
+        boolean isCamera = mModel.isCamera(0);
+        /// @}
         if (isCamera && !mFilmMode) {
             // Move into camera in page mode, lock
             mListener.onActionBarAllowed(false);
@@ -1403,12 +1416,23 @@ public class PhotoView extends GLView {
         mPositionController.skipToFinalPosition();
         addGestureListener();
     }
+
     // move to the camera preview and show controls after resume
     public void resetToFirstPicture() {
         mModel.moveTo(0);
         setFilmMode(false);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  Undo Bar
+    ////////////////////////////////////////////////////////////////////////////
+
+    private int mUndoBarState;
+    private static final int UNDO_BAR_SHOW = 1;
+    private static final int UNDO_BAR_TIMEOUT = 2;
+    private static final int UNDO_BAR_TOUCHED = 4;
+    private static final int UNDO_BAR_FULL_CAMERA = 8;
+    private static final int UNDO_BAR_DELETE_LAST = 16;
 
     // "deleteLast" means if the deletion is on the last remaining picture in
     // the album.
@@ -1547,6 +1571,7 @@ public class PhotoView extends GLView {
             mHandler.sendEmptyMessage(MSG_SWITCH_FOCUS);
         }
     }
+
     // Runs in main thread.
     private void switchFocus() {
         if (mHolding != 0) return;
@@ -1559,6 +1584,9 @@ public class PhotoView extends GLView {
                 break;
         }
     }
+
+    // Returns -1 if we should switch focus to the previous picture, +1 if we
+    // should switch to the next, 0 otherwise.
     private int switchPosition() {
         Rect curr = mPositionController.getPosition(0);
         int center = getWidth() / 2;

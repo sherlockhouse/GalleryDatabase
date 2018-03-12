@@ -28,6 +28,8 @@ import com.freeme.gallery.R;
 import com.android.gallery3d.ui.AlbumSetSlotRenderer;
 import com.android.gallery3d.ui.SlotView;
 import com.freeme.ui.DateSlotView;
+import com.freeme.ui.StoryAlbumSetSlotRender;
+import com.freeme.ui.StorySlotView;
 
 public final class PageConfig {
     public static class AlbumCameraPage {
@@ -121,8 +123,8 @@ public final class PageConfig {
     public static class AlbumStorySetPage {
         private static AlbumStorySetPage sInstance;
 
-        public SlotView.Spec                  slotViewSpec;
-        public AlbumSetSlotRenderer.LabelSpec labelSpec;
+        public StorySlotView.Spec                  slotViewSpec;
+        public StoryAlbumSetSlotRender.LabelSpec labelSpec;
         public int                            paddingTop;
         public int                            paddingBottom;
         public int                            paddingLeftRight;
@@ -133,10 +135,10 @@ public final class PageConfig {
 
             placeholderColor = r.getColor(R.color.transparent);
 
-            slotViewSpec = new SlotView.Spec();
+            slotViewSpec = new StorySlotView.Spec();
             slotViewSpec.rowsLand = r.getInteger(R.integer.albumstory_rows_land);
             slotViewSpec.rowsPort = r.getInteger(R.integer.albumstory_rows_port);
-            slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap);
+            slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap) ;
             slotViewSpec.slotGapV = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap_vertical);
             slotViewSpec.slotHeightAdditional = 0;
             slotViewSpec.slotPadding = r.getDimensionPixelSize(R.dimen.album_slot_padding);
@@ -146,7 +148,7 @@ public final class PageConfig {
             paddingBottom = r.getDimensionPixelSize(R.dimen.albumstory_padding_bottom);
             paddingLeftRight = r.getDimensionPixelSize(R.dimen.albumstory_padding_left_right);
 
-            labelSpec = new AlbumSetSlotRenderer.LabelSpec();
+            labelSpec = new StoryAlbumSetSlotRender.LabelSpec();
             labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(R.dimen.albumstory_label_background_height);
             labelSpec.titleOffset = r.getDimensionPixelSize(R.dimen.albumstory_title_offset);
             labelSpec.countOffset = r.getDimensionPixelSize(R.dimen.albumstory_count_offset);

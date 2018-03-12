@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
+    android:fitsSystemWindows="true"
     android:layout_alignParentLeft="true"
     android:visibility="gone">
 
@@ -43,9 +44,9 @@
         android:id="@+id/photopage_bottom_controls"
         android:layout_width="match_parent"
         android:layout_height="@dimen/tab_bar_default_height"
-        android:background="@drawable/bottom_tab_bg"
         android:layout_gravity="center"
         android:layout_alignParentBottom="true"
+        android:gravity="bottom"
         android:orientation="horizontal">
 
         <TextView
@@ -95,12 +96,12 @@
     </LinearLayout>
 
 
-    <View
-        android:id="@+id/navigation_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/navigation_bar_height"
-        android:background="#000000"
-        android:visibility="gone"
-        />
+    <!--<View-->
+        <!--android:id="@+id/navigation_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/navigation_bar_height"-->
+        <!--android:background="#000000"-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
 
 </RelativeLayout>

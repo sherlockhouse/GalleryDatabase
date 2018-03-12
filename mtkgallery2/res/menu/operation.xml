@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2010 Google Inc.
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2010 Google Inc.
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -16,77 +15,78 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_delete"
-        android:icon="@drawable/ic_menu_trash_holo_light"
         android:showAsAction="ifRoom"
         android:title="@string/delete"
-        android:visible="false"/>
-
+        android:visible="false" />
     <item
-        android:id="@+id/action_rename"
-        android:icon="@drawable/ic_menu_rename"
-        android:showAsAction="never"
-        android:title="@string/action_rename"
+        android:id="@+id/action_share"
+        android:showAsAction="ifRoom"
+        android:title="@string/share"
         android:visible="false"/>
-
     <item
-        android:icon="@drawable/ic_menu_ptp_holo_light"
-        android:showAsAction="never"
-        android:title="@string/Import"
-        android:visible="false"/>
+        android:id="@+id/action_selectall"
+        android:showAsAction="ifRoom"
+        android:title="@string/select_all"
+        android:visible="false" />
+    <!--<item-->
+    <!--android:id="@+id/action_rename"-->
+    <!--android:icon="@drawable/ic_menu_rename"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/action_rename"-->
+    <!--android:visible="false"/>-->
+
+    <!--<item-->
+    <!--android:icon="@drawable/ic_menu_ptp_holo_light"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/Import"-->
+    <!--android:visible="false"/>-->
     <!-- Ideally, showAsAction for share_panorama and share should be reversed.
          But, if share_panorama is set to never, it doesn't seem to get promoted
          to the action bar and stays on the overflow menu. -->
-    <item
-        android:id="@+id/action_share_panorama"
-        android:actionProviderClass="android.widget.ShareActionProvider"
-        android:icon="@drawable/ic_menu_share"
-        android:showAsAction="never"
-        android:title="@string/share_panorama"
-        android:visible="false">
-    </item>
-    <item
-        android:id="@+id/action_share"
-        android:icon="@drawable/ic_menu_share"
-        android:showAsAction="never"
-        android:title="@string/share"
-        android:visible="false">
-    </item>
-    <item android:id="@+id/action_edit"
-            android:title="@string/edit"
-            android:showAsAction="never"
-            android:visible="false" />
-    <item android:id="@+id/action_rotate_ccw"
-            android:showAsAction="never"
-            android:visible="false"
-            android:title="@string/rotate_left" />
-    <item android:id="@+id/action_rotate_cw"
-            android:showAsAction="never"
-            android:visible="false"
-            android:title="@string/rotate_right" />
-    <item android:id="@+id/action_crop"
-            android:title="@string/crop_action"
-            android:showAsAction="never"
-            android:visible="false" />
-    <item android:id="@+id/action_setas"
-            android:title="@string/set_image"
-            android:showAsAction="never"
-            android:visible="false" />
-    <item android:id="@+id/action_details"
-            android:icon="@drawable/ic_menu_info_details"
-            android:title="@string/details"
-            android:visible="false"
-            android:showAsAction="never" />
-    <item android:id="@+id/action_show_on_map"
-            android:title="@string/show_on_map"
-            android:showAsAction="never"
-            android:visible="false" />
+    <!--<item-->
+    <!--android:id="@+id/action_share_panorama"-->
+    <!--android:actionProviderClass="android.widget.ShareActionProvider"-->
+    <!--android:icon="@drawable/ic_menu_share"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/share_panorama"-->
+    <!--android:visible="false">-->
+    <!--</item>-->
+    <!--<item android:id="@+id/action_edit"-->
+    <!--android:title="@string/edit"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false" />-->
+    <!--<item android:id="@+id/action_rotate_ccw"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false"-->
+    <!--android:title="@string/rotate_left" />-->
+    <!--<item android:id="@+id/action_rotate_cw"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false"-->
+    <!--android:title="@string/rotate_right" />-->
+    <!--<item android:id="@+id/action_crop"-->
+    <!--android:title="@string/crop_action"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false" />-->
+    <!--<item android:id="@+id/action_setas"-->
+    <!--android:title="@string/set_image"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false" />-->
+    <!--<item android:id="@+id/action_details"-->
+    <!--android:icon="@drawable/ic_menu_info_details"-->
+    <!--android:title="@string/details"-->
+    <!--android:visible="false"-->
+    <!--android:showAsAction="never" />-->
+    <!--<item android:id="@+id/action_show_on_map"-->
+    <!--android:title="@string/show_on_map"-->
+    <!--android:showAsAction="never"-->
+    <!--android:visible="false" />-->
 
     <!-- Added by Linguanrong for story album, 2015-5-25 -->
-    <item
-        android:id="@+id/action_setcover"
-        android:icon="@drawable/ic_menu_setcover"
-        android:showAsAction="never"
-        android:title="@string/action_setcover"
-        android:visible="false"/>
+    <!--<item-->
+    <!--android:id="@+id/action_setcover"-->
+    <!--android:icon="@drawable/ic_menu_setcover"-->
+    <!--android:showAsAction="never"-->
+    <!--android:title="@string/action_setcover"-->
+    <!--android:visible="false"/>-->
     <!-- Tyd -->
 </menu>

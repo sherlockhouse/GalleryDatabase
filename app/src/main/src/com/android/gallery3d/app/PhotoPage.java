@@ -24,8 +24,10 @@ package com.android.gallery3d.app;
 import android.annotation.TargetApi;
 import android.app.ActionBar.OnMenuVisibilityListener;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,9 +47,11 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
@@ -55,6 +59,7 @@ import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.LocalImage;
 import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.extern.PhotopageComments;
@@ -99,6 +104,8 @@ import com.freeme.utils.FrameworkSupportUtils;
 import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
 import java.io.File;
+import java.util.ArrayList;
+
 import com.sprd.gallery3d.refocus.RefocusPhotoEditActivity;
 
 public abstract class PhotoPage extends ActivityState implements
@@ -308,7 +315,7 @@ public abstract class PhotoPage extends ActivityState implements
         //*/
 
         if (mBottomText != null) {
-            mBottomText.setvisible(false);
+//            mBottomText.setvisible(false);
         }
 
         //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
@@ -328,9 +335,16 @@ public abstract class PhotoPage extends ActivityState implements
             return false;
         }
         if (isCommentvisible && mBottomText != null && !mPhotoView.getFilmMode()) {
-            mBottomText.setvisible(true);
+//            mBottomText.setvisible(false);
         }
         switch (control) {
+            case R.id.photopage_bottom_navigation_bar:
+                if ((mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0) {
+                    mBottomControls.setIsEditable(true);
+                } else {
+                    mBottomControls.setIsEditable(false);
+                }
+                return true;
             case R.id.photopage_bottom_control_edit:
                 mBottomControls.getMenuEdit().setEnabled(
                     (mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0);
@@ -370,16 +384,93 @@ public abstract class PhotoPage extends ActivityState implements
         }
     }
 
+    public static final int TAB0= 0;
+    public static final int TAB1 = 1;
+    public static final int TAB2 = 2;
+    public static final int TAB3 = 3;
+    public static final int TAB4 = 4;
+    public static final int TAB5 = 5;
+
     @Override
     public void onBottomControlClicked(int control) {
-        Menu menu = mActionBar.getMenu();
+        refreshHidingMessage();
+        MediaItem current = mModel.getMediaItem(0);
+
+
+        int currentIndex = mModel.getCurrentIndex();
+        Path path = current.getPath();
+
+        DataManager manager = mActivity.getDataManager();
+        String confirmMsg = null;
+        int freemeControl = 0;
         switch (control) {
-            case R.id.photopage_bottom_control_edit:
-                if ((mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0) {
-                    onItemSelected(menu.findItem(R.id.action_edit));
+            case TAB0:
+                freemeControl = R.id.photopage_bottom_control_edit;
+                if (!mBottomControls.getIsEditable()) {
+                    mShared = true;
+                    actionShare();
+                    return;
+                }
+                break;
+            case TAB1:
+                if (!mBottomControls.getIsEditable()) {
+                    freemeControl = R.id.photopage_bottom_control_delete;
+                } else {
+                    freemeControl = R.id.photopage_bottom_control_share;
+                }
+                break;
+            case TAB2:
+                freemeControl = R.id.photopage_bottom_control_delete;
+                break;
+            case TAB3:
+                mSelectionManager.deSelectAll();
+                mSelectionManager.toggle(path);
+                Intent intent = getIntentBySingleSelectedPath(Intent.ACTION_ATTACH_DATA)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.putExtra("mimeType", intent.getType());
+                Activity activity = mActivity;
+                activity.startActivity(Intent.createChooser(
+                        intent, activity.getString(R.string.set_as)));
+                return;
+            case TAB4:
+                freemeControl = R.id.photopage_bottom_control_blockbuster;
+                break;
+            case TAB5:
+                if (!isCommentvisible) {
+                    isCommentvisible = true;
+                    if (isCommentvisible && mBottomText != null && !isEnbled) {
+                        hideBars();
+                    }
+
+                    saveOfflineNewStatus("visible", isCommentvisible);
+                } else {
+                    isCommentvisible = false;
+                    saveOfflineNewStatus("visible", isCommentvisible);
+                }
+                return;
+            default:
+                freemeControl = control;
+                break;
+        }
+        switch (freemeControl) {
+            case R.id.photopage_back_image:
+            case R.id.photopage_back_text:
+                onBackPressed();
+                return;
+            case R.id.photopage_details:
+                if (mShowDetails) {
+                    hideDetails();
+                } else {
+                    showDetails();
                 }
                 return;
 
+            case R.id.photopage_bottom_control_edit:
+                launchPhotoEditor();
+                return;
+
+//            case R.id.ic_menu_photo_edit:
+//                return;
             case R.id.photopage_bottom_control_blockbuster:
                 //*/ Added by Linguanrong for guide, 2015-08-10
 //                if(mBottomControls.mSharedPref.getBoolean("showBlockGuide", true)) {
@@ -402,11 +493,14 @@ public abstract class PhotoPage extends ActivityState implements
                 return;
 
             case R.id.photopage_bottom_control_delete:
-                onItemSelected(menu.findItem(R.id.action_delete));
+                confirmMsg = mActivity.getResources().getQuantityString(
+                        R.plurals.delete_selection, 1);
+                mSelectionManager.deSelectAll();
+                mSelectionManager.toggle(path);
+                mMenuExecutor.onMenuClicked(R.id.action_delete, confirmMsg, mConfirmDialogListener);
                 return;
-
             case R.id.photopage_bottom_control_slideshow:
-                onItemSelected(menu.findItem(R.id.action_slideshow));
+//                onItemSelected(menu.findItem(R.id.action_slideshow));
                 return;
       /* SPRD: Add for bug535110 new feature,  support play audio picture @{ */
             case R.id.photo_voice_icon:
@@ -584,7 +678,7 @@ public abstract class PhotoPage extends ActivityState implements
             mPhotoView.setWantPictureCenterCallbacks(true);
         }
 
-        updateMenuOperations();
+//        updateMenuOperations();
         refreshBottomControlsWhenReady();
         if (mShowDetails) {
             mDetailsHelper.reloadDetails();
@@ -594,7 +688,7 @@ public abstract class PhotoPage extends ActivityState implements
             mCurrentPhoto.getPanoramaSupport(mUpdateShareURICallback);
         } else {
             if (mBottomText != null) {
-                mBottomText.setvisible(false);
+//                mBottomText.setvisible(false);
             }
         }
     }
@@ -624,7 +718,7 @@ public abstract class PhotoPage extends ActivityState implements
                 }
 
                 if (readOfflineNewStatus("visible", false) && mBottomText != null && !mPhotoView.getFilmMode()) {
-                    mBottomText.setvisible(mShowBars);
+                    mBottomText.setvisible(!mShowBars);
                 }
             }
         });
@@ -635,12 +729,10 @@ public abstract class PhotoPage extends ActivityState implements
         if (mShowBars) return;
         mShowBars = true;
         mOrientationManager.unlockOrientation();
-        mActionBar.show();
+//        mActionBar.show();
         //*/ Added by droi Linguanrong for comments, 16-2-1
-        if (isCommentvisible && mBottomText != null
-                && mCurrentPhoto != null
-                && !mPhotoView.getFilmMode()) {
-            mBottomText.setvisible(true);
+        if ( mBottomText != null) {
+            mBottomText.setvisible(false);
         }
         //end
         mActivity.getGLRoot().setLightsOutMode(false);
@@ -650,8 +742,10 @@ public abstract class PhotoPage extends ActivityState implements
 
     private void hideBars() {
         //*/ Added by droi Linguanrong for comments, 16-2-1
-        if (mBottomText != null) {
-            mBottomText.setvisible(false);
+        if (isCommentvisible && mBottomText != null
+                && mCurrentPhoto != null
+                && !mPhotoView.getFilmMode()) {
+            mBottomText.setvisible(true);
         }
         //end
         if (!mShowBars) return;
@@ -701,7 +795,8 @@ public abstract class PhotoPage extends ActivityState implements
             // We are leaving this page. Set the result now.
             setResult();
             if (mStartInFilmstrip && !mPhotoView.getFilmMode()) {
-                mPhotoView.setFilmMode(true);
+//                mPhotoView.setFilmMode(true);
+                super.onBackPressed();
             } else if (mTreatBackAsUp) {
 //                onUpPressed()
                 mActivity.finish();
@@ -765,8 +860,10 @@ public abstract class PhotoPage extends ActivityState implements
 
     @Override
     public void onCreate(Bundle data, Bundle restoreState) {
-        super.onCreate(data, restoreState);
         mActionBar = mActivity.getGalleryActionBar();
+        mActionBar.hide();
+        super.onCreate(data, restoreState);
+
         mSelectionManager = new SelectionManager(mActivity, false);
         mMenuExecutor = new MenuExecutor(mActivity, mSelectionManager);
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-04-14
@@ -1071,7 +1168,7 @@ public abstract class PhotoPage extends ActivityState implements
                             Menu menu = mActionBar.getMenu();
                             //add by tyd mingjun for comments
                             if (mBottomText != null) {
-                                mBottomText.setvisible(false);
+//                                mBottomText.setvisible(false);
                             }
                             //end
                             MenuExecutor.updateMenuOperation(menu, 0);
@@ -1081,7 +1178,7 @@ public abstract class PhotoPage extends ActivityState implements
                             hideBars();
                             //*/
                         } else if (mCurrentPhoto == mediaItem) {
-                            updateMenuOperations();
+//                            updateMenuOperations();
                         }
                     }
                     // Added by TYD Theobald_Wu on 20130409 [end]
@@ -1154,6 +1251,15 @@ public abstract class PhotoPage extends ActivityState implements
 //            }
 //        });
     }
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+        for (int i = 0; i < menu.size(); i++){
+            menu.getItem(i).setVisible(false);
+            menu.getItem(i).setEnabled(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
 
     @Override
     public void onPause() {
@@ -1285,7 +1391,7 @@ public abstract class PhotoPage extends ActivityState implements
         boolean haveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
         if (haveImageEditor != mHaveImageEditor) {
             mHaveImageEditor = haveImageEditor;
-            updateMenuOperations();
+//            updateMenuOperations();
         }
 
         if (mRecenterCameraOnResume) {
@@ -1300,26 +1406,26 @@ public abstract class PhotoPage extends ActivityState implements
         //*/ Added by Linguanrong for photopage bottom controls, 2014-9-17
         setActionBarBackground(true);
         //*/
-        mActionBar.createActionBarMenu(R.menu.photo, menu);
-        mHaveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
-        updateMenuOperations();
+//        mActionBar.createActionBarMenu(R.menu.photo, menu);
+//        mHaveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
+//        updateMenuOperations();
         //*/ Modified by droi Linguanrong for freeme gallery, 16-1-14
-        updateActionBarTitle();
+//        updateActionBarTitle();
         /*/
         mActionBar.setTitle(mMediaSet != null ? mMediaSet.getName() : "");
         //*/
 
         //add by tyd mingjun for comment
-        MenuItem item = menu.findItem(R.id.action_comment);
-        if (readOfflineNewStatus("visible", false)) {
-            item.setTitle(mActivity.getResources().getString(
-                    R.string.freeme_comment_gone));
-            isCommentvisible = true;
-        } else {
-            item.setTitle(mActivity.getResources().getString(
-                    R.string.freeme_comment_visible));
-            isCommentvisible = false;
-        }
+//        MenuItem item = menu.findItem(R.id.action_comment);
+//        if (readOfflineNewStatus("visible", false)) {
+//            item.setTitle(mActivity.getResources().getString(
+//                    R.string.freeme_comment_gone));
+//            isCommentvisible = true;
+//        } else {
+//            item.setTitle(mActivity.getResources().getString(
+//                    R.string.freeme_comment_visible));
+//            isCommentvisible = false;
+//        }
         //end
 
         return true;
@@ -1457,7 +1563,7 @@ public abstract class PhotoPage extends ActivityState implements
                 } else {
                     item.setTitle(mActivity.getResources().getString(
                             R.string.freeme_comment_visible));
-                    mBottomText.setvisible(false);
+//                    mBottomText.setvisible(false);
                     isCommentvisible = false;
                     saveOfflineNewStatus("visible", isCommentvisible);
                 }
@@ -1673,15 +1779,15 @@ public abstract class PhotoPage extends ActivityState implements
             if (albumPath == null) {
                 return;
             }
-            if (!albumPath.equalsIgnoreCase(mOriginalSetPathString)) {
-                // If the edited image is stored in a different album, we need
-                // to start a new activity state to show the new image
-                Bundle data = new Bundle(getData());
-                data.putString(KEY_MEDIA_SET_PATH, albumPath.toString());
-                data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, path.toString());
-                mActivity.getStateManager().startState(SinglePhotoPage.class, data);
-                return;
-            }
+//            if (!albumPath.equalsIgnoreCase(mOriginalSetPathString)) {
+//                // If the edited image is stored in a different album, we need
+//                // to start a new activity state to show the new image
+//                Bundle data = new Bundle(getData());
+//                data.putString(KEY_MEDIA_SET_PATH, albumPath.toString());
+//                data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, path.toString());
+//                mActivity.getStateManager().startState(SinglePhotoPage.class, data);
+//                return;
+//            }
             mModel.setCurrentPhoto(path, mCurrentIndex);
             mActivity.getDataManager().broadcastUpdatePicture();
         }
@@ -1882,7 +1988,7 @@ public abstract class PhotoPage extends ActivityState implements
 
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
         updateActionBarTitle();
-        updateMenuOperations();
+//        updateMenuOperations();
         //*/
     }
 
@@ -2262,4 +2368,25 @@ public abstract class PhotoPage extends ActivityState implements
         mAudioManager.abandonAudioFocus(afChangeListener);
     }
     /* @} */
+    private Path getSingleSelectedPath() {
+        ArrayList<Path> ids = mSelectionManager.getSelected(true);
+        Utils.assertTrue(ids.size() == 1);
+        return ids.get(0);
+    }
+    private Intent getIntentBySingleSelectedPath(String action) {
+        DataManager manager = mActivity.getDataManager();
+        Path path = getSingleSelectedPath();
+        String mimeType = getMimeType(manager.getMediaType(path));
+        return new Intent(action).setDataAndType(manager.getContentUri(path), mimeType);
+    }
+
+    public static String getMimeType(int type) {
+        switch (type) {
+            case MediaObject.MEDIA_TYPE_IMAGE :
+                return GalleryUtils.MIME_TYPE_IMAGE;
+            case MediaObject.MEDIA_TYPE_VIDEO :
+                return GalleryUtils.MIME_TYPE_VIDEO;
+            default: return GalleryUtils.MIME_TYPE_ALL;
+        }
+    }
 }

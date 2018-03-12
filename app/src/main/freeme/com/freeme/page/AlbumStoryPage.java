@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.droi.sdk.analytics.DroiAnalytics;
+import com.freeme.actionbar.app.FreemeActionBarUtil;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
@@ -79,6 +80,7 @@ import com.freeme.ui.DateSlotView;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogUtil;
 import com.freeme.utils.ShareFreemeUtil;
+import com.mediatek.galleryframework.util.DebugUtils;
 
 
 public class AlbumStoryPage extends ActivityState implements GalleryActionBar.ClusterRunner,
@@ -382,10 +384,12 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        MenuInflater inflator = getSupportMenuInflater();
+//        MenuInflater inflator = getSupportMenuInflater();
 
-        mActionBar.setDisplayOptions(true, true);
-
+//        mActionBar.setDisplayOptions(true, true);
+        if (DebugUtils.supportFreeme) {
+            FreemeActionBarUtil.setBackTitle(mActionBar.mActionBar, R.string.tab_by_story);
+        }
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);
         } else {
@@ -463,20 +467,20 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
             case R.id.action_add:
                 startStoryAddImagePage();
                 return true;
-
-            case R.id.action_setcover:
-                int select = Math.max(0, mDetailsSource.setIndex());
-                if (FreemeUtils.STORY_DEBUG) {
-                    LogUtil.i("connor", "action_setcover select = " + select);
-                }
-                mCoverItem = mAlbumDataAdapter.get(select);
-                if (mMediaSet instanceof StoryMergeAlbum) {
-                    ((StoryMergeAlbum) mMediaSet).setCover(select, mCoverItem);
-                } else {
-                    ((StoryAlbum) mMediaSet).setCover(select, mCoverItem);
-                }
-                mSlotView.setCoverItem(mCoverItem);
-                return true;
+//
+//            case R.id.action_setcover:
+//                int select = Math.max(0, mDetailsSource.setIndex());
+//                if (FreemeUtils.STORY_DEBUG) {
+//                    LogUtil.i("connor", "action_setcover select = " + select);
+//                }
+//                mCoverItem = mAlbumDataAdapter.get(select);
+//                if (mMediaSet instanceof StoryMergeAlbum) {
+//                    ((StoryMergeAlbum) mMediaSet).setCover(select, mCoverItem);
+//                } else {
+//                    ((StoryAlbum) mMediaSet).setCover(select, mCoverItem);
+//                }
+//                mSlotView.setCoverItem(mCoverItem);
+//                return true;
 //            case R.id.action_share_freeme:
 //                ShareFreemeUtil.shareFreemeOS(mActivity);
 //                return true;

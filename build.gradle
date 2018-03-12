@@ -15,6 +15,14 @@ allprojects {
         jcenter()
         google()
     }
+    gradle.taskGraph.whenReady {
+        tasks.each { task ->
+            if (task.name.equals('mockableAndroidJar')) {
+                task.enabled = false
+            }
+        }
+    }
+
 //    repositories {
 //        maven {
 //            url "http://192.168.48.2:8081/nexus/content/repositories/com.freeme.multimedia/"
@@ -26,4 +34,42 @@ task clean(type: Delete) {
 
 
     delete rootProject.buildDir
+}
+
+ext {
+    compileSdkVersion = 27
+    buildToolsVersion = '26.0.3'
+    minSdkVersion = 21
+    targetSdkVersion = 27
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+
+    useCertificate = 'platform'
+    useFreemePlarformRes = true
+    if (rootProject.file('local.properties').exists()) {
+        Properties localProperties = new Properties()
+        localProperties.load(rootProject.file('local.properties').newDataInputStream())
+
+        sdkDir = localProperties.getProperty('sdk.dir')
+        sdkFreemeDir = file("${sdkDir}/extras/freeme").path
+        sdkFreemeSigningsDir = file("${sdkFreemeDir}/signings").path
+        sdkFreemePlatformDir = file("${sdkFreemeDir}/platforms/android-v${compileSdkVersion}").path
+
+        // signing
+        if (file("${sdkFreemeSigningsDir}/signings.properties").exists()) {
+            Properties signingsProperties = new Properties()
+            signingsProperties.load(file("${sdkFreemeSigningsDir}/signings.properties").newDataInputStream())
+
+            storeFile = file("${sdkFreemeSigningsDir}/${signingsProperties["key.${useCertificate}.store"]}").path
+            storePassword = signingsProperties["key.${useCertificate}.store.password"]
+            keyAlias = signingsProperties["key.${useCertificate}.alias"]
+            keyPassword = signingsProperties["key.${useCertificate}.password"]
+        }
+        // sdk
+        if (file("${sdkFreemePlatformDir}").exists()) {
+            if (useFreemePlarformRes && file("${sdkFreemePlatformDir}/freeme-framework-res.apk").exists()) {
+                sdkFreemePlatformRes = file("${sdkFreemePlatformDir}/freeme-framework-res.apk").path
+            }
+        }
+    }
 }

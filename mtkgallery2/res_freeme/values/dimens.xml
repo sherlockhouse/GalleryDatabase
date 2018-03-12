@@ -46,20 +46,20 @@
     <dimen name="status_bar_height">25dip</dimen>
 
     <!-- Added by Linguanrong for story album, 2015-4-2 -->
-    <integer name="albumstory_rows_land">3</integer>
+    <integer name="albumstory_rows_land">2</integer>
     <integer name="albumstory_rows_port">5</integer>
-    <dimen name="albumstory_padding_top">3dp</dimen>
+    <dimen name="albumstory_padding_top">16dp</dimen>
     <dimen name="albumstory_padding_bottom">0dp</dimen>
-    <dimen name="albumstory_padding_left_right">1dp</dimen>
-    <dimen name="albumstory_slot_gap">2dp</dimen>
+    <dimen name="albumstory_padding_left_right">0dp</dimen>
+    <dimen name="albumstory_slot_gap">0dp</dimen>
     <dimen name="albumstory_slot_gap_vertical">37dp</dimen>
 
-    <dimen name="albumstory_label_background_height">30dp</dimen>
+    <dimen name="albumstory_label_background_height">54dp</dimen>
     <dimen name="albumstory_title_offset">10dp</dimen>
     <dimen name="albumstory_count_offset">10dp</dimen>
     <dimen name="albumstory_title_font_size">14sp</dimen>
     <dimen name="albumstory_count_font_size">12sp</dimen>
-    <dimen name="albumstory_left_margin">6dp</dimen>
+    <dimen name="albumstory_left_margin">16dp</dimen>
     <dimen name="albumstory_title_right_margin">40dp</dimen>
     <dimen name="albumstory_icon_size">25dp</dimen>
 

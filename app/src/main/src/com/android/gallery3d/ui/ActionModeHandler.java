@@ -31,6 +31,7 @@ import android.view.ActionMode;
 import android.view.ActionMode.Callback;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -83,6 +84,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     private Menu               mMenu;
     private MenuItem           mShareMenuItem;
     private SelectionMenu      mSelectionMenu;
+    private MenuItem           mSelectMenuItem;
     private ActionModeListener mListener;
     private Future<?>          mMenuTask;
     private ActionMode         mActionMode;
@@ -136,7 +138,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 
     public void setTitle(String title) {
         if (mActionMode == null) return;
-        mSelectionMenu.setTitle(title);
+        mActionMode.setTitle(title);
     }
 
     @TargetApi(ApiHelper.VERSION_CODES.JELLY_BEAN)
@@ -248,24 +250,34 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         View customView = LayoutInflater.from(a).inflate(
                 R.layout.action_mode, null);
         mActionMode.setCustomView(customView);
-        mSelectionMenu = new SelectionMenu(a,
-                (TextView) customView.findViewById(R.id.selection_menu), this);
+//        mSelectionMenu = new SelectionMenu(a,
+//                (TextView) customView.findViewById(R.id.selection_menu), this);
 
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-2-13
-        mCheckBox = (CheckBox) customView.findViewById(R.id.selection_all);
-        mCheckBox.setOnClickListener(new View.OnClickListener() {
+//        mCheckBox = (CheckBox) customView.findViewById(R.id.selection_all);
+//        mCheckBox.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                GLRoot root = mActivity.getGLRoot();
+//                root.lockRenderThread();
+//                if (mSelectionManager.inSelectAllMode()) {
+//                    mSelectionManager.deSelectAll();
+//                } else {
+//                    mSelectionManager.selectAll();
+//                }
+//                updateSupportedOperation();
+//                updateSelectionMenu();
+//                root.unlockRenderThread();
+//            }
+//        });
+        //*/
+        TextView cancel = (TextView) customView.findViewById(R.id.cancel);
+        cancel.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View view) {
-                GLRoot root = mActivity.getGLRoot();
-                root.lockRenderThread();
-                if (mSelectionManager.inSelectAllMode()) {
-                    mSelectionManager.deSelectAll();
-                } else {
-                    mSelectionManager.selectAll();
+            public void onClick(View v) {
+                if (mSelectionManager != null) {
+                    mSelectionManager.leaveSelectionMode();
                 }
-                updateSupportedOperation();
-                updateSelectionMenu();
-                root.unlockRenderThread();
             }
         });
         //*/
@@ -285,17 +297,17 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         });
 
         if (mIsStoryCoverPage) {
-            mCheckBox.setVisibility(View.GONE);
+//            mCheckBox.setVisibility(View.GONE);
             confirm.setVisibility(View.VISIBLE);
         }
-        //*/
+//        */
 
-        updateSelectionMenu();
+//        updateSelectionMenu();
     }
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        return false;
+        return true;
     }
 
     @Override
@@ -384,13 +396,12 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         if (mActivity.mVisitorMode) return true;
         //*/
 
-        //*/ Modified by Tyd Linguanrong for Gallery new style, 2014-4-23
-        //mode.getMenuInflater().inflate(R.menu.operation, menu);
         mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
         //*/
 
         mMenu = menu;
         mShareMenuItem = menu.findItem(R.id.action_share);
+//        menu.findItem(R.id.action_delete).setVisible(true);
         if (mShareMenuItem != null) {
             mShareMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -408,10 +419,30 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                 }
             });
         }
+
+        mSelectMenuItem = menu.findItem(R.id.action_selectall);
+        if (mSelectMenuItem != null) {
+            mSelectMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    GLRoot root = mActivity.getGLRoot();
+                    root.lockRenderThread();
+                    if (mSelectionManager.inSelectAllMode()) {
+                        mSelectionManager.deSelectAll();
+                    } else {
+                        mSelectionManager.selectAll();
+                    }
+                    updateSupportedOperation();
+                    updateSelectionMenu();
+                    root.unlockRenderThread();
+                    return true;
+                }
+            });
+        }
         return true;
     }
 
-       @Override
+    @Override
     public void onDestroyActionMode(ActionMode mode) {
         mSelectionManager.leaveSelectionMode();
     }
@@ -672,11 +703,11 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         setTitle(title);
 
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-2-13
-        if (mSelectionManager.inSelectAllMode()) {
-            mCheckBox.setChecked(true);
-        } else {
-            mCheckBox.setChecked(false);
-        }
+//        if (mSelectionManager.inSelectAllMode()) {
+//            mCheckBox.setChecked(true);
+//        } else {
+//            mCheckBox.setChecked(false);
+//        }
         //*/
 
         //*/ Added by Linguanrong for story album, 2015-5-20

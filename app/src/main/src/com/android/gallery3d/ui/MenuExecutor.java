@@ -29,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.print.PrintHelper;
@@ -48,6 +49,8 @@ import com.freeme.gallery.filtershow.crop.CropActivity;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.Future;
+import com.android.gallery3d.util.ThreadPool.Job;
+import com.android.gallery3d.util.ThreadPool.JobContext;
 import com.android.gallery3d.util.ThreadPool;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
@@ -138,7 +141,7 @@ public class MenuExecutor {
                         break;
                     }
                     case MSG_DO_SHARE: {
-                        mActivity.startActivity((Intent) message.obj);
+                        ((Activity) mActivity).startActivity((Intent) message.obj);
                         break;
                     }
                 }
@@ -154,6 +157,7 @@ public class MenuExecutor {
             mTask = null;
         }
     }
+
     public void resume() {
         mPaused = false;
         if (mDialog != null) mDialog.show();
@@ -199,7 +203,7 @@ public class MenuExecutor {
         //*/
         supportPrint &= PrintHelper.systemSupportsPrint();
         supportPrint &= BuildConfig.SUPPORT_PRINT;
-
+        setMenuItemVisible(menu, R.id.action_selectall, supportShare);
         setMenuItemVisible(menu, R.id.action_delete, supportDelete);
         setMenuItemVisible(menu, R.id.action_rotate_ccw, supportRotate);
         setMenuItemVisible(menu, R.id.action_rotate_cw, supportRotate);
@@ -227,7 +231,7 @@ public class MenuExecutor {
     }
 
     public static void updateMenuForPanorama(Menu menu, boolean shareAsPanorama360,
-                                             boolean disablePanorama360Options) {
+            boolean disablePanorama360Options) {
         setMenuItemVisible(menu, R.id.action_share_panorama, shareAsPanorama360);
         if (disablePanorama360Options) {
             setMenuItemVisible(menu, R.id.action_rotate_ccw, false);
@@ -237,11 +241,11 @@ public class MenuExecutor {
 
     //*/ Added by Linguanrong for story album, 2015-5-19
     public static void updateMenuRename(Menu menu, boolean supported) {
-        setMenuItemVisible(menu, R.id.action_rename, supported);
+//        setMenuItemVisible(menu, R.id.action_rename, supported);
     }
 
     public static void updateMenuSetCover(Menu menu, boolean supported) {
-        setMenuItemVisible(menu, R.id.action_setcover, supported);
+//        setMenuItemVisible(menu, R.id.action_setcover, supported);
     }
     private Path getSingleSelectedPath() {
         ArrayList<Path> ids = mSelectionManager.getSelected(true);
@@ -277,7 +281,7 @@ public class MenuExecutor {
                 return;
             case R.id.action_crop: {
                 Intent intent = getIntentBySingleSelectedPath(CropActivity.CROP_ACTION);
-                mActivity.startActivity(intent);
+                ((Activity) mActivity).startActivity(intent);
                 return;
             }
             case R.id.action_edit: {
@@ -323,7 +327,7 @@ public class MenuExecutor {
         setMenuItemVisible(menu, R.id.action_share, supported);
     }
     private class ConfirmDialogListener implements OnClickListener, OnCancelListener {
-        private final int              mActionId;
+        private final int mActionId;
         private final ProgressListener mListener;
 
         public ConfirmDialogListener(int actionId, ProgressListener listener) {
@@ -365,23 +369,44 @@ public class MenuExecutor {
         if (confirmMsg != null) {
             if (listener != null) listener.onConfirmDialogShown();
             ConfirmDialogListener cdl = new ConfirmDialogListener(action, listener);
-            new AlertDialog.Builder(mActivity.getAndroidContext())
+            AlertDialog dialog = new AlertDialog.Builder(mActivity.getAndroidContext())
                     .setMessage(confirmMsg)
                     .setOnCancelListener(cdl)
                     .setPositiveButton(R.string.ok, cdl)
                     .setNegativeButton(R.string.cancel, cdl)
-                    .create().show();
+                    .create();
+            dialog.show();
         } else {
             onMenuClicked(action, listener);
         }
     }
 
- 
+    public void onMenuClicked(int  action, String confirmMsg,
+                              final ProgressListener listener) {
 
+        if (confirmMsg != null) {
+            if (listener != null) listener.onConfirmDialogShown();
+            ConfirmDialogListener cdl = new ConfirmDialogListener(action, listener);
+            AlertDialog dialog = new AlertDialog.Builder(mActivity.getAndroidContext())
+                    .setMessage(confirmMsg)
+                    .setOnCancelListener(cdl)
+                    .setPositiveButton(R.string.ok, cdl)
+                    .setNegativeButton(R.string.cancel, cdl)
+                    .create();
+            dialog.show();
+//            dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+//                    .setTextColor(mActivity.getResources().getColor(R.color.theme_color));
+        } else {
+            onMenuClicked(action, listener);
+        }
+    }
 
+    public void startAction(int action, int title, ProgressListener listener) {
+        startAction(action, title, listener, false, true);
+    }
 
     public void startAction(int action, int title, ProgressListener listener,
-                            boolean waitOnStop, boolean showDialog) {
+            boolean waitOnStop, boolean showDialog) {
         ArrayList<Path> ids = mSelectionManager.getSelected(false);
         stopTaskAndDismissDialog();
 
@@ -397,11 +422,6 @@ public class MenuExecutor {
         mWaitOnStop = waitOnStop;
     }
 
-
-    public void startAction(int action, int title, ProgressListener listener) {
-        startAction(action, title, listener, false, true);
-    }
-
     public void startSingleItemAction(int action, Path targetPath) {
         ArrayList<Path> ids = new ArrayList<Path>(1);
         ids.add(targetPath);
@@ -410,21 +430,19 @@ public class MenuExecutor {
         mTask = mActivity.getBatchServiceThreadPoolIfAvailable().submit(operation, null);
         mWaitOnStop = false;
     }
+
     public static String getMimeType(int type) {
         switch (type) {
-            case MediaObject.MEDIA_TYPE_IMAGE:
+            case MediaObject.MEDIA_TYPE_IMAGE :
                 return GalleryUtils.MIME_TYPE_IMAGE;
-            case MediaObject.MEDIA_TYPE_VIDEO:
+            case MediaObject.MEDIA_TYPE_VIDEO :
                 return GalleryUtils.MIME_TYPE_VIDEO;
-            default:
-                return GalleryUtils.MIME_TYPE_ALL;
+            default: return GalleryUtils.MIME_TYPE_ALL;
         }
     }
 
-
-
     private boolean execute(
-            DataManager manager, ThreadPool.JobContext jc, int cmd, Path path) {
+            DataManager manager, JobContext jc, int cmd, Path path) {
         boolean result = true;
         Log.v(TAG, "Execute cmd: " + cmd + " for " + path);
         long startTime = System.currentTimeMillis();
@@ -432,12 +450,6 @@ public class MenuExecutor {
         switch (cmd) {
             case R.id.action_delete:
                 manager.delete(path);
-                //*/ Added by tyd Linguanrong for statistic, 15-12-18
-//                StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_DELETE);
-                //*/
-
-                // for baas analytics
-//                DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_DELETE);
                 break;
             case R.id.action_rotate_cw:
                 manager.rotate(path, 90);
@@ -473,24 +485,20 @@ public class MenuExecutor {
         return result;
     }
 
-
-
-
-
-    private class MediaOperation implements ThreadPool.Job<Void> {
-        private final ArrayList<Path>  mItems;
-        private final int              mOperation;
+    private class MediaOperation implements Job<Void> {
+        private final ArrayList<Path> mItems;
+        private final int mOperation;
         private final ProgressListener mListener;
 
         public MediaOperation(int operation, ArrayList<Path> items,
-                              ProgressListener listener) {
+                ProgressListener listener) {
             mOperation = operation;
             mItems = items;
             mListener = listener;
         }
 
         @Override
-        public Void run(ThreadPool.JobContext jc) {
+        public Void run(JobContext jc) {
             int index = 0;
             DataManager manager = mActivity.getDataManager();
             int result = EXECUTION_RESULT_SUCCESS;

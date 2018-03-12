@@ -153,8 +153,7 @@ public class AlbumLabelMaker {
             String title = mTitle;
             //*/Modified by Tyd Linguanrong for Gallery new style, 2013-12-19
             //String count = mCount;
-            String count = mContext.getResources()
-                    .getString(R.string.albumset_photo_number, mCount);
+            String count = mCount;
             //*/
             Bitmap icon = getOverlayAlbumIcon(mSourceType);
 
@@ -182,10 +181,11 @@ public class AlbumLabelMaker {
 
             //*/ Modified by droi Linguanrong for freeme gallery, 16-1-16
             int x = s.leftMargin;
-            int y = (s.labelBackgroundHeight - s.titleFontSize) / 2;
+            int y = s.titleFontSize / 2;
             drawText(canvas, x, y, title, labelWidth - s.leftMargin - x -
                     s.titleRightMargin, mTitlePaint);
-            x = labelWidth - s.titleRightMargin;
+//            x = labelWidth - s.titleRightMargin;
+            y = y + s.titleFontSize / 2 + s.titleFontSize;
             drawText(canvas, x, y, count, labelWidth - x, mCountPaint);
             /*/
             // draw title

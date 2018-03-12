@@ -50,8 +50,12 @@ public abstract class MediaObject {
     //*/ Added by droi Linguanrong for comments, 16-2-1
     public static final int SUPPORT_COMMENT         = 1 << 18;
     //*/
-    public static final int SUPPORT_ALL             = 0xffffffff;
-
+    /// M: [FEATURE.ADD] @{
+    public static final int SUPPORT_PROTECTION_INFO = 1 << 28;
+    public static final int SUPPORT_PQ = 1 << 29;
+    public static final int SUPPORT_EXPORT = 1 << 30;
+    /// @}
+    public static final int SUPPORT_ALL = 0xffffffff;
 
     // These are the bits returned from getMediaType():
     public static final int MEDIA_TYPE_UNKNOWN = 1;

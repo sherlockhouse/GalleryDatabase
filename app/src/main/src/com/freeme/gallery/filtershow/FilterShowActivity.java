@@ -120,6 +120,7 @@ import com.android.gallery3d.filtershow.pipeline.CachingPipeline;
 import com.android.gallery3d.filtershow.pipeline.ImagePreset;
 //import com.android.gallery3d.filtershow.pipeline.ProcessingService;
 import com.android.gallery3d.filtershow.presets.PresetManagementDialog;
+import com.freeme.actionbar.app.FreemeActionBarUtil;
 import com.freeme.gallery.filtershow.pipeline.ProcessingService;
 import com.freeme.gallery.filtershow.provider.SharedImageProvider;
 import com.android.gallery3d.filtershow.state.StateAdapter;
@@ -420,6 +421,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
 
         InfoPanel panel = new InfoPanel();
+        panel.setStyle(DialogFragment.STYLE_NORMAL,R.style.FreemeAlertTheme);
         panel.show(transaction, InfoPanel.FRAGMENT_TAG);
     }
     private void loadXML() {
@@ -1291,7 +1293,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
     }
 
     private void showExportOptionsDialog() {
-/// M: [BEHAVIOR.ADD] @{
+        /// M: [BEHAVIOR.ADD] @{
         Rect mOriginalBounds = MasterImage.getImage().getOriginalBounds();
         ImagePreset preset = MasterImage.getImage().getPreset();
         if (mOriginalBounds == null || preset == null) {
@@ -1300,6 +1302,7 @@ public class FilterShowActivity extends FragmentActivity implements OnItemClickL
         }
         /// @}
         DialogFragment dialog = new ExportDialog();
+        dialog.setStyle(DialogFragment.STYLE_NORMAL,R.style.FreemeAlertTheme);
         dialog.show(getSupportFragmentManager(), "ExportDialogFragment");
     }
 

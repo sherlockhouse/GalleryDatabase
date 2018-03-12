@@ -652,7 +652,7 @@ public class AlbumSetPage extends ActivityState implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-mDestroyed = true;
+        mDestroyed = true;
         /*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.unlockOrientation();
         //*/
@@ -717,7 +717,7 @@ mDestroyed = true;
         }
         //*/
     }
-volatile boolean mDestroyed = false;
+    volatile boolean mDestroyed = false;
     private void hideCameraButton() {
         if (mEmptyView == null) return;
         mEmptyView.setVisibility(View.GONE);
@@ -953,97 +953,100 @@ volatile boolean mDestroyed = false;
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
-        //*/ Added by Tyd Linguanrong for secret photos, 2014-2-22
-        if (mVisitorMode || mStorySelectMode) {
-            mActionBar.setDisplayOptions(true, true);
-            mActionBar.setTitle(mActivity.getResources().getString(R.string.app_name));
-            return true;
+//        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
+        if (!mStorySelectMode) {
+            mActionBar.initActionBar();
         }
+        //*/ Added by Tyd Linguanrong for secret photos, 2014-2-22
+//        if (mVisitorMode || mStorySelectMode) {
+//            mActionBar.setDisplayOptions(true, true);
+//            mActionBar.setTitle(mActivity.getResources().getString(R.string.app_name));
+//            return true;
+//        }
         //*/
 
-        Activity activity = mActivity;
-        MenuInflater inflater = getSupportMenuInflater();
-
-        if (mGetContent) {
-            if (mActivity instanceof GalleryActivity) {
-                ((GalleryActivity) mActivity).setBottomTabVisibility(false);
-            }
-            //*/ Modified by Tyd Linguanrong for secret photos, 2014-2-22
-            if (mActivity instanceof JigsawEntry) {
-                mActionBar.setDisplayOptions(true, true);
-            } else {
-                //inflater.inflate(R.menu.pickup, menu);
-                mActionBar.createActionBarMenu(R.menu.pickup, menu);
-                menu.findItem(R.id.action_cancel).setVisible(false);
-                int typeBits = mData.getInt(
-                        GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
-                mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
-            }
-            //*/
-        } else if (mGetAlbum) {
-            inflater.inflate(R.menu.pickup, menu);
-            mActionBar.setTitle(R.string.select_album);
-            //*/ Added by xueweili for set actionbar when in hiden mode , 2015-7-23
-        } else if (mIsHideAlbumSet) {
-            mHideModeHandler.startHideMode(menu);
-            //*/
-        } else {
-            //*/ Modified by droi Linguanrong for freeme gallery, 2016-1-14
-            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
-            //mActionBar.enableClusterMenu(mSelectedAction, this);
-            //inflater.inflate(R.menu.albumset, menu);
-            mActionBar.createActionBarMenu(R.menu.albumset, menu);
-            //*/
-
-            //*/ Modified by droi Linguanrong for freeme gallery, 2016-1-14
-            MenuItem selectItem = menu.findItem(R.id.action_select);
-            selectItem.setTitle(R.string.select_album);
-            /*/
-            boolean selectAlbums = !inAlbum &&
-                    mActionBar.getClusterTypeAction() == FilterUtils.CLUSTER_BY_ALBUM;
-            MenuItem selectItem = menu.findItem(R.id.action_select);
-            selectItem.setTitle(activity.getString(
-                    selectAlbums ? R.string.select_album : R.string.select_group));
-            //*/
-            selectItem.setTitle(R.string.select_album);
-            MenuItem cameraItem = menu.findItem(R.id.action_camera);
-            cameraItem.setVisible(GalleryUtils.isCameraAvailable(activity));
-
-            FilterUtils.setupMenuItems(mActionBar, mMediaSet.getPath(), false);
-
-            Intent helpIntent = HelpUtils.getHelpIntent(activity);
-
-            MenuItem helpItem = menu.findItem(R.id.action_general_help);
-            helpItem.setVisible(helpIntent != null);
-            if (helpIntent != null) helpItem.setIntent(helpIntent);
-            /// M: [BUG.ADD] if get the mTitle/mSubTitle,they will not change @{
-            // when switch language.
-            if (mTitle != null) {
-                mTitle = mMediaSet.getName();
-                mSubtitle = GalleryActionBar.getClusterByTypeString(mActivity, mClusterType);
-            }
-            /// @}
-            //*/ Added by xueweili for finde hide menu, 2015-7-23
-            MenuItem hideItem = menu.findItem(R.id.action_visible_all);
-            if (mSelectedAction != FreemeUtils.CLUSTER_BY_ALBUM) {
-                hideItem.setVisible(false);
-            }
-            //*/
-
-            //*/ Added by Linguanrong for guide, 2015-08-10
-            boolean guide = mActivity.mSharedPreferences.getBoolean("showHideGuide", true);
-            String str = mActivity.getResources().getString(R.string.hide_album);
-            hideItem.setTitle(guide ? getGuideTitle(str) : str);
-            //*/
-            //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
-            mTitle = mTitle != null ? mMediaSet.getName()
-                    : mActivity.getResources().getString(R.string.tab_by_all);
-            //*/
-
-            mActionBar.setTitle(mTitle);
-            mActionBar.setSubtitle(mSubtitle);
-        }
+//        Activity activity = mActivity;
+//        MenuInflater inflater = getSupportMenuInflater();
+//
+//        if (mGetContent) {
+//            if (mActivity instanceof GalleryActivity) {
+//                ((GalleryActivity) mActivity).setBottomTabVisibility(false);
+//            }
+//            //*/ Modified by Tyd Linguanrong for secret photos, 2014-2-22
+//            if (mActivity instanceof JigsawEntry) {
+//                mActionBar.setDisplayOptions(true, true);
+//            } else {
+//                //inflater.inflate(R.menu.pickup, menu);
+//                mActionBar.createActionBarMenu(R.menu.pickup, menu);
+//                menu.findItem(R.id.action_cancel).setVisible(false);
+//                int typeBits = mData.getInt(
+//                        GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
+//                mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
+//            }
+//            //*/
+//        } else if (mGetAlbum) {
+//            inflater.inflate(R.menu.pickup, menu);
+//            mActionBar.setTitle(R.string.select_album);
+//            //*/ Added by xueweili for set actionbar when in hiden mode , 2015-7-23
+//        } else if (mIsHideAlbumSet) {
+//            mHideModeHandler.startHideMode(menu);
+//            //*/
+//        } else {
+//            //*/ Modified by droi Linguanrong for freeme gallery, 2016-1-14
+//            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
+//            //mActionBar.enableClusterMenu(mSelectedAction, this);
+//            //inflater.inflate(R.menu.albumset, menu);
+//            mActionBar.createActionBarMenu(R.menu.albumset, menu);
+//            //*/
+//
+//            //*/ Modified by droi Linguanrong for freeme gallery, 2016-1-14
+//            MenuItem selectItem = menu.findItem(R.id.action_select);
+//            selectItem.setTitle(R.string.select_album);
+//            /*/
+//            boolean selectAlbums = !inAlbum &&
+//                    mActionBar.getClusterTypeAction() == FilterUtils.CLUSTER_BY_ALBUM;
+//            MenuItem selectItem = menu.findItem(R.id.action_select);
+//            selectItem.setTitle(activity.getString(
+//                    selectAlbums ? R.string.select_album : R.string.select_group));
+//            //*/
+//            selectItem.setTitle(R.string.select_album);
+//            MenuItem cameraItem = menu.findItem(R.id.action_camera);
+//            cameraItem.setVisible(GalleryUtils.isCameraAvailable(activity));
+//
+//            FilterUtils.setupMenuItems(mActionBar, mMediaSet.getPath(), false);
+//
+//            Intent helpIntent = HelpUtils.getHelpIntent(activity);
+//
+//            MenuItem helpItem = menu.findItem(R.id.action_general_help);
+//            helpItem.setVisible(helpIntent != null);
+//            if (helpIntent != null) helpItem.setIntent(helpIntent);
+//            /// M: [BUG.ADD] if get the mTitle/mSubTitle,they will not change @{
+//            // when switch language.
+//            if (mTitle != null) {
+//                mTitle = mMediaSet.getName();
+//                mSubtitle = GalleryActionBar.getClusterByTypeString(mActivity, mClusterType);
+//            }
+//            /// @}
+//            //*/ Added by xueweili for finde hide menu, 2015-7-23
+//            MenuItem hideItem = menu.findItem(R.id.action_visible_all);
+//            if (mSelectedAction != FreemeUtils.CLUSTER_BY_ALBUM) {
+//                hideItem.setVisible(false);
+//            }
+//            //*/
+//
+//            //*/ Added by Linguanrong for guide, 2015-08-10
+//            boolean guide = mActivity.mSharedPreferences.getBoolean("showHideGuide", true);
+//            String str = mActivity.getResources().getString(R.string.hide_album);
+//            hideItem.setTitle(guide ? getGuideTitle(str) : str);
+//            //*/
+//            //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
+//            mTitle = mTitle != null ? mMediaSet.getName()
+//                    : mActivity.getResources().getString(R.string.tab_by_all);
+//            //*/
+//
+//            mActionBar.setTitle(mTitle);
+//            mActionBar.setSubtitle(mSubtitle);
+//        }
         return true;
     }
 

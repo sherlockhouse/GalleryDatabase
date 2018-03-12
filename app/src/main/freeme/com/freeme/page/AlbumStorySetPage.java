@@ -95,6 +95,8 @@ import com.android.gallery3d.util.Future;
 import com.freeme.settings.GallerySettings;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.ui.StoryAlbumSetSlotRender;
+import com.freeme.ui.StorySlotView;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.ShareFreemeUtil;
 
@@ -122,8 +124,8 @@ public class AlbumStorySetPage extends ActivityState implements
     public static        boolean mAddNewAlbum       = false;
     protected SelectionManager mSelectionManager;
     private boolean mIsActive = false;
-    private SlotView                     mSlotView;
-    private AlbumSetSlotRenderer         mAlbumSetView;
+    private StorySlotView mSlotView;
+    private StoryAlbumSetSlotRender         mAlbumSetView;
     private PageConfig.AlbumStorySetPage mConfig;
     private MediaSet                     mMediaSet;
     private String                       mTitle;
@@ -171,8 +173,15 @@ public class AlbumStorySetPage extends ActivityState implements
             int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop + mActivity.mStatusBarHeight;
             //*/
             int slotViewBottom = bottom - top - mConfig.paddingBottom;
-            int slotViewLeft = left + mConfig.paddingLeftRight;
-            int slotViewRight = right - left - mConfig.paddingLeftRight;
+            int slotViewLeft = 0;
+            int slotViewRight = 0;
+//            if (left > 10) {
+                slotViewLeft = left + mConfig.paddingLeftRight;
+                slotViewRight = right - left - mConfig.paddingLeftRight;
+//            } else {
+//                slotViewLeft = left;
+//                slotViewRight = right - left - mConfig.paddingLeftRight;
+//            }
 
             if (mShowDetails) {
                 mDetailsHelper.layout(left, slotViewTop, right, bottom);
@@ -979,10 +988,10 @@ public class AlbumStorySetPage extends ActivityState implements
         mSelectionManager.setSelectionListener(this);
 
         mConfig = PageConfig.AlbumStorySetPage.get(mActivity);
-        mSlotView = new SlotView(mActivity, mConfig.slotViewSpec);
+        mSlotView = new StorySlotView(mActivity, mConfig.slotViewSpec,mConfig.labelSpec);
         mSlotViewPadding = mConfig.slotViewSpec.slotPadding;
         mBottomPadding = mConfig.slotViewSpec.bottomPadding;
-        mAlbumSetView = new AlbumSetSlotRenderer(
+        mAlbumSetView = new StoryAlbumSetSlotRender(
                 mActivity, mSelectionManager, mSlotView, mConfig.labelSpec,
                 mConfig.placeholderColor);
         mSlotView.setSlotRenderer(mAlbumSetView);
@@ -1026,35 +1035,34 @@ public class AlbumStorySetPage extends ActivityState implements
     @Override
     protected boolean onCreateActionBar(Menu menu) {
         Activity activity = mActivity;
-        final boolean inAlbum = mActivity.getStateManager().hasStateClass(AlbumPage.class);
         MenuInflater inflater = getSupportMenuInflater();
-
-        if (mGetContent) {
-            mActionBar.createActionBarMenu(R.menu.pickup, menu);
-            int typeBits = mData.getInt(
-                    GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
-            mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
-        } else if (mGetAlbum) {
-            inflater.inflate(R.menu.pickup, menu);
-            mActionBar.setTitle(R.string.select_album);
-        } else {
-            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
-            mActionBar.enableClusterMenu(mSelectedAction, this);
-            mActionBar.createActionBarMenu(R.menu.album_story_set, menu);
-            MenuItem selectItem = menu.findItem(R.id.action_select);
-            selectItem.setTitle(R.string.select_album);
-            MenuItem cameraItem = menu.findItem(R.id.action_camera);
-            cameraItem.setVisible(GalleryUtils.isCameraAvailable(activity));
-
-            FilterUtils.setupMenuItems(mActionBar, mMediaSet.getPath(), false);
-
-            Intent helpIntent = HelpUtils.getHelpIntent(activity);
-
-            MenuItem helpItem = menu.findItem(R.id.action_general_help);
-            helpItem.setVisible(helpIntent != null);
-            if (helpIntent != null) helpItem.setIntent(helpIntent);
-            mTitle = mActivity.getResources().getString(R.string.tab_by_story);
-            mActionBar.setTitle(mTitle);
+        mActionBar.initActionBar();
+//        if (mGetContent) {
+//            mActionBar.createActionBarMenu(R.menu.pickup, menu);
+//            int typeBits = mData.getInt(
+//                    GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
+//            mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
+//        } else if (mGetAlbum) {
+//            inflater.inflate(R.menu.pickup, menu);
+//            mActionBar.setTitle(R.string.select_album);
+//        } else {
+//            mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
+//            mActionBar.enableClusterMenu(mSelectedAction, this);
+//            mActionBar.createActionBarMenu(R.menu.album_story_set, menu);
+//            MenuItem selectItem = menu.findItem(R.id.action_select);
+//            selectItem.setTitle(R.string.select_album);
+//            MenuItem cameraItem = menu.findItem(R.id.action_camera);
+//            cameraItem.setVisible(GalleryUtils.isCameraAvailable(activity));
+//
+//            FilterUtils.setupMenuItems(mActionBar, mMediaSet.getPath(), false);
+//
+//            Intent helpIntent = HelpUtils.getHelpIntent(activity);
+//
+//            MenuItem helpItem = menu.findItem(R.id.action_general_help);
+//            helpItem.setVisible(helpIntent != null);
+//            if (helpIntent != null) helpItem.setIntent(helpIntent);
+//            mTitle = mActivity.getResources().getString(R.string.tab_by_story);
+//            mActionBar.setTitle(mTitle);
 
 //            MenuItem shareFreemeOS = menu.findItem(R.id.action_share_freeme);
 //            if(shareFreemeOS != null) {
@@ -1062,7 +1070,7 @@ public class AlbumStorySetPage extends ActivityState implements
 //                        + " " + BuildConfig.SUPPORT_OS_TAG;
 //                shareFreemeOS.setTitle(title);
 //            }
-        }
+//        }
         return true;
     }
 
@@ -1107,11 +1115,11 @@ public class AlbumStorySetPage extends ActivityState implements
                 return true;
             }
 
-            case R.id.action_rename:
-                mRenameItemId = Math.max(0, mDetailsSource.setIndex());
-                String text = (mMediaSet.getSubMediaSet(mRenameItemId)).getName();
-                showDialog(text);
-                return true;
+//            case R.id.action_rename:
+//                mRenameItemId = Math.max(0, mDetailsSource.setIndex());
+//                String text = (mMediaSet.getSubMediaSet(mRenameItemId)).getName();
+//                showDialog(text);
+//                return true;
 
 //            case R.id.action_share_freeme: {
 //                ShareFreemeUtil.shareFreemeOS(mActivity);

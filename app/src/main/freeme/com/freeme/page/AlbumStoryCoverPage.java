@@ -448,8 +448,8 @@ public class AlbumStoryCoverPage extends ActivityState
                 mActivity.getStateManager().finishState(this);
                 return true;
 
-            case R.id.action_setcover:
-                return true;
+//            case R.id.action_setcover:
+//                return true;
 
             default:
                 return false;

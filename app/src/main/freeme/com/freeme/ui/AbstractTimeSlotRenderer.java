@@ -44,7 +44,7 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
         mVideoOverlay = new NinePatchTexture(context, R.drawable.ic_video_thumb_freeme);
         mPanoramaIcon = new ResourceTexture(context, R.drawable.ic_360pano_holo_light);
         mFramePressed = new NinePatchTexture(context, R.drawable.grid_pressed);
-        mFrameSelected = new NinePatchTexture(context, R.drawable.grid_selected);
+        mFrameSelected = new NinePatchTexture(context, R.drawable.freeme_grid_selected);
         mListDivider = new NinePatchTexture(context, R.drawable.day_division);
         mExpanedBtn = new ResourceTexture(context, R.drawable.expansion_normal);
         mRefocusTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_refocus);

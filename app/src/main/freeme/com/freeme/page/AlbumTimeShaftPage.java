@@ -360,28 +360,31 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     @Override
     protected boolean onCreateActionBar(Menu menu) {
         mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
+        mActionBar.setUpTabs();
 
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);
-        } else {
-            mActionBar.createActionBarMenu(R.menu.album_date, menu);
-            //*/ Modified by Linguanrong for story album, 2015-5-28
-            mActionBar.enableClusterMenu(FreemeUtils.CLUSTER_BY_CAMERE, this);
-            //*/
-            menu.findItem(R.id.action_slideshow).setVisible(mMediaSet.getMediaItemCount() != 0);
-
-            FilterUtils.setupMenuItems(mActionBar, mMediaSetPath, true);
-
-            menu.findItem(R.id.action_camera).setVisible(GalleryUtils.isCameraAvailable(mActivity));
         }
-        mActionBar.setTitle(R.string.tab_by_camera);
-        mActionBar.setSubtitle(null);
+//        mActionBar.hide();
+//        else {
+//            mActionBar.createActionBarMenu(R.menu.album_date, menu);
+//            //*/ Modified by Linguanrong for story album, 2015-5-28
+//            mActionBar.enableClusterMenu(FreemeUtils.CLUSTER_BY_CAMERE, this);
+//            //*/
+//            menu.findItem(R.id.action_slideshow).setVisible(mMediaSet.getMediaItemCount() != 0);
+//
+//            FilterUtils.setupMenuItems(mActionBar, mMediaSetPath, true);
+//
+//            menu.findItem(R.id.action_camera).setVisible(GalleryUtils.isCameraAvailable(mActivity));
+//        }
+//        mActionBar.setTitle(R.string.tab_by_camera);
+//        mActionBar.setSubtitle(null);
 
         //*/ Added by Linguanrong for set menu item visible, 2015-4-24
-        if(menu != null) {
-            menu.findItem(R.id.action_select).setVisible(
-                    mMediaSet != null && mMediaSet.getMediaItemCount() > 0);
-        }
+//        if(menu != null) {
+//            menu.findItem(R.id.action_select).setVisible(
+//                    mMediaSet != null && mMediaSet.getMediaItemCount() > 0);
+//        }
         //*/
 
         return true;

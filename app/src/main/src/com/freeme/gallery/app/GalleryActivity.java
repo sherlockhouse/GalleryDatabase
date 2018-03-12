@@ -31,6 +31,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -128,6 +129,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     //*/ Added by droi Linguanrong for statistic, 16-7-19
     private boolean mStartOutside = false;
+    private SDStatusReceiver sdr;
     //*/
 
     @Override
@@ -138,8 +140,14 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         super.onCreate(savedInstanceState);
 
 
+
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
+
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        requestWindowFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
+
+        getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
+
 
         if (getIntent().getBooleanExtra(KEY_DISMISS_KEYGUARD, false)) {
             getWindow().addFlags(
@@ -211,6 +219,11 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 }
             }
             //*/
+            sdr = new SDStatusReceiver();
+            IntentFilter it = new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
+            it.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+            it.addAction(Intent.ACTION_MEDIA_REMOVED);
+            registerReceiver(sdr, it,null, null);
         } else {
             mSaveInstanceState = savedInstanceState;
         }
@@ -257,6 +270,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         if (mReceiver != null) {
             unregisterReceiver(mReceiver);
         }
+        unregisterReceiver(sdr);
         //*/
 
         mSettingsObserver.unregister();

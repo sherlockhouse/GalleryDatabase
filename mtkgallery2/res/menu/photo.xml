@@ -88,7 +88,7 @@
 
     <item android:id="@+id/action_details"
             android:title="@string/details"
-            android:showAsAction="never" 
+            android:showAsAction="ifRoom"
             android:visible="false" />
     <item android:id="@+id/action_show_on_map"
             android:title="@string/show_on_map"

@@ -302,9 +302,7 @@
                 <data android:scheme="file" />
                 <data android:mimeType="video/*" />
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+
         </activity>
 
 
@@ -325,7 +323,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_filter_show"
             android:resizeableActivity="false"
-            android:theme="@style/Theme.FilterShow">
+            android:theme="@style/Theme.GalleryBase">
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -338,9 +336,7 @@
 
                 <data android:mimeType="image/*"/>
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+
         </activity>
         <activity
             android:name=".filtershow.crop.CropActivity"
@@ -542,6 +538,7 @@
         <!-- Added by tyd Linguanrong for bigmodel, 16-2-19 -->
         <activity
             android:name="com.freeme.bigmodel.BlockbustercropActivity"
+            android:theme="@style/Theme.GalleryBase"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -556,24 +553,20 @@
                 <data android:scheme="file"/>
                 <data android:mimeType="image/*"/>
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+
         </activity>
         <activity
             android:name="com.freeme.bigmodel.BlockfilterActivity"
+            android:theme="@style/Theme.GalleryBase"
             android:screenOrientation="portrait">
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+
         </activity>
         <activity
             android:name="com.freeme.bigmodel.TranslateActivity"
             android:screenOrientation="portrait"
+            android:theme="@style/Theme.GalleryBase"
             android:windowSoftInputMode="stateUnchanged">
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+
         </activity>
         <!-- Tyd -->
 

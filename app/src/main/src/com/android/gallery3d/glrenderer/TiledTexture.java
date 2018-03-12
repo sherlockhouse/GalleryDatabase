@@ -33,6 +33,7 @@ import android.os.SystemClock;
 
 import com.android.gallery3d.ui.GLRoot;
 import com.android.gallery3d.ui.GLRoot.OnGLIdleListener;
+import com.android.gallery3d.util.BitmapTransformUtil;
 import com.mediatek.gallery3d.util.Log;
 
 import java.util.ArrayDeque;
@@ -244,6 +245,66 @@ public class TiledTexture implements Texture {
                 tile.setSize(
                         Math.min(CONTENT_SIZE, mWidth - x),
                         Math.min(CONTENT_SIZE, mHeight - y));
+                list.add(tile);
+            }
+        }
+        mTiles = list.toArray(new Tile[list.size()]);
+    }
+
+    public TiledTexture(Bitmap bitmap, int rotation) {
+//        mWidth = bitmap.getWidth();
+//        mHeight = bitmap.getHeight();
+        Log.d("sldjflk", rotation + " = rotation");
+        final boolean swap = !(rotation % 180 == 0);
+        mWidth = swap ? bitmap.getHeight()
+                : bitmap.getWidth();
+        mHeight = swap ? bitmap.getWidth()
+                : bitmap.getHeight();
+        ArrayList<Tile> list = new ArrayList<Tile>();
+//        Bitmap ttt = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+
+        for (int x = 0, w = mWidth; x < w; x += CONTENT_SIZE) {
+            for (int y = 0, h = mHeight; y < h; y += CONTENT_SIZE) {
+                Tile tile = obtainTile();
+                tile.offsetX = x;
+                tile.offsetY = y;
+                tile.bitmap = bitmap;
+//                tile.bitmap = BitmapTransformUtil.getRoundRectBitmap(bitmap);
+//                720 * 1280
+//                if (!swap) {
+//                    tile.setSize(236,
+//                            157);
+//
+//                } else {
+//                    tile.setSize(157,
+//                            236);
+//                }
+//              720 * 1440
+//                if (!swap) {
+//                    if (mWidth == 14) {
+//                        tile.setSize(14,
+//                                254);
+//                    } else {
+//                        tile.setSize(254,
+//                                178);
+//                    }
+//
+//                } else {
+//                    tile.setSize(178,
+//                            254);
+//                }
+                if (!swap) {
+                    tile.setSize(Math.min(CONTENT_SIZE, mWidth - x),
+                            Math.min(CONTENT_SIZE, mHeight - y) - 76);
+                } else {
+                        tile.setSize(Math.min(CONTENT_SIZE, mHeight - x) - 76,
+                                Math.min(CONTENT_SIZE, mWidth - y));
+                }
+
+//                tile.setSize(
+//                        Math.min(CONTENT_SIZE, mWidth - x),
+//                        Math.min(CONTENT_SIZE, mHeight - y));
                 list.add(tile);
             }
         }
