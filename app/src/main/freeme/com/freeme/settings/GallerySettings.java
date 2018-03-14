@@ -147,7 +147,7 @@ public class GallerySettings extends PreferenceActivity {
                     String path = cursor.getString(pathIndex);
 
                     //*/ Added by Tyd Linguanrong for Gallery new style, 2014-4-24
-                    if (title == null) {
+                    if (title == null && path != null) {
                         String where = "_data = ?";
                         Cursor cursor_re = getContentResolver().query(Media.EXTERNAL_CONTENT_URI,
                                 new String[]{Media.TITLE}, where, new String[]{path}, null);
@@ -161,6 +161,9 @@ public class GallerySettings extends PreferenceActivity {
                                 cursor_re.close();
                             }
                         }
+                    } else if (title == null && path == null){
+                        title = "empty title";
+                        path = "empty path";
                     }
                     //*/
 
