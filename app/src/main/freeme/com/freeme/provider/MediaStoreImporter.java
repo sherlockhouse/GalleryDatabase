@@ -18,6 +18,11 @@ import java.util.List;
 public class MediaStoreImporter {
     private static final String TAG = "MediaStoreImporter";
     private static GalleryFilesDao galleryFilesDao = null;
+
+    public void setmResolver(ContentResolver mResolver) {
+        this.mResolver = mResolver;
+    }
+
     private ContentResolver mResolver;
 
     public static MediaStoreImporter getInstance() {

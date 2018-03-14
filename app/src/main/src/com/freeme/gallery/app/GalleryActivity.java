@@ -75,6 +75,7 @@ import com.android.gallery3d.util.GalleryUtils;
 
 import com.freeme.provider.GalleryDBManager;
 import com.freeme.provider.GalleryStore;
+import com.freeme.provider.MediaStoreImporter;
 import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.gallery3d.util.TraceHelper;
@@ -176,9 +177,15 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
          */
         if (mGranted) {
-            //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
-//            GalleryDBManager.getInstance().initDB(this, "gallery.db");
-            //*/
+
+            MediaStoreImporter.getInstance().setmResolver(this.getContentResolver());
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    MediaStoreImporter.getInstance().deleteFiles();
+                }
+            });
+
 
             /// M: [BUG.ADD] set gl_root_cover visible if open from widget or launch by @{
             // launcher, or else it will flash
