@@ -3,8 +3,8 @@
     <style name="GalleryTheme" parent="@*freeme:style/Theme.Freeme.Light">
         <item name="android:textColorPrimary">@color/theme_color</item>
         <!-- Dialog attributes -->
-        <item name="android:colorPrimary">@color/theme_title_color</item>
-        <item name="android:statusBarColor">@color/theme_title_color</item>
+        <!--<item name="android:colorPrimary">@color/theme_title_color</item>-->
+        <!--<item name="android:statusBarColor">@color/theme_title_color</item>-->
         <item name="android:colorAccent">@color/theme_color</item>
 
 

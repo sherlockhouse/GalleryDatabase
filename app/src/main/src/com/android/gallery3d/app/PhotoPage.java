@@ -1388,7 +1388,7 @@ public abstract class PhotoPage extends ActivityState implements
             mActionBar.hide();
             mActivity.getGLRoot().setLightsOutMode(true);
         }
-        boolean haveImageEditor = GalleryUtils.isEditorAvailable(mActivity, "image/*");
+        boolean haveImageEditor = true;//GalleryUtils.isEditorAvailable(mActivity, "image/*");
         if (haveImageEditor != mHaveImageEditor) {
             mHaveImageEditor = haveImageEditor;
 //            updateMenuOperations();

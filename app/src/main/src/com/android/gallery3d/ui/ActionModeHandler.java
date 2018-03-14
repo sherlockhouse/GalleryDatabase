@@ -24,6 +24,7 @@ package com.android.gallery3d.ui;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.os.Handler;
@@ -34,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.ShareActionProvider;
 import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
@@ -250,6 +252,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         View customView = LayoutInflater.from(a).inflate(
                 R.layout.action_mode, null);
         mActionMode.setCustomView(customView);
+        setStatusView(true);
 //        mSelectionMenu = new SelectionMenu(a,
 //                (TextView) customView.findViewById(R.id.selection_menu), this);
 
@@ -303,6 +306,23 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 //        */
 
 //        updateSelectionMenu();
+    }
+
+    private void setStatusView(boolean inAction) {
+        ActivityState topState = mActivity.getStateManager().getTopState();
+        if (topState instanceof AlbumStoryPage) {
+            final Window win = mActivity.getWindow();
+
+            if (inAction) {
+                win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                win.setStatusBarColor(mActivity.getResources().getColor(R.color.theme_title_color));
+            } else {
+                win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                win.setStatusBarColor(Color.TRANSPARENT);
+            }
+        }
     }
 
     @Override
@@ -444,6 +464,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
+        setStatusView(false);
         mSelectionManager.leaveSelectionMode();
     }
 
@@ -481,9 +502,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         switch (selected.size()) {
             case 1:
                 final String mimeType = MenuExecutor.getMimeType(type);
-                if (!GalleryUtils.isEditorAvailable(mActivity, mimeType)) {
+                /*if (!GalleryUtils.isEditorAvailable(mActivity, mimeType)) {
                     operation &= ~MediaObject.SUPPORT_EDIT;
-                }
+                }*/
                 break;
             default:
                 operation &= SUPPORT_MULTIPLE_MASK;
