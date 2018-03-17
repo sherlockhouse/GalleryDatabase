@@ -297,6 +297,11 @@ public class AlbumStoryCoverPage extends ActivityState
         private int mIndex;
 
         @Override
+        public boolean isCamera() {
+            return false;
+        }
+
+        @Override
         public int size() {
             return mAlbumDataAdapter.size();
         }

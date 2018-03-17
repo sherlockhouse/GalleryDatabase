@@ -48,6 +48,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
     private static final int CONTROL_ANIM_DURATION_MS = 150;
     private final ViewGroup mPhotopageToolbar;
     private final View mPhotoDetails;
+    private final TextView mBackText;
     //*/ Added by Linguanrong for guide, 2015-08-10
     public  SharedPreferences        mSharedPref;
     private boolean isEditable = true;
@@ -136,6 +137,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
             child.setOnClickListener(this);
             mControlsVisible.put(child, false);
         }
+        mBackText = mPhotopageToolbar.findViewById(R.id.photopage_back_text);
         bottomNavigationBar.clearAll();
         bottomNavigationBar
                 .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_edit, R.string.edit).setActiveColorResource(R.color.transparent))
@@ -275,6 +277,10 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
         return mMenuEdit;
     }
     //*/
+
+    public TextView getMenuBack() {
+        return mBackText;
+    }
 
     //*/ Added by tyd heqianqian for get statusbar, 20150710
     public TextView getMenuBlock() {

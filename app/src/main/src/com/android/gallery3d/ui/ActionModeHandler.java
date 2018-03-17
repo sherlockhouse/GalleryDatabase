@@ -101,6 +101,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     private boolean mHideMenu         = false;
 
     private int mSelectedItemCount = 0;
+    private MenuItem mConfirmMenu;
 
 
     @Override
@@ -249,9 +250,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     public void startActionMode() {
         Activity a = mActivity;
         mActionMode = a.startActionMode(this);
-        View customView = LayoutInflater.from(a).inflate(
-                R.layout.action_mode, null);
-        mActionMode.setCustomView(customView);
+//        View customView = LayoutInflater.from(a).inflate(
+//                R.layout.action_mode, null);
+//        mActionMode.setCustomView(customView);
         setStatusView(true);
 //        mSelectionMenu = new SelectionMenu(a,
 //                (TextView) customView.findViewById(R.id.selection_menu), this);
@@ -274,34 +275,23 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 //            }
 //        });
         //*/
-        TextView cancel = (TextView) customView.findViewById(R.id.cancel);
-        cancel.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                if (mSelectionManager != null) {
-                    mSelectionManager.leaveSelectionMode();
-                }
-            }
-        });
-        //*/
+//        TextView cancel = (TextView) customView.findViewById(R.id.cancel);
+//        cancel.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                if (mSelectionManager != null) {
+//                    mSelectionManager.leaveSelectionMode();
+//                }
+//            }
+//        });
+//        //*/
+//
+//        //*/ Added by Linguanrong for story album, 2015-6-27
 
-        //*/ Added by Linguanrong for story album, 2015-6-27
-        TextView confirm = (TextView) customView.findViewById(R.id.selection_confirm);
-        confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mActivity.getStateManager().getStateCount() != 0) {
-                    ActivityState topState = mActivity.getStateManager().getTopState();
-                    if (topState != null && topState instanceof AlbumStoryCoverPage) {
-                        ((AlbumStoryCoverPage) topState).setCover();
-                    }
-                }
-            }
-        });
 
         if (mIsStoryCoverPage) {
 //            mCheckBox.setVisibility(View.GONE);
-            confirm.setVisibility(View.VISIBLE);
+//            confirm.setVisibility(View.VISIBLE);
         }
 //        */
 
@@ -405,9 +395,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                 }
             };
     @Override
-    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+    public boolean onCreateActionMode(ActionMode mode, final Menu menu) {
         //*/ Added by Linguanrong for story album, 2015-6-27
-        if (mIsStoryCoverPage || mHideMenu) {
+        if ( mHideMenu) {
             return true;
         }
         //*/
@@ -416,7 +406,24 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         if (mActivity.mVisitorMode) return true;
         //*/
 
-        mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
+        if (mIsStoryCoverPage) {
+            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.actionmode_story, menu);
+            mConfirmMenu = menu.findItem(R.id.action_story_confirm);
+            mConfirmMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem arg0) {
+                    if (mActivity.getStateManager().getStateCount() != 0) {
+                        ActivityState topState = mActivity.getStateManager().getTopState();
+                        if (topState != null && topState instanceof AlbumStoryCoverPage) {
+                            ((AlbumStoryCoverPage) topState).setCover();
+                        }
+                    }
+                    return true;
+                }
+            });
+        } else {
+            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
+        }
         //*/
 
         mMenu = menu;
@@ -440,6 +447,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
             });
         }
 
+
+
+
         mSelectMenuItem = menu.findItem(R.id.action_selectall);
         if (mSelectMenuItem != null) {
             mSelectMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -448,9 +458,11 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                     GLRoot root = mActivity.getGLRoot();
                     root.lockRenderThread();
                     if (mSelectionManager.inSelectAllMode()) {
+                        mSelectMenuItem.setTitle(R.string.select_all);
                         mSelectionManager.deSelectAll();
                     } else {
                         mSelectionManager.selectAll();
+                        mSelectMenuItem.setTitle(R.string.deselect_all);
                     }
                     updateSupportedOperation();
                     updateSelectionMenu();

@@ -1041,6 +1041,11 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         private int mIndex;
 
         @Override
+        public boolean isCamera() {
+            return false;
+        }
+
+        @Override
         public int size() {
             return mAlbumDataAdapter.size();
         }

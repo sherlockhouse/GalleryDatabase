@@ -64,7 +64,7 @@
     <string name="user_intro_default">分享的图片</string>
     <string name="delete_tip">正在删除，请勿重复操作！</string>
     <string name="publish_tip">正在发布，请勿重复操作！</string>
-    <string name="empty">快点击右上角上传照片哦!</string>
+    <string name="empty">快点击添加上传照片哦!</string>
 
     <string name="msg_delete_photos">要删除所选图片吗?</string>
     <string name="wait_publishing">正在发布, 请稍候...</string>

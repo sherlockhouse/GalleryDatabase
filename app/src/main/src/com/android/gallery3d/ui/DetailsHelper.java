@@ -30,6 +30,7 @@ public class DetailsHelper {
     private DetailsViewContainer mContainer;
 
     public interface DetailsSource {
+        public boolean isCamera();
         public int size();
         public int setIndex();
         public MediaDetails getDetails();

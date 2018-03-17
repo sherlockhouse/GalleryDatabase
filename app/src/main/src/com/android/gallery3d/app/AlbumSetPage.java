@@ -417,6 +417,11 @@ public class AlbumSetPage extends ActivityState implements
         private int mIndex;
 
         @Override
+        public boolean isCamera() {
+            return false;
+        }
+
+        @Override
         public int size() {
             return mAlbumSetDataAdapter.size();
         }

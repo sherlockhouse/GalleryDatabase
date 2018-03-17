@@ -25,7 +25,7 @@
         android:visible="false"/>
     <item
         android:id="@+id/action_selectall"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/select_all"
         android:visible="false" />
     <!--<item-->

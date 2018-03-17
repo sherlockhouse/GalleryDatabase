@@ -915,6 +915,11 @@ public class AlbumCameraPage extends ActivityState implements GalleryActionBar.C
         private int mIndex;
 
         @Override
+        public boolean isCamera() {
+            return false;
+        }
+
+        @Override
         public int size() {
             return mAlbumDataAdapter.size();
         }

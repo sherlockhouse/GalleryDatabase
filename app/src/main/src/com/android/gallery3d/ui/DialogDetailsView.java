@@ -102,9 +102,17 @@ public class DialogDetailsView implements DetailsViewContainer {
 
     private void setDetails(MediaDetails details) {
         mAdapter = new DetailsAdapter(details);
-        String title = String.format(
-                mActivity.getAndroidContext().getString(R.string.details_title),
-                mIndex + 1, mSource.size());
+        String title = "";
+        if (mSource.isCamera()) {
+            title = String.format(
+                    mActivity.getAndroidContext().getString(R.string.details_title),
+                    mIndex, mSource.size() );
+        } else {
+            title = String.format(
+                    mActivity.getAndroidContext().getString(R.string.details_title),
+                    mIndex + 1, mSource.size() + 1);
+        }
+
         ListView detailsList = (ListView) LayoutInflater.from(mActivity.getAndroidContext()).inflate(
                 R.layout.details_list, null, false);
         detailsList.setAdapter(mAdapter);

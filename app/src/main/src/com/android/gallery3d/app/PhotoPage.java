@@ -338,6 +338,9 @@ public abstract class PhotoPage extends ActivityState implements
 //            mBottomText.setvisible(false);
         }
         switch (control) {
+            case R.id.photopage_back_text:
+                mBottomControls.getMenuBack().setText(mMediaSet.getName());
+                return true;
             case R.id.photopage_bottom_navigation_bar:
                 if ((mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0) {
                     mBottomControls.setIsEditable(true);
@@ -2154,6 +2157,11 @@ public abstract class PhotoPage extends ActivityState implements
     }
 
     private class MyDetailsSource implements DetailsSource {
+
+        @Override
+        public boolean isCamera() {
+            return canShowCameraShortCut;
+        }
 
         @Override
         public int size() {

@@ -919,6 +919,11 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         private int mIndex;
 
         @Override
+        public boolean isCamera() {
+            return false;
+        }
+
+        @Override
         public int size() {
             return mAlbumDataAdapter.size();
         }

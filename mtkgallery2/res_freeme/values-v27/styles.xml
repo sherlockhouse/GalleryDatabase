@@ -6,9 +6,8 @@
         <!--<item name="android:colorPrimary">@color/theme_title_color</item>-->
         <!--<item name="android:statusBarColor">@color/theme_title_color</item>-->
         <item name="android:colorAccent">@color/theme_color</item>
-
-
     </style>
+
 
     <style name="Theme.GalleryBase" parent="@android:style/Theme.Material.Light">
         <item name="android:windowLightStatusBar">true</item>
