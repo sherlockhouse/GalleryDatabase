@@ -344,7 +344,7 @@
             android:configChanges="keyboardHidden|screenSize"
             android:screenOrientation="portrait"
             android:label="@string/crop"
-            android:theme="@style/Theme.Crop">
+            android:theme="@style/Theme.GalleryBase">
             <intent-filter android:label="@string/crop_label">
                 <action android:name="com.android.camera.action.CROP"/>
 
@@ -357,9 +357,9 @@
                 <category android:name="android.intent.category.ALTERNATIVE"/>
                 <category android:name="android.intent.category.SELECTED_ALTERNATIVE"/>
             </intent-filter>
-            <meta-data
-                android:name="com.freeme.app.theme"
-                android:value="freeme:style/Theme.Freeme.Light"/>
+            <!--<meta-data-->
+                <!--android:name="com.freeme.app.theme"-->
+                <!--android:value="freeme:style/Theme.Freeme.Light"/>-->
         </activity>
         <activity
             android:name="com.freeme.settings.GallerySettings"

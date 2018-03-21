@@ -76,6 +76,7 @@ import com.android.gallery3d.util.GalleryUtils;
 
 import com.freeme.provider.GalleryDBManager;
 import com.freeme.provider.GalleryStore;
+import com.freeme.provider.MediaStoreImporter;
 import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.gallery3d.util.TraceHelper;
@@ -129,7 +130,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
 
     //*/ Added by droi Linguanrong for statistic, 16-7-19
     private boolean mStartOutside = false;
-    private SDStatusReceiver sdr;
     //*/
 
     @Override
@@ -184,9 +184,15 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
          */
         if (mGranted) {
-            //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
-//            GalleryDBManager.getInstance().initDB(this, "gallery.db");
-            //*/
+
+            MediaStoreImporter.getInstance().setmResolver(this.getContentResolver());
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    MediaStoreImporter.getInstance().deleteFiles();
+                }
+            });
+
 
             /// M: [BUG.ADD] set gl_root_cover visible if open from widget or launch by @{
             // launcher, or else it will flash
@@ -219,11 +225,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 }
             }
             //*/
-            sdr = new SDStatusReceiver();
-            IntentFilter it = new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
-            it.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
-            it.addAction(Intent.ACTION_MEDIA_REMOVED);
-            registerReceiver(sdr, it,null, null);
         } else {
             mSaveInstanceState = savedInstanceState;
         }
@@ -270,7 +271,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         if (mReceiver != null) {
             unregisterReceiver(mReceiver);
         }
-        unregisterReceiver(sdr);
         //*/
 
         mSettingsObserver.unregister();
@@ -578,6 +578,12 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                 uri = FeatureHelper.tryContentMediaUri(this, uri);
                 Log.d(TAG, "<startViewAction> uri:" + uri);
 
+                if (uri == null) {
+                    Toast.makeText(this, R.string.VideoView_error_text_type_not_supported,
+                            Toast.LENGTH_LONG).show();
+                    startDefaultPage();
+                    return;
+                }
                 Path itemPath = dm.findPathByUri(uri, contentType);
 
                 /// M: [BUG.ADD] modify for item not exit,show toast and finish.@{
@@ -835,7 +841,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
                     grantResults);
         } else if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
             Log.i(TAG, "<onRequestPermissionsResult> all permission granted");
-            GalleryDBManager.getInstance().initDB(this, "gallery.db");
+            GalleryDBManager.getInstance().initDB(this, "freemegallery.db");
             if (mSaveInstanceState != null) {
                 getStateManager().restoreFromState(mSaveInstanceState);
             } else {

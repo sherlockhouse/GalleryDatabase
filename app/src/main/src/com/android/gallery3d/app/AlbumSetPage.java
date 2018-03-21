@@ -959,7 +959,7 @@ public class AlbumSetPage extends ActivityState implements
     @Override
     protected boolean onCreateActionBar(Menu menu) {
 //        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
-        if (!mStorySelectMode) {
+        if (!mStorySelectMode && !mGetContent) {
             mActionBar.initActionBar();
         }
         //*/ Added by Tyd Linguanrong for secret photos, 2014-2-22
@@ -973,27 +973,28 @@ public class AlbumSetPage extends ActivityState implements
 //        Activity activity = mActivity;
 //        MenuInflater inflater = getSupportMenuInflater();
 //
-//        if (mGetContent) {
-//            if (mActivity instanceof GalleryActivity) {
-//                ((GalleryActivity) mActivity).setBottomTabVisibility(false);
-//            }
-//            //*/ Modified by Tyd Linguanrong for secret photos, 2014-2-22
-//            if (mActivity instanceof JigsawEntry) {
-//                mActionBar.setDisplayOptions(true, true);
-//            } else {
-//                //inflater.inflate(R.menu.pickup, menu);
-//                mActionBar.createActionBarMenu(R.menu.pickup, menu);
-//                menu.findItem(R.id.action_cancel).setVisible(false);
-//                int typeBits = mData.getInt(
-//                        GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
-//                mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
-//            }
-//            //*/
-//        } else if (mGetAlbum) {
+        if (mGetContent) {
+            if (mActivity instanceof GalleryActivity) {
+                ((GalleryActivity) mActivity).setBottomTabVisibility(false);
+            }
+            //*/ Modified by Tyd Linguanrong for secret photos, 2014-2-22
+            if (mActivity instanceof JigsawEntry) {
+                mActionBar.setDisplayOptions(true, true);
+            } else {
+                //inflater.inflate(R.menu.pickup, menu);
+                mActionBar.createActionBarMenu(R.menu.pickup, menu);
+                menu.findItem(R.id.action_cancel).setVisible(false);
+                int typeBits = mData.getInt(
+                        GalleryActivity.KEY_TYPE_BITS, DataManager.INCLUDE_IMAGE);
+                mActionBar.setTitle(GalleryUtils.getSelectionModePrompt(typeBits));
+            }
+            //*/
+        } else if (mGetAlbum) {
 //            inflater.inflate(R.menu.pickup, menu);
-//            mActionBar.setTitle(R.string.select_album);
-//            //*/ Added by xueweili for set actionbar when in hiden mode , 2015-7-23
-//        } else if (mIsHideAlbumSet) {
+            mActionBar.setTitle(R.string.select_album);
+            //*/ Added by xueweili for set actionbar when in hiden mode , 2015-7-23
+        }
+//        else if (mIsHideAlbumSet) {
 //            mHideModeHandler.startHideMode(menu);
 //            //*/
 //        } else {
