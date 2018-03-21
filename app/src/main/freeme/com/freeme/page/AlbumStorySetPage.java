@@ -916,6 +916,10 @@ public class AlbumStorySetPage extends ActivityState implements
             return;
         }
 
+        if (mActivity.mIsSelectionMode) {
+            mSelectionManager.leaveSelectionMode();
+        }
+
         mAlbumSetDataAdapter.pause();
         mAlbumSetView.pause();
         mActionModeHandler.pause();

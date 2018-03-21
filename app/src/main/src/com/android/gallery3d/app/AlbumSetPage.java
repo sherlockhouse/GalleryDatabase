@@ -814,6 +814,10 @@ public class AlbumSetPage extends ActivityState implements
             mActivity.mIsSelectionMode = mSelectionManager != null && mSelectionManager.inSelectionMode();
             //*/
         }
+
+        if (mActivity.mIsSelectionMode) {
+            mSelectionManager.leaveSelectionMode();
+        }
         //*/
         mAlbumSetDataAdapter.pause();
         mAlbumSetView.pause();
