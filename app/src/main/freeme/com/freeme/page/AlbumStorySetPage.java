@@ -520,7 +520,7 @@ public class AlbumStorySetPage extends ActivityState implements
 
         if (list.size() == 1
                 && ((list.contains(setBaby.getPath()) && setBaby.getMediaItemCount() == 0)
-                || (list.contains(setBaby.getPath()) && setBaby.getMediaItemCount() == 0))) {
+                || (list.contains(setLove.getPath()) && setLove.getMediaItemCount() == 0))) {
             return 1;
         } else if (list.size() == 2
                 && list.contains(setBaby.getPath()) && setBaby.getMediaItemCount() == 0

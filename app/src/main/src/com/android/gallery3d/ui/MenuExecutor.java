@@ -323,9 +323,15 @@ public class MenuExecutor {
         }
         startAction(action, title, listener, waitOnStop, showDialog);
     }
+
     public static void updateMenuShare(Menu menu, boolean supported) {
         setMenuItemVisible(menu, R.id.action_share, supported);
     }
+
+    public static void updateMenuSelect(Menu menu, boolean supported) {
+        setMenuItemVisible(menu, R.id.action_selectall, supported);
+    }
+
     private class ConfirmDialogListener implements OnClickListener, OnCancelListener {
         private final int mActionId;
         private final ProgressListener mListener;

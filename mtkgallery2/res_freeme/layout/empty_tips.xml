@@ -13,7 +13,7 @@
         android:drawableTop="@drawable/ic_camera_tip"
         android:gravity="center"
         android:text="@string/no_photos"
-        android:textColor="@color/theme_color"
+        android:textColor="@color/freeme_grey_title"
         android:textSize="16sp"/>
 
     <TextView
@@ -23,8 +23,9 @@
         android:layout_gravity="center"
         android:layout_marginTop="30dip"
         android:gravity="center"
+        android:background="@drawable/emptytip_title_back"
         android:text="@string/shot_immediately"
-        android:textColor="@color/theme_color"
+        android:textColor="@color/white"
         android:textSize="18sp"/>
 
 </FrameLayout>

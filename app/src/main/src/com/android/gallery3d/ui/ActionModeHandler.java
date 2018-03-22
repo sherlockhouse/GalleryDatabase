@@ -458,8 +458,9 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                     GLRoot root = mActivity.getGLRoot();
                     root.lockRenderThread();
                     if (mSelectionManager.inSelectAllMode()) {
-                        mSelectMenuItem.setTitle(R.string.select_all);
                         mSelectionManager.deSelectAll();
+                        mSelectMenuItem.setTitle(R.string.select_all);
+
                     } else {
                         mSelectionManager.selectAll();
                         mSelectMenuItem.setTitle(R.string.deselect_all);
@@ -626,6 +627,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                             if (jc.isCancelled()) return;
                             // Disable all the operations when no item is selected
                             MenuExecutor.updateMenuOperation(mMenu, 0);
+                            MenuExecutor.updateMenuSelect(mMenu, true);
                         }
                     });
                     return null;
@@ -736,11 +738,15 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         setTitle(title);
 
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-2-13
-//        if (mSelectionManager.inSelectAllMode()) {
+        if (mSelectMenuItem != null) {
+            if (mSelectionManager.inSelectAllMode()) {
 //            mCheckBox.setChecked(true);
-//        } else {
+                mSelectMenuItem.setTitle(R.string.deselect_all);
+            } else {
 //            mCheckBox.setChecked(false);
-//        }
+                mSelectMenuItem.setTitle(R.string.select_all);
+            }
+        }
         //*/
 
         //*/ Added by Linguanrong for story album, 2015-5-20

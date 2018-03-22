@@ -24,6 +24,8 @@ package com.android.gallery3d.ui;
 import android.content.Context;
 import android.widget.TextView;
 
+import com.freeme.gallery.R;
+
 public class SelectionMenu {
     @SuppressWarnings("unused")
     private static final String TAG = "SelectionMenu";
@@ -40,7 +42,7 @@ public class SelectionMenu {
         mTextView = textview;
         //mButton = button;
         mPopupList = new PopupList(context, mTextView);
-        mPopupList.addItem(com.freeme.gallery.R.id.action_select_all,
+        mPopupList.addItem(R.id.action_selectall,
                 context.getString(com.freeme.gallery.R.string.select_all));
         mPopupList.setOnPopupItemClickListener(listener);
         //mButton.setOnClickListener(this);

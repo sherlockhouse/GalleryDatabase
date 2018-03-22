@@ -207,9 +207,9 @@ public class SelectionManager {
         }
 
         if (mListener != null) mListener.onSelectionChange(path, isItemSelected(path));
-        if (count == 0 && mAutoLeave) {
+        /*if (count == 0 && mAutoLeave) {
             leaveSelectionMode();
-        }
+        }*/
     }
 
     private static boolean expandMediaSet(ArrayList<Path> items, MediaSet set, int maxSelection) {
