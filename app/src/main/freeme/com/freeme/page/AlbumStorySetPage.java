@@ -939,7 +939,7 @@ public class AlbumStorySetPage extends ActivityState implements
     @Override
     public void onResume() {
         super.onResume();
-
+        mActionBar.initActionBar();
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.lockOrientation(true);
         //*/
@@ -1045,7 +1045,7 @@ public class AlbumStorySetPage extends ActivityState implements
     protected boolean onCreateActionBar(Menu menu) {
         Activity activity = mActivity;
         MenuInflater inflater = getSupportMenuInflater();
-        mActionBar.initActionBar();
+
 //        if (mGetContent) {
 //            mActionBar.createActionBarMenu(R.menu.pickup, menu);
 //            int typeBits = mData.getInt(

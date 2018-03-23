@@ -1193,7 +1193,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                 root.unlockRenderThread();
                 break;
 
-            case R.id.btn_cancel:
+           /* case R.id.btn_cancel:
                 root = mActivity.getGLRoot();
                 root.lockRenderThread();
                 if (mSelectionManager.inSelectionMode()) {
@@ -1201,7 +1201,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                     mSelectionManager.leaveSelectionMode();
                 }
                 root.unlockRenderThread();
-                break;
+                break;*/
         }
     }
     

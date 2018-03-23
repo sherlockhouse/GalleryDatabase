@@ -322,6 +322,8 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     protected void onResume() {
         super.onResume();
         mIsActive = true;
+        mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
+        mActionBar.setUpTabs();
 
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.lockOrientation(true);
@@ -359,8 +361,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
 
     @Override
     protected boolean onCreateActionBar(Menu menu) {
-        mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
-        mActionBar.setUpTabs();
+
 
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);
@@ -647,6 +648,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
             //*/
             // Get into the PhotoPage.
             Bundle data = new Bundle();
+            data.putBoolean(PhotoPage.KEY_STRAT_FROM_TIMESHAFT, true);
             data.putInt(PhotoPage.KEY_INDEX_HINT, slotIndex);
             data.putParcelable(PhotoPage.KEY_OPEN_ANIMATION_RECT,
                     mSlotView.getSlotRect(slotIndex, mRootPane));

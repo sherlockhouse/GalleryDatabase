@@ -339,7 +339,11 @@ public abstract class PhotoPage extends ActivityState implements
         }
         switch (control) {
             case R.id.photopage_back_text:
-                mBottomControls.getMenuBack().setText(mMediaSet.getName());
+                if(mIsStartFromTimeshaft) {
+                    mBottomControls.getMenuBack().setText(R.string.tab_photos);
+                } else {
+                    mBottomControls.getMenuBack().setText(mMediaSet.getName());
+                }
                 return true;
             case R.id.photopage_bottom_navigation_bar:
                 if ((mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0) {
@@ -1031,6 +1035,7 @@ public abstract class PhotoPage extends ActivityState implements
 
         mSetPathString = data.getString(KEY_MEDIA_SET_PATH);
         mReadOnlyView = data.getBoolean(KEY_READONLY);
+        mIsStartFromTimeshaft = data.getBoolean(KEY_STRAT_FROM_TIMESHAFT);
         mOriginalSetPathString = mSetPathString;
         setupNfcBeamPush();
         String itemPathString = data.getString(KEY_MEDIA_ITEM_PATH);
@@ -2223,7 +2228,12 @@ public abstract class PhotoPage extends ActivityState implements
         guide.setContentView(view);
         guide.show();
     }
+    //********************************************************************
+    //*                              freeme                              *
+    //********************************************************************
 
+    public static final String KEY_STRAT_FROM_TIMESHAFT = "strat_from_timeshaft";
+    private boolean mIsStartFromTimeshaft;
     //********************************************************************
     //*                              sprd                                *
     //********************************************************************

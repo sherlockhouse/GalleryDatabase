@@ -840,7 +840,9 @@ public class AlbumSetPage extends ActivityState implements
     @Override
     public void onResume() {
         super.onResume();
-
+        if (!mStorySelectMode && !mGetContent) {
+            mActionBar.initActionBar();
+        }
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.lockOrientation(true);
         //*/
@@ -963,9 +965,7 @@ public class AlbumSetPage extends ActivityState implements
     @Override
     protected boolean onCreateActionBar(Menu menu) {
 //        mActionBar.setDisplayOptions(true, GalleryActionBar.SHOWTITLE);
-        if (!mStorySelectMode && !mGetContent) {
-            mActionBar.initActionBar();
-        }
+
         //*/ Added by Tyd Linguanrong for secret photos, 2014-2-22
 //        if (mVisitorMode || mStorySelectMode) {
 //            mActionBar.setDisplayOptions(true, true);
