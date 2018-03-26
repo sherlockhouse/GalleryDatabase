@@ -23,9 +23,6 @@ package com.android.gallery3d.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.ContentObserver;
-import android.os.Handler;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,7 +34,6 @@ import android.widget.TextView;
 import com.freeme.gallery.R;
 import com.freeme.scott.galleryui.design.BottomNavigationBar;
 import com.freeme.scott.galleryui.design.BottomNavigationItem;
-import com.freeme.scott.galleryui.design.BottomNavigationTab;
 import com.freeme.utils.FreemeUtils;
 
 import java.util.HashMap;
@@ -46,9 +42,9 @@ import java.util.Map;
 public class PhotoPageBottomControls implements OnClickListener , BottomNavigationBar.OnTabSelectedListener{
     public static final int       CONTAINER_ANIM_DURATION_MS = 200;
     private static final int CONTROL_ANIM_DURATION_MS = 150;
-    private final ViewGroup mPhotopageToolbar;
-    private final View mPhotoDetails;
-    private final TextView mBackText;
+    private ViewGroup mPhotopageToolbar;
+    private View mPhotoDetails;
+    private TextView mBackText;
     //*/ Added by Linguanrong for guide, 2015-08-10
     public  SharedPreferences        mSharedPref;
     private boolean isEditable = true;
@@ -97,15 +93,15 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
     private View mNavigationBar;
     BottomNavigationBar bottomNavigationBar;
     
-    private ContentObserver mNavigationBarShowHideObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange) {
-            boolean show = Settings.System.getInt(mContext.getContentResolver(),
-                    "navigationbar_showed", 1) != 0;
-
-            //mNavigationBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
-    };
+//    private ContentObserver mNavigationBarShowHideObserver = new ContentObserver(new Handler()) {
+//        @Override
+//        public void onChange(boolean selfChange) {
+//            boolean show = Settings.System.getInt(mContext.getContentResolver(),
+//                    "navigationbar_showed", 1) != 0;
+//
+//            //mNavigationBar.setVisibility(show ? View.VISIBLE : View.GONE);
+//        }
+//    };
 
     private static Animation getControlAnimForVisibility(boolean visible) {
         Animation anim = visible ? new AlphaAnimation(0f, 1f)
@@ -123,42 +119,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
         mEditor = mSharedPref.edit();
         //*/
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mContainer = (ViewGroup) inflater
-                .inflate(R.layout.freeme_photopage_controls, mParentLayout, false);
-        mParentLayout.addView(mContainer);
-        mControls = (ViewGroup) mContainer.findViewById(R.id.freeme_photopage_controls);
-        bottomNavigationBar = (BottomNavigationBar) mContainer.findViewById(R.id.photopage_bottom_navigation_bar);
-        mPhotopageToolbar = mContainer.findViewById(R.id.photopage_toolbar);
-        mNavigationBar = mContainer.findViewById(R.id.navigation_bar);
-        for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
-            View child = mContainer.getChildAt(i);
-            child.setOnClickListener(this);
-            mControlsVisible.put(child, false);
-        }
-        mBackText = mPhotopageToolbar.findViewById(R.id.photopage_back_text);
-        bottomNavigationBar.clearAll();
-        bottomNavigationBar
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_edit, R.string.edit).setActiveColorResource(R.color.transparent))
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_share, R.string.share).setActiveColorResource(R.color.transparent))
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_delete, R.string.delete).setActiveColorResource(R.color.transparent))
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_setas, R.string.set_as).setActiveColorResource(R.color.transparent))
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_film, R.string.blockbuster).setActiveColorResource(R.color.transparent))
-                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_tag, R.string.tags).setActiveColorResource(R.color.transparent))
-                .setMode(BottomNavigationBar.MODE_DEFAULT)
-                .initialise();
-        bottomNavigationBar.setTabSelectedListener(this);
-
-        mPhotoDetails  = mContainer.findViewById(R.id.photopage_details);
-        mControlsVisible.put(mPhotoDetails, false);
-        mPhotoDetails.setOnClickListener(this);
-        for (int i = mPhotopageToolbar.getChildCount() - 1; i >= 0; i--) {
-            Log.d("bottomnav", mPhotopageToolbar.getChildCount() + "");
-            View child = mPhotopageToolbar.getChildAt(i);
-            child.setOnClickListener(this);
-            mControlsVisible.put(child, false);
-        }
+        initViews();
 //
 //        for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
 //            /*/ Modified by Linguanrong for photopage bottom controls, 2014-9-17
@@ -195,22 +156,106 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
         mContainerAnimIn.setDuration(CONTAINER_ANIM_DURATION_MS);
         mContainerAnimOut.setDuration(CONTAINER_ANIM_DURATION_MS);
 
-        //*/ Added by droi Linguanrong for freeme gallery, 16-1-30
-        listenNavigationBar();
-        //*/
+//        //*/ Added by droi Linguanrong for freeme gallery, 16-1-30
+//        listenNavigationBar();
+//        //*/
 
         mDelegate.refreshBottomControlsWhenReady();
     }
 
-    private void listenNavigationBar() {
+    private void initViews() {
+        LayoutInflater inflater = (LayoutInflater) mContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContainer = (ViewGroup) inflater
+                .inflate(R.layout.freeme_photopage_controls, mParentLayout, false);
+        mParentLayout.addView(mContainer);
+        mControls = (ViewGroup) mContainer.findViewById(R.id.freeme_photopage_controls);
+        bottomNavigationBar = mContainer.findViewById(R.id.photopage_bottom_navigation_bar);
+        mPhotopageToolbar = mContainer.findViewById(R.id.photopage_toolbar);
+        mNavigationBar = mContainer.findViewById(R.id.navigation_bar);
+        for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
+            View child = mContainer.getChildAt(i);
+            child.setOnClickListener(this);
+            mControlsVisible.put(child, false);
+        }
+        mBackText = mPhotopageToolbar.findViewById(R.id.photopage_back_text);
+        bottomNavigationBar.clearAll();
+        bottomNavigationBar
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_edit, R.string.edit).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_share, R.string.share).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_delete, R.string.delete).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_setas, R.string.set_as).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_film, R.string.blockbuster).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_tag, R.string.tags).setActiveColorResource(R.color.transparent))
+                .setMode(BottomNavigationBar.MODE_DEFAULT)
+                .initialise();
+        bottomNavigationBar.setTabSelectedListener(this);
+
+        mPhotoDetails  = mContainer.findViewById(R.id.photopage_details);
+        mControlsVisible.put(mPhotoDetails, false);
+        mPhotoDetails.setOnClickListener(this);
+        for (int i = mPhotopageToolbar.getChildCount() - 1; i >= 0; i--) {
+            Log.d("bottomnav", mPhotopageToolbar.getChildCount() + "");
+            View child = mPhotopageToolbar.getChildAt(i);
+            child.setOnClickListener(this);
+            mControlsVisible.put(child, false);
+        }
+    }
+
+    public void initViewsConfigureChanged() {
+        mParentLayout.removeView(mContainer);
+
+        LayoutInflater inflater = (LayoutInflater) mContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContainer = (ViewGroup) inflater
+                .inflate(R.layout.freeme_photopage_controls, mParentLayout, false);
+        mParentLayout.addView(mContainer);
+        mControls = (ViewGroup) mContainer.findViewById(R.id.freeme_photopage_controls);
+
+        bottomNavigationBar = mContainer.findViewById(R.id.photopage_bottom_navigation_bar);
+        mPhotopageToolbar = mContainer.findViewById(R.id.photopage_toolbar);
+        mNavigationBar = mContainer.findViewById(R.id.navigation_bar);
+        for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
+            View child = mContainer.getChildAt(i);
+            child.setOnClickListener(this);
+            mControlsVisible.put(child, false);
+        }
+        mBackText = mPhotopageToolbar.findViewById(R.id.photopage_back_text);
+        bottomNavigationBar.clearAll();
+        bottomNavigationBar.setVisibility(View.INVISIBLE);
+        bottomNavigationBar
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_edit, R.string.edit).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_share, R.string.share).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_delete, R.string.delete).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_setas, R.string.set_as).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_film, R.string.blockbuster).setActiveColorResource(R.color.transparent))
+                .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_tag, R.string.tags).setActiveColorResource(R.color.transparent))
+                .setMode(BottomNavigationBar.MODE_DEFAULT)
+                .initialise();
+        bottomNavigationBar.setTabSelectedListener(this);
+
+        mPhotoDetails  = mContainer.findViewById(R.id.photopage_details);
+        mControlsVisible.put(mPhotoDetails, false);
+        mPhotoDetails.setOnClickListener(this);
+        for (int i = mPhotopageToolbar.getChildCount() - 1; i >= 0; i--) {
+            Log.d("bottomnav", mPhotopageToolbar.getChildCount() + "");
+            View child = mPhotopageToolbar.getChildAt(i);
+            child.setOnClickListener(this);
+            mControlsVisible.put(child, false);
+        }
+        setIsEditable(isEditable, true);
+    }
+
+    /*private void listenNavigationBar() {
         mContext.getContentResolver().unregisterContentObserver(mNavigationBarShowHideObserver);
         mContext.getContentResolver().registerContentObserver(
                 Settings.System.getUriFor("navigationbar_showed"),
                 true, mNavigationBarShowHideObserver);
         mNavigationBarShowHideObserver.onChange(true);
-    }
+    }*/
 
     private void hide() {
+
         mContainer.clearAnimation();
         mContainerAnimOut.reset();
         mContainer.startAnimation(mContainerAnimOut);
@@ -303,10 +348,10 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
     private boolean sixTabs = false;
     private boolean twoTabs = false;
 
-    public void setIsEditable(boolean yes) {
-        if (yes && !sixTabs) {
-            isEditable = yes;
+    public void setIsEditable(boolean yes, boolean orientationChanged) {
+        if (yes && (!sixTabs || orientationChanged)) {
             bottomNavigationBar.clearAll();
+            isEditable = yes;
             bottomNavigationBar
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_edit, R.string.edit).setActiveColorResource(R.color.transparent))
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_share, R.string.share).setActiveColorResource(R.color.transparent))
@@ -318,7 +363,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
                     .initialise();
             sixTabs = true;
             twoTabs = false;
-        } else if (!twoTabs && !yes){
+        } else if (!yes &&  (!twoTabs || orientationChanged)) {
             isEditable = false;
             bottomNavigationBar.clearAll();
             bottomNavigationBar
@@ -330,6 +375,4 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
             sixTabs = false;
         }
     }
-
-
 }

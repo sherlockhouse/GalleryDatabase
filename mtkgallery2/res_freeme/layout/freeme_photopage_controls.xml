@@ -16,7 +16,7 @@
         android:orientation="horizontal"
         android:clickable="false"
         android:paddingEnd="6dp"
-        android:paddingStart="6dp"
+        android:paddingStart="@dimen/photopage_toolbar_paddingstart"
         android:paddingTop="40dp"
         android:visibility="gone">
 
@@ -37,7 +37,7 @@
             android:layout_height="@dimen/action_bar_content_inset_freeme"
             android:gravity="center"
             android:clickable="true"
-            android:paddingStart="@dimen/action_bar_arrow_margin_left"
+            android:paddingStart="@dimen/photopage_action_bar_arrow_margin_left"
             android:text="@string/tab_photos"
             android:textColor="@color/primary_dark_freeme_light"
             android:textSize="@dimen/text_size_title_freeme" />
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
             android:clickable="false"
-            android:paddingEnd="6dp"
+            android:paddingEnd="@dimen/photopage_toolbar_paddingend"
             android:paddingStart="6dp">
 
             <ImageView

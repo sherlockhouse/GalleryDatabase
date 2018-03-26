@@ -276,10 +276,12 @@ abstract public class ActivityState {
             /// M: [BUG.ADD] @{
             }
             /// @}
-            int stateCount = mActivity.getStateManager().getStateCount();
-            mActivity.getGalleryActionBar().setDisplayOptions(stateCount > 1, false);
-            // Default behavior, this can be overridden in ActivityState's onResume.
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            if (!(mActivity.getStateManager().getTopState() instanceof PhotoPage)) {
+                int stateCount = mActivity.getStateManager().getStateCount();
+                mActivity.getGalleryActionBar().setDisplayOptions(stateCount > 1, false);
+                // Default behavior, this can be overridden in ActivityState's onResume.
+                actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            }
         }
 
         /*/ Modified by Linguanrong for story album, 2015-7-2

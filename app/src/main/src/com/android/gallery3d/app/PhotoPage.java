@@ -24,10 +24,8 @@ package com.android.gallery3d.app;
 import android.annotation.TargetApi;
 import android.app.ActionBar.OnMenuVisibilityListener;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,21 +45,17 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.ShareActionProvider;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.LocalImage;
-import com.droi.sdk.analytics.DroiAnalytics;
 import com.freeme.extern.PhotopageComments;
 import com.freeme.gallery.R;
 import com.android.gallery3d.data.CameraShortcutImage;
@@ -98,8 +92,6 @@ import com.android.gallery3d.ui.SynchronizedHandler;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.common.ApiHelper;
-import com.freeme.statistic.StatisticData;
-import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FrameworkSupportUtils;
 import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
@@ -347,9 +339,9 @@ public abstract class PhotoPage extends ActivityState implements
                 return true;
             case R.id.photopage_bottom_navigation_bar:
                 if ((mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0) {
-                    mBottomControls.setIsEditable(true);
+                    mBottomControls.setIsEditable(true, false);
                 } else {
-                    mBottomControls.setIsEditable(false);
+                    mBottomControls.setIsEditable(false, false);
                 }
                 return true;
             case R.id.photopage_bottom_control_edit:
@@ -757,14 +749,14 @@ public abstract class PhotoPage extends ActivityState implements
         //end
         if (!mShowBars) return;
         mShowBars = false;
-        mActionBar.hide();
+//        mActionBar.hide();
         mActivity.getGLRoot().setLightsOutMode(true);
         mHandler.removeMessages(MSG_HIDE_BARS);
         refreshBottomControlsWhenReady();
     }
 
     private void wantBars() {
-        if (canShowBars()) showBars();
+//        if (canShowBars()) showBars();
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -784,7 +776,7 @@ public abstract class PhotoPage extends ActivityState implements
             hideBars();
         }
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
-        updateActionBarTitle();
+//        updateActionBarTitle();
         //*/
     }
 
@@ -1197,7 +1189,7 @@ public abstract class PhotoPage extends ActivityState implements
                             if (photo != null) updateCurrentPhoto(photo);
                         }
                         //*/ Modified by Linguanrong for show bar default, 2015-08-07
-                        updateActionBarTitle();
+//                        updateActionBarTitle();
                         /*/
                         updateBars();
                         //*/
@@ -1288,10 +1280,10 @@ public abstract class PhotoPage extends ActivityState implements
         mHandler.removeMessages(MSG_HIDE_BARS);
         mHandler.removeMessages(MSG_REFRESH_BOTTOM_CONTROLS);
         refreshBottomControlsWhenReady();
-        mActionBar.removeOnMenuVisibilityListener(mMenuVisibilityListener);
+        /*mActionBar.removeOnMenuVisibilityListener(mMenuVisibilityListener);
         if (mShowSpinner) {
             mActionBar.disableAlbumModeMenu(true);
-        }
+        }*/
         onCommitDeleteImage();
         mMenuExecutor.pause();
         if (mMediaSet != null) mMediaSet.clearDeletion();
@@ -1361,8 +1353,8 @@ public abstract class PhotoPage extends ActivityState implements
         mModel.resume();
         mPhotoView.resume();
         //*/ Modified by droi Linguanrong for freeme gallery, 16-1-14
-        mActionBar.addOnMenuVisibilityListener(mMenuVisibilityListener);
-        updateActionBarTitle();
+//        mActionBar.addOnMenuVisibilityListener(mMenuVisibilityListener);
+//        updateActionBarTitle();
         /*/
         mActionBar.setDisplayOptions(
                 ((mSecureAlbum == null) && (mSetPathString != null)), false);
@@ -1388,12 +1380,12 @@ public abstract class PhotoPage extends ActivityState implements
             }, PhotoPageBottomControls.CONTAINER_ANIM_DURATION_MS);
         }
         //*/
-        if (mShowSpinner && mPhotoView.getFilmMode()) {
+        /*if (mShowSpinner && mPhotoView.getFilmMode()) {
             mActionBar.enableAlbumModeMenu(
                     GalleryActionBar.ALBUM_FILMSTRIP_MODE_SELECTED, this);
-        }
+        }*/
         if (!mShowBars) {
-            mActionBar.hide();
+//            mActionBar.hide();
             mActivity.getGLRoot().setLightsOutMode(true);
         }
         boolean haveImageEditor = true;//GalleryUtils.isEditorAvailable(mActivity, "image/*");
@@ -1619,8 +1611,8 @@ public abstract class PhotoPage extends ActivityState implements
 
     private void setActionBarBackground(boolean translucent) {
         if (translucent) {
-            mActionBar.setBackgroundDrawable(mActivity.getResources()
-                    .getDrawable(GalleryActivity.colorPrimary, null));
+//            mActionBar.setBackgroundDrawable(mActivity.getResources()
+//                    .getDrawable(GalleryActivity.colorPrimary, null));
         }
     }
 
@@ -1971,14 +1963,14 @@ public abstract class PhotoPage extends ActivityState implements
         //add by TYD mingjun for for comments
         isEnbled = enabled;
         //end
-        if (mShowSpinner) {
+        /*if (mShowSpinner) {
             if (enabled) {
                 mActionBar.enableAlbumModeMenu(
                         GalleryActionBar.ALBUM_FILMSTRIP_MODE_SELECTED, this);
             } else {
                 mActionBar.disableAlbumModeMenu(true);
             }
-        }
+        }*/
         if (enabled) {
             mHandler.removeMessages(MSG_HIDE_BARS);
             UsageStatistics.onContentViewChanged(
@@ -1995,7 +1987,7 @@ public abstract class PhotoPage extends ActivityState implements
         }
 
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-14
-        updateActionBarTitle();
+//        updateActionBarTitle();
 //        updateMenuOperations();
         //*/
     }
@@ -2406,5 +2398,11 @@ public abstract class PhotoPage extends ActivityState implements
                 return GalleryUtils.MIME_TYPE_VIDEO;
             default: return GalleryUtils.MIME_TYPE_ALL;
         }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration config) {
+        super.onConfigurationChanged(config);
+        mBottomControls.initViewsConfigureChanged();
     }
 }

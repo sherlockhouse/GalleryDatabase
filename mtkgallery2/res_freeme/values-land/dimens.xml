@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="photopage_toolbar_paddingstart">48dp</dimen>
+    <dimen name="photopage_toolbar_paddingend">48dp</dimen>
+    <dimen name="photopage_action_bar_arrow_margin_left">18dp</dimen>
+</resources>

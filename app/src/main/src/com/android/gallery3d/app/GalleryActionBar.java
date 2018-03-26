@@ -72,7 +72,7 @@ public class GalleryActionBar implements ActionBar.TabListener{
     private CharSequence [] mAlbumModes;
     public static final int ALBUM_FILMSTRIP_MODE_SELECTED = 0;
     public static final int ALBUM_GRID_MODE_SELECTED = 1;
-    private float ACTIONBAR_ELEVATION = 3f;
+    private float ACTIONBAR_ELEVATION = 2f;
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
