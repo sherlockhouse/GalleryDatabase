@@ -136,7 +136,7 @@ public final class PageConfig {
             placeholderColor = r.getColor(R.color.transparent);
 
             slotViewSpec = new StorySlotView.Spec();
-            slotViewSpec.rowsLand = r.getInteger(R.integer.albumstory_rows_land);
+            slotViewSpec.rowsLand = r.getInteger(R.integer.albumstoryset_rows_land);
             slotViewSpec.rowsPort = r.getInteger(R.integer.albumstory_rows_port);
             slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap) ;
             slotViewSpec.slotGapV = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap_vertical);

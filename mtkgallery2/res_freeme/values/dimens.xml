@@ -46,7 +46,8 @@
     <dimen name="status_bar_height">25dip</dimen>
 
     <!-- Added by Linguanrong for story album, 2015-4-2 -->
-    <integer name="albumstory_rows_land">2</integer>
+    <integer name="albumstoryset_rows_land">2</integer>
+    <integer name="albumstory_rows_land">3</integer>
     <integer name="albumstory_rows_port">5</integer>
     <dimen name="albumstory_padding_top">16dp</dimen>
     <dimen name="albumstory_padding_bottom">0dp</dimen>
