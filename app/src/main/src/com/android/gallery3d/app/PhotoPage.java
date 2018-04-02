@@ -1872,15 +1872,6 @@ public abstract class PhotoPage extends ActivityState implements
         clickCenter = (Math.abs(x - w / 2) * 12 <= w) && (Math.abs(y - h / 2) * 12 <= h);
 
         if (playVideo && clickCenter) {
-            // determine if the point is at center (1/6) of the photo view.
-            // (The position of the "play" icon is at center (1/6) of the photo)
-//            int w = mPhotoView.getWidth();
-//            int h = mPhotoView.getHeight();
-            playVideo = (Math.abs(x - w / 2) * 12 <= w)
-                    && (Math.abs(y - h / 2) * 12 <= h);
-        }
-
-        if (playVideo) {
             if (mSecureAlbum == null) {
                 FreemeUtils.playVideo(mActivity, item.getPlayUri(), item.getName());
             } else {

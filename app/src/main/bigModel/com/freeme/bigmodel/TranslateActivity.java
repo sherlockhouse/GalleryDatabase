@@ -507,7 +507,7 @@ public class TranslateActivity extends com.freeme.bigmodel.BlockBaseActivity {
                 }
             } else {
                 englishet.setText("");
-                Toast.makeText(TranslateActivity.this, getString(R.string.inputcontent), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(TranslateActivity.this, getString(R.string.inputcontent), Toast.LENGTH_SHORT).show();
             }
         }
     }

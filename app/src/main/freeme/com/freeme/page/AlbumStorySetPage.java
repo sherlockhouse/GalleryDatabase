@@ -1144,6 +1144,9 @@ public class AlbumStorySetPage extends ActivityState implements
     protected void onStateResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_DO_ANIMATION: {
+                if (mPickAlbumIndex < 0 ) {
+                    return;
+                }
 //                MediaSet set = mAlbumSetDataAdapter.getMediaSet(mPickAlbumIndex);
                 mAlbumSetDataAdapter.setItemCover(mPickAlbumIndex,
                         ((StoryAlbumSet) mMediaSet).getItemCover(mPickAlbumIndex));

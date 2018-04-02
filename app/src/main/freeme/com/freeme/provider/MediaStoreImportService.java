@@ -64,10 +64,8 @@ public class MediaStoreImportService extends IntentService {
                 } else {
                     deleyImport(mVideoDelayedImport);
                 }
-            } else if (segments.size() == 1) {
-                MediaStoreImporter.getInstance().deleteFiles();
             }
-
+            MediaStoreImporter.getInstance().deleteFiles();
         }
     };
 
