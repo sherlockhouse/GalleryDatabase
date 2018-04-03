@@ -202,8 +202,11 @@ public class AlbumSetPage extends ActivityState implements
             mEyePosition.resetPosition();
 
             //*/ Modified by droi Linguanrong for freeme gallery, 16-1-13
-            //int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop;
+            //int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop
             int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop + mActivity.mStatusBarHeight;
+            if (mGetContent) {
+                slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
+            }
             //*/
             int slotViewBottom = bottom - top - mConfig.paddingBottom;
             /*/ Modified by droi Linguanrong for story album, 2015-6-19
@@ -875,7 +878,11 @@ public class AlbumSetPage extends ActivityState implements
             mFreemeHomeView = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_home_view);
             mFreemeHomeView.findViewById(com.freeme.gallery.R.id.up).setOnClickListener(this);
             mFreemeActionBarBackTitle = mFreemeHomeView.findViewById(com.freeme.gallery.R.id.freeme_actionbar_back_title);
-            mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.tab_by_story);
+            if (mGetContent) {
+                mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.cancel);
+            } else {
+                mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.tab_by_story);
+            }
             mFreemeActionBarBackTitle.setOnClickListener(this);
             mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
             TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.android.gallery3d.R.id.action_bar_title);

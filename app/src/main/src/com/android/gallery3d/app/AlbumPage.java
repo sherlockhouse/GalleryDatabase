@@ -224,6 +224,9 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             //*/ Modified by droi Linguanrong for adjust glroot view layout, 2014-6-12
             int slotViewTop = mActivity.getGalleryActionBar().getHeight() + mActivity.mStatusBarHeight;
             //*/
+            if (mGetContent) {
+                slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
+            }
             int slotViewBottom = (int) (bottom - top
                                 - mActivity.getResources().getDimension(com.freeme.gallery.R.dimen.navigation_bar_height));
             int slotViewRight = right - left;
