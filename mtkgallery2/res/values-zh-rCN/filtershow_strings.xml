@@ -67,7 +67,7 @@
     <string name="exposure" msgid="6526397045949374905">"曝光"</string>
     <string name="sharpness" msgid="6463103068318055412">"锐度"</string>
     <string name="contrast" msgid="2310908487756769019">"对比度"</string>
-    <string name="vibrance" msgid="3326744578577835915">"自然饱和度"</string>
+    <string name="vibrance" msgid="3326744578577835915">"饱和度"</string>
     <string name="saturation" msgid="7026791551032438585">"饱和度"</string>
     <string name="bwfilter" msgid="8927492494576933793">"黑白滤镜"</string>
     <string name="wbalance" msgid="6346581563387083613">"自动调色"</string>

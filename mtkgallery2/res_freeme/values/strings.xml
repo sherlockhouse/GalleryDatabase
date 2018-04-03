@@ -178,7 +178,7 @@
     <string name="share_freeme_extra_image_url">"http://weixin.droi.com/share/images/icon/icon_camera.png"</string>
 
     <string name="shot_immediately">Shot immediately</string>
-    <string name="no_photos">No photos!</string>
+    <string name="no_photos">No photos</string>
 
     <!-- add by xuewelil for hide album -->
     <string name="hide_album">Hide album</string>

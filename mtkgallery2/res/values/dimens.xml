@@ -112,7 +112,7 @@
     <!-- configuration for legacy album set page -->
     <integer name="albumset_rows_land">3</integer>
     <integer name="albumset_rows_port">5</integer>
-    <dimen name="albumset_padding_top">3dp</dimen>
+    <dimen name="albumset_padding_top">16dp</dimen>
     <dimen name="albumset_padding_bottom">0dp</dimen>
     <dimen name="albumset_slot_gap">2dp</dimen>
 

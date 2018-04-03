@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +48,7 @@ import com.android.gallery3d.app.AlbumSetPage;
 import com.android.gallery3d.app.FilmstripPage;
 import com.android.gallery3d.app.FilterUtils;
 import com.android.gallery3d.app.GalleryActionBar;
+import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.GalleryActivity;
 import com.android.gallery3d.app.LoadingListener;
 import com.android.gallery3d.app.OrientationManager;
@@ -73,10 +75,12 @@ import com.android.gallery3d.ui.SynchronizedHandler;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.Future;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.AlbumTimeSlotRenderer;
 import com.freeme.ui.DateSlotView;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogUtil;
 import com.freeme.utils.ShareFreemeUtil;
@@ -84,7 +88,7 @@ import com.mediatek.galleryframework.util.DebugUtils;
 
 
 public class AlbumStoryPage extends ActivityState implements GalleryActionBar.ClusterRunner,
-        SelectionManager.SelectionListener, MediaSet.SyncListener {
+        SelectionManager.SelectionListener, MediaSet.SyncListener,State, View.OnClickListener {
     public static final String KEY_MEDIA_PATH         = "media-path";
     public static final String KEY_AUTO_SELECT_ALL    = "auto-select-all";
     public static final String KEY_SELECT_INDEX       = "select-index";
@@ -159,7 +163,9 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
                 boolean changed, int left, int top, int right, int bottom) {
 
             int slotViewTop = top;//mActionBar.getHeight() + mActivity.mStatusBarHeight;
-            int slotViewBottom = bottom - top;
+            int slotViewBottom = (int) (bottom - top
+                    - mActivity.getResources().getDimension(R.dimen.navigation_bar_height)
+                    - mActivity.getResources().getDimension(R.dimen.freeme_bottom_menu_container_height));
             int slotViewRight = right - left;
 
             if (mShowDetails) {
@@ -170,7 +176,7 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 
             // Set the mSlotView as a reference point to the open animation
             mOpenCenter.setReferencePosition(0, slotViewTop);
-            mSlotView.layout(0, slotViewTop, slotViewRight, slotViewBottom - mSlotViewPadding);
+            mSlotView.layout(0, slotViewTop, slotViewRight, slotViewBottom - mSlotViewPadding );
             GalleryUtils.setViewPointMatrix(mMatrix,
                     (right - left) / 2, (bottom - top) / 2, -mUserDistance);
         }
@@ -263,9 +269,31 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         return R.color.albumset_background;
     }
 
+    private LinearLayout mFreemeHomeView;
+    private TextView mFreemeActionBarBackTitle;
+    private LinearLayout mFreemeTitleLayout;
+
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case com.freeme.gallery.R.id.up:
+            case com.freeme.gallery.R.id.freeme_actionbar_back_title:
+                onBackPressed();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static final int ACTION_CODE_ADD= 0x300;
+    private static final int[] mActionNames = new int[]{R.string.add_images};
+    private static final int[] mActionCodes = new int[]{ACTION_CODE_ADD};
+
     @Override
     protected void onCreate(Bundle data, Bundle restoreState) {
         super.onCreate(data, restoreState);
+        mActivity.setTopbarBackgroundColor(R.color.transparent);
         mUserDistance = GalleryUtils.meterToPixel(USER_DISTANCE_METER);
         mActionBar = mActivity.getGalleryActionBar();
         //mStoryIndex = data.getInt(KEY_SELECT_INDEX, -1);
@@ -273,6 +301,10 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         mNewAlbum = data.getBoolean(KEY_NEW_ALBUM, false);
         initializeViews();
         initializeData(data);
+        mSharedPref = mActivity.getSharedPreferences(
+                FreemeUtils.STORY_SHAREPREFERENCE_KEY, Context.MODE_PRIVATE);
+
+
         mGetContent = data.getBoolean(GalleryActivity.KEY_GET_CONTENT, false);
         mDetailsSource = new MyDetailsSource();
         Context context = mActivity.getAndroidContext();
@@ -302,10 +334,22 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
             }
         };
 
-        mSharedPref = mActivity.getSharedPreferences(
-                FreemeUtils.STORY_SHAREPREFERENCE_KEY, Context.MODE_PRIVATE);
+
     }
 
+    private FreemeBottomSelectedView.IFreemeBottomActionCallBack mCallBack
+            = new FreemeBottomSelectedView.IFreemeBottomActionCallBack() {
+        @Override
+        public void onAction(int actionCode) {
+            switch (actionCode) {
+                case ACTION_CODE_ADD:
+                    onMenuItemSelected(R.id.action_add);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
     @Override
     protected void onPause() {
         super.onPause();
@@ -341,7 +385,23 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
     protected void onResume() {
         super.onResume();
         mIsActive = true;
+        if (mActivity.mFreemeActionBarContainer != null) {
+            mFreemeHomeView = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_home_view);
+            mFreemeHomeView.findViewById(com.freeme.gallery.R.id.up).setOnClickListener(this);
+            mFreemeActionBarBackTitle = mFreemeHomeView.findViewById(com.freeme.gallery.R.id.freeme_actionbar_back_title);
+            mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.tab_by_story);
+            mFreemeActionBarBackTitle.setOnClickListener(this);
+            mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
+            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.android.gallery3d.R.id.action_bar_title);
+            if (mNewAlbum) {
+                mActionbarTitle.setText(mSharedPref.getString(StoryAlbumSet.ALBUM_KEY + mStoryBucketId, ""));
+            } else {
+                mActionbarTitle.setText(mMediaSet.getName());
+            }
+            mActivity.setTopbarBackgroundColor(com.android.gallery3d.R.color.primary_freeme_light);
 
+        }
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-13
         ((GalleryActivity) mActivity).setBottomTabVisibility(false);
         //*/
@@ -380,6 +440,8 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         if (mMediaSet != null && mMediaSet.getMediaItemCount() != 0) {
             hideEmptyImg();
         }
+        ((GalleryActivity)mActivity).getController().showActions(mActionNames, mActionCodes, mCallBack);
+        ((GalleryActivity)mActivity).getController().updateActionEnabled(true, ACTION_CODE_ADD);
     }
 
     @Override
@@ -424,9 +486,22 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         return true;
     }
 
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int menuItemid) {
+
+        switch (menuItemid) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
@@ -788,13 +863,8 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeHandler.ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
-            }
-
-            public boolean onPopUpItemClicked(int itemId) {
-                /// M: return if restoreSelection has done
-                return mRestoreSelectionDone;
+            public boolean onActionItemClicked(MenuItem item,int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
 
@@ -845,6 +915,7 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
     }
 
     public void goToSelectCover() {
+        ((GalleryActivity)mActivity).getController().hideActions();
         if (mAlbumDataAdapter.size() > 0) {
             Bundle data = new Bundle();
             data.putString(AlbumStoryCoverPage.KEY_MEDIA_PATH, mMediaSetPath.toString());
@@ -946,6 +1017,16 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
             Toast.makeText(mActivity, R.string.sync_album_error,
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onEnterState() {
+        mActivity.showNavi(AbstractGalleryActivity.IN_STORYPAGE);
+    }
+
+    @Override
+    public void observe() {
+
     }
 
     private class MyLoadingListener implements LoadingListener {

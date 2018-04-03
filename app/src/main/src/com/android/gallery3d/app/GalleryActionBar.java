@@ -50,10 +50,11 @@ import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
 
-public class GalleryActionBar implements ActionBar.TabListener{
+public class GalleryActionBar {
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/GalleryActionBar";
     public static final boolean SHOWTITLE = false;
+    private int mHeight;
     private  FreemeTabLayout actionbarLayout;
 
     private ClusterRunner mClusterRunner;
@@ -73,33 +74,6 @@ public class GalleryActionBar implements ActionBar.TabListener{
     public static final int ALBUM_FILMSTRIP_MODE_SELECTED = 0;
     public static final int ALBUM_GRID_MODE_SELECTED = 1;
     private float ACTIONBAR_ELEVATION = 2f;
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-        switch (tab.getPosition()) {
-                        case 0 :
-                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
-                            break;
-                        case 1:
-                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
-                            break;
-                        case 2:
-                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
-                            break;
-                        default:
-                            break;
-                    }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
 
     public interface ClusterRunner {
         public void doCluster(int id);
@@ -136,10 +110,10 @@ public class GalleryActionBar implements ActionBar.TabListener{
             //*/ Modified by droi Linguanrong for freeme gallery, 16-1-14
             new ActionItem(FreemeUtils.CLUSTER_BY_CAMERE, true, false, R.string.tab_by_camera,
                     R.string.tab_by_camera),
-            new ActionItem(FreemeUtils.CLUSTER_BY_STORY, true, false, R.string.tab_by_story,
-                    R.string.tab_by_story),
             new ActionItem(FreemeUtils.CLUSTER_BY_ALBUM, true, false, R.string.tab_by_all,
                     R.string.tab_by_all),
+            new ActionItem(FreemeUtils.CLUSTER_BY_STORY, true, false, R.string.tab_by_story,
+                    R.string.tab_by_story),
             new ActionItem(FreemeUtils.CLUSTER_BY_COMMUNITY, true, false, R.string.tab_by_community,
                     R.string.tab_by_community)
             /*/
@@ -238,7 +212,8 @@ public class GalleryActionBar implements ActionBar.TabListener{
         mActionBar = activity.getActionBar();
         mContext = activity.getAndroidContext();
         mActivity = activity;
-        mInflater = ((Activity) mActivity).getLayoutInflater();
+        mHeight = (int)activity.getResources().getDimension(R.dimen.tab_height);
+//        mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
         initActionBar();
 
@@ -248,79 +223,13 @@ public class GalleryActionBar implements ActionBar.TabListener{
         mActionBar = activity.getActionBar();
         mContext = activity.getAndroidContext();
         mActivity = activity;
-        mInflater = ((Activity) mActivity).getLayoutInflater();
+//        mInflater = ((Activity) mActivity).getLayoutInflater();
         mCurrentIndex = 0;
     }
 
     public void initActionBar() {
         if (mActionBar != null) {
-//            mActionBar.setElevation(ACTIONBAR_ELEVATION);
-
-//
-//            actionbarLayout = (FreemeTabLayout) LayoutInflater.from(mContext).inflate(
-//                    R.layout.actionbar_layout, null);
-//            Tab mTab1 = actionbarLayout.newTab();
-//
-//            mTab1.setText(R.string.tab_by_camera);
-//            actionbarLayout.addTab(mTab1);
-//            Tab mTab2 = actionbarLayout.newTab();
-//            mTab2.setText(R.string.tab_by_story);
-//            actionbarLayout.addTab(mTab2);
-//            Tab mTab3 = actionbarLayout.newTab();
-//            mTab3.setText(R.string.tab_albums);
-//            actionbarLayout.addTab(mTab3);
-//            ActionBar.LayoutParams lp = new ActionBar.LayoutParams(
-//                    ActionBar.LayoutParams.WRAP_CONTENT,
-//                    ActionBar.LayoutParams.MATCH_PARENT,
-//                    Gravity.CENTER);
-//            actionbarLayout.addOnTabSelectedListener(new OnTabSelectedListener(){
-//
-//                public void onTabSelected(Tab tab){
-//                    switch (tab.getPosition()) {
-//                        case 0 :
-//                            onBottomTabSelected(GalleryActivity.INDEX_CAMERA);
-//                            break;
-//                        case 1:
-//                            onBottomTabSelected(GalleryActivity.INDEX_STORY);
-//                            break;
-//                        case 2:
-//                            onBottomTabSelected(GalleryActivity.INDEX_ALBUM);
-//                            break;
-//                        default:
-//                            break;
-//                    }
-//                }
-//
-//                public void onTabUnselected(Tab tab){
-//
-//                }
-//
-//
-//                public void onTabReselected(Tab tab){
-//
-//                }
-//            });
-//
-//            mActionBar.setCustomView(actionbarLayout, lp);
-//            mActionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_CUSTOM);
-//            mActionBar.setDisplayShowCustomEnabled(true);
-           setUpTabs();
-        }
-    }
-
-    public void setUpTabs()
-    {
-        mActionBar.setDisplayShowTitleEnabled(false);
-        mActionBar.setDisplayShowHomeEnabled(false);
-        mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        int i = mActionBar.getNavigationItemCount();
-        if (i < 3)
-        {
-            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_camera).setTabListener(this));
-            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_all).setTabListener(this));
-            mActionBar.addTab(this.mActionBar.newTab().setText(R.string.tab_by_story).setTabListener(this));
-            i += 1;
+           // mActionBar.setElevation(ACTIONBAR_ELEVATION);
         }
     }
 
@@ -342,7 +251,7 @@ public class GalleryActionBar implements ActionBar.TabListener{
     }
 
     public int getHeight() {
-        return mActionBar != null ? mActionBar.getHeight() : 0;
+        return mActionBar != null ? mActionBar.getHeight() : mHeight ;
     }
 
     public void setClusterItemEnabled(int id, boolean enabled) {
@@ -384,9 +293,7 @@ public class GalleryActionBar implements ActionBar.TabListener{
         //*/
 
     }
-
-
-
+    
     // The only use case not to hideMenu in this method is to ensure
     // all elements disappear at the same time when exiting gallery.
     // hideMenu should always be true in all other cases.
@@ -422,11 +329,6 @@ public class GalleryActionBar implements ActionBar.TabListener{
             }
             mAlbumModeListener = null;
             mLastAlbumModeSelected = selected;
-            /*/ Removed by droi Linguanrong for freeme gallery, 16-1-14
-            mActionBar.setListNavigationCallbacks(mAlbumModeAdapter, this);
-            mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            mActionBar.setSelectedNavigationItem(selected);
-            //*/
             mAlbumModeListener = listener;
         }
     }

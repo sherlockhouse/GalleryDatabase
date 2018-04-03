@@ -2,6 +2,18 @@
 
 <!-- Colors specific to Freeme themes. -->
 <resources>
+    <!-- tab colors-->
+    <color name="freeme_color_accent">@color/accent_freeme_light</color>
+    <color name="freeme_color_accent_disable">#6622C580</color>
+    <color name="freeme_color_primary">@color/primary_freeme_light</color>
+    <color name="tab_ripple_color">#ffffff</color>
+    <color name="tab_accent_color">@color/tab_ripple_color</color>
+    <color name="tab_selected_underline_color">#f50057</color>
+    <color name="tab_unread_count_background_color">#1C3AA9</color>
+    <color name="actionbar_background_color">#2A56C6</color>
+    <!-- Color of action bar text. -->
+    <color name="actionbar_text_color">#ffffff</color>
+    <color name="actionbar_unselected_text_color">#a6ffffff</color>
     <color name="foreground_freeme_dark">@color/freeme_grey_50</color>
     <color name="foreground_freeme_light">@color/freeme_grey_900</color>
 
@@ -59,8 +71,7 @@
     <color name="freeme_grey_600">#ff757575</color>
     <color name="freeme_grey_300">#ffe0e0e0</color>
     <color name="freeme_grey_100">#fff5f5f5</color>
-    <color name="freeme_grey_50">#fffafafa</color>
-    <color name="freeme_grey_title">#ffafafaf</color>
+    <color name="freeme_grey_50">#fff0f0f0</color>
 
     <color name="freeme_deep_teal_100">#ffb2dfdb</color>
     <color name="freeme_deep_teal_200">#ff80cbc4</color>
@@ -70,6 +81,7 @@
     <color name="freeme_blue_grey_800">#ff37474f</color>
     <color name="freeme_blue_grey_900">#ff263238</color>
     <color name="freeme_blue_grey_950">#ff21272b</color>
+
 
     <!-- Time picker defaults when no theme is set -->
     <eat-comment />
@@ -118,8 +130,8 @@
     <color name="spinner_dropdown_item_text_color_disabled_freeme">#5e252525</color>
     <color name="spinner_normal_freeme">#ff646464</color>
     <color name="spinner_disabled_freeme">#66000000</color>
-    <color name="ab_spinner_normal_freeme">#fffafafa</color>
-    <color name="ab_spinner_disabled_freeme">#80fafafa</color>
+    <color name="ab_spinner_normal_freeme">#fff5f5f5</color>
+    <color name="ab_spinner_disabled_freeme">#80f5f5f5</color>
 
     <!-- popup colors -->
     <color name="popup_text_color_normal_freeme">#ff252525</color>
@@ -169,4 +181,8 @@
     <!-- widget - FreemeTimePicker -->
     <color name="freeme_time_picker_stroke_color_light">#19000000</color>
     <color name="freeme_number_picker_spinner_sub_text_color_light">#ff252525</color>
+
+    <color name="freeme_bottom_menu_container_divider_color">#2E000000</color>
+    <color name="freeme_bottom_menu_container_bg_color">#FFF0F0F0</color>
+
 </resources>

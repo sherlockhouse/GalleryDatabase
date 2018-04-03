@@ -151,10 +151,7 @@ public class AlbumLabelMaker {
             AlbumSetSlotRenderer.LabelSpec s = mSpec;
 
             String title = mTitle;
-            //*/Modified by Tyd Linguanrong for Gallery new style, 2013-12-19
-            //String count = mCount;
             String count = mCount;
-            //*/
             Bitmap icon = getOverlayAlbumIcon(mSourceType);
 
             Bitmap bitmap;

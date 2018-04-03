@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -69,6 +70,7 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.HelpUtils;
 
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.freeme.ui.manager.State;
 import com.mediatek.gallery3d.layout.FancyHelper;
 import com.mediatek.gallery3d.layout.Layout.DataChangeListener;
 import com.mediatek.gallery3d.util.PermissionHelper;
@@ -103,7 +105,7 @@ import android.text.style.ImageSpan;
 
 public class AlbumSetPage extends ActivityState implements
         SelectionManager.SelectionListener, GalleryActionBar.ClusterRunner,
-        EyePosition.EyePositionListener, MediaSet.SyncListener {
+        EyePosition.EyePositionListener, MediaSet.SyncListener, State, View.OnClickListener {
     public static final String KEY_MEDIA_PATH = "media-path";
     public static final String KEY_SET_TITLE = "set-title";
     public static final String KEY_SET_SUBTITLE = "set-subtitle";
@@ -413,6 +415,20 @@ public class AlbumSetPage extends ActivityState implements
         toast.show();
     }
 
+    @Override
+    public void onEnterState() {
+        if (!mStorySelectMode && !mGetContent) {
+            mActivity.showNavi(AbstractGalleryActivity.IN_ALBUMSETPAGE);
+        } else {
+            mActivity.showNavi(AbstractGalleryActivity.IN_ADD_STORYPAGE);
+        }
+    }
+
+    @Override
+    public void observe() {
+
+    }
+
     private class MyDetailsSource implements DetailsHelper.DetailsSource {
         private int mIndex;
 
@@ -608,7 +624,7 @@ public class AlbumSetPage extends ActivityState implements
         /// @}
         mEyePosition = new EyePosition(mActivity.getAndroidContext(), this);
         mDetailsSource = new MyDetailsSource();
-        if (mGetContent) {
+        if (mGetContent || mGetAlbum) {
             mActionBar = mActivity.getGalleryActionBarWithoutTap();
         } else {
             mActionBar = mActivity.getGalleryActionBar();
@@ -836,10 +852,38 @@ public class AlbumSetPage extends ActivityState implements
 
         hideCameraButton();
     }
+    private LinearLayout mFreemeHomeView;
+    private TextView mFreemeActionBarBackTitle;
+    private LinearLayout mFreemeTitleLayout;
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case com.freeme.gallery.R.id.up:
+            case com.freeme.gallery.R.id.freeme_actionbar_back_title:
+                onBackPressed();
+                break;
+            default:
+                break;
+        }
+    }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (mActivity.mFreemeActionBarContainer != null) {
+            mFreemeHomeView = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_home_view);
+            mFreemeHomeView.findViewById(com.freeme.gallery.R.id.up).setOnClickListener(this);
+            mFreemeActionBarBackTitle = mFreemeHomeView.findViewById(com.freeme.gallery.R.id.freeme_actionbar_back_title);
+            mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.tab_by_story);
+            mFreemeActionBarBackTitle.setOnClickListener(this);
+            mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
+            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.android.gallery3d.R.id.action_bar_title);
+            mActionbarTitle.setText(mActivity.getResources().getText(R.string.tab_albums));
+            mActivity.setTopbarBackgroundColor(com.android.gallery3d.R.color.primary_freeme_light);
+
+        }
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         if (!mStorySelectMode && !mGetContent) {
             mActionBar.initActionBar();
         }
@@ -950,8 +994,8 @@ public class AlbumSetPage extends ActivityState implements
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
+            public boolean onActionItemClicked(MenuItem item, int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
         mRootPane.addComponent(mSlotView);
@@ -1060,10 +1104,22 @@ public class AlbumSetPage extends ActivityState implements
         return true;
     }
 
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int itemId) {
         Activity activity = mActivity;
-        switch (item.getItemId()) {
+        switch (itemId) {
             //*/ Added by Tyd Linguanrong for Gallery new style, 2014-3-5
             case android.R.id.home:
                 onBackPressed();

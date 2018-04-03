@@ -43,6 +43,7 @@ import com.android.gallery3d.app.AlbumSetPage;
 import com.android.gallery3d.app.FilmstripPage;
 import com.android.gallery3d.app.FilterUtils;
 import com.android.gallery3d.app.GalleryActionBar;
+import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.GalleryActivity;
 import com.android.gallery3d.app.LoadingListener;
 import com.android.gallery3d.app.OrientationManager;
@@ -74,12 +75,14 @@ import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.AlbumTimeSlotRenderer;
 import com.freeme.ui.DateSlotView;
+import com.freeme.ui.manager.NaviController;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.FreemeUtils;
 
 import java.lang.ref.WeakReference;
 
 public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBar.ClusterRunner,
-        SelectionManager.SelectionListener, MediaSet.SyncListener {
+        SelectionManager.SelectionListener, MediaSet.SyncListener ,State{
     public static final String KEY_MEDIA_PATH       = "media-path";
     public static final String KEY_AUTO_SELECT_ALL  = "auto-select-all";
     public static final String KEY_EMPTY_ALBUM      = "empty-album";
@@ -209,6 +212,7 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     @Override
     protected void onCreate(Bundle data, Bundle restoreState) {
         super.onCreate(data, restoreState);
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         mUserDistance = GalleryUtils.meterToPixel(USER_DISTANCE_METER);
         mActionBar = mActivity.getGalleryActionBar();
         initializeViews();
@@ -321,9 +325,10 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
     @Override
     protected void onResume() {
         super.onResume();
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         mIsActive = true;
         mActionBar.setDisplayOptions(false, GalleryActionBar.SHOWTITLE);
-        mActionBar.setUpTabs();
+//        mActionBar.setUpTabs();
 
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.lockOrientation(true);
@@ -391,9 +396,22 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         return true;
     }
 
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int menuItemid) {
+
+        switch (menuItemid) {
             case android.R.id.home:
                 onBackPressed();
                 return true;
@@ -760,8 +778,8 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeHandler.ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
+            public boolean onActionItemClicked(MenuItem item,int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
 
@@ -885,6 +903,16 @@ public class AlbumTimeShaftPage extends ActivityState implements GalleryActionBa
         mEmptyAlbumToast = new WeakReference<>(toast);
         toast.show();
     }
+
+    @Override
+    public void onEnterState() {
+        mActivity.showNavi(AbstractGalleryActivity.IN_ALBUMSETPAGE);
+    }
+
+    @Override
+    public void observe() {
+    }
+
 
     private class MyLoadingListener implements LoadingListener {
         @Override

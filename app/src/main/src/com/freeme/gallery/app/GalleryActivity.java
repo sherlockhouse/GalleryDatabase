@@ -40,6 +40,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.view.ViewPager;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
@@ -77,6 +78,10 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.freeme.provider.GalleryDBManager;
 import com.freeme.provider.GalleryStore;
 import com.freeme.provider.MediaStoreImporter;
+import com.freeme.scott.galleryui.design.adapter.GalleryPageAdapter;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedController;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
+import com.freeme.scott.galleryui.design.widget.GalleryViewPager;
 import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.gallery3d.util.TraceHelper;
@@ -92,8 +97,10 @@ import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.LogcatHelper;
 import com.mediatek.galleryframework.base.MediaFilter;
 import com.mediatek.galleryframework.base.MediaFilterSetting;
+import java.util.ArrayList;
 
-public final class GalleryActivity extends AbstractGalleryActivity implements OnCancelListener {
+public final class GalleryActivity extends AbstractGalleryActivity
+        implements OnCancelListener,ViewPager.OnPageChangeListener {
     public static final String EXTRA_SLIDESHOW = "slideshow";
     public static final String EXTRA_DREAM = "dream";
     public static final String EXTRA_CROP = "crop";
@@ -113,9 +120,11 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     private static final String SHOW_TAB_GUIDE = "showTabGuide";
     private final static int REQUEST_COMMUNITY = 1100;
     public final static int INDEX_CAMERA = 0;
-    public final static int INDEX_STORY = 1;
-    public final static int INDEX_ALBUM = 2;
+    public final static int INDEX_STORY = 2;
+    public final static int INDEX_ALBUM = 1;
     public final static int INDEX_COMMUNITY = 3;
+    public final static int COUNT_DEFAULT = 3;
+
     //*/ Added by Tyd Lpublicinguanrong for secret photos, 2014-3-10
     private static final String VISITOR_MODE_ON = "com.freeme.ACTION_VISITOR_MODE_ON";
     private Dialog mVersionCheckDialog;
@@ -132,6 +141,13 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     private boolean mStartOutside = false;
     //*/
 
+    private GalleryViewPager mViewPager;
+
+    private GalleryPageAdapter mAdapter;
+    private final ArrayList<ViewPager.OnPageChangeListener> mOnPageChangeListeners = new ArrayList<>();
+    private FreemeBottomSelectedController controller;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         /// M: [DEBUG.ADD] @{
@@ -139,11 +155,6 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         /// @}
         super.onCreate(savedInstanceState);
 
-
-
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-
-        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         requestWindowFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
 
         getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
@@ -159,6 +170,7 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
 
         setContentView(R.layout.main);
+        setViewPager();
 
         //*/freemeos.xueweili 16-6-20  add for set cover visable when app first in
 
@@ -245,8 +257,30 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         //*/
         getDataManager().forceRefreshAll();
     }
+    private FreemeBottomSelectedController mBottomSelectedController;
 
 
+    private void setViewPager() {
+        String[] tabTitles = new String[COUNT_DEFAULT];
+        tabTitles[INDEX_CAMERA] = getResources().getString(R.string.tab_by_camera);
+        tabTitles[INDEX_ALBUM] = getResources().getString(R.string.tab_albums);
+        tabTitles[INDEX_STORY] = getResources().getString(R.string.tab_by_story);
+        mViewPager = findViewById(R.id.lists_pager);
+        mAdapter = new GalleryPageAdapter(tabTitles);
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.addOnPageChangeListener(this);
+        mViewPagerTabs = findViewById(R.id.lists_pager_header);
+        /*
+        mViewPagerTabs.configureTabIcons(tabIcons);
+        */
+        mViewPagerTabs.setViewPager(mViewPager);
+        mFreemeActionBarContainer = findViewById(R.id.actionbar_top_bar_freeme);
+        addOnPageChangeListener(mViewPagerTabs);
+        mFreemeBottomSelectedView = findViewById(R.id.bottom_container_freeme);
+        mBottomSelectedController = new FreemeBottomSelectedController(mFreemeBottomSelectedView);
+        controller = new FreemeBottomSelectedController(mFreemeBottomSelectedView);
+
+    }
 
 
 
@@ -730,6 +764,15 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         //overridePendingTransition(0, 0);
     }
 
+    public FreemeBottomSelectedController getController() {
+        return controller;
+    }
+
+    public void setController(FreemeBottomSelectedController controller) {
+        this.controller = controller;
+    }
+
+
     public class VisitorModeChangedReceiver extends BroadcastReceiver {
 
         public void onReceive(Context context, Intent intent) {
@@ -866,4 +909,40 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
     }
     // @}
+
+
+    public void addOnPageChangeListener(ViewPager.OnPageChangeListener onPageChangeListener) {
+        if (!mOnPageChangeListeners.contains(onPageChangeListener)) {
+            mOnPageChangeListeners.add(onPageChangeListener);
+        }
+    }
+
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        final int count = mOnPageChangeListeners.size();
+        for (int i = 0; i < count; i++) {
+            mOnPageChangeListeners.get(i).onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+        final int count = mOnPageChangeListeners.size();
+        for (int i = 0; i < count; i++) {
+            mOnPageChangeListeners.get(i).onPageSelected(position);
+        }
+        getGalleryActionBar().onBottomTabSelected(position);
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        final int count = mOnPageChangeListeners.size();
+        for (int i = 0; i < count; i++) {
+            mOnPageChangeListeners.get(i).onPageScrollStateChanged(state);
+        }
+    }
+
 }

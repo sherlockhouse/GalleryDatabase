@@ -36,8 +36,11 @@ import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.gallery3d.R;
@@ -76,6 +79,7 @@ import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.VisitorAlbum;
 import com.freeme.data.VisitorAlbumVideo;
 import com.freeme.extern.SecretMenuHandler;
+import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.gallery.app.MovieActivity;
 import com.freeme.gallery.filtershow.crop.CropActivity;
@@ -83,6 +87,7 @@ import com.freeme.jigsaw.app.JigsawEntry;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.ui.manager.State;
 import com.mediatek.gallery3d.layout.FancyHelper;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import com.mediatek.galleryfeature.config.FeatureConfig;
@@ -98,7 +103,7 @@ import com.mediatek.galleryframework.util.DebugUtils;
 
 public class AlbumPage extends ActivityState implements GalleryActionBar.ClusterRunner,
         SelectionManager.SelectionListener, MediaSet.SyncListener, GalleryActionBar.OnAlbumModeSelectedListener
-        , SecretMenuHandler.MenuListener {
+        , SecretMenuHandler.MenuListener,State , View.OnClickListener{
     public static final String KEY_MEDIA_PATH = "media-path";
     public static final String KEY_PARENT_MEDIA_PATH = "parent-media-path";
     public static final String KEY_SET_CENTER = "set-center";
@@ -200,6 +205,9 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             return -1;
         }
     };
+    private LinearLayout mFreemeHomeView;
+    private TextView mFreemeActionBarBackTitle;
+    private LinearLayout mFreemeTitleLayout;
 
     @Override
     protected int getBackgroundColorId() {
@@ -216,7 +224,8 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             //*/ Modified by droi Linguanrong for adjust glroot view layout, 2014-6-12
             int slotViewTop = mActivity.getGalleryActionBar().getHeight() + mActivity.mStatusBarHeight;
             //*/
-            int slotViewBottom = bottom - top;
+            int slotViewBottom = (int) (bottom - top
+                                - mActivity.getResources().getDimension(com.freeme.gallery.R.dimen.navigation_bar_height));
             int slotViewRight = right - left;
 
             //*/ Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
@@ -526,7 +535,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     private void showSyncErrorIfNecessary(boolean loadingFailed) {
         if ((mLoadingBits == 0) && (mSyncResult == MediaSet.SYNC_RESULT_ERROR) && mIsActive
                 && (loadingFailed || (mAlbumDataAdapter.size() == 0))) {
-            Toast.makeText(mActivity, com.freeme.gallery.R.string.sync_album_error,
+            Toast.makeText(mActivity, R.string.sync_album_error,
                     Toast.LENGTH_LONG).show();
         }
     }    public void onLongTap(int slotIndex) {
@@ -572,12 +581,25 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         } else {
             pickPhoto(targetPhoto, true);
         }
-    }    @Override
+    }
+
+    @Override
     protected void onCreate(Bundle data, Bundle restoreState) {
         super.onCreate(data, restoreState);
         mUserDistance = GalleryUtils.meterToPixel(USER_DISTANCE_METER);
         initializeViews();
         initializeData(data);
+        if (mActivity.mFreemeActionBarContainer != null) {
+            mFreemeHomeView = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_home_view);
+            mFreemeHomeView.findViewById(com.freeme.gallery.R.id.up).setOnClickListener(this);
+            mFreemeActionBarBackTitle = mFreemeHomeView.findViewById(com.freeme.gallery.R.id.freeme_actionbar_back_title);
+            mFreemeActionBarBackTitle.setText(R.string.albums);
+            mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
+            ((TextView)(mFreemeTitleLayout.findViewById(R.id.action_bar_title))).setText(mMediaSet.getName());
+            mFreemeActionBarBackTitle.setOnClickListener(this);
+            mActivity.setTopbarBackgroundColor(R.color.primary_freeme_light);
+
+        }
         mGetContent = data.getBoolean(GalleryActivity.KEY_GET_CONTENT, false);
         mShowClusterMenu = data.getBoolean(KEY_SHOW_CLUSTER_MENU, false);
         mDetailsSource = new MyDetailsSource();
@@ -638,7 +660,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     protected void onResume() {
         super.onResume();
         mIsActive = true;
-
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         mResumeEffect = mActivity.getTransitionStore().get(KEY_RESUME_ANIMATION);
         if (mResumeEffect != null) {
             mAlbumView.setSlotFilter(mResumeEffect);
@@ -777,8 +799,8 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeHandler.ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
+            public boolean onActionItemClicked(MenuItem item,int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
     }
@@ -881,9 +903,22 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         transitions.put(PhotoPage.KEY_OPEN_ANIMATION_RECT,
                 mSlotView.getSlotRect(slotIndex, mRootPane));
     }
+
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int itemId) {
+        switch (itemId) {
             case android.R.id.home: {
                 onUpPressed();
                 return true;
@@ -1049,6 +1084,29 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                 mActivity.getStateManager().finishState(this);
             }
         }
+    }
+
+    @Override
+    public void onEnterState() {
+        mActivity.showNavi(AbstractGalleryActivity.IN_ALBUMPAGE);
+    }
+
+    @Override
+    public void observe() {
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case com.freeme.gallery.R.id.up:
+            case com.freeme.gallery.R.id.freeme_actionbar_back_title:
+                onUpPressed();
+                break;
+            default:
+                break;
+        }
+
     }
 
     private class MyLoadingListener implements LoadingListener {

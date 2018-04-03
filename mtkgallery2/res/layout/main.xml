@@ -1,27 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/gallery_root"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gallery_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include layout="@layout/gl_root_group"/>
+    <include layout="@layout/gl_root_group" />
+    <!-- TODO: Apply background color to ActionBar instead of a FrameLayout. For now, this is
+         the easiest way to preserve correct pane scrolling and searchbar collapse/expand
+         behaviors. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.freeme.scott.galleryui.design.widget.ViewPagerTabs
+            android:id="@+id/lists_pager_header"
+            style="@style/DialtactsActionBarTabTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tab_height"
+            android:layout_gravity="top"
+            android:layout_marginTop="@dimen/status_bar_height"
+            android:elevation="1dp"
+            android:orientation="horizontal"
+            android:textAllCaps="true"
+            android:textColor="@color/freeme_dialer_tab_text_color" />
+
+        <com.freeme.scott.galleryui.design.widget.GalleryViewPager
+            android:id="@+id/lists_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </FrameLayout>
+
+    <include layout="@layout/top_bar_freeme"/>
+    <include layout="@layout/bottom_selectmenu_bar"/>
 
     <FrameLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <FrameLayout
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:visibility="gone"/>
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone" />
 
 
     <!--Added by droi Linguanrong for freeme gallery, 16-1-13-->
@@ -32,34 +61,34 @@
         android:layout_alignParentBottom="true"
         android:background="@color/transparent"
         android:gravity="center"
-        android:visibility="visible"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="visible">
 
         <!--<RadioButton-->
-            <!--android:id="@+id/bottom_tab_camera"-->
-            <!--style="@style/style_RadioButton"-->
-            <!--android:checked="true"-->
-            <!--android:drawableTop="@drawable/tab_camera"-->
-            <!--android:text="@string/tab_by_camera"/>-->
+        <!--android:id="@+id/bottom_tab_camera"-->
+        <!--style="@style/style_RadioButton"-->
+        <!--android:checked="true"-->
+        <!--android:drawableTop="@drawable/tab_camera"-->
+        <!--android:text="@string/tab_by_camera"/>-->
 
         <!--<RadioButton-->
-            <!--android:id="@+id/bottom_tab_story"-->
-            <!--style="@style/style_RadioButton"-->
-            <!--android:drawableTop="@drawable/tab_story"-->
-            <!--android:text="@string/tab_by_story"/>-->
+        <!--android:id="@+id/bottom_tab_story"-->
+        <!--style="@style/style_RadioButton"-->
+        <!--android:drawableTop="@drawable/tab_story"-->
+        <!--android:text="@string/tab_by_story"/>-->
 
         <!--<RadioButton-->
-            <!--android:id="@+id/bottom_tab_album"-->
-            <!--style="@style/style_RadioButton"-->
-            <!--android:drawableTop="@drawable/tab_all"-->
-            <!--android:text="@string/tab_by_all"/>-->
+        <!--android:id="@+id/bottom_tab_album"-->
+        <!--style="@style/style_RadioButton"-->
+        <!--android:drawableTop="@drawable/tab_all"-->
+        <!--android:text="@string/tab_by_all"/>-->
 
         <!--<RadioButton-->
-            <!--android:id="@+id/bottom_tab_community"-->
-            <!--style="@style/style_RadioButton"-->
-            <!--android:drawableTop="@drawable/tab_community"-->
-            <!--android:visibility="gone"-->
-            <!--android:text="@string/tab_by_community"/>-->
+        <!--android:id="@+id/bottom_tab_community"-->
+        <!--style="@style/style_RadioButton"-->
+        <!--android:drawableTop="@drawable/tab_community"-->
+        <!--android:visibility="gone"-->
+        <!--android:text="@string/tab_by_community"/>-->
     </RadioGroup>
     <!--Tyd-->
 </RelativeLayout>

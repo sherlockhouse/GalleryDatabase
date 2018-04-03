@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_container_freeme"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:orientation="horizontal"
+    android:visibility="visible" />
+

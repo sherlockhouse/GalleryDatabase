@@ -25,8 +25,8 @@
     <color name="theme_color_disable">#3F818181</color>
     <!--Linguanrong-->
     <!-- tyd.biantao 20130110. Wallpaper -->
-    <color name="drag_text_highlight">@color/darker_transparent</color>
-    <color name="drag_text_normal">@color/theme_color_disable</color>
+    <color name="drag_text_highlight">@color/theme_color</color>
+    <color name="drag_text_normal">@color/title_text_color</color>
     <!-- tyd.mjzhang 2014-08-11. no file -->
     <color name="no_file_edit">#000000</color>
 
@@ -52,4 +52,8 @@
     <color name="photopage_actionbar_bg">#dd000000</color>
 
     <color name="trans_gray">#66AAAAAA</color>
+
+    <color name="empty_text_color">#ffafafaf</color>
+
+    <color name="title_text_color">#ff333333</color>
 </resources>

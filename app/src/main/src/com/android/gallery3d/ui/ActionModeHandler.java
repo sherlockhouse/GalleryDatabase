@@ -57,9 +57,12 @@ import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.ThreadPool;
+import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.page.AlbumStoryCoverPage;
 import com.freeme.page.AlbumStoryPage;
 import com.freeme.page.AlbumStorySetPage;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedController;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.utils.FreemeCustomUtils;
@@ -119,13 +122,6 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         }
     }
 
-
-
-
-
-
-
-
     private void updateStoryMenu() {
         if (mSelectionManager.isInverseSelection()
                 && mSelectionManager.getSelectedCount() == 1
@@ -178,7 +174,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     }
 
     public interface ActionModeListener {
-        boolean onActionItemClicked(MenuItem item);
+        boolean onActionItemClicked(MenuItem item, int action);
     }
 
     private static class GetAllPanoramaSupports implements MediaObject.PanoramaSupportCallback {
@@ -320,6 +316,79 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         return true;
     }
 
+    private int getActionItemId(int action) {
+        switch (action) {
+            case ACTION_CODE_DELETE:
+                return R.id.action_delete;
+            case ACTION_CODE_SHARE:
+                return R.id.action_share;
+            default:
+                return -1;
+        }
+    }
+    public boolean onActionItemClicked(int actioncode) {
+        GLRoot root = mActivity.getGLRoot();
+        root.lockRenderThread();
+
+        try {
+            int itemid = getActionItemId(actioncode);
+
+            if (itemid == R.id.action_share) {
+                mSelectionManager.leaveSelectionMode();
+                mActivity.startActivity(FreemeCustomUtils.createCustomChooser(mActivity, mShareIntent,
+                        mActivity.getResources().getString(R.string.share)));
+                return true;
+            }
+
+            boolean result;
+            // Give listener a chance to process this command before it's routed to
+            // ActionModeHandler, which handles command only based on the action id.
+            // Sometimes the listener may have more background information to handle
+            // an action command.
+            if (mListener != null) {
+                result = mListener.onActionItemClicked(null, getActionItemId(actioncode));
+                if (result) {
+                    mSelectionManager.leaveSelectionMode();
+                    return result;
+                }
+            }
+
+            //*/ Added by Linguanrong for story album, 2015-6-29
+            if (actioncode  == ACTION_CODE_DELETE
+                    && mActivity.getStateManager().getStateCount() != 0) {
+                ActivityState topState = mActivity.getStateManager().getTopState();
+                if (topState != null && topState instanceof AlbumStorySetPage) {
+                    int type = ((AlbumStorySetPage)topState).containsDefaultAlbum();
+                    if(type != -1) {
+                        Toast.makeText(mActivity, mActivity.getText(R.string.cannot_delete_tip),
+                                Toast.LENGTH_LONG).show();
+                    }
+
+                    if(type == 1) {
+                        mSelectionManager.leaveSelectionMode();
+                        return true;
+                    }
+                }
+            }
+            //*/
+
+            ProgressListener listener = null;
+            String confirmMsg = null;
+            if (actioncode == ACTION_CODE_DELETE) {
+                confirmMsg = mActivity.getResources().getQuantityString(
+                        R.plurals.delete_selection, mSelectionManager.getSelectedCount());
+                if (mDeleteProgressListener == null) {
+                    mDeleteProgressListener = new WakeLockHoldingProgressListener(mActivity,
+                            "Gallery Delete Progress Listener");
+                }
+                listener = mDeleteProgressListener;
+            }
+            mMenuExecutor.onMenuClicked(R.id.action_delete, confirmMsg, listener);
+        } finally {
+            root.unlockRenderThread();
+        }
+        return true;
+    }
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         GLRoot root = mActivity.getGLRoot();
@@ -331,7 +400,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
             // Sometimes the listener may have more background information to handle
             // an action command.
             if (mListener != null) {
-                result = mListener.onActionItemClicked(item);
+                result = mListener.onActionItemClicked(item, 0);
                 if (result) {
                     mSelectionManager.leaveSelectionMode();
                     return result;
@@ -385,7 +454,10 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         mActivity.invalidateOptionsMenu();
         //*/
     }
-
+    private static final int ACTION_CODE_SHARE = 0x100;
+    private static final int ACTION_CODE_DELETE = 0x200;
+    private static final int[] mActionNames = new int[]{R.string.delete,R.string.share};
+    private static final int[] mActionCodes = new int[]{ACTION_CODE_DELETE, ACTION_CODE_SHARE};
     private final OnShareTargetSelectedListener mShareTargetSelectedListener =
             new OnShareTargetSelectedListener() {
                 @Override
@@ -394,6 +466,24 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                     return false;
                 }
             };
+
+    private FreemeBottomSelectedView.IFreemeBottomActionCallBack mCallBack
+            = new FreemeBottomSelectedView.IFreemeBottomActionCallBack() {
+        @Override
+        public void onAction(int actionCode) {
+            switch (actionCode) {
+                case ACTION_CODE_DELETE:
+                    onActionItemClicked(ACTION_CODE_DELETE);
+                    break;
+                case ACTION_CODE_SHARE:
+                    onActionItemClicked(ACTION_CODE_SHARE);
+                default:
+                    break;
+            }
+        }
+    };
+
+
     @Override
     public boolean onCreateActionMode(ActionMode mode, final Menu menu) {
         //*/ Added by Linguanrong for story album, 2015-6-27
@@ -401,6 +491,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
             return true;
         }
         //*/
+
 
         //*/ Added by Tyd Linguanrong for secret photos, 2014-3-5
         if (mActivity.mVisitorMode) return true;
@@ -422,13 +513,14 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                 }
             });
         } else {
+            ((GalleryActivity)mActivity).getController().showActions(mActionNames, mActionCodes, mCallBack);
+
             mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
         }
         //*/
 
         mMenu = menu;
         mShareMenuItem = menu.findItem(R.id.action_share);
-//        menu.findItem(R.id.action_delete).setVisible(true);
         if (mShareMenuItem != null) {
             mShareMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -436,12 +528,6 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
                     mSelectionManager.leaveSelectionMode();
                     mActivity.startActivity(FreemeCustomUtils.createCustomChooser(mActivity, mShareIntent,
                             mActivity.getResources().getString(R.string.share)));
-                    //*/ Added by tyd Linguanrong for statistic, 15-12-18
-//                    StatisticUtil.generateStatisticInfo(mActivity, StatisticData.OPTION_SHARE);
-                    //*/
-
-                    // for baas analytics
-//                    DroiAnalytics.onEvent(mActivity, StatisticData.OPTION_SHARE);
                     return true;
                 }
             });
@@ -478,6 +564,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         setStatusView(false);
+        ((GalleryActivity)mActivity).getController().hideActions();
         mSelectionManager.leaveSelectionMode();
     }
 
@@ -736,6 +823,8 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         }
         //*/
         setTitle(title);
+        ((GalleryActivity)mActivity).getController().updateActionEnabled(count > 0, ACTION_CODE_DELETE);
+        ((GalleryActivity)mActivity).getController().updateActionEnabled(count > 0, ACTION_CODE_SHARE);
 
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-2-13
         if (mSelectMenuItem != null) {

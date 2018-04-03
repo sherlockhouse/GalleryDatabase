@@ -540,8 +540,6 @@ public class StorySlotView extends GLView {
                     mSlotHeight = mSlotWidth = Math.max(1,
                             (mWidth - (columns - 1) * mSlotGap - mSlotPadding * 2) / columns);
                     mSlotHeight = mSlotWidth * 2 / 3;
-                    Log.i("sldfjl", "mWidth: " + mWidth + " mHeight: " + mHeight + " mSlotHeight: " + mSlotHeight
-                            + " mSlotWidth: " + mSlotWidth);
 //                    int rows = isLand ? mSpec.rowsLand : mSpec.rowsPort;
 //                    if(mActivity instanceof JigsawEntry) rows = rows - 1;
 //                    if(mSpec.slotGapV != 0) {

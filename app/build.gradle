@@ -277,4 +277,5 @@ dependencies {
     compile project(':freeme-support-design')
     compile 'com.android.support:multidex:1.0.1'
     implementation project(':freemegalleryuidesign-debug')
+    implementation project(':freemegallerywidget-debug')
 }

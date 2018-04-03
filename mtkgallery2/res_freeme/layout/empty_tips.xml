@@ -8,24 +8,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="64dip"
+        android:layout_marginBottom="36dip"
         android:drawablePadding="10dip"
         android:drawableTop="@drawable/ic_camera_tip"
         android:gravity="center"
         android:text="@string/no_photos"
-        android:textColor="@color/freeme_grey_title"
-        android:textSize="16sp"/>
+        android:textColor="@color/empty_text_color"
+        android:textSize="17sp"/>
 
     <TextView
         android:id="@+id/btn_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:layout_gravity="center"
-        android:layout_marginTop="30dip"
         android:gravity="center"
         android:background="@drawable/emptytip_title_back"
         android:text="@string/shot_immediately"
         android:textColor="@color/white"
-        android:textSize="18sp"/>
+        android:textSize="15sp"/>
 
 </FrameLayout>

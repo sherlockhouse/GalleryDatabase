@@ -539,8 +539,8 @@ public class AlbumVisitorPage extends ActivityState implements GalleryActionBar.
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeHandler.ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
+            public boolean onActionItemClicked(MenuItem item,int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
     }
@@ -569,9 +569,21 @@ public class AlbumVisitorPage extends ActivityState implements GalleryActionBar.
         return true;
     }
 
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int itemId) {
+        switch (itemId) {
             case android.R.id.home:
                 onBackPressed();
                 return true;

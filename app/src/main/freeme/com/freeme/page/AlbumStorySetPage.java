@@ -63,6 +63,7 @@ import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.android.gallery3d.app.ActivityState;
 import com.android.gallery3d.app.AlbumPage;
+import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.AlbumPicker;
 import com.android.gallery3d.app.AlbumSetDataLoader;
 import com.android.gallery3d.app.AlbumSetPage;
@@ -97,6 +98,7 @@ import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
 import com.freeme.ui.StoryAlbumSetSlotRender;
 import com.freeme.ui.StorySlotView;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.FreemeUtils;
 import com.freeme.utils.ShareFreemeUtil;
 
@@ -106,7 +108,7 @@ import java.util.Calendar;
 
 public class AlbumStorySetPage extends ActivityState implements
         SelectionManager.SelectionListener, GalleryActionBar.ClusterRunner,
-        EyePosition.EyePositionListener, MediaSet.SyncListener {
+        EyePosition.EyePositionListener, MediaSet.SyncListener,State {
     public static final  String KEY_MEDIA_PATH            = "media-path";
     public static final  String KEY_SET_TITLE             = "set-title";
     public static final  String KEY_SET_SUBTITLE          = "set-subtitle";
@@ -634,6 +636,16 @@ public class AlbumStorySetPage extends ActivityState implements
         mGuideDialog.setContentView(view);
         mGuideDialog.show();
     }
+
+    @Override
+    public void onEnterState() {
+        mActivity.showNavi(AbstractGalleryActivity.IN_ALBUMSETPAGE);
+    }
+
+    @Override
+    public void observe() {
+
+    }
     //*/
 
     private class MyLoadingListener implements LoadingListener {
@@ -940,6 +952,7 @@ public class AlbumStorySetPage extends ActivityState implements
     public void onResume() {
         super.onResume();
         mActionBar.initActionBar();
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
         mOrientationManager.lockOrientation(true);
         //*/
@@ -1029,10 +1042,11 @@ public class AlbumStorySetPage extends ActivityState implements
         mActionModeHandler = new ActionModeHandler(mActivity, mSelectionManager);
         mActionModeHandler.setActionModeListener(new ActionModeHandler.ActionModeListener() {
             @Override
-            public boolean onActionItemClicked(MenuItem item) {
-                return onItemSelected(item);
+            public boolean onActionItemClicked(MenuItem item,int menuItemid) {
+                return onItemSelected(item, menuItemid);
             }
         });
+
         mRootPane.addComponent(mSlotView);
 
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
@@ -1083,10 +1097,22 @@ public class AlbumStorySetPage extends ActivityState implements
         return true;
     }
 
+    protected boolean onItemSelected(MenuItem item, int menuItemid) {
+        if (item != null) {
+            return onItemSelected(item);
+        } else {
+            return onMenuItemSelected(menuItemid);
+        }
+    }
+
     @Override
     protected boolean onItemSelected(MenuItem item) {
+        return onMenuItemSelected(item.getItemId());
+    }
+
+    private boolean onMenuItemSelected(int itemId) {
         Activity activity = mActivity;
-        switch (item.getItemId()) {
+        switch (itemId) {
             //*/ Added by Tyd Linguanrong for Gallery new style, 2014-3-5
             case android.R.id.home:
                 onBackPressed();

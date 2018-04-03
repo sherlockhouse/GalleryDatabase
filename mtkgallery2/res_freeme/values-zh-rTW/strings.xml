@@ -171,7 +171,7 @@
     <string name="share_freeme_item_title">"分享Freeme OS"</string>
 
     <string name="shot_immediately">馬上拍攝</string>
-    <string name="no_photos">您還沒有拍攝照片喔!</string>
+    <string name="no_photos">無照片</string>
 
     <!-- add by xuewelil for hide album -->
     <string name="hide_album">隱藏相冊</string>

@@ -75,6 +75,7 @@ import com.android.gallery3d.data.SecureSource;
 import com.android.gallery3d.data.SnailAlbum;
 import com.android.gallery3d.data.SnailItem;
 import com.android.gallery3d.data.SnailSource;
+import com.freeme.gallery.app.AbstractGalleryActivity;
 import com.freeme.gallery.app.GalleryActivity;
 import com.freeme.gallery.app.TrimVideo;
 import com.freeme.gallery.filtershow.FilterShowActivity;
@@ -92,6 +93,7 @@ import com.android.gallery3d.ui.SynchronizedHandler;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.UsageStatistics;
 import com.android.gallery3d.common.ApiHelper;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.FrameworkSupportUtils;
 import com.freeme.utils.FreemeCustomUtils;
 import com.freeme.utils.FreemeUtils;
@@ -103,7 +105,7 @@ import com.sprd.gallery3d.refocus.RefocusPhotoEditActivity;
 public abstract class PhotoPage extends ActivityState implements
         PhotoView.Listener, AppBridge.Server, ShareActionProvider.OnShareTargetSelectedListener,
         PhotoPageBottomControls.Delegate, GalleryActionBar.OnAlbumModeSelectedListener ,
-        PhotoVoiceProgress.TimeListener{
+        PhotoVoiceProgress.TimeListener, State{
     public static final  int                      REQUEST_PLAY_VIDEO                = 5;
     public static final  int                      REQUEST_TRIM                      = 6;
     public static final  String                   KEY_MEDIA_SET_PATH                = "media-set-path";
@@ -862,7 +864,7 @@ public abstract class PhotoPage extends ActivityState implements
         mActionBar = mActivity.getGalleryActionBar();
         mActionBar.hide();
         super.onCreate(data, restoreState);
-
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
         mSelectionManager = new SelectionManager(mActivity, false);
         mMenuExecutor = new MenuExecutor(mActivity, mSelectionManager);
         //*/ Added by Tyd Linguanrong for Gallery new style, 2014-04-14
@@ -1301,7 +1303,7 @@ public abstract class PhotoPage extends ActivityState implements
    @Override
     protected void onResume() {
         super.onResume();
-
+        mActivity.getNavigationWidgetManager().observe();
         //*/ freeme.gulincheng. 20170920. #0018664 move from onCreate to onResume
         if (mSetPathString == null) {
             // Get default media set by the URI
@@ -2395,5 +2397,14 @@ public abstract class PhotoPage extends ActivityState implements
     protected void onConfigurationChanged(Configuration config) {
         super.onConfigurationChanged(config);
         mBottomControls.initViewsConfigureChanged();
+    }
+
+    public void onEnterState(){
+        mActivity.showNavi(AbstractGalleryActivity.IN_PHOTOPAGE);
+
+    }
+
+    public void observe(){
+
     }
 }

@@ -4,7 +4,7 @@
     <corners android:radius="30dp" />
 
     <size
-        android:height="30dp"
+        android:height="23dp"
         android:width="20dp" />
 
     <gradient

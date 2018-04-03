@@ -31,6 +31,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -41,6 +42,7 @@ import android.os.IBinder;
 import android.support.v4.print.PrintHelper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -66,12 +68,18 @@ import com.android.gallery3d.util.ThreadPool;
 import com.freeme.gesturesensor.GestureSensorManger;
 import com.android.photos.data.GalleryBitmapPool;
 import com.freeme.provider.GalleryDBManager;
+import com.freeme.scott.galleryui.design.widget.FreemeActionBarUpContainerLayout;
+import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
+import com.freeme.scott.galleryui.design.widget.ViewPagerTabs;
+import com.freeme.ui.manager.NaviController;
+import com.freeme.ui.manager.NavigationWidgetManager;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.SystemPropertiesProxy;
 import com.mediatek.gallery3d.util.PermissionHelper;
 
 import java.io.FileNotFoundException;
 
-public class AbstractGalleryActivity extends Activity implements GalleryContext {
+public class AbstractGalleryActivity extends Activity implements GalleryContext,NaviController {
     private static final String TAG = "AbstractGalleryActivity";
     //*/ Added by droi Linguanrong for adjust glroot view layout, 2014-6-12
     public int mStatusBarHeight;
@@ -134,6 +142,11 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     public static int colorPrimary;
     public static int colorPrimaryDarkValue;
     protected boolean mGranted;
+
+
+    public ViewPagerTabs mViewPagerTabs;
+    public FreemeBottomSelectedView mFreemeBottomSelectedView;
+    public FreemeActionBarUpContainerLayout mFreemeActionBarContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -511,6 +524,77 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
             mGestureChangedListener = listener;
         }
     }
+
+    public static final int IN_PHOTOPAGE = 0;
+    public static final int IN_ALBUMSETPAGE = 1;
+    public static final int IN_ALBUMPAGE = 2;
+    public static final int IN_SELECTMODE= 3;
+    public static final int IN_STORYPAGE= 4;
+    public static final int IN_ADD_STORYPAGE= 5;
+
+
+
+    @Override
+    public void showNavi(int state) {
+        switch (state) {
+            case IN_PHOTOPAGE:// in photopage
+                setViewPagerVisible(View.INVISIBLE);
+                setFreemeActionbarContainerVisible(View.INVISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.INVISIBLE);
+                break;
+            case IN_ALBUMSETPAGE:// in albumsetpage
+                setViewPagerVisible(View.VISIBLE);
+                setFreemeActionbarContainerVisible(View.INVISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.INVISIBLE);
+                break;
+            case IN_ALBUMPAGE:
+                setViewPagerVisible(View.INVISIBLE);
+                setFreemeActionbarContainerVisible(View.VISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.INVISIBLE);
+                break;
+
+            case IN_SELECTMODE:
+                setViewPagerVisible(View.INVISIBLE);
+                setFreemeActionbarContainerVisible(View.INVISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.VISIBLE);
+                break;
+            case IN_STORYPAGE:
+                setViewPagerVisible(View.INVISIBLE);
+                setFreemeActionbarContainerVisible(View.VISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.INVISIBLE);
+                mFreemeActionBarContainer.setBackgroundColor(Color.TRANSPARENT);
+                break;
+            case IN_ADD_STORYPAGE:
+                setViewPagerVisible(View.INVISIBLE);
+                setFreemeActionbarContainerVisible(View.VISIBLE);
+                setmFreemeBottomSelectedViewVisible(View.INVISIBLE);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private void setmFreemeBottomSelectedViewVisible(int visibility) {
+        if (mFreemeBottomSelectedView != null) {
+            mFreemeBottomSelectedView.setVisibility(visibility);
+        }
+    }
+
+
+    private void setFreemeActionbarContainerVisible(int visibility) {
+        if (mFreemeActionBarContainer != null) {
+            mFreemeActionBarContainer.setVisibility(visibility);
+        }
+    }
+
+    private void setViewPagerVisible(int visibility) {
+        if (mViewPagerTabs != null) {
+            mViewPagerTabs.setVisibility(visibility);
+        }
+    }
+
+
     public interface onGestureSensorListener {
         void onGestureSensorChanged(SensorEvent event);
     }
@@ -590,6 +674,31 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         }
         lastClickTime = time;
         return false;
+    }
+
+    private NavigationWidgetManager mNavigationWidgetManager;
+
+    public synchronized NavigationWidgetManager getNavigationWidgetManager() {
+        if (mNavigationWidgetManager == null) {
+            mNavigationWidgetManager = new NavigationWidgetManager(new State() {
+                @Override
+                public void onEnterState() {
+
+                }
+
+                @Override
+                public void observe() {
+
+                }
+            });
+        }
+        return mNavigationWidgetManager;
+    }
+
+    public void setTopbarBackgroundColor(int id) {
+        if (mFreemeActionBarContainer != null) {
+            mFreemeActionBarContainer.setBackgroundColor(getResources().getColor(id));
+        }
     }
 
 }

@@ -582,4 +582,12 @@
         <item name="android:backgroundTint">@color/theme_color</item>
         <item name="android:backgroundTintMode">src_in</item>
     </style>
+
+    <!-- Text style for tabs. -->
+    <style name="DialtactsActionBarTabTextStyle"
+        parent="android:style/Widget.Material.Light.ActionBar.TabText">
+        <item name="android:textColor">@color/tab_text_color</item>
+        <item name="android:textSize">@dimen/tab_text_size</item>
+        <item name="android:fontFamily">"sans-serif-medium"</item>
+    </style>
 </resources>
