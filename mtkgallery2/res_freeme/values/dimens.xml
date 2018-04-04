@@ -14,11 +14,6 @@
      limitations under the License.
 -->
 <resources>
-    <dimen name="tab_height">48dp</dimen>
-    <dimen name="tab_text_size">14sp</dimen>
-    <dimen name="action_bar_height">56dp</dimen>
-    <dimen name="action_bar_height_large">64dp</dimen>
-    <dimen name="action_bar_elevation">3dp</dimen>
     <!--Added by Tyd Linguanrong for Gallery new style, 2013-12-19-->
     <dimen name="albumset_slot_gap_vertical">37dp</dimen>
 
