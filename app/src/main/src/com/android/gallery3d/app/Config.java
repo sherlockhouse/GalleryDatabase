@@ -114,7 +114,7 @@ final class Config {
             slotViewSpec.rowsPort = r.getInteger(R.integer.album_rows_port);
             slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.album_slot_gap);
             //*/Added by droi Linguanrong for Gallery new style, 2013-12-17
-            slotViewSpec.slotPadding = r.getDimensionPixelSize(R.dimen.album_slot_padding);
+            slotViewSpec.slotPadding = r.getDimensionPixelSize(R.dimen.album_slot_padding_0dp);
             //*/
         }
 

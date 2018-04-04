@@ -26,7 +26,8 @@
     <integer name="album_timeshaft_rows_port">4</integer>
 
     <dimen name="album_slot_padding">@dimen/album_slot_gap</dimen>
-    <dimen name="album_timeshaft_slot_padding">@dimen/album_slot_gap</dimen>
+    <dimen name="album_slot_padding_0dp">0dp</dimen>
+    <dimen name="album_timeshaft_slot_padding">0dp</dimen>
 
     <dimen name="album_date_label_background_height">100dp</dimen>
     <dimen name="album_date_title_offset">10dp</dimen>
@@ -65,7 +66,7 @@
     <dimen name="albumstory_count_offset">10dp</dimen>
     <dimen name="albumstory_title_font_size">14sp</dimen>
     <dimen name="albumstory_count_font_size">12sp</dimen>
-    <dimen name="albumstory_left_margin">16dp</dimen>
+    <dimen name="albumstory_left_margin">0dp</dimen>
     <dimen name="albumstory_title_right_margin">40dp</dimen>
     <dimen name="albumstory_icon_size">25dp</dimen>
 
