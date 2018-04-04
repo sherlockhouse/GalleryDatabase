@@ -5,19 +5,20 @@
     android:layout_height="match_parent"
     android:layout_alignParentBottom="true"
     android:layout_alignParentStart="true"
+    android:background="@drawable/top_gradient"
+
     android:clickable="false"
+    android:fitsSystemWindows="true"
     android:visibility="gone">
 
     <LinearLayout
         android:id="@+id/photopage_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@drawable/top_gradient"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:clickable="false"
         android:paddingEnd="6dp"
         android:paddingStart="@dimen/photopage_toolbar_paddingstart"
-        android:paddingTop="40dp"
         android:visibility="gone">
 
 
@@ -57,7 +58,7 @@
                 android:layout_height="@dimen/action_bar_content_inset_freeme"
                 android:layout_marginEnd="6dp"
                 android:clickable="true"
-                android:src="@drawable/ic_info" />
+                android:src="@drawable/ic_info_freeme" />
         </LinearLayout>
 
 

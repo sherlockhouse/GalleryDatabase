@@ -200,6 +200,7 @@ abstract public class ActivityState {
                             | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
                 } else {
                     win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                    win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
                 }
                 win.setStatusBarColor(Color.TRANSPARENT);
 

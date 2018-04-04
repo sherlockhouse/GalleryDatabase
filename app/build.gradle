@@ -268,14 +268,13 @@ dependencies {
     compile files('libs/gestureSensor.jar')
     compile project(':freemeabout')
     freemeos_6_0_nativeCompile project(':freemeEC')
-//    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
+    //    compile 'com.freeme.multimedia:freemeupdate:1.0.10@aar'
     compile project(':baas_analytics')
     compile project(':mtkgallery2')
     implementation project(':mtkreflectlib-release')
     compile 'com.facebook.stetho:stetho:1.5.0'
     compile 'com.facebook.stetho:stetho-okhttp:1.5.0'
     compile project(':freeme-support-design')
-    compile 'com.android.support:multidex:1.0.1'
-    implementation project(':freemegalleryuidesign-debug')
+    implementation 'com.android.support:multidex:1.0.1'
     implementation project(':freemegallerywidget-debug')
 }

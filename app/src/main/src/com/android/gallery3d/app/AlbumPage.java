@@ -224,7 +224,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             //*/ Modified by droi Linguanrong for adjust glroot view layout, 2014-6-12
             int slotViewTop = mActivity.getGalleryActionBar().getHeight() + mActivity.mStatusBarHeight;
             //*/
-            if (mGetContent) {
+            if (mGetContent && !mStorySelectMode) {
                 slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
             }
             int slotViewBottom = (int) (bottom - top
@@ -598,7 +598,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             mFreemeActionBarBackTitle = mFreemeHomeView.findViewById(com.freeme.gallery.R.id.freeme_actionbar_back_title);
             mFreemeActionBarBackTitle.setText(R.string.albums);
             mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
-            ((TextView)(mFreemeTitleLayout.findViewById(R.id.action_bar_title))).setText(mMediaSet.getName());
+            ((TextView)(mFreemeTitleLayout.findViewById(com.freeme.gallery.R.id.action_bar_title))).setText(mMediaSet.getName());
             mFreemeActionBarBackTitle.setOnClickListener(this);
             mActivity.setTopbarBackgroundColor(R.color.primary_freeme_light);
 

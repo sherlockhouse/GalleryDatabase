@@ -204,7 +204,7 @@ public class AlbumSetPage extends ActivityState implements
             //*/ Modified by droi Linguanrong for freeme gallery, 16-1-13
             //int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop
             int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop + mActivity.mStatusBarHeight;
-            if (mGetContent) {
+            if (mGetContent && !mStorySelectMode) {
                 slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
             }
             //*/
@@ -885,7 +885,7 @@ public class AlbumSetPage extends ActivityState implements
             }
             mFreemeActionBarBackTitle.setOnClickListener(this);
             mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
-            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.android.gallery3d.R.id.action_bar_title);
+            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.freeme.gallery.R.id.action_bar_title);
             mActionbarTitle.setText(mActivity.getResources().getText(R.string.tab_albums));
             mActivity.setTopbarBackgroundColor(com.android.gallery3d.R.color.primary_freeme_light);
 

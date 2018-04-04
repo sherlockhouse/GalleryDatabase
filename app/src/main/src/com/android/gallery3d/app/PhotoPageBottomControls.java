@@ -32,8 +32,8 @@ import android.view.animation.Animation;
 import android.widget.TextView;
 
 import com.freeme.gallery.R;
-import com.freeme.scott.galleryui.design.BottomNavigationBar;
 import com.freeme.scott.galleryui.design.BottomNavigationItem;
+import com.freeme.scott.galleryui.design.BottomNavigationBar;
 import com.freeme.utils.FreemeUtils;
 
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
     private View mPhotoDetails;
     private TextView mBackText;
     //*/ Added by Linguanrong for guide, 2015-08-10
-    public  SharedPreferences        mSharedPref;
+    public  SharedPreferences   mSharedPref;
     private boolean isEditable = true;
 
     @Override
@@ -359,7 +359,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_setas, R.string.set_as).setActiveColorResource(R.color.transparent))
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_film, R.string.blockbuster).setActiveColorResource(R.color.transparent))
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_tag, R.string.tags).setActiveColorResource(R.color.transparent))
-                    .setMode(BottomNavigationBar.MODE_DEFAULT)
+                    .setMode(BottomNavigationBar.MODE_FIXED)
                     .initialise();
             sixTabs = true;
             twoTabs = false;
@@ -369,7 +369,7 @@ public class PhotoPageBottomControls implements OnClickListener , BottomNavigati
             bottomNavigationBar
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_share, R.string.share).setActiveColorResource(R.color.transparent))
                     .addItem(new BottomNavigationItem(R.drawable.ic_menu_photo_delete, R.string.delete).setActiveColorResource(R.color.transparent))
-                    .setMode(BottomNavigationBar.MODE_DEFAULT)
+                    .setMode(BottomNavigationBar.MODE_FIXED)
                     .initialise();
             twoTabs = true;
             sixTabs = false;

@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 
 dependencies {
-    implementation project(':freemegalleryuidesign-debug')
 
     // compile fileTree(dir: 'libs', include: '*.jar')
 }

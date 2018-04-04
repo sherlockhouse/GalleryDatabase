@@ -392,7 +392,7 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
             mFreemeActionBarBackTitle.setText(com.android.gallery3d.R.string.tab_by_story);
             mFreemeActionBarBackTitle.setOnClickListener(this);
             mFreemeTitleLayout = mActivity.mFreemeActionBarContainer.findViewById(com.freeme.gallery.R.id.freeme_title_layout);
-            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(com.android.gallery3d.R.id.action_bar_title);
+            TextView mActionbarTitle = mFreemeTitleLayout.findViewById(R.id.action_bar_title);
             if (mNewAlbum) {
                 mActionbarTitle.setText(mSharedPref.getString(StoryAlbumSet.ALBUM_KEY + mStoryBucketId, ""));
             } else {
