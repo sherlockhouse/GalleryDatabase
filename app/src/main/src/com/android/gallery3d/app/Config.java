@@ -50,44 +50,38 @@ final class Config {
         private AlbumSetPage(Context context) {
             Resources r = context.getResources();
 
-            placeholderColor = r.getColor(R.color.albumset_placeholder);
+            placeholderColor = r.getColor(R.color.transparent);
 
             slotViewSpec = new SlotView.Spec();
-            slotViewSpec.rowsLand = r.getInteger(R.integer.albumset_rows_land);
+            slotViewSpec.rowsLand = r.getInteger(R.integer.albumstoryset_rows_land);
             slotViewSpec.rowsPort = r.getInteger(R.integer.albumset_rows_port);
             slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.albumset_slot_gap);
             slotViewSpec.slotHeightAdditional = 0;
             //*/Added by droi Linguanrong for Gallery new style, 2013-12-17
             slotViewSpec.slotPadding = r.getDimensionPixelSize(R.dimen.album_slot_padding);
             slotViewSpec.bottomPadding = r.getDimensionPixelSize(R.dimen.tab_bar_default_height);
-            paddingLeftRight = r.getDimensionPixelSize(R.dimen.albumset_slot_gap/*albumset_padding_left_right*/);
-            slotViewSpec.slotGapV = r.getDimensionPixelSize(R.dimen.albumset_slot_gap_vertical);
+            paddingLeftRight = r.getDimensionPixelSize(R.dimen.albumstory_padding_left_right);
+
+            slotViewSpec.slotGapV = r.getDimensionPixelSize(R.dimen.albumstory_slot_gap_vertical);
             //*/
 
-            paddingTop = r.getDimensionPixelSize(R.dimen.albumset_padding_top);
-            paddingBottom = r.getDimensionPixelSize(R.dimen.albumset_padding_bottom);
+            paddingTop = r.getDimensionPixelSize(R.dimen.albumstory_padding_top);
+            paddingBottom = r.getDimensionPixelSize(R.dimen.albumstory_padding_bottom);
+
 
             labelSpec = new AlbumSetSlotRenderer.LabelSpec();
-            labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(
-                    R.dimen.albumset_label_background_height);
-            labelSpec.titleOffset = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_offset);
-            labelSpec.countOffset = r.getDimensionPixelSize(
-                    R.dimen.albumset_count_offset);
-            labelSpec.titleFontSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_font_size);
-            labelSpec.countFontSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_count_font_size);
-            labelSpec.leftMargin = r.getDimensionPixelSize(
-                    R.dimen.albumset_left_margin);
-            labelSpec.titleRightMargin = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_right_margin);
-            labelSpec.iconSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_icon_size);
-            labelSpec.backgroundColor = r.getColor(
-                    R.color.albumset_label_background);
-            labelSpec.titleColor = r.getColor(R.color.albumset_label_title);
-            labelSpec.countColor = r.getColor(R.color.albumset_label_count);
+            labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(R.dimen.albumstory_label_background_height);
+            labelSpec.titleOffset = r.getDimensionPixelSize(R.dimen.albumstory_title_offset);
+            labelSpec.countOffset = r.getDimensionPixelSize(R.dimen.albumstory_count_offset);
+            labelSpec.titleFontSize = r.getDimensionPixelSize(R.dimen.albumstory_title_font_size);
+            labelSpec.countFontSize = r.getDimensionPixelSize(R.dimen.albumstory_count_font_size);
+            labelSpec.leftMargin = r.getDimensionPixelSize(R.dimen.albumstory_left_margin);
+            labelSpec.titleRightMargin = r.getDimensionPixelSize(R.dimen.albumstory_title_right_margin);
+            labelSpec.iconSize = r.getDimensionPixelSize(R.dimen.albumstory_icon_size);
+
+            labelSpec.backgroundColor = r.getColor(R.color.albumset_label_background);
+            labelSpec.titleColor = r.getColor(R.color.albumstory_label_title);
+            labelSpec.countColor = r.getColor(R.color.albumstory_label_count);
         }
     }
 

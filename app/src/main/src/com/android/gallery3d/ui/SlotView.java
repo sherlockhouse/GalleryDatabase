@@ -97,6 +97,13 @@ public class SlotView extends GLView {
     // to prevent allocating memory
     private final Rect mTempRect = new Rect();
 
+    public SlotView(AbstractGalleryActivity activity, Spec spec, AlbumSetSlotRenderer.LabelSpec labelSpec) {
+        mGestureDetector = new GestureDetector(activity, new MyGestureListener());
+        mScroller = new ScrollerHelper(activity);
+        mHandler = new SynchronizedHandler(activity.getGLRoot());
+        setSlotSpec(spec, labelSpec);
+    }
+
     public SlotView(AbstractGalleryActivity activity, Spec spec) {
         mGestureDetector = new GestureDetector(activity, new MyGestureListener());
         mScroller = new ScrollerHelper(activity);
@@ -159,6 +166,11 @@ public class SlotView extends GLView {
         mScroller.setPosition(position);
         updateScrollPosition(position, false);
     }
+
+    public void setSlotSpec(Spec spec, AlbumSetSlotRenderer.LabelSpec labelSpec) {
+        mLayout.setSlotSpec(spec, labelSpec);
+    }
+
     public void setSlotSpec(Spec spec) {
         mLayout.setSlotSpec(spec);
     }
@@ -183,7 +195,8 @@ public class SlotView extends GLView {
             mPaper.setSize(r - l, b - t);
         }
     }
-   public void startScatteringAnimation(RelativePosition position) {
+
+    public void startScatteringAnimation(RelativePosition position) {
         mAnimation = new ScatteringAnimation(position);
         mAnimation.start();
         if (mLayout.mSlotCount != 0) invalidate();
@@ -600,6 +613,7 @@ public class SlotView extends GLView {
         //*/
 
         private Spec mSpec;
+        private AlbumSetSlotRenderer.LabelSpec mLabelSpec;
 
         private int mWidth;
         private int mHeight;
@@ -614,6 +628,11 @@ public class SlotView extends GLView {
 
         private IntegerAnimation mVerticalPadding   = new IntegerAnimation();
         private IntegerAnimation mHorizontalPadding = new IntegerAnimation();
+
+        public void setSlotSpec(Spec spec, AlbumSetSlotRenderer.LabelSpec labelSpec) {
+            mSpec = spec;
+            mLabelSpec = labelSpec;
+        }
 
         public void setSlotSpec(Spec spec) {
             mSpec = spec;
@@ -641,6 +660,9 @@ public class SlotView extends GLView {
             mSlotGap = mSpec.slotWidth != -1 ? 0 : mSpec.slotGap;
             mSlotGapV = mSpec.slotGapV == 0 ? mSpec.slotGap : mSpec.slotGapV;
 
+            if (mLabelSpec != null) {
+                mSlotPadding = mSlotGap = mWidth / 23;
+            }
             if (mSpec.slotWidth != -1) {
                 mSlotGap = 0;
                 mSlotWidth = mSpec.slotWidth;
@@ -656,6 +678,9 @@ public class SlotView extends GLView {
                     int columns = isLand ? mSpec.rowsPort : mSpec.rowsLand;
                     mSlotHeight = mSlotWidth = Math.max(1,
                             (mWidth - (columns - 1) * mSlotGap - mSlotPadding * 2) / columns);
+                    if (mLabelSpec != null) { //use mLabelSpec to judge if in new albumset mode to avoid change albumpage
+                        mSlotHeight = mSlotWidth * 2 / 3;
+                    }
 //                    int rows = isLand ? mSpec.rowsLand : mSpec.rowsPort;
 //                    if(mActivity instanceof JigsawEntry) rows = rows - 1;
 //                    if(mSpec.slotGapV != 0) {
@@ -665,6 +690,10 @@ public class SlotView extends GLView {
 //                    }
 
                 }
+            }
+
+            if (mLabelSpec != null) {
+                mSlotGapV = mLabelSpec.titleFontSize * 3 + mLabelSpec.countFontSize;
             }
             //*/
 

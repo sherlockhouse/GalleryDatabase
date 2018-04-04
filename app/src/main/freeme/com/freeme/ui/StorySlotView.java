@@ -150,6 +150,7 @@ public class StorySlotView extends GLView {
         mScroller.setPosition(position);
         updateScrollPosition(position, false);
     }
+
     public void setSlotSpec(Spec spec, StoryAlbumSetSlotRender.LabelSpec labelSpec) {
         mLayout.setSlotSpec(spec, labelSpec);
     }
@@ -174,6 +175,7 @@ public class StorySlotView extends GLView {
             mPaper.setSize(r - l, b - t);
         }
     }
+
     public void startScatteringAnimation(RelativePosition position) {
         mAnimation = new ScatteringAnimation(position);
         mAnimation.start();
@@ -665,7 +667,6 @@ public class StorySlotView extends GLView {
             int x = mHorizontalPadding.get() + col * (mSlotWidth + mSlotGap);
             int y = mVerticalPadding.get() + row * (mSlotHeight + mSlotGapV);
             rect.set(x, y, x + mSlotWidth, y + mSlotHeight);
-
             return rect;
         }
 

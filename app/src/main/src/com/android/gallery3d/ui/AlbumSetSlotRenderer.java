@@ -170,7 +170,8 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
         boolean isIgnore = isLastStoryAlbum(index);
         if (!isIgnore) {
             width = width - mSlotView.getSlotSpec().slotGap;
-            drawOutSideFrame(canvas, 0, 0, width, height + mLabelSpec.labelBackgroundHeight);
+            height = height - mSlotView.getSlotSpec().slotGap / 3 * 2;
+            drawOutSideFrame(canvas, 0, 0, width, height );
         }
         //*/
 
@@ -257,7 +258,7 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
             content = new FadeInTexture(mPlaceholderColor, entry.bitmapTexture);
             entry.content = content;
         }
-        drawContent(canvas, content, width, height, entry.rotation);
+        drawAlbumSetContent(canvas, content, width, height, entry.rotation);
         if ((content instanceof FadeInTexture) &&
                 ((FadeInTexture) content).isAnimating()) {
             renderRequestFlags |= SlotView.RENDER_MORE_FRAME;
@@ -312,16 +313,14 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
         }
     }
 
- 
+
     //*/ Added by Linguanrong for story album, 2015-4-7
     private void renderStoryAlbumOverlay(GLCanvas canvas, int index, int width, int height) {
         if (0 == mDataWindow.getCount(index)) {
             if (0 == index) {
                 mBabyAlbumOverlay.draw(canvas, 0, 0, width, height);
-                mBabyAlbumTarget.draw(canvas, 0, 0);
             } else if (1 == index) {
                 mLoveAlbumOverlay.draw(canvas, 0, 0, width, height);
-                mLoveAlbumTarget.draw(canvas, 0, 0);
             } else if (isAddStoryAlbum(index)) {
                 mAddAlbumOverlay.draw(canvas, 0, 0, width, height);
             } else {
@@ -329,9 +328,7 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
             }
         } else {
             if (0 == index) {
-                mBabyAlbumTarget.draw(canvas, 0, 0);
             } else if (1 == index) {
-                mLoveAlbumTarget.draw(canvas, 0, 0);
             }
         }
     }

@@ -118,6 +118,40 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         canvas.restore();
     }
 
+    protected void drawAlbumSetContent(GLCanvas canvas,
+                                    Texture content, int width, int height, int rotation) {
+        canvas.save(GLCanvas.SAVE_FLAG_MATRIX);
+        Log.i("sldfjl drawContent",  " mSlotHeight: " + height
+                + " mSlotWidth: " + width);
+        // Fit the content into the box
+
+        // The content is always rendered in to the largest square that fits
+        // inside the slot, aligned to t he top of the slot.
+        if (rotation == 270) {
+            canvas.rotate(rotation, 0, 0, 1);
+            canvas.translate( - height , 0 );
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+        } else if (rotation == 90){
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+            canvas.rotate(rotation, 0, 0, 1);
+            canvas.translate(0, - content.getWidth());
+        } else {
+            float scale = Math.max(
+                    (float) width / content.getWidth() ,
+                    (float) height / content.getHeight());
+            canvas.scale(scale, scale, 1);
+        }
+
+        content.draw(canvas, 0, 0);
+        canvas.restore();
+    }
+
     protected void drawRefocusIndicator(GLCanvas canvas, int width, int height) {
         int iconSize = Math.min(width, height) / 3;
         mRefocusTexture.draw(canvas, (width - iconSize) / 2, (height - iconSize) / 2,

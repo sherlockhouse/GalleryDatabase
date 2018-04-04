@@ -203,7 +203,7 @@ public class AlbumSetPage extends ActivityState implements
 
             //*/ Modified by droi Linguanrong for freeme gallery, 16-1-13
             //int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop
-            int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop + mActivity.mStatusBarHeight;
+            int slotViewTop = mActionBar.getHeight() + mConfig.paddingLeftRight + mActivity.mStatusBarHeight;
             if (mGetContent && !mStorySelectMode) {
                 slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
             }
@@ -967,7 +967,7 @@ public class AlbumSetPage extends ActivityState implements
         mSelectionManager.setSelectionListener(this);
 
         mConfig = Config.AlbumSetPage.get(mActivity);
-        mSlotView = new SlotView(mActivity, mConfig.slotViewSpec);
+        mSlotView = new SlotView(mActivity, mConfig.slotViewSpec, mConfig.labelSpec);
         //*/Added by droi Linguanrong for Gallery new style, 2013-12-19
         mSlotViewPadding = mConfig.slotViewSpec.slotPadding;
         mBottomPadding = mConfig.slotViewSpec.bottomPadding;

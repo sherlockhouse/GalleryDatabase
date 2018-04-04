@@ -137,8 +137,6 @@ public class StoryAlbumSetSlotRender extends AbstractSlotRenderer {
 
     @Override
     public int renderSlot(GLCanvas canvas, int index, int pass, int width, int height) {
-        Log.i("sldfjl renderslot1",  " mSlotHeight: " + height
-                + " mSlotWidth: " + width);
         //*/ Added by droi Linguanrong for freeme gallery, 16-1-16
         boolean isIgnore = isLastStoryAlbum(index);
         if (!isIgnore) {
@@ -147,8 +145,6 @@ public class StoryAlbumSetSlotRender extends AbstractSlotRenderer {
             drawOutSideFrame(canvas, 0, 0, width, height );
         }
         //*/
-        Log.i("sldfjl renderslot2",  " mSlotHeight: " + height
-                + " mSlotWidth: " + width);
         StoryAlbumSetSlidingWindow.AlbumSetEntry entry = mDataWindow.get(index);
         int renderRequestFlags = 0;
         renderRequestFlags |= renderContent(canvas, entry, width, height);

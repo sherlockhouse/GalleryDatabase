@@ -437,7 +437,7 @@ public class AlbumSetSlidingWindow implements AlbumSetDataLoader.DataListener {
             if (bitmap == null) return; // error or recycled
 
             AlbumSetEntry entry = mData[mSlotIndex % mData.length];
-            TiledTexture texture = new TiledTexture(bitmap);
+            TiledTexture texture = new TiledTexture(bitmap, entry.rotation);
             entry.bitmapTexture = texture;
             entry.content = texture;
 
@@ -449,7 +449,7 @@ public class AlbumSetSlidingWindow implements AlbumSetDataLoader.DataListener {
             } else {
                 mContentUploader.addTexture(texture);
             }
-        }    
+        }
 
 
     }
@@ -554,8 +554,4 @@ public class AlbumSetSlidingWindow implements AlbumSetDataLoader.DataListener {
 
         void onContentChanged();
     }
-
-
-
- 
 }
