@@ -172,7 +172,7 @@ public class AlbumStorySetPage extends ActivityState implements
             mEyePosition.resetPosition();
 
             //*/ Modified by Tyd Linguanrong for adjust glroot view layout, 2014-6-12
-            int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop + mActivity.mStatusBarHeight;
+            int slotViewTop = mActionBar.getHeight() + mConfig.paddingLeftRight + mActivity.mStatusBarHeight;
             //*/
             int slotViewBottom = bottom - top - mConfig.paddingBottom;
             int slotViewLeft = 0;
