@@ -3,14 +3,18 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
+    <ImageView
+        android:layout_width="34dp"
+        android:layout_height="31dp"
+        android:src="@drawable/ic_camera_tip"
+        android:layout_gravity="center"
+        android:layout_marginBottom="34dip"/>
     <TextView
         android:id="@+id/description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="36dip"
-        android:drawablePadding="10dip"
-        android:drawableTop="@drawable/ic_camera_tip"
+        android:layout_marginBottom="0dip"
         android:gravity="center"
         android:text="@string/no_photos"
         android:textColor="@color/empty_text_color"

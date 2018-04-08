@@ -313,8 +313,7 @@ public class StoryAlbumSetSlotRender extends AbstractSlotRenderer {
         int b = AlbumLabelMaker.getBorderSize();
         int h = mLabelSpec.labelBackgroundHeight;
         //mAddAlbumText.draw(canvas, -b, height - h / 2 + b);
-        mAddAlbumText.draw(canvas, b + mLabelSpec.leftMargin, height + b +
-                (mLabelSpec.labelBackgroundHeight - mLabelSpec.titleFontSize) / 2); //under
+        mAddAlbumText.draw(canvas, b + mLabelSpec.leftMargin, height +mLabelSpec.titleFontSize / 2); //under
     }
 
     protected int renderLabel(

@@ -247,8 +247,12 @@ public class DialogDetailsView implements DetailsViewContainer {
                         value = toLocalNumber(focalLength);
                         break;
                     case MediaDetails.INDEX_ORIENTATION:
+                        //*/ remove orientation column
+                        continue;
+                        /*/
                         value = toLocalInteger(detail.getValue());
                         break;
+                        //*/
                     default: {
                         Object valueObj = detail.getValue();
                         // This shouldn't happen, log its key to help us diagnose the problem.

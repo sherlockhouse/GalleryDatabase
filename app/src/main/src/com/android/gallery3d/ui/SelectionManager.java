@@ -680,9 +680,6 @@ public class SelectionManager {
 
         // Convert to inverse selection mode if everything is selected.
         int count = getSelectedCount();
-        if (count == getTotalCount()) {
-            selectAll();
-        }
 
         if (count == 0 && mAutoLeave) {
             leaveSelectionMode();

@@ -21,8 +21,8 @@
     <color name="albumset_background">#f8f8f8</color>
     <color name="albumset_placeholder">#E6E6E6</color>
     <color name="albumset_label_background">@color/albumset_background</color>
-    <color name="albumset_label_title">#616161</color>
-    <color name="albumset_label_count">#cdcdcd</color>
+    <color name="albumset_label_title">#333333</color>
+    <color name="albumset_label_count">#808080</color>
 
     <!-- configuration for album page -->
     <color name="album_background">#f8f8f8</color>
