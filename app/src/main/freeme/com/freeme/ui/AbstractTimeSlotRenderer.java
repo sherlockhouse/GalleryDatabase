@@ -32,6 +32,7 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
     private final ResourceTexture  mPanoramaIcon;
     private final NinePatchTexture mFramePressed;
     private final NinePatchTexture mFrameSelected;
+    private final NinePatchTexture mFrameUnSelected;
     private final NinePatchTexture mListDivider;
     private final ResourceTexture  mExpanedBtn;
     private       FadeOutTexture   mFramePressedUp;
@@ -45,6 +46,7 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
         mPanoramaIcon = new ResourceTexture(context, R.drawable.ic_360pano_holo_light);
         mFramePressed = new NinePatchTexture(context, R.drawable.grid_pressed);
         mFrameSelected = new NinePatchTexture(context, R.drawable.freeme_grid_selected);
+        mFrameUnSelected = new NinePatchTexture(context, R.drawable.freeme_grid_unselected);
         mListDivider = new NinePatchTexture(context, R.drawable.day_division);
         mExpanedBtn = new ResourceTexture(context, R.drawable.expansion_normal);
         mRefocusTexture = new ResourceTexture(context, R.drawable.ic_newui_indicator_refocus);
@@ -136,6 +138,10 @@ public abstract class AbstractTimeSlotRenderer implements DateSlotView.SlotRende
 
     protected void drawSelectedFrame(GLCanvas canvas, int width, int height) {
         drawFrame(canvas, mFrameSelected.getPaddings(), mFrameSelected, 0, 0, width, height);
+    }
+
+    protected void drawUnSelectedFrame(GLCanvas canvas, int width, int height) {
+        drawFrame(canvas, mFrameUnSelected.getPaddings(), mFrameUnSelected, 0, 0, width, height);
     }
 
     protected void drawDivider(GLCanvas canvas, int width, int height) {

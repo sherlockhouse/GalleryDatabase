@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 
 dependencies {
+    implementation project(':freemegallerywidget-debug')
 
     // compile fileTree(dir: 'libs', include: '*.jar')
 }

@@ -237,6 +237,8 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
             drawSelectedFrame(canvas, width, height);
         } else if (mInSelectionMode && mSelectionManager.isItemSelected(entry.setPath)) {
             drawSelectedFrame(canvas, width, height);
+        } else if (mInSelectionMode && !mSelectionManager.isItemSelected(entry.setPath)) {
+            drawUnSelectedFrame(canvas, width, height);
         }
         return renderRequestFlags;
     }

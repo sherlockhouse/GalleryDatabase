@@ -38,6 +38,7 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
     private final ResourceTexture  mPanoramaIcon;
     private final NinePatchTexture mFramePressed;
     private final NinePatchTexture mFrameSelected;
+    private final NinePatchTexture mFrameUnSelected;
     //*/ Added by Linguanrong for Gallery new styel, 2014-2-27
     private final NinePatchTexture mFrameOutSide;
     private       FadeOutTexture   mFramePressedUp;
@@ -52,6 +53,7 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
         mPanoramaIcon = new ResourceTexture(context, R.drawable.ic_360pano_holo_light);
         mFramePressed = new NinePatchTexture(context, R.drawable.grid_pressed);
         mFrameSelected = new NinePatchTexture(context, R.drawable.freeme_grid_selected);
+        mFrameUnSelected = new NinePatchTexture(context, R.drawable.freeme_grid_unselected);
         //*/ Added by Linguanrong for Gallery new styel, 2014-2-27
 //        mFrameOutSide = new NinePatchTexture(context, R.drawable.albumset_outside_frame);
         mFrameOutSide = new NinePatchTexture(context, R.drawable.albumset_outside_frame);
@@ -208,6 +210,10 @@ public abstract class AbstractSlotRenderer implements SlotView.SlotRenderer {
 
     protected void drawSelectedFrame(GLCanvas canvas, int width, int height) {
         drawFrame(canvas, mFrameSelected.getPaddings(), mFrameSelected, 0, 0, width, height);
+    }
+
+    protected void drawUnSelectedFrame(GLCanvas canvas, int width, int height) {
+        drawFrame(canvas, mFrameUnSelected.getPaddings(), mFrameUnSelected, 0, 0, width, height);
     }
 
     protected static void drawFrame(GLCanvas canvas, Rect padding, Texture frame,
