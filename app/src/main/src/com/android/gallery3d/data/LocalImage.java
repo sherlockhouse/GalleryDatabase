@@ -197,32 +197,32 @@ public class LocalImage extends LocalMediaItem {
         width = cursor.getInt(INDEX_WIDTH);
         height = cursor.getInt(INDEX_HEIGHT);
 
-        mVoiceId = cursor.getInt(COL_PHOTO_VOICE);
+//        mVoiceId = cursor.getInt(COL_PHOTO_VOICE);
 
-        if (mVoiceId != 0) {
-            Log.d(TAG, "query photoVoice begin voiceId = " + mVoiceId);
-            ContentResolver resolver = mApplication.getContentResolver();
-            Cursor sc = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
-                    MediaStore.Audio.Media.DATA
-            }, MediaStore.Audio.Media._ID + "=?", new String[]{
-                    String.valueOf(mVoiceId)
-            }, null);
-            if (sc != null && sc.moveToFirst()) {
-                mPhotoVoice = sc.getString(sc.getColumnIndex(MediaStore.Audio.Media.DATA));
-            }
+//        if (mVoiceId != 0) {
+//            Log.d(TAG, "query photoVoice begin voiceId = " + mVoiceId);
+//            ContentResolver resolver = mApplication.getContentResolver();
+//            Cursor sc = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
+//                    MediaStore.Audio.Media.DATA
+//            }, MediaStore.Audio.Media._ID + "=?", new String[]{
+//                    String.valueOf(mVoiceId)
+//            }, null);
+//            if (sc != null && sc.moveToFirst()) {
+//                mPhotoVoice = sc.getString(sc.getColumnIndex(MediaStore.Audio.Media.DATA));
+//            }
+//
+//            if (sc != null) {
+//                sc.close();
+//            }
+//            Log.d(TAG, "query photoVoice end");
+//        }
 
-            if (sc != null) {
-                sc.close();
-            }
-            Log.d(TAG, "query photoVoice end");
-        }
-
-        if (mPhotoVoice != null) {
-            File voiceFile = new File(mPhotoVoice);
-            if (!voiceFile.exists()) {
-                mPhotoVoice = null;
-            }
-        }
+//        if (mPhotoVoice != null) {
+//            File voiceFile = new File(mPhotoVoice);
+//            if (!voiceFile.exists()) {
+//                mPhotoVoice = null;
+//            }
+//        }
     }
 
     @Override
@@ -494,10 +494,10 @@ public class LocalImage extends LocalMediaItem {
                 }
             }
             // Log.d(TAG, "getMediaType mPhotoVoice="+mPhotoVoice);
-            if (mPhotoVoice != null) {
-                if (FrameworkSupportUtils.isSupportVoiceImage())
-                return MEDIA_TYPE_IMAGE_PHOTO_VOICE;
-            }
+//            if (mPhotoVoice != null) {
+//                if (FrameworkSupportUtils.isSupportVoiceImage())
+//                return MEDIA_TYPE_IMAGE_PHOTO_VOICE;
+//            }
         }
         return MEDIA_TYPE_IMAGE;
     }
@@ -570,13 +570,13 @@ public class LocalImage extends LocalMediaItem {
     public Uri getPlayUri() {
         return getContentUri();
     }
-    private int mVoiceId;
-    protected String mPhotoVoice;
-    public int getVoiceId() {
-        return mVoiceId;
-    }
-
-    public String getPhotoVoice() {
-        return mPhotoVoice;
-    }
+//    private int mVoiceId;
+//    protected String mPhotoVoice;
+//    public int getVoiceId() {
+//        return mVoiceId;
+//    }
+//
+//    public String getPhotoVoice() {
+//        return mPhotoVoice;
+//    }
 }

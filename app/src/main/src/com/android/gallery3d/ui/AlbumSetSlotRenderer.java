@@ -59,15 +59,15 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
     private boolean mAnimatePressedUp;
     private Path mHighlightItemPath = null;
     private boolean mInSelectionMode;
-    private int[] mDefaultAlbum = new int[]{
-//            R.drawable.default_album_0,
-            R.drawable.default_album_1,
-            R.drawable.default_album_1,
-//            R.drawable.default_album_2
-            R.drawable.default_album_1
-    };
+//    private int[] mDefaultAlbum = new int[]{
+////            R.drawable.default_album_0,
+//            R.drawable.default_album_1,
+//            R.drawable.default_album_1,
+////            R.drawable.default_album_2
+//            R.drawable.default_album_1
+//    };
 
-    private final ResourceTexture[] mDefaultAlbumOverlay = new ResourceTexture[mDefaultAlbum.length];
+//    private final ResourceTexture[] mDefaultAlbumOverlay = new ResourceTexture[mDefaultAlbum.length];
     //*/
 
     public static class LabelSpec {
@@ -109,9 +109,9 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
         mAddAlbumOverlay = new ResourceTexture(activity, R.drawable.default_add_album);
         mBabyAlbumTarget = new ResourceTexture(activity, R.drawable.target_baby_album);
         mLoveAlbumTarget = new ResourceTexture(activity, R.drawable.target_love_album);
-        for (int i = 0; i < mDefaultAlbum.length; i++) {
-            mDefaultAlbumOverlay[i] = new ResourceTexture(activity, mDefaultAlbum[i]);
-        }
+//        for (int i = 0; i < mDefaultAlbum.length; i++) {
+//            mDefaultAlbumOverlay[i] = new ResourceTexture(activity, mDefaultAlbum[i]);
+//        }
         mAddAlbumText = StringTexture.newInstance(
                 activity.getResources().getString(R.string.add_story_album),
                 labelSpec.titleFontSize, labelSpec.titleColor);
@@ -325,8 +325,8 @@ public class AlbumSetSlotRenderer extends AbstractSlotRenderer {
                 mLoveAlbumOverlay.draw(canvas, 0, 0, width, height);
             } else if (isAddStoryAlbum(index)) {
                 mAddAlbumOverlay.draw(canvas, 0, 0, width, height);
-            } else {
-                mDefaultAlbumOverlay[index % mDefaultAlbum.length].draw(canvas, 0, 0, width, height);
+//            } else {
+//                mDefaultAlbumOverlay[index % mDefaultAlbum.length].draw(canvas, 0, 0, width, height);
             }
         } else {
             if (0 == index) {

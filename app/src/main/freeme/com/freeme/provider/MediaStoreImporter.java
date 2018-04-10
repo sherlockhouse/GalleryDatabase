@@ -2,14 +2,17 @@ package com.freeme.provider;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.freeme.gallery.GalleryClassifierService;
 import com.freeme.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -18,6 +21,7 @@ import java.util.List;
 public class MediaStoreImporter {
     private static final String TAG = "MediaStoreImporter";
     private static GalleryFilesDao galleryFilesDao = null;
+    private Context mContext;
 
     public void setmResolver(ContentResolver mResolver) {
         this.mResolver = mResolver;
@@ -30,6 +34,7 @@ public class MediaStoreImporter {
     }
 
     public void doImport(Context context) {
+        mContext = context;
         mResolver = context.getContentResolver();
         galleryFilesDao = GalleryDBManager.getInstance().getGalleryFilesDao();
 
@@ -59,7 +64,8 @@ public class MediaStoreImporter {
 
         Cursor cursor = mResolver.query(MediaStore.Files.getContentUri("external"),
                 GalleryStore.PROJECTION, where, null, null);
-
+        LogUtil.i("import Data cursor count" , "" + cursor.getCount());
+        //todo store cursor count to compare story count aialbum; cursor count - story count
         if (cursor != null && cursor.moveToFirst()) {
             for (int i = 0; i < cursor.getCount(); i++) {
                 long _id = cursor.getLong(0);
@@ -82,6 +88,8 @@ public class MediaStoreImporter {
             LogUtil.i("SQLiteConstraintException : " + e);
         }
         galleryFilesDao.updateInTx(updateFilesList);
+
+
     }
 
     private List<Long> getContainIds() {
@@ -238,8 +246,8 @@ public class MediaStoreImporter {
         }
 
         // photo_voice_id
-        index++;
-        galleryFiles.setPhoto_voice_id(cursor.getInt(index));
+//        index++;
+//        galleryFiles.setPhoto_voice_id(cursor.getInt(index));
     }
 
     public void addFile(String type, long selectionId) {

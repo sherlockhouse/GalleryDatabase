@@ -34,6 +34,7 @@ public class MediaStoreImportService extends IntentService {
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            LogUtil.i("mContentObserver msg = " + msg);
             return false;
         }
     };
@@ -57,6 +58,7 @@ public class MediaStoreImportService extends IntentService {
             }
             if (segments.size() > 3) {
                 MediaStoreImporter.getInstance().addFile(segments.get(1), Long.valueOf(segments.get(3)));
+                //todo update the number to be excuted producer-consumer aialbum
             } else if (segments.size() > 2) {
                 String segment = segments.get(1);
                 if (SEGMENT_IMAGE.equals(segment)) {

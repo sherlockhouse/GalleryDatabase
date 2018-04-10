@@ -28,6 +28,8 @@ import com.freeme.gallery.R;
 import com.android.gallery3d.ui.AlbumSetSlotRenderer;
 import com.android.gallery3d.ui.SlotView;
 import com.freeme.ui.DateSlotView;
+import com.freeme.ui.FaceAlbumSetSlotRender;
+import com.freeme.ui.FaceSlotView;
 import com.freeme.ui.StoryAlbumSetSlotRender;
 import com.freeme.ui.StorySlotView;
 
@@ -272,5 +274,57 @@ public final class PageConfig {
             return sInstance;
         }
     }
+
+    public static class AlbumFaceSetPage {
+        private static AlbumFaceSetPage sInstance;
+
+        public FaceSlotView.Spec                  slotViewSpec;
+        public FaceAlbumSetSlotRender.LabelSpec labelSpec;
+        public int                            paddingTop;
+        public int                            paddingBottom;
+        public int                            paddingLeftRight;
+        public int                            placeholderColor;
+
+        private AlbumFaceSetPage(Context context) {
+            Resources r = context.getResources();
+
+            placeholderColor = r.getColor(R.color.transparent);
+
+            slotViewSpec = new FaceSlotView.Spec();
+            slotViewSpec.rowsLand = r.getInteger(R.integer.albumset_rows_land);
+            slotViewSpec.rowsPort = r.getInteger(R.integer.albumset_rows_port);
+            slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.albumset_slot_gap) ;
+            slotViewSpec.slotGapV = r.getDimensionPixelSize(R.dimen.albumset_slot_gap_vertical);
+            slotViewSpec.slotHeightAdditional = 0;
+            slotViewSpec.slotPadding = r.getDimensionPixelSize(R.dimen.album_slot_padding);
+            slotViewSpec.bottomPadding = r.getDimensionPixelSize(R.dimen.tab_bar_default_height);
+
+            paddingTop = r.getDimensionPixelSize(R.dimen.albumset_padding_top);
+            paddingBottom = r.getDimensionPixelSize(R.dimen.albumset_padding_bottom);
+            paddingLeftRight = r.getDimensionPixelSize(R.dimen.albumstory_padding_left_right);
+
+            labelSpec = new FaceAlbumSetSlotRender.LabelSpec();
+            labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(R.dimen.albumset_label_background_height);
+            labelSpec.titleOffset = r.getDimensionPixelSize(R.dimen.albumset_title_offset);
+            labelSpec.countOffset = r.getDimensionPixelSize(R.dimen.albumset_count_offset);
+            labelSpec.titleFontSize = r.getDimensionPixelSize(R.dimen.albumstory_title_font_size);
+            labelSpec.countFontSize = r.getDimensionPixelSize(R.dimen.albumstory_count_font_size);
+            labelSpec.leftMargin = r.getDimensionPixelSize(R.dimen.albumstory_left_margin);
+            labelSpec.titleRightMargin = r.getDimensionPixelSize(R.dimen.albumset_title_right_margin);
+            labelSpec.iconSize = r.getDimensionPixelSize(R.dimen.albumstory_icon_size);
+
+            labelSpec.backgroundColor = r.getColor(R.color.albumset_label_background);
+            labelSpec.titleColor = r.getColor(R.color.albumstory_label_title);
+            labelSpec.countColor = r.getColor(R.color.albumstory_label_count);
+        }
+
+        public static synchronized AlbumFaceSetPage get(Context context) {
+            if (sInstance == null) {
+                sInstance = new AlbumFaceSetPage(context);
+            }
+            return sInstance;
+        }
+    }
+
 }
 

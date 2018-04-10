@@ -58,7 +58,7 @@ public class GalleryStore {
 //            Columns.STORY_BUCKET_ID.getName(),
 //            Columns.IS_HIDDEN.getName(),
 //            Columns.LBS_LOC.getName(),
-            Columns.PHOTO_VOICE_ID.getName()
+//            Columns.PHOTO_VOICE_ID.getName()
 //            ,
 
     };

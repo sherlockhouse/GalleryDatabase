@@ -129,6 +129,20 @@ public class StoryAlbum extends MediaSet {
         }
     }
 
+    public static void addStoryImage(ContentResolver resolver, Path path,
+                                     int storyIndex, boolean isImage) {
+        if (resolver != null) {
+            int sb = getId(path);
+            if (sb != -1 ) {
+                Uri uri = isImage ? GalleryStore.Images.Media.EXTERNAL_CONTENT_URI
+                        : GalleryStore.Video.Media.EXTERNAL_CONTENT_URI;
+                ContentValues values = new ContentValues();
+                values.put(STORY_BUCKET_ID, String.valueOf(storyIndex));
+                resolver.update(uri, values, "_id == " + sb, null);
+            }
+        }
+    }
+
     public static boolean isPathAdded(ContentResolver resolver, Path path,
                                       int storyIndex, boolean isImage) {
         if (resolver != null) {
@@ -434,7 +448,7 @@ public class StoryAlbum extends MediaSet {
         ((StoryAlbumSet) mApplication.getDataManager()
                 .getMediaSet(StoryAlbumSet.PATH.toString())).removeAlbum(mStoryId);
 
-        mEditor.remove(StoryAlbumSet.ALBUM_KEY + mStoryId);
+//        mEditor.remove(StoryAlbumSet.ALBUM_KEY + mStoryId);
         mEditor.remove(KEY_COVER + mStoryId);
         mEditor.commit();
     }

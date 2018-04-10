@@ -28,11 +28,17 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Trace;
 
+import com.aiwinn.faceFramework.faces.FaceModel;
 import com.mediatek.gallery3d.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -44,7 +50,8 @@ public class BitmapUtils {
     /// @}
     public static final int UNCONSTRAINED = -1;
 
-    private BitmapUtils(){}
+    private BitmapUtils() {
+    }
 
     /*
      * Compute the sample size as a function of minSideLength
@@ -66,7 +73,7 @@ public class BitmapUtils {
      * request is 3. So we round up the sample size to avoid OOM.
      */
     public static int computeSampleSize(int width, int height,
-            int minSideLength, int maxNumOfPixels) {
+                                        int minSideLength, int maxNumOfPixels) {
         int initialSize = computeInitialSampleSize(
                 width, height, minSideLength, maxNumOfPixels);
 
@@ -76,7 +83,7 @@ public class BitmapUtils {
     }
 
     private static int computeInitialSampleSize(int w, int h,
-            int minSideLength, int maxNumOfPixels) {
+                                                int minSideLength, int maxNumOfPixels) {
         if (maxNumOfPixels == UNCONSTRAINED
                 && minSideLength == UNCONSTRAINED) return 1;
 
@@ -94,7 +101,7 @@ public class BitmapUtils {
     // This computes a sample size which makes the longer side at least
     // minSideLength long. If that's not possible, return 1.
     public static int computeSampleSizeLarger(int w, int h,
-            int minSideLength) {
+                                              int minSideLength) {
         int initialSize = Math.max(w / minSideLength, h / minSideLength);
         if (initialSize <= 1) return 1;
 
@@ -168,7 +175,7 @@ public class BitmapUtils {
 
         // scale the image so that the shorter side equals to the target;
         // the longer side will be center-cropped.
-        float scale = (float) size / Math.min(w,  h);
+        float scale = (float) size / Math.min(w, h);
         /// M: [DEBUG.ADD] @{
 //        Trace.traceBegin(Trace.TRACE_TAG_VIEW,
 //                ">>>>BitmapUtils-resizeAndCropCenter");
@@ -357,4 +364,57 @@ public class BitmapUtils {
             return res;
         }
     }
+
+
+    /* @param name 保存的大头贴名字前缀
+    * @param face 人脸模型特征值
+    * @param source 识别Bitmap
+    * @param scale
+    * @return
+            * @throws IOException
+    */
+    public static synchronized boolean saveAvatar(String name, FaceModel face, Bitmap source, float scale) throws IOException {
+        if (scale == 0.0) {
+            scale = (float) 1.0;
+        }
+        File file = new File(Environment.getExternalStorageDirectory(), "aiwinn/awAlbum/");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        File parent = new File(file, "avatars");
+        if (!parent.exists()) {
+            parent.mkdirs();
+        }
+        File feature = new File(parent, name + "avatars");
+        if (!feature.exists()) {
+            feature.createNewFile();
+        }
+        int dx = 50;
+        int dy = 100;
+        int x = ((face.getRect().left - dx) < 0) ? 0 : face.getRect().left - dx;
+        int y = ((face.getRect().top - dx) < 0) ? 0 : face.getRect().top - dx;
+        int w = ((x + face.getRect().width() + dy) > source.getWidth()) ? source.getWidth() - x : face.getRect().width() + dy;
+        int h = ((y + face.getRect().height() + dy) > source.getHeight()) ? source.getHeight() - y : face.getRect().height() + dy;
+        Bitmap bitmap = Bitmap.createBitmap(source, x, y, w, h);
+        return saveBitmap(bitmap, feature);
+    }
+
+    public static boolean saveBitmap(Bitmap bitmap, File file) {
+//        ILog.wr("保存图片");
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

@@ -26,16 +26,20 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
@@ -55,11 +59,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.gallery3d.app.AlbumClassifierPage;
+import com.android.gallery3d.data.Face;
 import com.droi.sdk.analytics.DroiAnalytics;
+import com.freeme.data.FaceAlbumSet;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
 import com.freeme.gallery.BuildConfig;
+import com.freeme.gallery.GalleryClassifierService;
 import com.freeme.gallery.R;
 import com.android.gallery3d.app.ActivityState;
 import com.android.gallery3d.app.AlbumPage;
@@ -100,6 +108,7 @@ import com.freeme.ui.StoryAlbumSetSlotRender;
 import com.freeme.ui.StorySlotView;
 import com.freeme.ui.manager.State;
 import com.freeme.utils.FreemeUtils;
+import com.freeme.utils.LogUtil;
 import com.freeme.utils.ShareFreemeUtil;
 
 import java.text.SimpleDateFormat;
@@ -739,15 +748,7 @@ public class AlbumStorySetPage extends ActivityState implements
         }
 
         //*/ Added by tyd Linguanrong for statistic, 15-12-18
-        if (slotIndex == StoryAlbumSet.ALBUM_LOVE_ID || slotIndex == StoryAlbumSet.ALBUM_BABY_ID) {
-            mBabyAlbum = slotIndex == StoryAlbumSet.ALBUM_BABY_ID;
-//            StatisticUtil.generateStatisticInfo(mActivity,
-//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
 
-            // for baas analytics
-//            DroiAnalytics.onEvent(mActivity,
-//                    mBabyAlbum ? StatisticData.OPTION_BABY : StatisticData.OPTION_LOVE);
-        }
         //*/
 
         if (targetSet.getTotalMediaItemCount() == 0 && (slotIndex == StoryAlbumSet.ALBUM_LOVE_ID
@@ -759,20 +760,20 @@ public class AlbumStorySetPage extends ActivityState implements
 //                mEditor.commit();
 //                return;
 //            } else {
-                if (targetSet instanceof StoryMergeAlbum) {
-                    mStoryBucketId = ((StoryMergeAlbum) targetSet).getStoryBucketId();
-                } else {
-                    mStoryBucketId = ((StoryAlbum) targetSet).getStoryBucketId();
-                }
-                String date = mSharedPref.getString(
-                        mBabyAlbum ? FreemeUtils.BABY_BIRTHDAY : FreemeUtils.LOVE_DATE, "");
-                if ("".equals(date)) {
-                    mDatePickerDialog.setTitle(slotIndex == StoryAlbumSet.ALBUM_BABY_ID
-                            ? mActivity.getResources().getString(R.string.baby_birthday)
-                            : mActivity.getResources().getString(R.string.love_date));
-                    mDatePickerDialog.show();
-                    return;
-                }
+            if (targetSet instanceof StoryMergeAlbum) {
+                mStoryBucketId = ((StoryMergeAlbum) targetSet).getStoryBucketId();
+            } else {
+                mStoryBucketId = ((StoryAlbum) targetSet).getStoryBucketId();
+            }
+//                String date = mSharedPref.getString(
+//                        mBabyAlbum ? FreemeUtils.BABY_BIRTHDAY : FreemeUtils.LOVE_DATE, "");
+//                if ("".equals(date)) {
+//                    mDatePickerDialog.setTitle(slotIndex == StoryAlbumSet.ALBUM_BABY_ID
+//                            ? mActivity.getResources().getString(R.string.baby_birthday)
+//                            : mActivity.getResources().getString(R.string.love_date));
+//                    mDatePickerDialog.show();
+//                    return;
+//                }
 //            }
         }
 
@@ -785,13 +786,24 @@ public class AlbumStorySetPage extends ActivityState implements
         Bundle data = new Bundle(getData());
         int[] center = new int[2];
         getSlotCenter(slotIndex, center);
+        /*/
+        /*/
+        if (slotIndex == StoryAlbumSet.ALBUM_BABY_ID) {
+            data.putBoolean(GalleryActivity.KEY_GET_CONTENT, false);
+            data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, FaceAlbumSet.PATH.toString());
+//                data.putInt(AlbumStorySetPage.KEY_SELECTED_CLUSTER_TYPE, clusterType);
+            mActivity.getStateManager().startStateForResult(
+                    AlbumFaceSetPage.class, REQUEST_DO_ANIMATION, data);
+            return;
+        }
+        //*/
         if (mGetAlbum && targetSet.isLeafAlbum()) {
             Activity activity = mActivity;
             Intent result = new Intent()
                     .putExtra(AlbumPicker.KEY_ALBUM_PATH, targetSet.getPath().toString());
             activity.setResult(Activity.RESULT_OK, result);
             activity.finish();
-        } else if (targetSet.getSubMediaSetCount() > 0) {
+        } else if (targetSet.getSubMediaSetCount() > 0 ) {
             data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, mediaPath);
             mActivity.getStateManager().startStateForResult(
                     AlbumStorySetPage.class, REQUEST_DO_ANIMATION, data);
@@ -803,11 +815,14 @@ public class AlbumStorySetPage extends ActivityState implements
             } else {
                 mStoryBucketId = ((StoryAlbum) targetSet).getStoryBucketId();
             }
+            if (targetSet.getMediaItemCount() < 1) return;
             //data.putInt(AlbumStoryPage.KEY_SELECT_INDEX, slotIndex);
             data.putInt(AlbumStoryPage.KEY_STORY_SELECT_INDEX, mStoryBucketId);
 
-            mActivity.getStateManager().startStateForResult(
-                    AlbumStoryPage.class, REQUEST_DO_ANIMATION, data);
+                mActivity.getStateManager().startStateForResult(
+                        AlbumClassifierPage.class, REQUEST_DO_ANIMATION, data);
+
+
             //*/
         }
     }
@@ -841,7 +856,6 @@ public class AlbumStorySetPage extends ActivityState implements
         mSelectionManager.toggle(set.getPath());
         mSlotView.invalidate();
     }
-
 
     @Override
     public void onCreate(Bundle data, Bundle restoreState) {
@@ -891,15 +905,16 @@ public class AlbumStorySetPage extends ActivityState implements
 //            showGuideDialog();
 //        }
         //*/
+
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        /*/ Added by droi Linguanrong for lock orientation, 16-3-1
-        mOrientationManager.unlockOrientation();
-        //*/
+        LocalBroadcastManager.getInstance(mActivity)
+                .unregisterReceiver(onEvent);
 
         mActionModeHandler.destroy();
     }
@@ -920,6 +935,12 @@ public class AlbumStorySetPage extends ActivityState implements
     @Override
     public void onPause() {
         super.onPause();
+        //*/
+        LocalBroadcastManager.getInstance(mActivity)
+                .unregisterReceiver(onEvent);
+        /*/
+       mActivity.unregisterReceiver(onEvent);
+       //*/
         mIsActive = false;
         mActivity.mIsSelectionMode = mSelectionManager != null && mSelectionManager.inSelectionMode();
 
@@ -947,10 +968,45 @@ public class AlbumStorySetPage extends ActivityState implements
             clearLoadingBit(BIT_LOADING_SYNC);
         }
     }
+    private BroadcastReceiver onEvent=new BroadcastReceiver() {
+        public void onReceive(Context ctxt, Intent i) {
+            switch (i.getAction()) {
+                case GalleryClassifierService.ACTION_COMPLETE:
+                    if (!isDestroyed()) {
+                        Toast.makeText(mActivity, "正在处理未分类图片:" + i.getStringExtra("storycount"),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case GalleryClassifierService.ACTION_ADDALBUM:
+                    if (mMediaSet != null) {
+                        mAddNewAlbum = true;
+                        ((StoryAlbumSet) mMediaSet).updateAlbumMap();//addAlbum(i.getStringExtra("addalbum"));
+                    }
+                    break;
+
+                case GalleryClassifierService.ACTION_DONE:
+                    ((StoryAlbumSet) mMediaSet).fakeChange();
+                    mSlotView.invalidate();
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onResume() {
         super.onResume();
+        IntentFilter f=new IntentFilter(GalleryClassifierService.ACTION_COMPLETE);
+        f.addAction(GalleryClassifierService.ACTION_ADDALBUM);
+        f.addAction(GalleryClassifierService.ACTION_DONE);
+        //*/
+        LocalBroadcastManager.getInstance(mActivity)
+                .registerReceiver(onEvent, f);
+        if (mMediaSet != null) {
+            ((StoryAlbumSet) mMediaSet).updateAlbumMap();
+        }
+        /*/
+      mActivity.registerReceiver(onEvent, f);
+      //*/
         mActionBar.initActionBar();
         mActivity.getNavigationWidgetManager().changeStateTo(this);
         //*/ Added by droi Linguanrong for lock orientation, 16-3-1
@@ -989,6 +1045,11 @@ public class AlbumStorySetPage extends ActivityState implements
             setLoadingBit(BIT_LOADING_SYNC);
             mSyncTask = mMediaSet.requestSync(AlbumStorySetPage.this);
         }
+
+        Intent i=new Intent(mActivity, GalleryClassifierService.class);
+
+        GalleryClassifierService.enqueueWork(mActivity, i);
+
     }
 
     private void initializeData(Bundle data) {

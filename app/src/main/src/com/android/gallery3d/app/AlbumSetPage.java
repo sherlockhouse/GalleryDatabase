@@ -70,6 +70,7 @@ import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.HelpUtils;
 
 import com.freeme.gallery.app.AbstractGalleryActivity;
+import com.freeme.gallery.app.DialogPicker;
 import com.freeme.ui.manager.State;
 import com.mediatek.gallery3d.layout.FancyHelper;
 import com.mediatek.gallery3d.layout.Layout.DataChangeListener;
@@ -205,6 +206,9 @@ public class AlbumSetPage extends ActivityState implements
             //int slotViewTop = mActionBar.getHeight() + mConfig.paddingTop
             int slotViewTop = mActionBar.getHeight() + mConfig.paddingLeftRight + mActivity.mStatusBarHeight;
             //*/
+            if (mGetContent && !mStorySelectMode && mActivity instanceof GalleryActivity) {
+                slotViewTop += mActivity.getResources().getDimension(R.dimen.tab_bar_default_height);
+            }
             int slotViewBottom = bottom - top - mConfig.paddingBottom;
             /*/ Modified by droi Linguanrong for story album, 2015-6-19
             int slotViewRight = right - left;

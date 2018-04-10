@@ -19,9 +19,12 @@ package com.freeme.gallery.app;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
+import com.aiwinn.wrapper.FaceSimManager;
+import com.aiwinn.wrapper.able.OnInitFaceCallbackListener;
 import com.android.gallery3d.app.GalleryApp;
 import com.droi.sdk.analytics.DroiAnalytics;
 import com.facebook.stetho.Stetho;
@@ -93,6 +96,21 @@ public class GalleryAppImpl extends MultiDexApplication implements GalleryApp {
         //*/
         CustomJsonParser.getInstance();
 
+        String path = "/system/etc/";
+//        String path = Environment.getExternalStorageDirectory().getPath()+"/data";
+        Log.w("face", path);
+        FaceSimManager.initFace(this, path, 12, new
+                OnInitFaceCallbackListener() {
+                    @Override
+                    public void Succ() {
+                        Log.w("face", "init done!");
+                    }
+                    @Override
+                    public void Fail(int i, String s) {
+                        Log.w("face", "init fail!");
+                    }
+                });
+        boolean flag = FaceSimManager.checkPb();
 
         // for baas analytics
        /* DroiAnalytics.initialize(this);

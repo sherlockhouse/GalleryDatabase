@@ -27,6 +27,9 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.freeme.data.FaceAlbum;
+import com.freeme.data.FaceAlbumSet;
+import com.freeme.data.FaceMergeAlbum;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
@@ -65,6 +68,8 @@ class LocalSource extends MediaSource {
     private static final int LOCAL_STORY_ALBUMSET = 10;
     private static final int LOCAL_STORY_ALBUM    = 11;
     private static final int LOCAL_ALL_ALBUM_CAMERA      = 12;
+    private static final int LOCAL_FACE_ALBUMSET = 13;
+    private static final int LOCAL_FACE_ALBUM    = 14;
     private static final String TAG = "Gallery2/LocalSource";
 
     private ContentProviderClient mClient;
@@ -81,6 +86,9 @@ class LocalSource extends MediaSource {
         mMatcher.add(StoryAlbumSet.PATH.toString(), LOCAL_STORY_ALBUMSET);
         mMatcher.add(StoryAlbumSet.PATH_ALL, LOCAL_STORY_ALBUM);
         //*/
+
+        mMatcher.add(FaceAlbumSet.PATH.toString(), LOCAL_FACE_ALBUMSET);
+        mMatcher.add(FaceAlbumSet.PATH_ALL, LOCAL_FACE_ALBUM);
 
         mMatcher.add("/local/image/*", LOCAL_IMAGE_ALBUM);
         mMatcher.add("/local/video/*", LOCAL_VIDEO_ALBUM);
@@ -204,6 +212,17 @@ class LocalSource extends MediaSource {
                         storyId, "");
             }
             //*/
+
+            case LOCAL_FACE_ALBUMSET:
+                return new FaceAlbumSet(path, mApplication);
+            case LOCAL_FACE_ALBUM:
+                int storyId = mMatcher.getIntVar(0);
+                DataManager dataManager = app.getDataManager();
+                Comparator<MediaItem> comp = DataManager.sDateTakenComparator;
+                return new FaceMergeAlbum(mApplication, path, comp, new MediaSet[]{
+                        getFaceAlbum(dataManager, MEDIA_TYPE_IMAGE, FaceAlbumSet.PATH_IMAGE, storyId, ""),
+                        getFaceAlbum(dataManager, MEDIA_TYPE_VIDEO, FaceAlbumSet.PATH_VIDEO, storyId, "")},
+                        storyId, "");
 
             default:
                 throw new RuntimeException("bad path: " + path);
@@ -354,6 +373,22 @@ class LocalSource extends MediaSource {
                     return new StoryAlbum(path, mApplication, true, story, name);
                 case MEDIA_TYPE_VIDEO:
                     return new StoryAlbum(path, mApplication, false, story, name);
+            }
+            throw new IllegalArgumentException(String.valueOf(type));
+        }
+    }
+
+    private MediaSet getFaceAlbum(
+            DataManager manager, int type, Path parent, int story, String name) {
+        synchronized (DataManager.LOCK) {
+            Path path = parent.getChild(story);
+            MediaObject object = manager.peekMediaObject(path);
+            if (object != null) return (MediaSet) object;
+            switch (type) {
+                case MEDIA_TYPE_IMAGE:
+                    return new FaceAlbum(path, mApplication, true, story, name);
+                case MEDIA_TYPE_VIDEO:
+                    return new FaceAlbum(path, mApplication, false, story, name);
             }
             throw new IllegalArgumentException(String.valueOf(type));
         }

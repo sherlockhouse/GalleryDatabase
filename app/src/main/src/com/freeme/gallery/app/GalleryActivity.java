@@ -884,7 +884,7 @@ public final class GalleryActivity extends AbstractGalleryActivity
                     grantResults);
         } else if (PermissionHelper.isAllPermissionsGranted(permissions, grantResults)) {
             Log.i(TAG, "<onRequestPermissionsResult> all permission granted");
-            GalleryDBManager.getInstance().initDB(this, "freemegallery.db");
+            GalleryDBManager.getInstance().initDB(this, FREEMEGALLERY_DB);
             if (mSaveInstanceState != null) {
                 getStateManager().restoreFromState(mSaveInstanceState);
             } else {

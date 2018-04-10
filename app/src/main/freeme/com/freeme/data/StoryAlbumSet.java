@@ -46,6 +46,7 @@ import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 
 public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<MediaSet>> {
     public static final int MAX_ALBUM_NUM = 15;
@@ -114,7 +115,7 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
 
         name = mSharedPref.getString(ALBUM_KEY + ALBUM_BABY_ID, "");
         if ("".equals(name)) {
-            name = mRes.getString(R.string.baby_album);
+            name = mRes.getString(R.string.face_album);
             mEditor.putString(ALBUM_KEY + ALBUM_BABY_ID, name);
             mEditor.apply();
         }
@@ -123,7 +124,7 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
 
         name = mSharedPref.getString(ALBUM_KEY + ALBUM_LOVE_ID, "");
         if ("".equals(name)) {
-            name = mRes.getString(R.string.love_album);
+            name = mRes.getString(R.string.flower_album);
             mEditor.putString(ALBUM_KEY + ALBUM_LOVE_ID, name);
             mEditor.apply();
         }
@@ -138,9 +139,9 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
             }
         }
 
-        name = mRes.getString(R.string.add_story_album);
-        mAlbumNameMap.put(mAlbumAddId, name);
-        mAlbumMap.put(mAlbumAddId, generateAlbum(mAlbumAddId, name));
+//        name = mRes.getString(R.string.add_story_album);
+//        mAlbumNameMap.put(mAlbumAddId, name);
+//        mAlbumMap.put(mAlbumAddId, generateAlbum(mAlbumAddId, name));
     }
 
     @Override
@@ -258,21 +259,34 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
     }
 
     public int addAlbum(String name) {
-        mMaxStoryBucketId += 1;
+//        mMaxStoryBucketId += 1;
 
-        mAlbumNameMap.put(mMaxStoryBucketId, name);
-        mAlbumAddId = mMaxStoryBucketId + 1;
-        String strAddAlbum = mRes.getString(R.string.add_story_album);
-        mAlbumNameMap.put(mAlbumAddId, strAddAlbum);
-        mAlbumMap.put(mMaxStoryBucketId, mAlbums.get(mAlbums.size() - 1));
-        mAlbumMap.put(mAlbumAddId, generateAlbum(mAlbumAddId, strAddAlbum));
+//        mAlbumNameMap.put(mMaxStoryBucketId, name);
+//        mAlbumAddId = mMaxStoryBucketId + 1;
+//        String strAddAlbum = mRes.getString(R.string.add_story_album);
+//        mAlbumNameMap.put(mAlbumAddId, strAddAlbum);
+//        mAlbumMap.put(mMaxStoryBucketId, mAlbums.get(mAlbums.size() - 1));
+//        mAlbumMap.put(mAlbumAddId, generateAlbum(mAlbumAddId, strAddAlbum));
 
-        mEditor.putInt(MAX_BUCKET_ID, mMaxStoryBucketId);
-        mEditor.putString(ALBUM_KEY + mMaxStoryBucketId, name);
-        mEditor.commit();
-
+//        mEditor.putInt(MAX_BUCKET_ID, mMaxStoryBucketId);
+//        mEditor.putString(ALBUM_KEY + mMaxStoryBucketId, name);
+//        mEditor.commit();
         return mMaxStoryBucketId;
     }
+
+    public void updateAlbumMap () {
+        mMaxStoryBucketId = mSharedPref.getInt(MAX_BUCKET_ID, ALBUM_LOVE_ID);
+        mAlbumAddId  = mMaxStoryBucketId + 1;
+        String name = "";
+        for (int i = 2; i < mAlbumAddId; i++) {
+            name = mSharedPref.getString(ALBUM_KEY + i, "");
+            if (!"".equals(name)) {
+                mAlbumNameMap.put(i, name);
+            }
+        }
+    }
+
+
 
     public void removeInvalidNewAlbum() {
         MediaSet album = mAlbumMap.get(mMaxStoryBucketId);
@@ -297,7 +311,7 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
 
         if (key == ALBUM_BABY_ID) {
             MediaSet album = mAlbumMap.get(key);
-            String name = mRes.getString(R.string.baby_album);
+            String name = mRes.getString(R.string.face_album);
             mEditor.putString(ALBUM_KEY + ALBUM_BABY_ID, name);
             mEditor.putString(FreemeUtils.BABY_DESCRIPTION,
                     mRes.getString(R.string.baby_story_descrip));
@@ -338,8 +352,8 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
             DataManager manager, int type, Path parent, int story, String name) {
         synchronized (DataManager.LOCK) {
             Path path = parent.getChild(story);
-            MediaObject object = manager.peekMediaObject(path);
-            if (object != null) return (MediaSet) object;
+//            MediaObject object = manager.peekMediaObject(path);
+//            if (object != null) return (MediaSet) object;
             switch (type) {
                 case MEDIA_TYPE_IMAGE:
                     return new StoryAlbum(path, mApplication, true, story, name);
@@ -377,7 +391,7 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
     }
 
     // For debug only. Fake there is a ContentObserver.onChange() event.
-    void fakeChange() {
+    public void fakeChange() {
         mNotifier.fakeChange();
     }
 
@@ -421,17 +435,17 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
                     }
                     albums.add(album);
                 } else {
-                    mEditor.remove(StoryAlbumSet.ALBUM_KEY + i);
+//                    mEditor.remove(StoryAlbumSet.ALBUM_KEY + i);
                     removeAlbum(i);
                 }
             }
             mEditor.commit();
 
             isNotMaxAlbum = true;
-            if (albums.size() < MAX_ALBUM_NUM) {
-                isNotMaxAlbum = false;
-                albums.add(mAlbumMap.get(mAlbumAddId));
-            }
+//            if (albums.size() < MAX_ALBUM_NUM) {
+//                isNotMaxAlbum = false;
+//                albums.add(mAlbumMap.get(mAlbumAddId));
+//            }
 
             return albums;
         }

@@ -33,11 +33,15 @@ public class FrameworkSupportUtils {
     }
 
     public static boolean isSupportVoiceImage() {
+        /*/
         Log.d(TAG,"isSupportVoiceImage begin");
         if (mSettings.getBoolean(support_voice_prop)) {
             Log.d(TAG,"Support_voice_image is true in /system/vendor/etc/freemegallery_custom.properties");
             supportVoice = true;
         }
+        /*/
+        supportVoice = true;
+        //*/
         return supportVoice;
     }
 

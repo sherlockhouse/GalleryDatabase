@@ -57,6 +57,7 @@ public final class FreemeUtils {
     //*/ Added by Linguanrong for story album, 2015-5-22
     public static final boolean STORY_DEBUG = true;
     public static final String STORY_SHAREPREFERENCE_KEY = "StoryAlbumSet";
+    public static final String FACE_SHAREPREFERENCE_KEY = "FaceAlbumSet";
     public static final String BABY_BIRTHDAY = "BabyBirthday";
     public static final String LOVE_DATE = "LoveDate";
     public static final String BABY_DESCRIPTION = "BabyDescription";

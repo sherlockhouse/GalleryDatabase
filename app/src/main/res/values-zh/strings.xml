@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="video_app_notfound">请下载视频播放器</string>
+    <string name="group">合影</string>
+    <string name="food">美食</string>
+    <string name="car">车</string>
+    <string name="architecture">建筑</string>
+    <string name="landscape">风景</string>
+    <string name="baby">萌宝</string>
+    <string name="dog">狗</string>
+    <string name="cat">猫</string>
 </resources>

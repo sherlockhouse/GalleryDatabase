@@ -715,6 +715,32 @@ public final class ImageLoader {
         return target;
     }
 
+    public static Bitmap resizeBitmapWithDefaulSize(
+            Bitmap bitmap,  boolean recycle) {
+        int width = Math.round(bitmap.getWidth() );
+        int height = Math.round(bitmap.getHeight() );
+        // fix certain wbmp no thumbnail issue.@{
+        if (width < 1 || height < 1) {
+            Log.i(LOGTAG, "scaled width or height < 1, no need to resize");
+            return bitmap;
+        }
+        if (width <= 600 && height <= 600) {
+            return bitmap;
+        }
+
+        int scale = Math.max(width/600, height/600);
+        Bitmap target = Bitmap.createBitmap(width, height, getConfig(bitmap));
+        Canvas canvas = new Canvas(target);
+        canvas.scale(scale, scale);
+        Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        if (recycle) {
+            bitmap.recycle();
+        }
+        return target;
+    }
+
+
 
     // add for resize bitmap
     private static Bitmap.Config getConfig(Bitmap bitmap) {

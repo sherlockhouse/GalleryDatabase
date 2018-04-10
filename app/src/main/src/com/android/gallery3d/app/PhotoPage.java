@@ -355,22 +355,22 @@ public abstract class PhotoPage extends ActivityState implements
                     (mCurrentPhoto.getSupportedOperations() & MediaObject.SUPPORT_EDIT) != 0);
                 return true;
             case R.id.photo_voice_icon:
-                if (mCurrentPhoto instanceof LocalImage && FrameworkSupportUtils.isSupportVoiceImage()) {
-                    LocalImage localImage = (LocalImage) mCurrentPhoto;
-                    String photoVoice = localImage.getPhotoVoice();
-                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
-                    return photoVoice != null ? true : false;
-                }
+//                if (mCurrentPhoto instanceof LocalImage && FrameworkSupportUtils.isSupportVoiceImage()) {
+//                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+//                    String photoVoice = localImage.getPhotoVoice();
+//                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
+//                    return photoVoice != null ? true : false;
+//                }
                 return false;
 
             case R.id.photo_voice_progress:
-                if (mCurrentPhoto instanceof LocalImage) {
-                    LocalImage localImage = (LocalImage) mCurrentPhoto;
-                    String photoVoice = localImage.getPhotoVoice();
-                    if (photoVoice != null) {
-                        mPhotoVoiceProgress = (PhotoVoiceProgress) view;
-                    }
-                }
+//                if (mCurrentPhoto instanceof LocalImage) {
+//                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+//                    String photoVoice = localImage.getPhotoVoice();
+//                    if (photoVoice != null) {
+//                        mPhotoVoiceProgress = (PhotoVoiceProgress) view;
+//                    }
+//                }
                 return false;
             case R.id.photo_refocus_icon:
                 if (mCurrentPhoto instanceof LocalImage && FrameworkSupportUtils.isSupportRefocusImage()) {
@@ -505,12 +505,12 @@ public abstract class PhotoPage extends ActivityState implements
                 return;
       /* SPRD: Add for bug535110 new feature,  support play audio picture @{ */
             case R.id.photo_voice_icon:
-                if (mCurrentPhoto instanceof LocalImage) {
-                    LocalImage localImage = (LocalImage) mCurrentPhoto;
-                    String photoVoice = localImage.getPhotoVoice();
-                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
-                    playPhotoVoice(photoVoice);
-                }
+//                if (mCurrentPhoto instanceof LocalImage) {
+//                    LocalImage localImage = (LocalImage) mCurrentPhoto;
+//                    String photoVoice = localImage.getPhotoVoice();
+//                    Log.d(TAG, "updateCurrentPhoto   photoVoice = " + photoVoice);
+//                    playPhotoVoice(photoVoice);
+//                }
                 return;
             case R.id.photo_refocus_icon:
                 if (mCurrentPhoto instanceof LocalImage) {
@@ -827,12 +827,12 @@ public abstract class PhotoPage extends ActivityState implements
                 break;
 
             case REQUEST_CROP_PICASA: {
-                if (resultCode == Activity.RESULT_OK) {
-                    Context context = mActivity.getAndroidContext();
-                    String message = context.getString(R.string.crop_saved,
-                            context.getString(R.string.folder_edited_online_photos));
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                }
+//                if (resultCode == Activity.RESULT_OK) {
+//                    Context context = mActivity.getAndroidContext();
+//                    String message = context.getString(R.string.crop_saved,
+//                            context.getString(R.string.folder_edited_online_photos));
+//                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+//                }
                 break;
             }
 

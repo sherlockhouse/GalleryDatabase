@@ -46,6 +46,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.aiwinn.wrapper.FaceSimManager;
 import com.android.gallery3d.app.GalleryActionBar;
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.app.GalleryContext;
@@ -148,13 +149,16 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext,
     public FreemeBottomSelectedView mFreemeBottomSelectedView;
     public FreemeActionBarUpContainerLayout mFreemeActionBarContainer;
 
+    public static final String FREEMEGALLERY_DB = "freemegalleryai.db";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mGranted = PermissionHelper.checkAndRequestForGallery(this);
         if (mGranted) {
             //*/ Added by droi Linguanrong for freeme gallery db, 16-1-19
-            GalleryDBManager.getInstance().initDB(this, "freemegallery.db");
+            GalleryDBManager.getInstance().initDB(this, FREEMEGALLERY_DB);
             //*/
         }
         TypedArray array = getTheme().obtainStyledAttributes(new int[] {
