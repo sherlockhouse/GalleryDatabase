@@ -73,7 +73,6 @@ import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.MediaSetUtils;
 import com.droi.sdk.analytics.DroiAnalytics;
-import com.freeme.actionbar.app.FreemeActionBarUtil;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.VisitorAlbum;
@@ -851,10 +850,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         } else {
             actionBar = mActivity.getGalleryActionBar();
         }
-        if (DebugUtils.supportFreeme) {
-            FreemeActionBarUtil.setBackTitle(actionBar.mActionBar,R.string.albums);
-            FreemeActionBarUtil.setTitleTextColor(actionBar.mActionBar, R.color.background_freeme_dark);
-        }
+
 
 //        MenuInflater inflator = getSupportMenuInflater();
 

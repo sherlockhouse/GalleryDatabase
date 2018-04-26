@@ -280,9 +280,9 @@ public class GalleryClassifierService extends JobIntentService {
                     String gallerypath = "/local/image/item/" + id;
                     Path aiPath = Path.fromString(gallerypath);
                     Bitmap mBitmap = BitmapUtils.resizeDownBySideLength(
-                            BitmapFactory.decodeFile(path), 1000, true);
+                            BitmapFactory.decodeFile(path), 800, true);
                     FaceModel[] faces = FaceSimManager.DetectFace(getApplicationContext(), mBitmap);
-                    if (faces.length == 0) continue;
+                    if (faces == null || faces.length == 0) continue;
                     mNewFaceAlbumsFeatures.add(faces[0].getFeatures());
                     mFacePaths.add(aiPath);
                 }
@@ -402,6 +402,11 @@ public class GalleryClassifierService extends JobIntentService {
     }
 
     private FaceModel[] handleImageClassfier(Bitmap bp) {
-        return FaceSimManager.DetectFace(getApplicationContext(), bp);
+        FaceModel[] faces = FaceSimManager.DetectFace(getApplicationContext(), bp);
+        if (faces == null || faces.length == 0) {
+            return null;
+        } else {
+            return faces;
+        }
     }
 }

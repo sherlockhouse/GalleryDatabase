@@ -194,7 +194,7 @@ public class StoryHelper {
     public static Cursor getGalleryFileCursor(ContentResolver resolver) {
 
         Uri uri = getFilesContentUri();
-        String whereGroup = "story_bucket_id is NULL";
+        String whereGroup = "story_bucket_id is NULL AND width > 680 AND height > 680";
 
         whereGroup = "(" + IMAGE_CLAUSE + ") AND (" + whereGroup + ")";
 

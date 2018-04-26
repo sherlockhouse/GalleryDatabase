@@ -36,7 +36,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.droi.sdk.analytics.DroiAnalytics;
-import com.freeme.actionbar.app.FreemeActionBarUtil;
 import com.freeme.data.StoryAlbum;
 import com.freeme.data.StoryAlbumSet;
 import com.freeme.data.StoryMergeAlbum;
@@ -449,9 +448,6 @@ public class AlbumStoryPage extends ActivityState implements GalleryActionBar.Cl
 //        MenuInflater inflator = getSupportMenuInflater();
 
 //        mActionBar.setDisplayOptions(true, true);
-        if (DebugUtils.supportFreeme) {
-            FreemeActionBarUtil.setBackTitle(mActionBar.mActionBar, R.string.tab_by_story);
-        }
         if (mGetContent) {
             mActionBar.createActionBarMenu(R.menu.pickup, menu);
         } else {

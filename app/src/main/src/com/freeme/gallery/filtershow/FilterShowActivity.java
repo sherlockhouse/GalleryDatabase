@@ -120,7 +120,6 @@ import com.android.gallery3d.filtershow.pipeline.CachingPipeline;
 import com.android.gallery3d.filtershow.pipeline.ImagePreset;
 //import com.android.gallery3d.filtershow.pipeline.ProcessingService;
 import com.android.gallery3d.filtershow.presets.PresetManagementDialog;
-import com.freeme.actionbar.app.FreemeActionBarUtil;
 import com.freeme.gallery.filtershow.pipeline.ProcessingService;
 import com.freeme.gallery.filtershow.provider.SharedImageProvider;
 import com.android.gallery3d.filtershow.state.StateAdapter;
