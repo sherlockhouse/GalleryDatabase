@@ -65,11 +65,12 @@ import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedController;
 import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
 import com.freeme.statistic.StatisticData;
 import com.freeme.statistic.StatisticUtil;
+import com.freeme.ui.manager.State;
 import com.freeme.utils.FreemeCustomUtils;
 
 import java.util.ArrayList;
 
-public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickListener {
+public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickListener ,State{
 
     @SuppressWarnings("unused")
     private static final String TAG = "ActionModeHandler";
@@ -105,6 +106,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 
     private int mSelectedItemCount = 0;
     private MenuItem mConfirmMenu;
+    private int mLastState;
 
 
     @Override
@@ -171,6 +173,17 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 
     public void shoulHideMenu(boolean hide) {
         mHideMenu = hide;
+    }
+
+    @Override
+    public void onEnterState() {
+        mLastState = mActivity.getmCurrentState();
+        mActivity.showNavi(AbstractGalleryActivity.IN_SELECTMODE);
+    }
+
+    @Override
+    public void observe() {
+
     }
 
     public interface ActionModeListener {
@@ -246,6 +259,8 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
     public void startActionMode() {
         Activity a = mActivity;
         mActionMode = a.startActionMode(this);
+        mActivity.getNavigationWidgetManager().changeStateTo(this);
+
 //        View customView = LayoutInflater.from(a).inflate(
 //                R.layout.action_mode, null);
 //        mActionMode.setCustomView(customView);
@@ -515,7 +530,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         } else {
             ((GalleryActivity)mActivity).getController().showActions(mActionNames, mActionCodes, mCallBack);
 
-            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
+//            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
         }
         //*/
 
@@ -563,6 +578,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
+        mActivity.showNavi(mLastState);
         setStatusView(false);
         ((GalleryActivity)mActivity).getController().hideActions();
         mSelectionManager.leaveSelectionMode();
