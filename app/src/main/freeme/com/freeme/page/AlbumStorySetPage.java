@@ -739,7 +739,7 @@ public class AlbumStorySetPage extends ActivityState implements
 
         MediaSet targetSet = mAlbumSetDataAdapter.getMediaSet(slotIndex);
         if (targetSet == null) return; // Content is dirty, we shall reload soon
-        if (slotIndex == mAlbumSetDataAdapter.size() - 1
+        if (slotIndex <= mAlbumSetDataAdapter.size() - 1
                 && !StoryAlbumSet.isNotMaxAlbum
                 && targetSet.getTotalMediaItemCount() == 0) {
             mRenameItemId = -1;
@@ -789,6 +789,9 @@ public class AlbumStorySetPage extends ActivityState implements
         /*/
         /*/
         if (slotIndex == StoryAlbumSet.ALBUM_BABY_ID) {
+            if (targetSet.getMediaItemCount() < 1) {
+                return;
+            }
             data.putBoolean(GalleryActivity.KEY_GET_CONTENT, false);
             data.putString(AlbumStorySetPage.KEY_MEDIA_PATH, FaceAlbumSet.PATH.toString());
 //                data.putInt(AlbumStorySetPage.KEY_SELECTED_CLUSTER_TYPE, clusterType);
