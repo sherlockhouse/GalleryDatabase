@@ -180,7 +180,7 @@
 
     <string name="set_lockscreen_failed">設置鎖屏壁紙失敗，請重試！</string>
 
-    <string name="cannot_delete_tip">主題相冊無法刪除</string>
+    <string name="cannot_delete_tip">默認相冊需要保留</string>
 
     <string name="share_freeme_extra_title">"拍一張比自己更美的照片"</string>
     <string name="share_freeme_extra_summary">"用Freeme OS相機拍照，朋友圈的好友都來點贊啦！秘密就在這裡！"</string>
