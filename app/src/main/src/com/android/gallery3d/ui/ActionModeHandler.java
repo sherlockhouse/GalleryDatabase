@@ -530,7 +530,7 @@ public class ActionModeHandler implements Callback, PopupList.OnPopupItemClickLi
         } else {
             ((GalleryActivity)mActivity).getController().showActions(mActionNames, mActionCodes, mCallBack);
 
-//            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
+            mActivity.getGalleryActionBar().createActionBarMenu(R.menu.operation, menu);
         }
         //*/
 
