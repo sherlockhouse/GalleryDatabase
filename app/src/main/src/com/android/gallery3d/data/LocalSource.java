@@ -361,7 +361,7 @@ class LocalSource extends MediaSource {
         }
     }
 
-    //*/ Added by Linguanrong for story album, 2015-4-7
+
     private MediaSet getStoryAlbum(
             DataManager manager, int type, Path parent, int story, String name) {
         synchronized (DataManager.LOCK) {
@@ -413,7 +413,6 @@ class LocalSource extends MediaSource {
             }
         }
     }
-    //*/
 
     @Override
     public void resume() {

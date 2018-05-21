@@ -49,9 +49,11 @@ import com.mediatek.gallery3d.adapter.FeatureHelper;
 import com.mediatek.gallery3d.adapter.MediaDataParser;
 import com.mediatek.gallery3d.layout.FancyHelper;
 import com.mediatek.gallery3d.util.DecodeSpecLimitor;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.Images.ImageColumns;
-import com.freeme.provider.GalleryStore.MediaColumns;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
+import android.provider.MediaStore.MediaColumns;
+
+
 import com.mediatek.gallery3d.util.TraceHelper;
 import com.mediatek.galleryfeature.config.FeatureConfig;
 import com.mediatek.galleryframework.base.ExtItem;
@@ -122,14 +124,8 @@ public class LocalImage extends LocalMediaItem {
             ImageColumns.BUCKET_ID,     // 10
             ImageColumns.SIZE,          // 11
             "0",                        // 12
-            "0",                        // 13
-            //*/ Added by Linguanrong for story album, 2015-4-9
-            "story_bucket_id",//14
-            //*/
-            // Add for bug535110 new feature,  support play audio picture
-            "photo_voice_id"            // 15
+            "0",                         // 13
     };
-
 
     static {
         updateWidthAndHeightProjection();
@@ -196,33 +192,6 @@ public class LocalImage extends LocalMediaItem {
         fileSize = cursor.getLong(INDEX_SIZE);
         width = cursor.getInt(INDEX_WIDTH);
         height = cursor.getInt(INDEX_HEIGHT);
-
-//        mVoiceId = cursor.getInt(COL_PHOTO_VOICE);
-
-//        if (mVoiceId != 0) {
-//            Log.d(TAG, "query photoVoice begin voiceId = " + mVoiceId);
-//            ContentResolver resolver = mApplication.getContentResolver();
-//            Cursor sc = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, new String[]{
-//                    MediaStore.Audio.Media.DATA
-//            }, MediaStore.Audio.Media._ID + "=?", new String[]{
-//                    String.valueOf(mVoiceId)
-//            }, null);
-//            if (sc != null && sc.moveToFirst()) {
-//                mPhotoVoice = sc.getString(sc.getColumnIndex(MediaStore.Audio.Media.DATA));
-//            }
-//
-//            if (sc != null) {
-//                sc.close();
-//            }
-//            Log.d(TAG, "query photoVoice end");
-//        }
-
-//        if (mPhotoVoice != null) {
-//            File voiceFile = new File(mPhotoVoice);
-//            if (!voiceFile.exists()) {
-//                mPhotoVoice = null;
-//            }
-//        }
     }
 
     @Override
@@ -443,7 +412,9 @@ public class LocalImage extends LocalMediaItem {
         SaveImage.deleteAuxFiles(contentResolver, getContentUri());
         contentResolver.delete(baseUri, "_id=?",
                 new String[]{String.valueOf(id)});
+        /// M: [BUG.ADD] @{
         mApplication.getDataManager().broadcastUpdatePicture();
+        /// @}
     }
 
     @Override

@@ -39,7 +39,6 @@ import android.widget.Toast;
 import com.freeme.gallery.BuildConfig;
 import com.freeme.gallery.R;
 import com.freeme.gallery.app.MovieActivity;
-import com.freeme.provider.GalleryStore;
 
 import java.io.File;
 
@@ -111,7 +110,7 @@ public final class FreemeUtils {
         if (uri == null) {
             return null;
         }
-        return Uri.parse(uri.toString().replace(GalleryStore.AUTHORITY, MediaStore.AUTHORITY));
+        return Uri.parse(uri.toString().replace(MediaStore.AUTHORITY, MediaStore.AUTHORITY));
     }
 
     public static boolean isFreemeOS(Context context) {

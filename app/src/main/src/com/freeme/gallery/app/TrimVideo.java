@@ -54,7 +54,6 @@ import com.mediatek.gallery3d.video.MtkVideoFeature;
 //import com.mediatek.gallery3d.video.SlowMotionItem;
 import com.android.gallery3d.util.SaveVideoFileUtils;
 import com.android.gallery3d.common.ApiHelper;
-import com.freeme.provider.GalleryStore;
 import com.android.gallery3d.app.TrimControllerOverlay;
 import com.android.gallery3d.app.VideoUtils;
 import com.android.gallery3d.app.ControllerOverlay;

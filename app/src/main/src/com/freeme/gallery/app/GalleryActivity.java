@@ -76,8 +76,6 @@ import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
 
 import com.freeme.provider.GalleryDBManager;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.MediaStoreImporter;
 import com.freeme.scott.galleryui.design.adapter.GalleryPageAdapter;
 import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedController;
 import com.freeme.scott.galleryui.design.widget.FreemeBottomSelectedView;
@@ -197,13 +195,13 @@ public final class GalleryActivity extends AbstractGalleryActivity
          */
         if (mGranted) {
 
-            MediaStoreImporter.getInstance().setmResolver(this.getContentResolver());
+            /*MediaStoreImporter.getInstance().setmResolver(this.getContentResolver());
             new Handler().post(new Runnable() {
                 @Override
                 public void run() {
                     MediaStoreImporter.getInstance().deleteFiles();
                 }
-            });
+            });*/
 
 
             /// M: [BUG.ADD] set gl_root_cover visible if open from widget or launch by @{

@@ -30,9 +30,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Video.VideoColumns;
+import android.provider.MediaStore.Files;
 import android.util.Log;
 
 import com.android.gallery3d.app.GalleryApp;
+import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.data.ChangeNotifier;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.LocalImage;
@@ -42,12 +48,6 @@ import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.GalleryUtils;
-import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.Images.ImageColumns;
-import com.freeme.provider.GalleryStore.Video;
-import com.freeme.provider.GalleryStore.Video.VideoColumns;
 import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
@@ -98,14 +98,14 @@ public class FaceAlbum extends MediaSet {
         mEditor = mSharedPref.edit();
         mWhereClause = "photo_voice_id = ?";
         if (isImage) {
-            mWhereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-            mOrderClause = GalleryStore.Images.ImageColumns.DATE_TAKEN + " DESC, "
+            mWhereClause += " AND media_type = " + Files.FileColumns.MEDIA_TYPE_IMAGE;
+            mOrderClause = Images.ImageColumns.DATE_TAKEN + " DESC, "
                     + ImageColumns._ID + " DESC";
             mBaseUri = Images.Media.EXTERNAL_CONTENT_URI;
             mProjection = LocalImage.PROJECTION;
             mItemPath = IMAGE_ITEM_PATH;
         } else {
-            mWhereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            mWhereClause += " AND media_type = " + Files.FileColumns.MEDIA_TYPE_VIDEO;
             mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
                     + VideoColumns._ID + " DESC";
             mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
@@ -120,8 +120,8 @@ public class FaceAlbum extends MediaSet {
         if (resolver != null) {
             StringBuffer sb = getIds(path);
             if ((sb != null) && (!"()".equalsIgnoreCase(sb.toString()))) {
-                Uri uri = isImage ? GalleryStore.Images.Media.EXTERNAL_CONTENT_URI
-                        : GalleryStore.Video.Media.EXTERNAL_CONTENT_URI;
+                Uri uri = isImage ? Images.Media.EXTERNAL_CONTENT_URI
+                        : Video.Media.EXTERNAL_CONTENT_URI;
                 ContentValues values = new ContentValues();
                 values.put(FACE_BUCKET_ID, String.valueOf(storyIndex));
                 resolver.update(uri, values, "_id in " + sb.toString(), null);
@@ -135,8 +135,8 @@ public class FaceAlbum extends MediaSet {
         if (resolver != null) {
             int sb = getId(path);
             if (sb != -1) {
-                Uri uri = isImage ? GalleryStore.Images.Media.EXTERNAL_CONTENT_URI
-                        : GalleryStore.Video.Media.EXTERNAL_CONTENT_URI;
+                Uri uri = isImage ? Images.Media.EXTERNAL_CONTENT_URI
+                        : Video.Media.EXTERNAL_CONTENT_URI;
                 ContentValues values = new ContentValues();
                 values.put(FACE_BUCKET_ID, String.valueOf(storyIndex));
                 resolver.update(uri, values, "_id == " + sb, null);
@@ -481,7 +481,7 @@ public class FaceAlbum extends MediaSet {
 
         if (mIsImage) {
             whereClause = ImageColumns._ID + " = ?";
-            whereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+            whereClause += " AND media_type = " + Files.FileColumns.MEDIA_TYPE_IMAGE;
             if (visitor) {
                 whereClause += " AND (is_hidden = 0 OR is_hidden is null)";
             }
@@ -489,7 +489,7 @@ public class FaceAlbum extends MediaSet {
             uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         } else {
             whereClause = VideoColumns._ID + " = ?";
-            whereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+            whereClause += " AND media_type = " + Files.FileColumns.MEDIA_TYPE_VIDEO;
             if (visitor) {
                 whereClause += " AND (is_hidden = 0 OR is_hidden is null)";
             }
@@ -505,11 +505,11 @@ public class FaceAlbum extends MediaSet {
     @Override
     public Uri getContentUri() {
         if (mIsImage) {
-            return GalleryStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(FACE_BUCKET_ID, String.valueOf(mStoryId))
                     .build();
         } else {
-            return GalleryStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(FACE_BUCKET_ID, String.valueOf(mStoryId))
                     .build();
         }
@@ -517,11 +517,11 @@ public class FaceAlbum extends MediaSet {
 
     public static Uri getContentUri(int storyIndex, boolean isImage) {
         if (isImage) {
-            return GalleryStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(FACE_BUCKET_ID, String.valueOf(storyIndex))
                     .build();
         } else {
-            return GalleryStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(FACE_BUCKET_ID, String.valueOf(storyIndex))
                     .build();
         }

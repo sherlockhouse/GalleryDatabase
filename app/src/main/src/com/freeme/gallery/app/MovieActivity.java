@@ -30,6 +30,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -44,7 +45,6 @@ import com.freeme.gallery.R;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
 import com.freeme.gallery.app.GalleryActivity;
-import com.freeme.provider.GalleryStore;
 
 /**
  * This activity plays a video from a specified URI.
@@ -78,7 +78,7 @@ public class MovieActivity extends Activity {
         Intent intent = getIntent();
         initializeActionBar(intent);
         mFinishOnCompletion = intent.getBooleanExtra(
-                GalleryStore.EXTRA_FINISH_ON_COMPLETION, true);
+                MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
         mTreatUpAsBack = intent.getBooleanExtra(KEY_TREAT_UP_AS_BACK, false);
         mPlayer = new MoviePlayer(rootView, this, intent.getData(), savedInstanceState,
                 !mFinishOnCompletion) {
@@ -89,9 +89,9 @@ public class MovieActivity extends Activity {
                 }
             }
         };
-        if (intent.hasExtra(GalleryStore.EXTRA_SCREEN_ORIENTATION)) {
+        if (intent.hasExtra(MediaStore.EXTRA_SCREEN_ORIENTATION)) {
             int orientation = intent.getIntExtra(
-                    GalleryStore.EXTRA_SCREEN_ORIENTATION,
+                    MediaStore.EXTRA_SCREEN_ORIENTATION,
                     ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             if (orientation != getRequestedOrientation()) {
                 setRequestedOrientation(orientation);

@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Video;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -88,7 +89,6 @@ import com.freeme.ui.manager.State;
 import com.mediatek.gallery3d.util.PermissionHelper;
 import java.util.ArrayList;
 
-import com.freeme.provider.GalleryStore;
 import com.mediatek.galleryframework.util.DebugUtils;
 
 public class AlbumClassifierPage extends ActivityState implements GalleryActionBar.ClusterRunner,
@@ -498,7 +498,7 @@ public class AlbumClassifierPage extends ActivityState implements GalleryActionB
             Intent intent = new Intent(CropActivity.CROP_ACTION, uri)
                     .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtras(getData());
-            if (mData.getParcelable(GalleryStore.EXTRA_OUTPUT) == null) {
+            if (mData.getParcelable(MediaStore.EXTRA_OUTPUT) == null) {
                 intent.putExtra(CropExtras.KEY_RETURN_DATA, true);
             }
             /// M: [DEBUG.ADD] @{

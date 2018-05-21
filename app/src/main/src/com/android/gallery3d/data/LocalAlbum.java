@@ -35,9 +35,10 @@ import com.android.gallery3d.util.BucketNames;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.MediaSetUtils;
 import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.Video;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Files;
+
 import com.freeme.utils.FreemeUtils;
 import com.mediatek.gallery3d.util.TraceHelper;
 import com.mediatek.galleryframework.base.MediaFilterSetting;
@@ -52,9 +53,11 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     private static final String[] COUNT_PROJECTION = {"count(*)"};
 
     private static final int INVALID_COUNT = -1;
+    private  String mWhereClause;
     private final String mOrderClause;
     private final Uri mBaseUri;
     private final String[] mProjection;
+
     private final GalleryApp mApplication;
     private final ContentResolver mResolver;
     private final int mBucketId;
@@ -62,10 +65,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     private final boolean mIsImage;
     private final ChangeNotifier mNotifier;
     private final Path mItemPath;
-    private String mWhereClause;
     private int mCachedCount = INVALID_COUNT;
-
-
 
     public LocalAlbum(Path path, GalleryApp application, int bucketId,
             boolean isImage, String name) {
@@ -81,26 +81,18 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         //*/
 
         if (isImage) {
-            mWhereClause = GalleryStore.Images.ImageColumns.BUCKET_ID + " = ?";
-            mWhereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
-            //*/ Added by Tyd Linguanrong for secret photos, 2014-5-29
-            if (visitor) {
-                mWhereClause += " AND (is_hidden = 0 OR is_hidden is null)";
-            }
-            //*/
-            mOrderClause = GalleryStore.Images.ImageColumns.DATE_TAKEN + " DESC, "
+            mWhereClause = Images.ImageColumns.BUCKET_ID + " = ?";
+            mWhereClause += " AND " + Images.ImageColumns.MIME_TYPE + " = " + Files.FileColumns.MEDIA_TYPE_IMAGE;
+
+            mOrderClause = Images.ImageColumns.DATE_TAKEN + " DESC, "
                     + Images.ImageColumns._ID + " DESC";
             mBaseUri = Images.Media.EXTERNAL_CONTENT_URI;
             mProjection = LocalImage.PROJECTION;
             mItemPath = LocalImage.ITEM_PATH;
         } else {
             mWhereClause = Video.VideoColumns.BUCKET_ID + " = ?";
-            mWhereClause += " AND media_type = " + GalleryStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
-            //*/ Added by Tyd Linguanrong for secret photos, 2014-5-29
-            if (visitor) {
-                mWhereClause += " AND (is_hidden = 0 OR is_hidden is null)";
-            }
-            //*/
+            mWhereClause += " AND " + Video.VideoColumns.MIME_TYPE + " = " + Files.FileColumns.MEDIA_TYPE_VIDEO;
+
             mOrderClause = Video.VideoColumns.DATE_TAKEN + " DESC, "
                     + Video.VideoColumns._ID + " DESC";
             mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
@@ -180,6 +172,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
             return item;
         }
     }
+
     // The pids array are sorted by the (path) id.
     public static MediaItem[] getMediaItemById(
             GalleryApp application, boolean isImage, ArrayList<Integer> ids) {

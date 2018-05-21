@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.common.ApiHelper;
@@ -36,7 +37,6 @@ import com.android.gallery3d.data.Path;
 import com.android.gallery3d.gadget.WidgetDatabaseHelper;
 import com.android.gallery3d.gadget.WidgetDatabaseHelper.Entry;
 import com.android.gallery3d.util.GalleryUtils;
-import com.mediatek.gallery3d.util.Log;
 
 import java.io.File;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ import java.util.List;
  * to /external/storage/sdcard/0 in JB MR1).
  */
 public class GalleryWidgetMigrator {
-    private static final String TAG = "Gallery2/GalleryWidgetMigrator";
+    private static final String TAG = "GalleryWidgetMigrator";
     private static final String PRE_JB_EXT_PATH = "/mnt/sdcard";
     private static final String JB_EXT_PATH = "/storage/sdcard0";
     private static final String NEW_EXT_PATH =

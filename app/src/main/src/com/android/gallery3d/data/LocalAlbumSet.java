@@ -23,8 +23,10 @@ package com.android.gallery3d.data;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Video;
 
-import com.freeme.gallery.R;
+import com.android.gallery3d.R;
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.data.BucketHelper.BucketEntry;
 import com.android.gallery3d.util.Future;
@@ -32,21 +34,16 @@ import com.android.gallery3d.util.FutureListener;
 import com.android.gallery3d.util.MediaSetUtils;
 import com.android.gallery3d.util.ThreadPool;
 import com.android.gallery3d.util.ThreadPool.JobContext;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.Video;
-import com.freeme.utils.FreemeUtils;
-import com.freeme.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 
 // LocalAlbumSet lists all image or video albums in the local storage.
 // The path should be "/local/image", "local/video" or "/local/all"
 public class LocalAlbumSet extends MediaSet
         implements FutureListener<ArrayList<MediaSet>> {
     @SuppressWarnings("unused")
-    private static final String TAG = "Gallery2/LocalAlbumSet";
+    private static final String TAG = "LocalAlbumSet";
 
     public static final Path PATH_ALL = Path.fromString("/local/all");
     public static final Path PATH_IMAGE = Path.fromString("/local/image");
@@ -113,7 +110,7 @@ public class LocalAlbumSet extends MediaSet
         public ArrayList<MediaSet> run(JobContext jc) {
             // Note: it will be faster if we only select media_type and bucket_id.
             //       need to test the performance if that is worth
-            BucketHelper.BucketEntry[] entries = BucketHelper.loadBucketEntries(
+            BucketEntry[] entries = BucketHelper.loadBucketEntries(
                     jc, mApplication.getContentResolver(), mType);
 
             if (jc.isCancelled()) return null;
@@ -130,24 +127,12 @@ public class LocalAlbumSet extends MediaSet
                 circularShiftRight(entries, offset++, index);
             }
 
-            //*/ Added by Linguanrong for secret photos, 2014-9-19
-            boolean visitor = FreemeUtils.isVisitorMode(mApplication.getContentResolver());
-            //*/
-
-            ArrayList<MediaSet> albums = new ArrayList<>();
+            ArrayList<MediaSet> albums = new ArrayList<MediaSet>();
             DataManager dataManager = mApplication.getDataManager();
-            for (BucketHelper.BucketEntry entry : entries) {
+            for (BucketEntry entry : entries) {
                 MediaSet album = getLocalAlbum(dataManager,
                         mType, mPath, entry.bucketId, entry.bucketName);
-                if (visitor) {
-                    LogUtil.i("item count = " + album.getMediaItemCount());
-                    LogUtil.i("itemtotal count = " + album.getTotalMediaItemCount());
-                    if (album.getTotalMediaItemCount() != 0) {
-                        albums.add(album);
-                    }
-                } else {
-                    albums.add(album);
-                }
+                albums.add(album);
             }
             return albums;
         }
@@ -228,5 +213,4 @@ public class LocalAlbumSet extends MediaSet
         }
         array[i] = temp;
     }
-
 }

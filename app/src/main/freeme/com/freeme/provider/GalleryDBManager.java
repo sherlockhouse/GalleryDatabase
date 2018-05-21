@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.IBinder;
 
 import com.freeme.utils.LogUtil;
@@ -27,7 +28,6 @@ public class GalleryDBManager {
         }
     };
     private SQLiteDatabase db;
-    private DaoMaster      daoMaster;
 
     public static GalleryDBManager getInstance() {
         return Singleton.instance;
@@ -35,42 +35,28 @@ public class GalleryDBManager {
 
     public void initDB(Context context, String dbName) {
         mContext = context;
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, dbName, null);
+        SQLiteOpenHelper helper = new DatabaseHelper(context, dbName, null);
         db = helper.getWritableDatabase();
-        daoMaster = new DaoMaster(db);
 
         bindServer();
-        MediaStoreImporter.getInstance().doImport(context);
     }
 
     private void bindServer() {
-        Intent intent = new Intent(mContext, MediaStoreImportService.class);
-        mContext.bindService(intent, mediaStoreConnection, Context.BIND_AUTO_CREATE);
+//        Intent intent = new Intent(mContext, MediaStoreImportService.class);
+//        mContext.bindService(intent, mediaStoreConnection, Context.BIND_AUTO_CREATE);
     }
 
     public  void unbindServer() {
-        if (mContext != null && mediaStoreConnection != null) {
-            try {
-                mContext.unbindService(mediaStoreConnection);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (mContext != null && mediaStoreConnection != null) {
+//            try {
+//                mContext.unbindService(mediaStoreConnection);
+//            } catch (IllegalArgumentException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
-    public SQLiteDatabase getDataBase() {
-        if (daoMaster != null) {
 
-            return daoMaster.getDatabase();
-        }
-        LogUtil.d(TAG, "daoMaster == null");
-        return  null;
-    }
-
-    public GalleryFilesDao getGalleryFilesDao() {
-        DaoSession session = daoMaster.newSession();
-        return session.getGalleryFilesDao();
-    }
 
     private static class Singleton {
         private static GalleryDBManager instance = new GalleryDBManager();

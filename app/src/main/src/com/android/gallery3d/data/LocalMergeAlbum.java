@@ -27,7 +27,6 @@ import android.provider.MediaStore;
 import com.freeme.extern.IBucketAlbum;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -76,9 +75,10 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
         }
         return true;
     }
+
     private void updateData() {
         ArrayList<MediaSet> matches = new ArrayList<MediaSet>();
-        int supported = mSources.length == 0 ? 0 : SUPPORT_ALL;
+        int supported = mSources.length == 0 ? 0 : MediaItem.SUPPORT_ALL;
         mFetcher = new FetchCache[mSources.length];
         for (int i = 0, n = mSources.length; i < n; ++i) {
             mFetcher[i] = new FetchCache(mSources[i]);
@@ -96,8 +96,6 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
         mIndex.clear();
         mIndex.put(0, new int[mSources.length]);
     }
-
-
 
     @Override
     public Uri getContentUri() {

@@ -26,12 +26,12 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.util.SaveVideoFileInfo;
 import com.android.gallery3d.util.SaveVideoFileUtils;
-import com.freeme.provider.GalleryStore;
 
 import java.io.IOException;
 
@@ -111,7 +111,7 @@ public class MuteVideo {
                                 // Show the result only when the activity not stopped.
                                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
                                 intent.setDataAndType(mNewVideoUri, "video/*");
-                                intent.putExtra(GalleryStore.EXTRA_FINISH_ON_COMPLETION, false);
+                                intent.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, false);
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 mActivity.startActivity(intent);
                             }

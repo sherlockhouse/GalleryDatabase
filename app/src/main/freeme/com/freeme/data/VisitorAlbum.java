@@ -4,6 +4,8 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore.Images;
+
 
 import com.freeme.gallery.R;
 import com.android.gallery3d.app.GalleryApp;
@@ -16,7 +18,6 @@ import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore.Images;
 import com.freeme.utils.LogUtil;
 
 import java.util.ArrayList;

@@ -27,6 +27,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.SparseArray;
 
 import com.freeme.gallery.R;
@@ -40,8 +41,7 @@ import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.Future;
 import com.android.gallery3d.util.FutureListener;
 import com.android.gallery3d.util.ThreadPool;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.GalleryStore.Images;
+
 import com.freeme.utils.FreemeUtils;
 
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class StoryAlbumSet extends MediaSet implements FutureListener<ArrayList<
     @SuppressWarnings("unused")
     private static final String TAG = "Gallery2/StoryAlbumSet";
     private static final Uri[] mWatchUris =
-            {Images.Media.EXTERNAL_CONTENT_URI, GalleryStore.Video.Media.EXTERNAL_CONTENT_URI};
+            {MediaStore.Images.Media.EXTERNAL_CONTENT_URI, MediaStore.Video.Media.EXTERNAL_CONTENT_URI};
     public static boolean isNotMaxAlbum = true;
     private final GalleryApp mApplication;
     private final int        mType;

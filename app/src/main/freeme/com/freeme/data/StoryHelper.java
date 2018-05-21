@@ -10,10 +10,10 @@ import com.android.gallery3d.data.MediaObject;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.ThreadPool;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.GalleryStore.Files;
-import com.freeme.provider.GalleryStore.Files.FileColumns;
-import com.freeme.provider.GalleryStore.Images.ImageColumns;
+import android.provider.MediaStore;
+import android.provider.MediaStore.Files;
+import android.provider.MediaStore.Files.FileColumns;
+import android.provider.MediaStore.Images.ImageColumns;
 
 import java.util.ArrayList;
 
@@ -55,13 +55,13 @@ public class StoryHelper {
             ImageColumns.BUCKET_DISPLAY_NAME};
 
     private static final String PURE_BUCKET_GROUP_BY = ") GROUP BY 1,(2";
-    private static final String VIDEO_IMAGE_CLAUSE   = GalleryStore.Files.FileColumns.MEDIA_TYPE
-            + "=" + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE + " OR "
-            + GalleryStore.Files.FileColumns.MEDIA_TYPE + "="
-            + GalleryStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+    private static final String VIDEO_IMAGE_CLAUSE   = Files.FileColumns.MEDIA_TYPE
+            + "=" + Files.FileColumns.MEDIA_TYPE_IMAGE + " OR "
+            + Files.FileColumns.MEDIA_TYPE + "="
+            + Files.FileColumns.MEDIA_TYPE_VIDEO;
 
-    private static final String IMAGE_CLAUSE   = GalleryStore.Files.FileColumns.MEDIA_TYPE
-            + "=" + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+    private static final String IMAGE_CLAUSE   = Files.FileColumns.MEDIA_TYPE
+            + "=" + Files.FileColumns.MEDIA_TYPE_IMAGE;
 
     public static BucketEntry[] loadStoryBucketId(
             ThreadPool.JobContext jc, ContentResolver resolver, int type) {

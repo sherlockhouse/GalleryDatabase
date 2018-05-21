@@ -149,7 +149,6 @@ import com.android.gallery3d.filtershow.filters.FiltersManager;
 import com.android.gallery3d.filtershow.presets.UserPresetsAdapter;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.photos.data.GalleryBitmapPool;
-import com.freeme.provider.GalleryStore;
 import com.freeme.utils.LogUtil;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.gallery3d.util.PermissionHelper;

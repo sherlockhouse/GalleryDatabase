@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
-import android.provider.MediaStore;
+import android.provider.MediaStore.Video;
 
 import com.freeme.gallery.R;
 import com.android.gallery3d.app.GalleryApp;
@@ -18,7 +18,6 @@ import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore.Video;
 import com.freeme.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class VisitorAlbumVideo extends MediaSet {
                 resolver.update(uri, values, "_id in " + sb.toString(), null);
 
                 try {
-                    resolver.update(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    resolver.update(Video.Media.EXTERNAL_CONTENT_URI,
                             values, "_id in " + sb.toString(), null);
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -116,7 +115,7 @@ public class VisitorAlbumVideo extends MediaSet {
                 resolver.update(uri, values, "_id in " + sb.toString(), null);
 
                 try {
-                    resolver.update(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    resolver.update(Video.Media.EXTERNAL_CONTENT_URI,
                             values, "_id in " + sb.toString(), null);
                 } catch (SQLException e) {
                     e.printStackTrace();

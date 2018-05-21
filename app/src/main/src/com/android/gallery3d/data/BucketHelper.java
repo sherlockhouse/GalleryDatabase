@@ -4,18 +4,19 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
-import com.freeme.provider.GalleryStore;
-import com.freeme.provider.GalleryStore.Files.FileColumns;
-import com.freeme.provider.GalleryStore.Images;
-import com.freeme.provider.GalleryStore.Images.ImageColumns;
-import com.freeme.provider.GalleryStore.Video;
 import com.freeme.utils.FreemeUtils;
 
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.util.ThreadPool.JobContext;
 import com.mediatek.gallery3d.util.Log;
-
+import android.provider.MediaStore;
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Video.VideoColumns;
+import android.provider.MediaStore.Files;
+import android.provider.MediaStore.Files.FileColumns;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -206,7 +207,7 @@ class BucketHelper {
 
     @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
     private static Uri getFilesContentUri() {
-        return GalleryStore.Files.getContentUri(EXTERNAL_MEDIA);
+        return Files.getContentUri(EXTERNAL_MEDIA);
     }
 
     public static String getBucketName(ContentResolver resolver, int bucketId) {
@@ -247,8 +248,8 @@ class BucketHelper {
     }
 
     private static final String PURE_BUCKET_GROUP_BY = ") GROUP BY 1,(2";
-    private static final String VIDEO_IMAGE_CLAUSE   = GalleryStore.Files.FileColumns.MEDIA_TYPE
-            + "=" + GalleryStore.Files.FileColumns.MEDIA_TYPE_IMAGE + " OR "
-            + GalleryStore.Files.FileColumns.MEDIA_TYPE + "="
-            + GalleryStore.Files.FileColumns.MEDIA_TYPE_VIDEO;
+    private static final String VIDEO_IMAGE_CLAUSE   = Files.FileColumns.MEDIA_TYPE
+            + "=" + Files.FileColumns.MEDIA_TYPE_IMAGE + " OR "
+            + Files.FileColumns.MEDIA_TYPE + "="
+            + Files.FileColumns.MEDIA_TYPE_VIDEO;
 }

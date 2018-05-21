@@ -518,13 +518,7 @@
         <!--</activity>-->
         <!-- For Community -->
 
-        <provider
-            android:name="com.freeme.provider.GalleryFilesProvider"
-            android:authorities="freemegallery"
-            android:exported="true"
-            android:grantUriPermissions="true"/>
 
-        <service android:name="com.freeme.provider.MediaStoreImportService"/>
 
         <!-- Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature -->
         <activity

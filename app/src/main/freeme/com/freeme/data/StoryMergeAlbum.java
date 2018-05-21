@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.provider.MediaStore;
 
 import com.android.gallery3d.app.GalleryApp;
 import com.android.gallery3d.data.ContentListener;
@@ -32,7 +33,6 @@ import com.android.gallery3d.data.MediaItem;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 import com.android.gallery3d.common.Utils;
-import com.freeme.provider.GalleryStore;
 import com.freeme.utils.FreemeUtils;
 
 import java.lang.ref.SoftReference;
@@ -267,7 +267,7 @@ public class StoryMergeAlbum extends MediaSet implements ContentListener {
 
     @Override
     public Uri getContentUri() {
-        return GalleryStore.Files.EXTERNAL_CONTENT_URI.buildUpon()
+        return MediaStore.Files.getContentUri("external").buildUpon()
                 //.appendQueryParameter(KEY_BUCKET_ID, String.valueOf(mBucketId))
                 .appendQueryParameter(STORY_BUCKET_ID, String.valueOf(mStoryId))
                 .build();

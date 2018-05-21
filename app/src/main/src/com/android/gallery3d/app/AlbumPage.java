@@ -97,8 +97,10 @@ import com.mediatek.galleryframework.base.MediaData;
 /// @}
 import java.util.ArrayList;
 
-import com.freeme.provider.GalleryStore;
 import com.mediatek.galleryframework.util.DebugUtils;
+
+
+import com.android.gallery3d.app.OrientationManager;
 
 public class AlbumPage extends ActivityState implements GalleryActionBar.ClusterRunner,
         SelectionManager.SelectionListener, MediaSet.SyncListener, GalleryActionBar.OnAlbumModeSelectedListener
@@ -181,7 +183,10 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     // Added by TYD Theobald_Wu on 2014/01 [begin] for jigsaw feature
     private boolean mJigsawPicker;
     // Added by TYD Theobald_Wu on 2014/01 [end]
- 
+
+    private OrientationManager mOrientationManager;
+
+
     private PhotoFallbackEffect.PositionProvider mPositionProvider =
             new PhotoFallbackEffect.PositionProvider() {
         @Override
@@ -510,7 +515,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
             Intent intent = new Intent(CropActivity.CROP_ACTION, uri)
                     .addFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT)
                     .putExtras(getData());
-            if (mData.getParcelable(GalleryStore.EXTRA_OUTPUT) == null) {
+            if (mData.getParcelable(MediaStore.EXTRA_OUTPUT) == null) {
                 intent.putExtra(CropExtras.KEY_RETURN_DATA, true);
             }
             /// M: [DEBUG.ADD] @{
@@ -662,6 +667,7 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
     protected void onResume() {
         super.onResume();
         mIsActive = true;
+        mOrientationManager.lockOrientation(true);
         mActivity.getNavigationWidgetManager().changeStateTo(this);
         mResumeEffect = mActivity.getTransitionStore().get(KEY_RESUME_ANIMATION);
         if (mResumeEffect != null) {
@@ -890,6 +896,10 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
 
         }
         actionBar.setSubtitle(null);
+        //*/ Added by droi Linguanrong for lock orientation, 16-3-1
+        mOrientationManager = mActivity.getOrientationManager();
+        mActivity.getGLRoot().setOrientationSource(mOrientationManager);
+        //*/
         return true;
     }
 
