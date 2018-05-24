@@ -253,7 +253,7 @@ public class Path {
     //********************************************************************
 
     public static void clearAllObject() {
-        Log.i(TAG, "<clearAllObject>");
+        Log.d(TAG, "<clearAllObject>");
         clearAllObject(sRoot);
     }
 

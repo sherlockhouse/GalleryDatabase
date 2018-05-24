@@ -180,4 +180,13 @@ public abstract class MediaObject {
 
     public static final int MEDIA_TYPE_IMAGE_REFOCUS = 32;
     public static final int MEDIA_TYPE_IMAGE_PHOTO_VOICE = 128;
+    
+    // ********************************************************************
+    // *                             MTK                                  *
+    // ********************************************************************
+    //add for ClusterAlbum reload.
+    public long synchronizedAlbumData() {
+        return mDataVersion;
+    }
+
 }

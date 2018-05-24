@@ -32,10 +32,12 @@ import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
 
 import com.mediatek.gallery3d.adapter.FeatureHelper;
+import com.mediatek.gallery3d.adapter.FeatureManager;
 import com.mediatek.gallery3d.layout.FancyHelper;
 import com.mediatek.gallery3d.util.Log;
 import com.mediatek.gallery3d.util.TraceHelper;
 
+import com.mediatek.gallerybasic.base.IDecodeOptionsProcessor;
 import com.mediatek.galleryfeature.config.FeatureConfig;
 import com.mediatek.galleryframework.base.ExtItem;
 import com.mediatek.galleryframework.base.MediaData;
@@ -63,18 +65,6 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         mTimeModified = timeModified;
     }
 
-    /// M: [FEATURE.ADD] add for PQ: Sharpness only support JPEG image @{
-    public ImageCacheRequest(GalleryApp application,
-            Path path, long timeModified, int type, String mimeType, int targetSize) {
-        mApplication = application;
-        mPath = path;
-        mType = type;
-        mTargetSize = targetSize;
-        mTimeModified = timeModified;
-        mMimeType = mimeType;
-    }
-    /// @}
-
     private String debugTag() {
         return mPath + "," + mTimeModified + "," +
                 ((mType == MediaItem.TYPE_THUMBNAIL) ? "THUMB" :
@@ -91,11 +81,12 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         boolean needToReadCache = true;
         boolean needToWriteCache = true;
         ExtItem extItem = null;
+        String mimeType = null;
         if (mPath.getObject() instanceof MediaItem) {
             MediaItem item = ((MediaItem) mPath.getObject());
             if (item != null) {
                 extItem = item.getExtItem();
-                //*/ todo need to pay attention to the cause of bmp decode issue
+                mimeType = item.getMimeType();
                 if (item.getMimeType().equals("image/x-ms-bmp") && mType != MediaItem.TYPE_MICROTHUMBNAIL) {
                    return onDecodeOriginal(jc, TYPE_HIGHQUALITYTHUMBNAIL);
                 }
@@ -133,8 +124,8 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
                     TraceHelper.traceBegin(">>>>ImageCacheRequest-decodeFromCache");
                     /// @}
                     BitmapFactory.Options options = new BitmapFactory.Options();
-                    /// M: [FEATURE.ADD] Image PQ  @{
-                    initOption(jc, options, extItem);
+                    /// M: [FEATURE.ADD] @{
+                    processOptions(mimeType, options);
                     /// @}
                     Bitmap bitmap;
                     if (mType == MediaItem.TYPE_MICROTHUMBNAIL) {
@@ -188,7 +179,7 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         /// M: [DEBUG.ADD] @{
         /// dump Skia decoded origin Bitmap for debug @{
         if (DebugUtils.DUMP) {
-                dumpBitmap(bitmap, mOriginBitmap);
+            dumpBitmap(bitmap, mOriginBitmap);
         }
         /// @}
 
@@ -242,7 +233,7 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
             // Cache has not PQ effect, so have to decode PQ effected bitmap
             // for first launch
             BitmapFactory.Options options = new BitmapFactory.Options();
-            if (initOption(jc, options, extItem)) {
+            if (processOptions(mimeType, options)) {
                 bitmap.recycle();
                 TraceHelper.traceBegin(">>>>ImageCacheRequest-decodeFromCacheWithPQ");
                 bitmap = BitmapFactory.decodeByteArray(array, 0, array.length, options);
@@ -260,8 +251,6 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
     //********************************************************************
     //*                              MTK                                 *
     //********************************************************************
-    ///add for PQ
-    protected String mMimeType;
     private static final int DEGREE_90 = 90;
     private static final int DEGREE_270 = 270;
     /// M: [DEBUG.ADD] @{
@@ -269,11 +258,6 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
     private static final int DUMP_BITMAP_DEFAULT_SIZE = 200;
     private final String mCacheBitmap = "_CacheBitmap";
     private final String mOriginBitmap = "_OriginBitmap";
-
-    private boolean supportPQEnhance() {
-        return (FeatureConfig.SUPPORT_PICTURE_QUALITY_ENHANCE && MediaItem.MIME_TYPE_JPEG
-                .equals(mMimeType));
-    }
 
     private void dumpBitmap(Bitmap bitmap, String source) {
         long dumpStart = System.currentTimeMillis();
@@ -428,16 +412,25 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
     }
     /// @}
 
-    ///M: add for PQ.
-    protected boolean initOption(JobContext jc, BitmapFactory.Options options, ExtItem extItem) {
-        if (supportPQEnhance()
-                && extItem != null
-//                && extItem.isAllowPQWhenDecodeCache(FeatureHelper.convertToThumbType(mType))
-                ) {
-//            options.inPostProc = true;
-            return true;
-        } else {
-            return false;
+    private static IDecodeOptionsProcessor[] sOptionsProcessors;
+
+    protected  boolean
+            processOptions(String mimeType, BitmapFactory.Options options) {
+        if (sOptionsProcessors == null) {
+            sOptionsProcessors =
+                    (IDecodeOptionsProcessor[]) FeatureManager.getInstance().getImplement(
+                            IDecodeOptionsProcessor.class);
         }
+        boolean changed = false;
+        for (IDecodeOptionsProcessor processor : sOptionsProcessors) {
+            changed = changed || processor.processThumbDecodeOptions(mimeType, options);
+        }
+        return changed;
+    }
+
+    protected void clearCache() {
+        Log.d(TAG, "clear cache, path = " + mPath);
+        mApplication.getImageCacheService().clearImageData(mPath,
+                mTimeModified, MediaItem.TYPE_THUMBNAIL);
     }
 }

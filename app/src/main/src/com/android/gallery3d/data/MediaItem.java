@@ -186,7 +186,7 @@ public abstract class MediaItem extends MediaObject {
         }
         /// @}
 
-        Log.i(TAG, "<setThumbnailSizes> sThumbnailTargetSize = "
+        Log.d(TAG, "<setThumbnailSizes> sThumbnailTargetSize = "
                 + sThumbnailTargetSize + ", sMicrothumbnailTargetSize = "
                 + sMicrothumbnailTargetSize);
         /// @}
@@ -228,7 +228,7 @@ public abstract class MediaItem extends MediaObject {
         }
 
         ThumbType.FANCY.setTargetSize(sFancyThumbnailSize);
-        Log.i(TAG, "<setFancyThumbnailSizes> <Fancy> sFancyThumbnailSize = "
+        Log.d(TAG, "<setFancyThumbnailSizes> <Fancy> sFancyThumbnailSize = "
                 + sFancyThumbnailSize);
     }
     /// @}

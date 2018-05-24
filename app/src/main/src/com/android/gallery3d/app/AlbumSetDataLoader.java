@@ -150,7 +150,11 @@ public class AlbumSetDataLoader {
     public int getActiveStart() {
         return mActiveStart;
     }
-
+    ///[BUG_ADD]M:for sanity test. @{
+    public int getActiveEnd() {
+        return mActiveEnd;
+    }
+    /// }@
     public boolean isActive(int index) {
         return index >= mActiveStart && index < mActiveEnd;
     }
@@ -204,12 +208,20 @@ public class AlbumSetDataLoader {
         }
         mReloadTask.notifyDirty();
     }
+
     public void setActiveWindow(int start, int end) {
         if (start == mActiveStart && end == mActiveEnd) return;
 
+        /// M: [DEBUG.MODIFY] @{
+        /*
         Utils.assertTrue(start <= end
                 && end - start <= mCoverItem.length && end <= mSize);
-
+        */
+        if (!(start <= end && end - start <= mCoverItem.length && end <= mSize)) {
+            Utils.fail("start = %s, end = %s, mCoverItem.length = %s, mSize = %s",
+                    start, end, mCoverItem.length, mSize);
+        }
+        /// @}
         mActiveStart = start;
         mActiveEnd = end;
 
@@ -226,11 +238,15 @@ public class AlbumSetDataLoader {
         }
     }
 
-
     private class MySourceListener implements ContentListener {
         @Override
         public void onContentDirty() {
-            mReloadTask.notifyDirty();
+            /// M: [PERF.MODIFY] add for delete many files performance improve @{
+            /*mReloadTask.notifyDirty();*/
+            if (mIsSourceSensive && mReloadTask != null) {
+                mReloadTask.notifyDirty();
+            }
+            /// @}
         }
     }
 
@@ -403,6 +419,11 @@ public class AlbumSetDataLoader {
         public synchronized void terminate() {
             mActive = false;
             notifyAll();
+            /// M: [DEBUG.ADD] Stop ClusterAlbum and ClusterAlbumset reload.@{
+            if (null != mSource) {
+                mSource.stopReload();
+            }
+            /// @}
         }
     }
     //*/
@@ -428,5 +449,3 @@ public class AlbumSetDataLoader {
     }
     /// @}
 }
-
-

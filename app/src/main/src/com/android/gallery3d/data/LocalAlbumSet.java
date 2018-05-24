@@ -189,12 +189,19 @@ public class LocalAlbumSet extends MediaSet
     public synchronized void onFutureDone(Future<ArrayList<MediaSet>> future) {
         if (mLoadTask != future) return; // ignore, wait for the latest task
         mLoadBuffer = future.get();
-        mIsLoading = false;
+        /// M: [BUG.MARK] @{
+        /* mIsLoading = false; */
+        /// @}
         if (mLoadBuffer == null) mLoadBuffer = new ArrayList<MediaSet>();
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 notifyContentChanged();
+                /// M: [BUG.ADD] @{
+                // To avoid timing issue of isLoading and notifyContentChanged,
+                // set mIsLoading as false here.
+                mIsLoading = false;
+                /// @}
             }
         });
     }

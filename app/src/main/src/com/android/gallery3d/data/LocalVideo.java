@@ -38,24 +38,45 @@ import com.android.gallery3d.util.ThreadPool.JobContext;
 
 // LocalVideo represents a video in the local storage.
 public class LocalVideo extends LocalMediaItem {
-    static final         Path   ITEM_PATH = Path.fromString("/local/video/item");
-    private static final String TAG       = "LocalVideo";
-    // Must preserve order between these indices and the order of the terms in
-    // the following PROJECTION array.
-    private static final int INDEX_ID            = 0;
-    private static final int INDEX_CAPTION       = 1;
-    private static final int INDEX_MIME_TYPE     = 2;
-    private static final int INDEX_LATITUDE      = 3;
-    private static final int INDEX_LONGITUDE     = 4;
-    private static final int INDEX_DATE_TAKEN    = 5;
-    private static final int INDEX_DATE_ADDED    = 6;
-    private static final int INDEX_DATE_MODIFIED = 7;
-    private static final int INDEX_DATA          = 8;
-    private static final int INDEX_DURATION      = 9;
-    private static final int INDEX_BUCKET_ID     = 10;
-    private static final int INDEX_SIZE          = 11;
-    private static final int INDEX_RESOLUTION    = 12;
-    public static final String[] PROJECTION = new String[]{
+    private static final String TAG = "Gallery2/LocalVideo";
+    static final Path ITEM_PATH = Path.fromString("/local/video/item");
+
+    /// M: [FEATURE.MODIFY] @{
+    /*// Must preserve order between these indices and the order of the terms in
+     // the following PROJECTION array.
+     private static final int INDEX_ID = 0;
+     private static final int INDEX_CAPTION = 1;
+     private static final int INDEX_MIME_TYPE = 2;
+     private static final int INDEX_LATITUDE = 3;
+     private static final int INDEX_LONGITUDE = 4;
+     private static final int INDEX_DATE_TAKEN = 5;
+     private static final int INDEX_DATE_ADDED = 6;
+     private static final int INDEX_DATE_MODIFIED = 7;
+     private static final int INDEX_DATA = 8;
+     private static final int INDEX_DURATION = 9;
+     private static final int INDEX_BUCKET_ID = 10;
+     private static final int INDEX_SIZE = 11;
+     private static final int INDEX_RESOLUTION = 12;*/
+
+    /// M: [FEATURE.ADD] fancy layout @{
+//    private boolean mIsFancyLayoutSupported = FancyHelper.isFancyLayoutSupported();
+    /// @}
+    public static final int INDEX_ID = 0;
+    public static final int INDEX_CAPTION = 1;
+    public static final int INDEX_MIME_TYPE = 2;
+    public static final int INDEX_LATITUDE = 3;
+    public static final int INDEX_LONGITUDE = 4;
+    public static final int INDEX_DATE_TAKEN = 5;
+    public static final int INDEX_DATE_ADDED = 6;
+    public static final int INDEX_DATE_MODIFIED = 7;
+    public static final int INDEX_DATA = 8;
+    public static final int INDEX_DURATION = 9;
+    public static final int INDEX_BUCKET_ID = 10;
+    public static final int INDEX_SIZE = 11;
+    public static final int INDEX_RESOLUTION = 12;
+    /// @}
+
+    private static final String[] PROJECTION = new String[] {
             VideoColumns._ID,
             VideoColumns.TITLE,
             VideoColumns.MIME_TYPE,
@@ -242,4 +263,42 @@ public class LocalVideo extends LocalMediaItem {
     public String getFilePath() {
         return filePath;
     }
+
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+
+    /// M: [FEATURE.ADD] fancy layout @{
+    /*private int mOrientation = ExtFieldsUtils.INVALID_VIDEO_ROTATION;
+
+    public int getOrientation() {
+        if (mOrientation == ExtFieldsUtils.INVALID_VIDEO_ROTATION) {
+            mOrientation = ExtFieldsUtils.getVideoRotation(mMediaData);
+        }
+        Log.d(TAG, "<getOrientation> <Fancy> mOrientation " + mOrientation + ", " + getName());
+        return mOrientation;
+    }*/
+    /// @}
+
+    /// M: [FEATURE.ADD] @{
+    private static String[] sExtProjection;
+
+    /**
+     * Get the projection after extended by features.
+     * @return The projection after extended by features
+     */
+    public static String[] getProjection() {
+        /*if (sExtProjection == null) {
+            sExtProjection = ExtFields.getVideoProjection(PROJECTION);
+        }
+        return sExtProjection;*/
+        return  PROJECTION;
+    }
+    /// @}
+
+    /// M: [PERF.ADD] Gallery boost for video decode @{
+    private static final String BOOST_VIDEO_KEY = "debug.gallery.videoboost";
+/*    private static final int BOOST_VIDEO_DECODE_TIME_OUT = SystemPropertyUtils.getInt(
+            BOOST_VIDEO_KEY, FeatureHelper.BOOST_VIDEO_DECODE_TIME_OUT);*/
+    /// @}
 }

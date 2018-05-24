@@ -42,8 +42,12 @@ import java.util.TreeMap;
 // This only handles MediaItems, not SubMediaSets.
 public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucketAlbum {
     @SuppressWarnings("unused")
-    private static final String TAG       = "LocalMergeAlbum";
-    private static  int    PAGE_SIZE = 0;
+    private static final String TAG = "Gallery2/LocalMergeAlbum";
+    /// M: [PERF.MODIFY] @{
+    // adjust PAGE_SIZE by media item count in this album
+    /* private static final int PAGE_SIZE = 64; */
+    private int PAGE_SIZE = 0;
+    /// @}
 
     private final Comparator<MediaItem> mComparator;
     private final MediaSet[] mSources;
@@ -76,7 +80,12 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
         return true;
     }
 
-    private void updateData() {
+    /// M: [BUG.MODIFY] @{
+    // add synchronized to avoid JE occur
+    // when access updateData and getMediatem in different thread at the same time
+    /* private void updateData() { */
+    private synchronized void updateData() {
+    /// @}
         ArrayList<MediaSet> matches = new ArrayList<MediaSet>();
         int supported = mSources.length == 0 ? 0 : MediaItem.SUPPORT_ALL;
         mFetcher = new FetchCache[mSources.length];
@@ -89,12 +98,23 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
         mIndex.put(0, new int[mSources.length]);
     }
 
-    private void invalidateCache() {
+    /// M: [BUG.MODIFY] @{
+    // add synchronized to avoid JE occur
+    // when access updateData and getMediatem in different thread at the same time
+    /* private void invalidateCache() { */
+    private synchronized void invalidateCache() {
+    /// @}
         for (int i = 0, n = mSources.length; i < n; i++) {
             mFetcher[i].invalidate();
         }
         mIndex.clear();
         mIndex.put(0, new int[mSources.length]);
+        /// M: [PERF.ADD] @{
+        // Optimize the performance to get cover for the 2nd/3rd/.. time
+        synchronized (mCoverCacheLock) {
+            mCoverCache = null;
+        }
+        /// @}
     }
 
     @Override
@@ -128,8 +148,12 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
     }
 
     @Override
-    public ArrayList<MediaItem> getMediaItem(int start, int count) {
-
+    /// M: [BUG.MODIFY] @{
+    // add synchronized to avoid JE occur
+    // when access updateData and getMediatem in different thread at the same time
+    /* public ArrayList<MediaItem> getMediaItem(int start, int count) { */
+    public synchronized ArrayList<MediaItem> getMediaItem(int start, int count) {
+    /// @}
         /// M: [PERF.ADD] @{
         // adjust PAGE_SIZE by media item count in this album
         if (PAGE_SIZE == 0) {
@@ -299,4 +323,24 @@ public class LocalMergeAlbum extends MediaSet implements ContentListener, IBucke
         }
         return pageSize;
     }
+
+    /// M: [PERF.ADD] @{
+    // Optimize the performance to get cover for the 2nd/3rd/.. time
+    private MediaItem mCoverCache;
+    private Object mCoverCacheLock = new Object();
+
+    @Override
+    public MediaItem getCoverMediaItem() {
+        synchronized (mCoverCacheLock) {
+            if (mCoverCache != null) {
+                return mCoverCache;
+            }
+        }
+        MediaItem cover = super.getCoverMediaItem();
+        synchronized (mCoverCacheLock) {
+            mCoverCache = cover;
+            return mCoverCache;
+        }
+    }
+    /// @}
 }

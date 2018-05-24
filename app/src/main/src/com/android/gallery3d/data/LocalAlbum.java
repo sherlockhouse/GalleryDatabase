@@ -24,10 +24,14 @@ package com.android.gallery3d.data;
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-
+import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
+import android.provider.MediaStore.Video;
+import android.provider.MediaStore.Video.VideoColumns;
 import com.freeme.extern.IBucketAlbum;
 import com.freeme.gallery.R;
 import com.android.gallery3d.app.GalleryApp;
@@ -81,22 +85,24 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         //*/
 
         if (isImage) {
-            mWhereClause = Images.ImageColumns.BUCKET_ID + " = ?";
-            mWhereClause += " AND " + Images.ImageColumns.MIME_TYPE + " = " + Files.FileColumns.MEDIA_TYPE_IMAGE;
-
-            mOrderClause = Images.ImageColumns.DATE_TAKEN + " DESC, "
-                    + Images.ImageColumns._ID + " DESC";
+            mWhereClause = ImageColumns.BUCKET_ID + " = ?";
+            mOrderClause = ImageColumns.DATE_TAKEN + " DESC, "
+                    + ImageColumns._ID + " DESC";
             mBaseUri = Images.Media.EXTERNAL_CONTENT_URI;
-            mProjection = LocalImage.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*mProjection = LocalImage.PROJECTION;*/
+            mProjection = LocalImage.getProjection();
+            /// @}
             mItemPath = LocalImage.ITEM_PATH;
         } else {
-            mWhereClause = Video.VideoColumns.BUCKET_ID + " = ?";
-            mWhereClause += " AND " + Video.VideoColumns.MIME_TYPE + " = " + Files.FileColumns.MEDIA_TYPE_VIDEO;
-
-            mOrderClause = Video.VideoColumns.DATE_TAKEN + " DESC, "
-                    + Video.VideoColumns._ID + " DESC";
+            mWhereClause = VideoColumns.BUCKET_ID + " = ?";
+            mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
+                    + VideoColumns._ID + " DESC";
             mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            mProjection = LocalVideo.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*mProjection = LocalVideo.PROJECTION;*/
+            mProjection = LocalVideo.getProjection();
+            /// @}
             mItemPath = LocalVideo.ITEM_PATH;
         }
 
@@ -107,20 +113,22 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
             boolean isImage) {
         this(path, application, bucketId, isImage,
                 BucketHelper.getBucketName(
-                        application.getContentResolver(), bucketId));
+                application.getContentResolver(), bucketId));
     }
+
     @Override
     public boolean isCameraRoll() {
         return mBucketId == MediaSetUtils.CAMERA_BUCKET_ID;
     }
+
     @Override
     public Uri getContentUri() {
         if (mIsImage) {
-            return Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return MediaStore.Images.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(LocalSource.KEY_BUCKET_ID,
                             String.valueOf(mBucketId)).build();
         } else {
-            return Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
+            return MediaStore.Video.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendQueryParameter(LocalSource.KEY_BUCKET_ID,
                             String.valueOf(mBucketId)).build();
         }
@@ -131,7 +139,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         DataManager dataManager = mApplication.getDataManager();
         Uri uri = mBaseUri.buildUpon()
                 .appendQueryParameter("limit", start + "," + count).build();
-        ArrayList<MediaItem> list = new ArrayList<>();
+        ArrayList<MediaItem> list = new ArrayList<MediaItem>();
         GalleryUtils.assertNotInRenderThread();
         Cursor cursor = mResolver.query(
                 uri, mProjection, mWhereClause,
@@ -188,11 +196,17 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         Path itemPath;
         if (isImage) {
             baseUri = Images.Media.EXTERNAL_CONTENT_URI;
-            projection = LocalImage.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*projection = LocalImage.PROJECTION;*/
+            projection = LocalImage.getProjection();
+            /// @}
             itemPath = LocalImage.ITEM_PATH;
         } else {
             baseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            projection = LocalVideo.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*projection = LocalVideo.PROJECTION;*/
+            projection = LocalVideo.getProjection();
+            /// @}
             itemPath = LocalVideo.ITEM_PATH;
         }
 
@@ -253,9 +267,28 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     @Override
     public int getMediaItemCount() {
         if (mCachedCount == INVALID_COUNT) {
+            /// M: [BUG.MODIFY] @{
+            // When SdCard eject, query may throw IllegalStateException, catch it here
+            /*
             Cursor cursor = mResolver.query(
                     mBaseUri, COUNT_PROJECTION, mWhereClause,
                     new String[]{String.valueOf(mBucketId)}, null);
+            */
+            Cursor cursor = null;
+            try {
+                cursor = mResolver.query(
+                        mBaseUri, COUNT_PROJECTION,
+                        mWhereClause,
+                        new String[]{String.valueOf(mBucketId)},
+                        null);
+            } catch (IllegalStateException e) {
+                Log.w(TAG, "<getMediaItemCount> query IllegalStateException:" + e.getMessage());
+                return 0;
+            } catch (SQLiteException e) {
+                Log.w(TAG, "<getMediaItemCount> query SQLiteException:" + e.getMessage());
+                return 0;
+            }
+            /// @}
             if (cursor == null) {
                 Log.w(TAG, "query fail");
                 return 0;
@@ -292,11 +325,20 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     @Override
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
-        Uri uri = mIsImage ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                : MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        mResolver.delete(uri, mWhereClause,
+        /// M: [FEATURE.MODIFY] @{
+        /*
+        mResolver.delete(mBaseUri, mWhereClause,
                 new String[]{String.valueOf(mBucketId)});
+        */
+        // For some feature, the where clause for delete is different from that
+        // for query, so we use special where clause when delete, it will be
+        // initialized in exInitializeWhereClause()
+        mResolver.delete(mBaseUri, mWhereClauseForDelete,
+                new String[]{String.valueOf(mBucketId)});
+        /// @}
+        /// M: [BUG.ADD] @{
         mApplication.getDataManager().broadcastUpdatePicture();
+        /// @}
     }
 
     @Override
@@ -398,13 +440,13 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
                 relativePath = null;
                 String storage = extStorage.getAbsolutePath();
                 String path = cover.getFilePath();
-                Log.i(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
+                Log.d(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
                 if (path != null && storage != null && !storage.equals("")
                         && path.startsWith(storage)) {
                     relativePath = path.substring(storage.length());
                     relativePath = relativePath.substring(0, relativePath
                             .lastIndexOf("/"));
-                    Log.i(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
+                    Log.d(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
                                     + mBucketId + " is " + relativePath);
                 }
                 /// @}
@@ -416,12 +458,12 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
                     relativePath = null;
                 } else {
                     relativePath = path.substring(extStorage.getAbsolutePath().length());
-                    Log.i(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
+                    Log.d(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
                             + mBucketId + " is " + relativePath);
                 }
             }
         }
-        Log.i(TAG, "<getRelativePath> return " + relativePath);
+        Log.d(TAG, "<getRelativePath> return " + relativePath);
         return relativePath;
     }
     /// @}

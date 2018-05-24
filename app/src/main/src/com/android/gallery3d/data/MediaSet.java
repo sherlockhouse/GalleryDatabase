@@ -295,7 +295,7 @@ public abstract class MediaSet extends MediaObject {
         for (int i = 0; i < m; i++) {
             set = getSubMediaSet(i);
             if (set == null) {
-                Log.i(TAG, "<enumerateTotalMediaItems> SubMediaSet " + i + " is null");
+                Log.d(TAG, "<enumerateTotalMediaItems> SubMediaSet " + i + " is null");
                 return start;
             }
             start += set.enumerateTotalMediaItems(

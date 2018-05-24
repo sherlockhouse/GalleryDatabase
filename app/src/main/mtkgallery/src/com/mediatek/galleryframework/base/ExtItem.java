@@ -24,13 +24,14 @@ public class ExtItem {
     public enum SupportOperation {
         DELETE, ROTATE, SHARE, CROP, SHOW_ON_MAP, SETAS,
         FULL_IMAGE, PLAY, CACHE, EDIT, INFO, TRIM, UNLOCK,
-        BACK, ACTION, CAMERA_SHORTCUT, MUTE, PRINT, EXPORT,
-        PROTECTION_INFO
+        BACK, ACTION, CAMERA_SHORTCUT, MUTE, PRINT
     }
 
     public class Thumbnail {
         public Bitmap mBitmap;
         public boolean mStillNeedDecode;
+        // It means whether need to clear cache after ImageCacheRequest#onDecodeOringial()
+        public boolean mNeedClearCache;
 
         // if new Thumbnail(null, true), it will still decode thumbnail with google flow
         // if new Thumbnail(null, false), it will not decode thumbnail, display as no thumbnail
@@ -38,10 +39,21 @@ public class ExtItem {
             mBitmap = b;
             mStillNeedDecode = stillNeedDecode;
         }
+
+        /**
+         * Thumbnail constructor
+         * @param b thumbnail bitmap
+         * @param stillNeedDecode whether need decode thumbnail if {@paramref b} is null
+         * @param needClearCache whether need to clear cache
+         */
+        public Thumbnail(Bitmap b, boolean stillNeedDecode, boolean needClearCache) {
+            mBitmap = b;
+            mStillNeedDecode = stillNeedDecode;
+            mNeedClearCache = needClearCache;
+        }
     }
 
     protected MediaData mMediaData;
-    protected boolean mIsEnable = true;
 
     public ExtItem(Context context, MediaData md) {
         mContext = context;
@@ -60,7 +72,7 @@ public class ExtItem {
         return null;
     }
 
-    public Bitmap getOriginRatioBitmap(BitmapFactory.Options options) {
+    public Bitmap decodeBitmap(BitmapFactory.Options options) {
         if (mMediaData.isVideo) {
             return DecodeUtils.decodeVideoThumbnail(mMediaData.filePath, options);
         } else {
@@ -85,14 +97,6 @@ public class ExtItem {
         return true;
     }
 
-    public void setEnable(boolean isEnable) {
-        mIsEnable = isEnable;
-    }
-
-    public boolean isEnable() {
-        return mIsEnable;
-    }
-
     public void delete() {
     }
 
@@ -104,21 +108,9 @@ public class ExtItem {
         return true;
     }
 
-    public boolean isAllowPQWhenDecodeCache(ThumbType thumbType) {
-        return true;
-    }
-
-    public Uri[] getContentUris() {
-        return null;
-    }
-
     // The index and string must match with MediaDetails.INDEX_XXX - 1
     public String[] getDetails() {
         return null;
-    }
-
-    public boolean isDeleteOriginFileAfterEdit() {
-        return true;
     }
 
     public int getWidth() {
@@ -139,19 +131,42 @@ public class ExtItem {
         if (mMediaData.isVideo) {
             return;
         }
+        if (mMediaData.uri == null) {
+            return;
+        }
         if (DecodeSpecLimitor.isOutOfSpecLimit(mMediaData.fileSize, mMediaData.width,
                 mMediaData.height, mMediaData.mimeType)) {
             return;
         }
         BitmapFactory.Options boundsOption = new BitmapFactory.Options();
         boundsOption.inJustDecodeBounds = true;
-        if (mMediaData.filePath != null) {
-            DecodeUtils.decodeBitmap(mMediaData.filePath, boundsOption);
-        } else if (mMediaData.uri != null) {
-            DecodeUtils.decodeBitmap(mContext, mMediaData.uri, boundsOption);
+        ParcelFileDescriptor pfd = null;
+        try {
+            pfd = mContext.getContentResolver().openFileDescriptor(mMediaData.uri, "r");
+            FileDescriptor fd = pfd.getFileDescriptor();
+
+            if (fd != null) {
+                BitmapFactory.decodeFileDescriptor(fd, null, boundsOption);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            Utils.closeSilently(pfd);
         }
         mWidth = boundsOption.outWidth;
         mHeight = boundsOption.outHeight;
         Log.d(TAG, "<decodeBounds> mWidth = " + mWidth + " mHeight = " + mHeight);
+    }
+
+    public void registerListener(DataChangeListener listener) {
+        //if sub-class need it, implement itself.
+    }
+
+    public void unRegisterListener(DataChangeListener listener) {
+        //if sub-class need it, implement itself.
+    }
+
+    public interface DataChangeListener {
+        public void onExtItemDataChange(ArrayList<String> updateContentList);
     }
 }

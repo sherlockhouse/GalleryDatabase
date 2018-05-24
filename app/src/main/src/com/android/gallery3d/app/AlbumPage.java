@@ -811,6 +811,10 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
                 return onItemSelected(item, menuItemid);
             }
         });
+        //*/ Added by droi Linguanrong for lock orientation, 16-3-1
+        mOrientationManager = mActivity.getOrientationManager();
+        mActivity.getGLRoot().setOrientationSource(mOrientationManager);
+        //*/
     }
 
     private void initializeData(Bundle data) {

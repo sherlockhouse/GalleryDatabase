@@ -64,6 +64,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static java.util.ResourceBundle.clearCache;
+
 // LocalImage represents an image in the local storage.
 public class LocalImage extends LocalMediaItem {
     static final Path ITEM_PATH = Path.fromString("/local/image/item");
@@ -159,7 +161,10 @@ public class LocalImage extends LocalMediaItem {
         mApplication = application;
         ContentResolver resolver = mApplication.getContentResolver();
         Uri uri = Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = LocalAlbum.getItemCursor(resolver, uri, PROJECTION, id);
+        /// M: [FEATURE.MODIFY] @{
+        //Cursor cursor = LocalAlbum.getItemCursor(resolver, uri, PROJECTION, id);
+        Cursor cursor = LocalAlbum.getItemCursor(resolver, uri, getProjection(), id);
+        /// @}
         if (cursor == null) {
             throw new RuntimeException("cannot get cursor for: " + path);
         }
@@ -265,6 +270,9 @@ public class LocalImage extends LocalMediaItem {
             if (mData != null) {
                 Thumbnail thumb = mData.getThumbnail(FeatureHelper
                         .convertToThumbType(type));
+                if (thumb != null && thumb.mNeedClearCache) {
+                    clearCache();
+                }
                 if (thumb != null && thumb.mBitmap != null) {
                     return thumb.mBitmap;
                 }
@@ -407,7 +415,10 @@ public class LocalImage extends LocalMediaItem {
     @Override
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
-        Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        /// M: [FEATURE.ADD] @{
+        mExtItem.delete();
+        /// @}
+        Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = mApplication.getContentResolver();
         SaveImage.deleteAuxFiles(contentResolver, getContentUri());
         contentResolver.delete(baseUri, "_id=?",
@@ -420,7 +431,7 @@ public class LocalImage extends LocalMediaItem {
     @Override
     public void rotate(int degrees) {
         GalleryUtils.assertNotInRenderThread();
-        Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         ContentValues values = new ContentValues();
         int rotation = (this.rotation + degrees) % 360;
         if (rotation < 0) rotation += 360;
@@ -452,7 +463,7 @@ public class LocalImage extends LocalMediaItem {
 
     @Override
     public Uri getContentUri() {
-        Uri baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         return baseUri.buildUpon().appendPath(String.valueOf(id)).build();
     }
 
@@ -532,6 +543,23 @@ public class LocalImage extends LocalMediaItem {
 //        }
         return false;
     }
+
+
+    /// M: [FEATURE.ADD] @{
+    private static String[] sExtProjection;
+
+    /**
+     * Get the projection after extended by features.
+     * @return The projection after extended by features
+     */
+    public static String[] getProjection() {
+        /*if (sExtProjection == null) {
+            sExtProjection = ExtFields.getImageProjection(PROJECTION);
+        }
+        return sExtProjection;*/
+        return  PROJECTION;
+    }
+
 
     //********************************************************************
     //*                              sprd                                 *
