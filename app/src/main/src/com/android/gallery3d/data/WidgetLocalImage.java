@@ -160,7 +160,10 @@ public class WidgetLocalImage extends LocalMediaItem {
         mApplication = application;
         ContentResolver resolver = mApplication.getContentResolver();
         Uri uri = Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = WidgetLocalAlbum.getItemCursor(resolver, uri, PROJECTION, id);
+        /// M: [FEATURE.MODIFY] @{
+        //Cursor cursor = LocalAlbum.getItemCursor(resolver, uri, PROJECTION, id);
+        Cursor cursor = LocalAlbum.getItemCursor(resolver, uri, getProjection(), id);
+        /// @}
         if (cursor == null) {
             throw new RuntimeException("cannot get cursor for: " + path);
         }
@@ -226,8 +229,8 @@ public class WidgetLocalImage extends LocalMediaItem {
         /// M: [FEATURE.MODIFY] @{
         /*return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
          type, filePath);*/
-        return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
-                type, filePath, mimeType, mExtItem, mMediaData);
+        return new LocalImageRequest(mApplication, mPath, dateModifiedInSec, type, filePath,
+                mExtItem, mMediaData);
         /// @}
     }
 
@@ -235,7 +238,7 @@ public class WidgetLocalImage extends LocalMediaItem {
         private String mLocalFilePath;
 
         LocalImageRequest(GalleryApp application, Path path, long timeModified,
-                          int type, String localFilePath) {
+                int type, String localFilePath) {
             super(application, path, timeModified, type,
                     MediaItem.getTargetSize(type));
             mLocalFilePath = localFilePath;
@@ -248,10 +251,9 @@ public class WidgetLocalImage extends LocalMediaItem {
         private boolean mIsScreenShotCover;
 
         LocalImageRequest(GalleryApp application, Path path, long timeModified,
-                          int type, String localFilePath, String mimeType, ExtItem data,
-                          MediaData mediaData) {
-            super(application, path, timeModified, type, mimeType, MediaItem
-                    .getTargetSize(type));
+                int type, String localFilePath, ExtItem data,
+                MediaData mediaData) {
+            super(application, path, timeModified, type, MediaItem.getTargetSize(type));
             mLocalFilePath = localFilePath;
             mData = data;
             mMediaData = mediaData;
@@ -320,16 +322,16 @@ public class WidgetLocalImage extends LocalMediaItem {
             int thumbWidth = (int) (width * scale);
             if (Math.max(0, Utils.ceilLog2((float) width / thumbWidth)) == 0
                     || (FeatureConfig.sIsLowRamDevice
-                    && width * height > REGION_DECODER_PICTURE_SIZE_LIMIT)) {
+                            && width * height > REGION_DECODER_PICTURE_SIZE_LIMIT)) {
                 // 1. if current item is not bigger than thumbnail size,
                 // don't support full image display
                 // 2. use high-quality screennail instead of region decoder
                 // for extremely large image
-                Log.i(TAG, "<getSupportedOperations> item thumbWidth " + thumbWidth +
+                Log.d(TAG, "<getSupportedOperations> item thumbWidth " + thumbWidth +
                         " scale " + scale);
-                Log.i(TAG, "<getSupportedOperations> item not support full image, width " + width +
+                Log.d(TAG, "<getSupportedOperations> item not support full image, width " + width +
                         " sthumbnailsize " + sThumbnailTargetSize);
-                Log.i(TAG, "<getSupportedOperations> sIsLowRamDevice "
+                Log.d(TAG, "<getSupportedOperations> sIsLowRamDevice "
                         + FeatureConfig.sIsLowRamDevice + ", width * height is "
                         + width * height);
                 operation &= ~SUPPORT_FULL_IMAGE;
@@ -344,11 +346,6 @@ public class WidgetLocalImage extends LocalMediaItem {
         if (GalleryUtils.isValidLocation(latitude, longitude)) {
             operation |= SUPPORT_SHOW_ON_MAP;
         }
-        /// M: [FEATURE.ADD] @{
-//        operation = FeatureHelper.mergeSupportOperations(operation,
-//                mExtItem.getSupportedOperations(),
-//                mExtItem.getNotSupportedOperations());
-        /// @}
         return operation;
     }
 
@@ -390,7 +387,7 @@ public class WidgetLocalImage extends LocalMediaItem {
             ExifInterface exifInterface = new ExifInterface();
             ExifTag tag = exifInterface.buildTag(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.getOrientationValueForRotation(rotation));
-            if (tag != null) {
+            if(tag != null) {
                 exifInterface.setTag(tag);
                 try {
                     exifInterface.forceRewriteExif(filePath);
@@ -409,7 +406,7 @@ public class WidgetLocalImage extends LocalMediaItem {
 
                         exifInterface.writeExif(filePath, newFilePath);
                         File tempFile = new File(newFilePath);
-                        Log.i(TAG, "Temporal file's name: " + tempFile.getName());
+                        Log.d(TAG, "Temporal file's name: " + tempFile.getName());
                         File file = new File(filePath);
                         tempFile.renameTo(file);
 
@@ -429,13 +426,6 @@ public class WidgetLocalImage extends LocalMediaItem {
         }
 
         values.put(Images.Media.ORIENTATION, rotation);
-        /// M: [FEATURE.ADD] fancy layout @{
-//        if (FancyHelper.isFancyLayoutSupported()) {
-//            mApplication.getImageCacheService().clearImageData(mPath,
-//                    dateModifiedInSec, MediaItem.TYPE_FANCYTHUMBNAIL);
-//            Log.i(TAG, "<rotate> <Fancy> clear FANCYTHUMBNAIL" + mPath);
-//        }
-        /// @}
         mApplication.getContentResolver().update(baseUri, values, "_id=?",
                 new String[]{String.valueOf(id)});
     }
@@ -467,15 +457,9 @@ public class WidgetLocalImage extends LocalMediaItem {
             // ExifInterface returns incorrect values for photos in other format.
             // For example, the width and height of an webp images is always '0'.
             MediaDetails.extractExifInfo(details, filePath);
-            /// M: [BUG.ADD] read DNG EXIF details. @{
         }
-//        else if (MIME_TYPE_DNG.equalsIgnoreCase(mimeType)) {
-//            MediaDetails.extractDNGExifInfo(details, filePath);
-//        }
-        /// @}
         return details;
     }
-
     @Override
     public int getRotation() {
         return rotation;
@@ -502,7 +486,6 @@ public class WidgetLocalImage extends LocalMediaItem {
 
     /**
      * Create new MediaData from Cursor and replace old one.
-     *
      * @param cursor
      * @return if current MediaData.mediaType has changed or not
      */
@@ -524,5 +507,19 @@ public class WidgetLocalImage extends LocalMediaItem {
             return true;
         }
         return false;
+    }
+    /// M: [FEATURE.ADD] @{
+    private static String[] sExtProjection;
+
+    /**
+     * Get the projection after extended by features.
+     * @return The projection after extended by features
+     */
+    public static String[] getProjection() {
+        /*if (sExtProjection == null) {
+            sExtProjection = ExtFields.getImageProjection(PROJECTION);
+        }
+        return sExtProjection;*/
+        return  PROJECTION;
     }
 }

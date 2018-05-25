@@ -92,14 +92,17 @@ public class WidgetLocalAlbum extends MediaSet {
             mOrderClause = ImageColumns.DATE_TAKEN + " DESC, "
                     + ImageColumns._ID + " DESC";
             mBaseUri = Images.Media.EXTERNAL_CONTENT_URI;
-            mProjection = WidgetLocalImage.PROJECTION;
+            mProjection = WidgetLocalImage.getProjection();
             mItemPath = WidgetLocalImage.ITEM_PATH;
         } else {
             mWhereClause = VideoColumns.BUCKET_ID + " = ?";
             mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
                     + VideoColumns._ID + " DESC";
             mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            mProjection = LocalVideo.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*mProjection = LocalVideo.PROJECTION;*/
+            mProjection = LocalVideo.getProjection();
+            /// @}
             mItemPath = LocalVideo.ITEM_PATH;
         }
         /// M: [FEATURE.ADD] @{
@@ -231,11 +234,15 @@ public class WidgetLocalAlbum extends MediaSet {
         Path itemPath;
         if (isImage) {
             baseUri = Images.Media.EXTERNAL_CONTENT_URI;
-            projection = WidgetLocalImage.PROJECTION;
-            itemPath = WidgetLocalImage.ITEM_PATH;
+            projection = WidgetLocalImage.getProjection();
+            /// @}
+            itemPath = LocalImage.ITEM_PATH;
         } else {
             baseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            projection = LocalVideo.PROJECTION;
+            /// M: [FEATURE.MODIFY] @{
+            /*projection = LocalVideo.PROJECTION;*/
+            projection = LocalVideo.getProjection();
+            /// @}
             itemPath = LocalVideo.ITEM_PATH;
         }
 
@@ -481,13 +488,13 @@ public class WidgetLocalAlbum extends MediaSet {
                 relativePath = null;
                 String storage = extStorage.getAbsolutePath();
                 String path = cover.getFilePath();
-                Log.i(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
+                Log.d(TAG, "<getRelativePath> Absolute path of this alum cover is " + path);
                 if (path != null && storage != null && !storage.equals("")
                         && path.startsWith(storage)) {
                     relativePath = path.substring(storage.length());
                     relativePath = relativePath.substring(0, relativePath
                             .lastIndexOf("/"));
-                    Log.i(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
+                    Log.d(TAG, "<getRelativePath> 1.RelativePath for bucket id: "
                                     + mBucketId + " is " + relativePath);
                 }
                 /// @}
@@ -499,12 +506,12 @@ public class WidgetLocalAlbum extends MediaSet {
                     relativePath = null;
                 } else {
                     relativePath = path.substring(extStorage.getAbsolutePath().length());
-                    Log.i(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
+                    Log.d(TAG, "<getRelativePath> 3.RelativePath for bucket id: "
                             + mBucketId + " is " + relativePath);
                 }
             }
         }
-        Log.i(TAG, "<getRelativePath> return " + relativePath);
+        Log.d(TAG, "<getRelativePath> return " + relativePath);
         return relativePath;
     }
     /// @}

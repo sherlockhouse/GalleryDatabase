@@ -124,7 +124,7 @@ public class DataManager implements StitchingChangeListener {
     public DataManager(GalleryApp application) {
         mApplication = application;
         mDefaultMainHandler = new Handler(application.getMainLooper());
-        Log.i(TAG, "<DataManager> this = " + this);
+        Log.d(TAG, "<DataManager> this = " + this);
     }
 
     public synchronized void initializeSourceMap() {

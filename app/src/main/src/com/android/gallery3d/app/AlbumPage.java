@@ -421,11 +421,11 @@ public class AlbumPage extends ActivityState implements GalleryActionBar.Cluster
         ArrayList<MediaItem> list = mediaset.getMediaItem(0, total);
         for (MediaItem item : list) {
             Path id = item.getPath();
-            if (StoryAlbum.isPathAdded(mActivity.getAndroidContext().getContentResolver(), id,
+            /*if (StoryAlbum.isPathAdded(mActivity.getAndroidContext().getContentResolver(), id,
                     mStoryBucketId, true)) {
                 mSelectionManager.toggle(id);
                 mSubPaths.add(id);
-            }
+            }*/
         }
         mSelectionManager.setSelectedPaths(mSubPaths);
     }

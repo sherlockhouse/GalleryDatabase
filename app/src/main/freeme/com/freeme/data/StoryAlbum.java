@@ -109,7 +109,7 @@ public class StoryAlbum extends MediaSet {
             mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
                     + VideoColumns._ID + " DESC";
             mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            mProjection = LocalVideo.PROJECTION;
+            mProjection = LocalVideo.getProjection();
             mItemPath = VIDEO_ITEM_PATH;
         }
         mNotifier = new ChangeNotifier(this, mBaseUri, application);
@@ -227,7 +227,7 @@ public class StoryAlbum extends MediaSet {
             itemPath = IMAGE_ITEM_PATH;
         } else {
             baseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            projection = LocalVideo.PROJECTION;
+            projection = LocalVideo.getProjection();
             itemPath = VIDEO_ITEM_PATH;
         }
 

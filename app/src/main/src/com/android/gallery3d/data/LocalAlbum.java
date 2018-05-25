@@ -325,6 +325,9 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
     @Override
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
+        Uri uri = mIsImage ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                               : MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+               mResolver.delete(uri, mWhereClause,
         /// M: [FEATURE.MODIFY] @{
         /*
         mResolver.delete(mBaseUri, mWhereClause,
@@ -333,7 +336,7 @@ public class LocalAlbum extends MediaSet implements IBucketAlbum {
         // For some feature, the where clause for delete is different from that
         // for query, so we use special where clause when delete, it will be
         // initialized in exInitializeWhereClause()
-        mResolver.delete(mBaseUri, mWhereClauseForDelete,
+//        mResolver.delete(mBaseUri, mWhereClauseForDelete,
                 new String[]{String.valueOf(mBucketId)});
         /// @}
         /// M: [BUG.ADD] @{

@@ -139,9 +139,20 @@ public class FilterDeleteSet extends MediaSet implements ContentListener {
 
         // Remove the deleted items.
         for (int m = j - 1; m >= i; m--) {
+            /// M: [BUG.ADD] @{
+            if (m >= mCurrent.size()) {
+                Log.d(TAG, "<getMediaItem> error! IndexOutOfBoundsException,m:" + m + " size:"
+                        + mCurrent.size());
+                continue;
+            }
+            /// @}
             Deletion d = mCurrent.get(m);
             int k = d.index - (start + i);
-            base.remove(k);
+            /// M: [BUG.ADD] @{
+            if (k < base.size()) {
+                base.remove(k);
+            }
+            /// @}
         }
         return base;
     }
@@ -154,8 +165,14 @@ public class FilterDeleteSet extends MediaSet implements ContentListener {
             if (!newData && mRequests.isEmpty()) {
                 return mDataVersion;
             }
-            for (int i = 0; i < mRequests.size(); i++) {
-                Request r = mRequests.get(i);
+            /// M: [BUG.MODIFY] @{
+            // only update one request per reload time
+            /*for (int i = 0; i < mRequests.size(); i++) {
+                  Request r = mRequests.get(i);*/
+            int size = Math.min(mRequests.size(), 1);
+            for (int i = 0; i < size; i++) {
+                Request r = mRequests.remove(i);
+                /// @}
                 switch (r.type) {
                     case REQUEST_ADD: {
                         // Add the path into mCurrent if there is no duplicate.
@@ -186,7 +203,16 @@ public class FilterDeleteSet extends MediaSet implements ContentListener {
                     }
                 }
             }
-            mRequests.clear();
+            /// M: [BUG.MODIFY] @{
+            // only update one request per reload time
+            // if mRequests is not empty, notify content change to trigger reload
+            /*mRequests.clear();*/
+            if (!mRequests.isEmpty()) {
+                Log.d(TAG, "<reload> mRequests size = " + mRequests.size()
+                        + ", notifyContentChanged");
+                notifyContentChanged();
+            }
+            /// @}
         }
 
         if (!mCurrent.isEmpty()) {
@@ -259,5 +285,20 @@ public class FilterDeleteSet extends MediaSet implements ContentListener {
         return mCurrent.size();
     }
 
+    //********************************************************************
+    //*                              MTK                                 *
+    //********************************************************************
+    public void resetDeletion() {
+        if (mCurrent != null) {
+            mCurrent.clear();
+        }
+    }
 
+    @Override
+    public void stopReload() {
+        Log.d(TAG, "<stopReload> ......");
+        if (null != mBaseSet) {
+            mBaseSet.stopReload();
+        }
+    }
 }

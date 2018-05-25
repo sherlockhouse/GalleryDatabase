@@ -65,6 +65,8 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         mTimeModified = timeModified;
     }
 
+
+
     private String debugTag() {
         return mPath + "," + mTimeModified + "," +
                 ((mType == MediaItem.TYPE_THUMBNAIL) ? "THUMB" :
@@ -179,7 +181,7 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         /// M: [DEBUG.ADD] @{
         /// dump Skia decoded origin Bitmap for debug @{
         if (DebugUtils.DUMP) {
-            dumpBitmap(bitmap, mOriginBitmap);
+                dumpBitmap(bitmap, mOriginBitmap);
         }
         /// @}
 
@@ -272,9 +274,9 @@ abstract class ImageCacheRequest implements Job<Bitmap> {
         MediaItem item = (MediaItem) mPath.getObject();
         if (item != null) {
             String string = item.getName() + source + fileType;
-            Log.i(TAG, "<dumpBitmap> string " + string);
+            Log.d(TAG, "<dumpBitmap> string " + string);
             DebugUtils.dumpBitmap(bitmap, string);
-            Log.i(TAG, "<dumpBitmap> Dump Bitmap time "
+            Log.d(TAG, "<dumpBitmap> Dump Bitmap time "
                     + (System.currentTimeMillis() - dumpStart));
         }
     }

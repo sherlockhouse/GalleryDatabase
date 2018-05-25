@@ -126,7 +126,9 @@ public class LocalImage extends LocalMediaItem {
             ImageColumns.BUCKET_ID,     // 10
             ImageColumns.SIZE,          // 11
             "0",                        // 12
-            "0",                         // 13
+            "0"                         // 13
+
+
     };
 
     static {
@@ -230,8 +232,8 @@ public class LocalImage extends LocalMediaItem {
         /// M: [FEATURE.MODIFY] @{
         /*return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
          type, filePath);*/
-        return new LocalImageRequest(mApplication, mPath, dateModifiedInSec,
-                type, filePath, mimeType, mExtItem, mMediaData);
+        return new LocalImageRequest(mApplication, mPath, dateModifiedInSec, type, filePath,
+                mExtItem, mMediaData);
         /// @}
     }
 
@@ -252,10 +254,9 @@ public class LocalImage extends LocalMediaItem {
         private boolean mIsScreenShotCover;
 
         LocalImageRequest(GalleryApp application, Path path, long timeModified,
-                int type, String localFilePath, String mimeType, ExtItem data,
+                int type, String localFilePath, ExtItem data,
                 MediaData mediaData) {
-            super(application, path, timeModified, type, mimeType, MediaItem
-                    .getTargetSize(type));
+            super(application, path, timeModified, type, MediaItem.getTargetSize(type));
             mLocalFilePath = localFilePath;
             mData = data;
             mMediaData = mediaData;
@@ -281,15 +282,15 @@ public class LocalImage extends LocalMediaItem {
                     return null;
                 }
             } else {
-                Log.i(TAG,
+                Log.d(TAG,
                         "<onDecodeOriginal> error status, ExtItem is null, localFilePath = "
                                 + mLocalFilePath);
             }
             /// @}
             /// M: [BUG.ADD] check decode spec
             if (mMediaData != null && DecodeSpecLimitor.isOutOfSpecLimit(mMediaData.fileSize,
-                    mMediaData.width, mMediaData.height, mMimeType)) {
-                Log.i(TAG, "<LocalImageRequest.onDecodeOriginal> path "
+                    mMediaData.width, mMediaData.height, mMediaData.mimeType)) {
+                Log.d(TAG, "<LocalImageRequest.onDecodeOriginal> path "
                         + mLocalFilePath
                         + ", out of spec limit, abort decoding!");
                 return null;
@@ -341,10 +342,8 @@ public class LocalImage extends LocalMediaItem {
                 }
                 res = FancyHelper.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
             } else {
-                // High quality thumbnail do not read/write cache,
-                // so we add PQ effect when decode original
-                if (type == MediaItem.TYPE_HIGHQUALITYTHUMBNAIL) {
-                    initOption(jc, options, mData);
+                if (type == MediaItem.TYPE_HIGHQUALITYTHUMBNAIL && mMediaData != null) {
+                    processOptions(mMediaData.mimeType, options);
                 }
                 res = DecodeUtils.decodeThumbnail(jc, mLocalFilePath, options, targetSize, type);
             }
@@ -416,7 +415,7 @@ public class LocalImage extends LocalMediaItem {
     public void delete() {
         GalleryUtils.assertNotInRenderThread();
         /// M: [FEATURE.ADD] @{
-        mExtItem.delete();
+//        mExtItem.delete();
         /// @}
         Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         ContentResolver contentResolver = mApplication.getContentResolver();

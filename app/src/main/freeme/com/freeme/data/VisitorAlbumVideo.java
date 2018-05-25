@@ -55,7 +55,7 @@ public class VisitorAlbumVideo extends MediaSet {
         mBucketName = mApplication.getResources().getString(R.string.app_name);
         mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
         mOrderClause = "datetaken DESC, _id DESC";
-        mProjection = LocalVideo.PROJECTION;
+        mProjection = LocalVideo.getProjection();
         mItemPath = ITEM_PATH;
         mNotifier = new ChangeNotifier(this, mBaseUri, galleryApp);
     }
